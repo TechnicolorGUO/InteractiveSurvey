@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="">
+
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- ===========================
+    THEME INFO
+    =========================== -->
+	<meta name="description" content="">
+	<meta name="keywords" content="">
+	<meta name="author" content="">
+
+	<!-- ===========================
+    SITE TITLE
+    =========================== -->
+	<title>Automatic Survey Paper Generation</title>
+
+	<!-- ===========================
+    FAVICONS
+    =========================== -->
+	<!--<link rel="icon" href="img/favicon.png">-->
+	{% load static %}
+	<!--<link rel="apple-touch-icon" sizes="144x144" href="{% static 'img/apple-touch-icon-ipad-retina.png' %}" />-->
+	<!--<link rel="apple-touch-icon" sizes="114x114" href="{% static 'img/apple-touch-icon-iphone-retina.png' %}" />-->
+	<!--<link rel="apple-touch-icon" sizes="72x72" href="{% static 'img/apple-touch-icon-ipad.png' %}" />-->
+	<!--<link rel="apple-touch-icon" sizes="57x57" href="{% static 'img/apple-touch-icon-iphone.png' %}" />-->
+
+	<!-- ===========================
+    STYLESHEETS
+    =========================== -->
+	<script src="https://kit.fontawesome.com/a3d039cc94.js" crossorigin="anonymous"></script>
+
+
+
+
+
+	<link rel="stylesheet" href= '../../../static/css/fontawesome-free-5.13.0-web/css/fontawesome.min.css'>
+	<link rel="stylesheet" href= '../../../static/css/fontawesome-free-5.13.0-web/css/brands.css'>
+	<link rel="stylesheet" href= '../../../static/css/fontawesome-free-5.13.0-web/css/solid.css'>
+	<link rel="stylesheet" href= '../../../static/css/bootstrap.min.css'>
+	<link rel="stylesheet" href= '../../../static/css/style.css'>
+	<link rel="stylesheet" href= '../../../static/css/responsive.css'>
+
+
+	<style>
+
+		.file {
+			position: relative;
+			display: inline-block;
+			border: 1px solid #99D3F5;
+			border-radius: 4px;
+			padding: 6px 12px;
+			overflow: hidden;
+
+			text-decoration: none;
+			text-indent: 0;
+			line-height: 20px;
+		}
+		.file input {
+			position: absolute;
+			font-size: 100px;
+			right: 0;
+			top: 0;
+			opacity: 0;
+		}
+		.file:hover {
+			border-color: #78C3F3;
+			color: #004974;
+		}
+
+		.popover{
+			max-width: 100%; /* Max Width of the popover (depending on the container!) */
+		}
+
+		#sections_{
+			margin-left: 40%;
+		}
+
+		.form-check-label{
+			font-size: 15px;
+			color:#335966;
+		}
+	</style>
+
+	<!-- ===========================
+    FONTS & ICONS
+    =========================== -->
+	<!--<link href='http://fonts.googleapis.com/css?family=Kristi|Alegreya+Sans:300' rel='stylesheet' type='text/css'>-->
+	<!--<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">-->
+
+
+
+	<!--[if IE]>
+	<script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<![endif]-->
+</head>
+
+<body>
+{% block body %}
+<div class="container">
+	<div class="row">
+		<div class="panel panel-primary">
+			<div class="panel-heading" >
+				<h3 class="panel-title">Performance Loss</h3>
+			</div>
+			<div class="panel-body" id="Performance Loss">
+				<div class="input-group" id="ref_1">
+					<span class="input-group-addon">[1]</span>
+					<a href="0" target="_blank" class="list-group-item">Evaluation measures for ordinal regression</a>
+					<span class="input-group-addon">
+							<div class="btn-group">
+							  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								Change to <span class="caret"></span>
+							  </button>
+							  <ul class="dropdown-menu" id="ref_1_change">
+								  <li><a onclick="change_taxonomy('Performance Loss', 'ref_1', 'Feature Selection')">Feature Selection</a></li>
+								  <li><a onclick="change_taxonomy('Performance Loss', 'ref_1', 'Probability Estimates')">Probability Estimates</a></li>
+							  </ul>
+							</div>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-success" >
+			<div class="panel-heading">
+				<h3 class="panel-title">Feature Selection</h3>
+			</div>
+			<div class="panel-body" id="Feature Selection">
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="12" checked=""></span><a href="12" target="_blank" class="list-group-item">Theoretical analysis of a performance measure for imbalanced data</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="13" checked=""></span><a href="13" target="_blank" class="list-group-item">Active learning from positive and unlabeled data</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="14" checked=""></span><a href="14" target="_blank" class="list-group-item">Learning from imbalanced data</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="15" checked=""></span><a href="15" target="_blank" class="list-group-item">An improved SMOTE imbalanced data classification method based on support degree</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="16" checked=""></span><a href="16" target="_blank" class="list-group-item">A hybrid re-sampling method for SVM learning from imbalanced data sets</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="17" checked=""></span><a href="17" target="_blank" class="list-group-item">Fuzzy support vector machines</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="18" checked=""></span><a href="18" target="_blank" class="list-group-item">Exploratory undersampling for class-imbalance learning</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="19" checked=""></span><a href="19" target="_blank" class="list-group-item">Disturbing neighbors ensembles of trees for imbalanced data</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="20" checked=""></span><a href="20" target="_blank" class="list-group-item">RUSBoost: A hybrid approach to alleviating class imbalance</a></div>
+			</div>
+		</div>
+		<div class="panel panel-info" >
+			<div class="panel-heading">
+				<h3 class="panel-title">Probability Estimates</h3>
+			</div>
+			<div class="panel-body" id="Probability Estimates">
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="21" checked=""></span><a href="21" target="_blank" class="list-group-item">An improved AdaBoost algorithm for unbalanced classification data</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="22" checked=""></span><a href="22" target="_blank" class="list-group-item">Boosting for learning multiple classes with imbalanced class distribution</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="23" checked=""></span><a href="23" target="_blank" class="list-group-item">Asymmetric bagging and random subspace for support vector machines-based relevance feedback in image retrieval</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="24" checked=""></span><a href="24" target="_blank" class="list-group-item">Regression error characteristic surfaces</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="25" checked=""></span><a href="25" target="_blank" class="list-group-item">Experimental perspectives on learning from imbalanced data</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="26" checked=""></span><a href="26" target="_blank" class="list-group-item">Class probability estimates are unreliable for imbalanced data (and how to fix them)</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="27" checked=""></span><a href="27" target="_blank" class="list-group-item">Combating the small sample class imbalance problem using feature selection</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="28" checked=""></span><a href="28" target="_blank" class="list-group-item">An active under-sampling approach for imbalanced data classification</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="29" checked=""></span><a href="29" target="_blank" class="list-group-item">An unsupervised learning approach to resolving the data imbalanced issue in supervised learning problems in functional genomics</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="30" checked=""></span><a href="30" target="_blank" class="list-group-item">Feature selection for text categorization on imbalanced data</a></div>
+				<div class="input-group"><span class="input-group-addon"><input name="refs" type="checkbox" value="31" checked=""></span><a href="31" target="_blank" class="list-group-item">Training cost-sensitive neural networks with methods addressing the class imbalance problem</a></div>
+			</div>
+		</div>
+
+	</div>
+	<hr class="firsthr">
+</div>
+
+</div><!--container end-->
+
+<!-- =========================== Script ============================ -->
+
+
+<!--necessary scripts and plugins-->
+{% load static %}
+<!--<script src="{% static 'scripts/jquery-1.8.3.min.js' %}"></script>-->
+<!--<script src="http://code.jquery.com/jquery-1.9.1.js"></script>-->
+<!--<script src="{% static 'scripts/bootstrap.min.js' %}"></script>-->
+<!--<script src="{% static 'scripts/jquery.nicescroll.min.js' %}"></script>-->
+<!--<script src="{% static 'scripts/evenfly.js' %}"></script>-->
+{% block script %}
+<script>
+    var ref_template = $("#reference_template");
+    ref_template.click(function(){
+        window.open("{% static '../../../static/data/template.tsv' %}");
+    });
+
+    var global_refs = {};
+    const inputElement = document.getElementById("file");
+    inputElement.addEventListener("change", handleFiles, false);
+
+
+    var topic = ""
+
+    function handleFiles() {
+        const file_ = this.file; /* now you can work with the file list */
+        file_str = file_.value.split('\\');
+        file_name = file_str[file_str.length-1];
+        document.getElementById("file_name").innerHTML += ;
+    }
+
+
+    function upload_file(){
+        /*
+        const ref_list = []
+        const fileList = document.getElementById("file").files; // now you can work with the file list
+          for (let i = 0, numFiles = fileList.length; i < numFiles; i++) {
+              ref_list.push(fileList[i].name);
+          }
+          */
+
+        var formData = new FormData();
+        formData.append(document.getElementById("file_name").innerHTML, document.getElementById("file").files[0]);
+        topic = $('#topic_input_box').val()
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "/upload_refs",
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: function(result) {
+                if(result['topic_words'].length == 0) {
+                    for (let i = 0, len = result['references'].length; i < len; i++) {
+                        document.getElementById("ref_list").innerHTML += "<div class=\"input-group\"><span class=\"input-group-addon\"><input name=\"refs\" type=\"checkbox\" value="+result['ref_ids'][i] + " checked></span><a href=" + encodeURI(result['ref_links'][i])+ " target=\"_blank\" class=\"list-group-item\">" + result['references'][i] + "</a></div>";
+                    }
+
+                    $("#refs").attr("style","display:inline;");
+                    $("#select_refs").attr("style","display:none;");
+                    $("#input_ref_head").html("<span class=\"fas fa-tags\"></span> You can input topic by yourself:");
+                    $("#refs_head").html("<span class=\"fas fa-copy\"></span> Here are the uploaded references:");
+                    $("#auto_taxonomy").attr("style","display:inline;");
+
+                } else {
+                    for (let i = 0, len = result['topic_words'].length; i < len; i++) {
+                        document.getElementById("ref_list").innerHTML += "<h2>"+result['topic_words'][i]+"</h2>";
+                        ref_titles = result['references'][i];//.substring(1, result['references'][i].length-1).split(',');
+                        ref_ids = result['ref_ids'][i];//.substring(1, result['ref_ids'][i].length-1).split(',');
+                        ref_links = result['ref_links'][i];//.substring(1, result['ref_links'][i].length-1).split(',');
+                        for (let j = 0, len_ = ref_titles.length; j < len_; j++) {
+                            document.getElementById("ref_list").innerHTML += "<div class=\"input-group\"><span class=\"input-group-addon\"><input name=\"refs\" type=\"checkbox\" value="+ref_ids[j] + " checked></span><a href=" + encodeURI(ref_links[j])+ " target=\"_blank\" class=\"list-group-item\">" + ref_titles[j] + "</a></div>";
+                        }
+
+                    }
+                    $("#refs").attr("style","display:inline;");
+                    $("#select_refs").attr("style","display:none;");
+                    $("#refs_head").html("<span class=\"fas fa-copy\"></span> Here are the uploaded references:");
+                    $("#generate_content_button").attr("style","display:inline; align: center; ");
+
+                }
+
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                alert(jqXHR.responseText);
+            }
+        });
+    }
+
+
+    function sub_topic(){
+        //alert($('#topic_form').serialize());
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "/get_topic",
+            data: $('#topic_form').serialize(),
+
+            success: function(result) {
+                // alert(result);
+                for (let i = 0, len = result['references'].length; i < len; i++) {
+                    // for (const v of result['references']) {
+                    document.getElementById("ref_list").innerHTML += "<div class=\"input-group\"><span class=\"input-group-addon\"><input name=\"refs\" type=\"checkbox\" value="+result['ref_ids'][i] + " checked></span><a href=" + result['ref_links'][i]+ " target=\"_blank\" class=\"list-group-item\">" + result['references'][i] + "</a></div>";
+                }
+                $("#refs").attr("style","display:inline;");
+                $("#input_ref").attr("style","display:none;");
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                alert(jqXHR.responseText);
+                /*
+                alert(jqXHR.status);
+                alert(jqXHR.readyState);
+                alert(jqXHR.statusText);
+                alert(textStatus);
+                alert(errorThrown);
+                */
+            }
+        });
+    }
+
+    function formToJson (data) {
+        data=data.replace(/&/g,"\",\"");
+        data=data.replace(/=/g,"\":\"");
+        data="{\""+data+"\"}";
+        return data;
+    }
+    function display_taxonomy(){
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "/automatic_taxonomy",
+            data: $('#ref_form').serialize(),
+            success: function(result) {
+                // alert("Success!");
+                document.getElementById("legend").innerHTML += "<h2>" + $("#taxonomy_standard").val() + "</h2>";
+                for (let i = 0, len = result['colors'].length; i < len; i++) {
+                    document.getElementById("legend").innerHTML += "<li class=\"list-group-item\"; style=\"color: "+ result['colors'][i]+" \">" + result['category_label'][i]+" </li>"
+                }
+                var addr = "static/img/tsne_";
+                addr += result['survey_id'];
+                addr += ".png";
+                $("#tsne_img").attr("src", addr);
+                $("#taxonomy").attr("style","display:inline;");
+                // alert(result);
+                $("#generate_content_button").attr("style","display:inline; align: center; ");
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                alert(jqXHR.responseText);
+            }
+        });
+    }
+
+
+    function change_taxonomy(source_taxonomy, ref_id, target_taxonomy) {
+        console.log(source_taxonomy);
+        console.log(ref_id);
+        console.log(target_taxonomy);
+		// remove this item from source_taxonomy
+        var Element = document.getElementById(ref_id);
+        console.log(Element);
+        var old_ul = document.getElementById(ref_id+'_change');
+        var ul_length = old_ul.children.length;
+
+        old_ul.parentNode.removeChild(old_ul);
+        Element.parentNode.removeChild(Element);
+
+        // edit the element
+		var new_ul = document.createElement('ul');
+		$(new_ul).attr('class', 'dropdown-menu');
+		$(new_ul).attr('id', ref_id+'_change');
+		for (var i = 0; i < ul_length; i ++) {
+            var li=document.createElement("li");
+            if (target_taxonomy == old_ul.children[i].textContent) {
+                var attr_ = "<a onclick=\'change_taxonomy(\""
+									+ target_taxonomy
+									+ "\" , \""
+									+ ref_id
+									+ "\", \""
+									+ source_taxonomy
+									+ "\")\'>"
+									+ source_taxonomy
+									+ "</a>";
+            } else {
+                var attr_ = "<a onclick=\'change_taxonomy(\""
+                    + target_taxonomy
+                    + "\" , \""
+                    + ref_id
+                    + "\", \""
+                    + old_ul.children[i].textContent
+                    + "\")\'>"
+                    + old_ul.children[i].textContent
+                    + "</a>";
+			}
+            $(attr_).appendTo(li);
+            $(li).appendTo(new_ul);
+		}
+		$(new_ul).appendTo(Element.children[2].children[0]);
+        // add this item to target_taxonomy
+        var target = document.getElementById(target_taxonomy);
+        // console.log(target.innerHTML);
+        target.appendChild(Element);
+    }
+
+    function display_select_sections() {
+        $("#sections").attr("style","display:inline;");
+    }
+
+    function select_sections() {
+        var section_list = {};
+
+        if($('#cbx_title').is(":checked")) {section_list['title'] = 1}
+        if($('#cbx_introduction').is(":checked")) {section_list['introduction'] = 1}
+        if($('#cbx_abstract').is(":checked")) {section_list['abstract'] = 1}
+        if($('#cbx_background').is(":checked")) {section_list['background'] = 1}
+        if($('#cbx_method').is(":checked")) {section_list['method'] = 1}
+        if($('#cbx_reminder').is(":checked")) {section_list['reminder'] = 1}
+        if($('#cbx_methodology').is(":checked")) {section_list['methodology'] = 1}
+        if($('#cbx_conclusion').is(":checked")) {section_list['conclusion'] = 1}
+
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "/select_sections",
+            data: section_list,
+            success: function(result) {
+                for(var p in result) {
+                    if (p == "title") {
+                        document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Title </h2>";
+                        document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\">"  + result[p] + "</textarea>";
+                    }
+                }
+
+                for(var p in result) {
+                    if (p == "abstract") {
+                        document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Abstract </h2>";
+                        document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 15 \">" + result[p][0] + " " + result[p][1] + "</textarea>";
+
+                    }
+                }
+
+                for(var p in result) {
+                    if (p == "introduction") {
+                        document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Introduction </h2>";
+                        document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 20 \">" + result[p] + "</textarea>";
+                    }
+                }
+
+                for(var p in result) {
+                    if (p == "methodology") {
+                        document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Methodology </h2>";
+                        document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 10 \">" + result[p][0] + "</textarea><p>";
+                        for(var inner_json in result[p][1]) {
+                            document.getElementById("content_modify").innerHTML+= "<h3 style=\"padding: 0px; color: black\"> Sub-section </h3>";
+                            document.getElementById("content_modify").innerHTML+= "<textarea name=\"method_sub_title\" class=\"form-control\" rows = \" 1 \">" + result[p][1][inner_json]["subtitle"] + "</textarea><p>";
+                            document.getElementById("content_modify").innerHTML+= "<textarea name=\"method_sub_content\" class=\"form-control\" rows = \" 30 \">" + result[p][1][inner_json]["content"] + "</textarea><p>";
+                        }
+                    }
+                }
+                for(var p in result) {
+                    if (p == "conclusion") {
+                        document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\">Conclusion</h2>";
+                        document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 5 \" >" + result[p] + "</textarea>";
+                    }
+                }
+                for(var p in result) {
+                    if (p == "references") {
+                        var cnt = 1;
+                        for (var entry in result[p]) {
+                            document.getElementById("references").innerHTML+= "<p style=\"color:black;\">[" + cnt + "]" + "   " + result[p][entry] + "</p>";
+                            cnt = cnt + 1;
+                        }
+                    }
+                }
+
+                $("#modification").attr("style","display:inline;");
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                alert(jqXHR.responseText);
+            }
+        });
+
+    }
+
+
+
+    function display_survey(){
+
+        if (document.getElementById("section_title")) {
+            document.getElementById("survey_content").innerHTML+= "<h1>" + document.getElementById("section_title").value + "</h1>";
+        }
+        if (document.getElementById("section_abstract")) {
+            document.getElementById("survey_content").innerHTML+= "<h2 style=\"padding: 0px; color: black\">Abstract</h2>";
+            document.getElementById("survey_content").innerHTML+= "<p align=\"justify\">" + document.getElementById("section_abstract").value + "</p>";
+        }
+        if (document.getElementById("section_introduction")) {
+            document.getElementById("survey_content").innerHTML+= "<h2 style=\"padding: 0px; color: black\">Introduction</h2>";
+            document.getElementById("survey_content").innerHTML+= "<p align=\"justify\">" + document.getElementById("section_introduction").value + "</p>";
+        }
+
+        if (document.getElementById("section_methodology")) {
+            document.getElementById("survey_content").innerHTML+= "<h2 style=\"padding: 0px; color: black\">Methodology</h2>";
+            document.getElementById("survey_content").innerHTML+= "<p align=\"justify\">" + document.getElementById("section_methodology").value + "</p>";
+            var len = document.getElementsByName("method_sub_title").length;
+            for(var i=0; i<len; i++) {
+                document.getElementById("survey_content").innerHTML+= "<h3>" + document.getElementsByName("method_sub_title")[i].value + "</h3>";
+                document.getElementById("survey_content").innerHTML+= "<p>" + document.getElementsByName("method_sub_content")[i].value + "</p>";
+            }
+
+        }
+
+        if (document.getElementById("section_conclusion")) {
+            document.getElementById("survey_content").innerHTML+= "<h2 style=\"padding: 0px; color: black\">Conclusion</h2>";
+            document.getElementById("survey_content").innerHTML+= "<p align=\"justify\">" + document.getElementById("section_conclusion").value + "</p>";
+        }
+
+        document.getElementById("survey_content").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> References </h2>";
+        document.getElementById("survey_content").innerHTML+= document.getElementById("references").innerHTML;
+
+
+        $("#survey").attr("style","display:inline;");
+        /*
+        $("#template").popover({
+            html : true,
+            // delay:{show:500, hide:1000},
+            // container: 'body',
+            content: function() {
+                return content();
+            }
+        });
+        */
+    }
+
+</script>
+
+
+
+{% endblock %}
+{% endblock %}
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src='../../../static/scripts/bootstrap.min.js' ></script>
+<script src='../../../static/scripts/jquery.nicescroll.min.js' ></script>
+<script src='../../../static/scripts/evenfly.js' ></script>
+
+</body>
+
+<footer>
+	<p>
+	<p>
+	<p>
+		<!--<h5 align="center" > IMCL NLP Group</h5>-->
+</footer>
+</html>

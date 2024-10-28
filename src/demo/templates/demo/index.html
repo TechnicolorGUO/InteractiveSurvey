@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="">
+
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ===========================
+THEME INFO
+=========================== -->
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="author" content="">
+
+<!-- ===========================
+SITE TITLE
+=========================== -->
+<title>Automatic Survey Paper Generation</title>
+
+<!-- ===========================
+FAVICONS
+=========================== -->
+<!--<link rel="icon" href="img/favicon.png">-->
+{% load static %}
+<!--<link rel="apple-touch-icon" sizes="144x144" href="{% static 'img/apple-touch-icon-ipad-retina.png' %}" />-->
+<!--<link rel="apple-touch-icon" sizes="114x114" href="{% static 'img/apple-touch-icon-iphone-retina.png' %}" />-->
+<!--<link rel="apple-touch-icon" sizes="72x72" href="{% static 'img/apple-touch-icon-ipad.png' %}" />-->
+<!--<link rel="apple-touch-icon" sizes="57x57" href="{% static 'img/apple-touch-icon-iphone.png' %}" />-->
+
+<!-- ===========================
+STYLESHEETS
+=========================== -->
+<script src="https://kit.fontawesome.com/a3d039cc94.js" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/fontawesome.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/brands.css' %}">
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/solid.css' %}">
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+<!--<link rel="stylesheet" href= '../../../static/css/fontawesome-free-5.13.0-web/css/fontawesome.min.css'>-->
+<!--<link rel="stylesheet" href= '../../../static/css/fontawesome-free-5.13.0-web/css/brands.css'>-->
+<!--<link rel="stylesheet" href= '../../../static/css/fontawesome-free-5.13.0-web/css/solid.css'>-->
+<!--<link rel="stylesheet" href= '../../../static/css/bootstrap.min.css'>-->
+<!--<link rel="stylesheet" href= '../../../static/css/style.css'>-->
+<!--<link rel="stylesheet" href= '../../../static/css/responsive.css'>-->
+
+<div id="jsonModal" class="modal">
+	<div class="modal-content">
+	  <span class="close">&times;</span>
+	  <pre id="jsonContent"></pre>
+	</div>
+</div>
+
+<style>
+textarea {
+  padding: 0;
+}
+.pdf-item {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  .pdf-icon {
+    font-size: 2em;
+    color: red;
+    margin-right: 10px;
+  }
+  .pdf-details {
+    flex-grow: 1;
+  }
+  .pdf-name {
+    font-weight: bold;
+    margin: 0;
+  }
+  .pdf-info {
+    font-size: 0.9em;
+    color: #666;
+    margin: 0;
+  }
+  .pdf-remove {
+    background: none;
+    border: none;
+    color: red;
+    font-size: 1.2em;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+    /* Modal styling */
+	.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 60px;
+  }
+  .modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+.file {
+    position: relative;
+    display: inline-block;
+    border: 1px solid #99D3F5;
+    border-radius: 4px;
+    padding: 6px 12px;
+    overflow: hidden;
+
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+}
+.file input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.file:hover {
+    border-color: #78C3F3;
+    color: #004974;
+}
+
+.file-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+.file-item i {
+	margin-right: 10px;
+	color: red; /* PDF icon color */
+}
+
+.popover{
+    max-width: 100%; /* Max Width of the popover (depending on the container!) */
+}
+
+
+.form-check-label{
+	font-size: 17px;
+	color:#B0BCCB;
+}
+
+.form-check-label.chatgpt{
+	font-size: 17px;
+	color: #929BA6;
+}
+
+.form-check-input {
+    width : 20px;
+    height : 20px;
+}
+
+/* 一级标题，无缩进 */
+#survey_content h1 {
+    font-weight: bold !important;
+    margin-left: 0; /* 无缩进 */
+}
+
+/* 二级标题，少量缩进 */
+#survey_content h2 {
+    font-weight: bold !important;
+    margin-left: 10px; /* 二级标题有少量缩进 */
+}
+
+/* 三级标题，更多缩进 */
+#survey_content h3 {
+    font-weight: bold !important;
+    margin-left: 20px; /* 三级标题更多缩进 */
+}
+
+/* 四级标题，进一步增加缩进 */
+#survey_content h4 {
+    font-weight: bold !important;
+    margin-left: 30px;
+}
+
+/* 五级标题 */
+#survey_content h5 {
+    font-weight: bold !important;
+    margin-left: 40px;
+}
+
+/* 六级标题 */
+#survey_content h6 {
+    font-weight: bold !important;
+    margin-left: 50px;
+}
+
+/* 正文，跟随最近的标题缩进 */
+#survey_content p {
+    margin-left: inherit; /* 根据最近的标题继承缩进 */
+    text-indent: 2em; /* 文字首行缩进 */
+}
+
+</style>
+
+<!-- ===========================
+FONTS & ICONS
+=========================== -->
+<!--<link href='http://fonts.googleapis.com/css?family=Kristi|Alegreya+Sans:300' rel='stylesheet' type='text/css'>-->
+<!--<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">-->
+
+
+
+<!--[if IE]>
+	<script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<![endif]-->
+</head>
+
+
+
+<body>
+{% block body %}
+<div class="container">
+	<!-- ===========================
+	HEADER
+	============================ -->
+	<div class="jumbotron">
+		<h2 align="center" style="font-size: 3em"> Structured Summary Generation for Numerous Long Documents</h2>
+		<h2 align="right"> --- Automatic Survey Paper Generation</h2>
+		<br>
+		<br>
+	</div>
+	<hr class="firsthr">
+
+
+	<!-- ===========================
+	HEADER
+	============================ -->
+	<div class="row">
+		<div class="col-md-6">
+			<!-- <h2 align="left"> <span class="fas fa-sitemap"></span>  Workflow of the Demo: </h2> -->
+				<div align="center">
+					<!--<img src="{% static 'img/motivation.gif' %}" style="width:800px;height:450px;", id="workflow_img" >-->
+					<img src="{% static '../../../static/img/papers.png' %}" style="width:400px;height:500px;", id="workflow_img" >
+				</div>
+			<br>
+			<br>
+		</div>
+		<div class="pre-scrollable col-md-6" style="max-height: 500px; width:500px" id="survey_content_example">
+			<h1 style="font-size: 1em">A Survey of Predictive Modeling on Imbalanced Data</h1>
+			<h2 style="padding: 0px; color: black; font-size: 0.7em">Abstract</h2>
+				<p align="justify" style="font-size: 0.5em">The class imbalance problem is encountered in a large number of practical applications of machine learning and data mining, for example, information retrieval and filtering, and the detection of credit card fraud. The imbalanced learning problem is concerned with the performance of learning algorithms in the presence of underrepresented data and severe class distribution skews. Classification of data with imbalanced class distribution has posed a significant drawback of the performance attainable by most standard classifier learning algorithms, which assume a relatively balanced class distribution and equal misclassification costs. In this survey, we conduct a comprehensive overview of predictive modeling on imbalanced data. We classify existing methods into three categories: Training Dataset, Outliers Noise,  and Cost Sensitive.</p>
+			<h2 style="padding: 0px; color: black; font-size: 0.7em">Introduction</h2>
+				<p align="justify" style="font-size: 0.5em">Class imbalance is a common problem in machine learning (ml ) and data mining (dm ) that occurs when a large number of classes are present in training data (e.g., in medical applications or in the internet of things (iot ) applications ). In this situation, which is found in real world data describing an infrequent but important event, the learning system may have difficulties to learn the concept related to the minority class. Class imbalance has attracted a huge amount of attention from researchers and practitioners in the last decade. However, there are still many fundamental open-ended questions such as are all learning paradigms equally affected by class imbalance? support vector machines (svms ) is a popular machine learning technique that works effectively with balanced datasets. However, when it comes to imbalanced datasets, svms produce suboptimal classification models. The class imbalance problem has attracted growing attention from both academia and industry due to the explosive growth of applications that use and produce imbalanced data. It is important to accurately identify the class of interest but occurs relatively rarely such as cases of fraud, instances of disease, and regions of interest in largescale simulations, it then becomes more costly to misclassify the interesting class.</p>
+				<p align="justify" style="font-size: 0.5em">In this paper, we provide a comprehensive review of the state-of-the-art class imbalance learning methods and their evaluation metrics that can be used to evaluate the performance of a learning system in the presence of imbalanced data. In addition, we also provide a detailed analysis of the evaluation metrics used in the evaluation of class imbalanced learning methods in the literature so far. The rest of the paper is organized as follows. In section 2, we introduce the class imbalance problem and its evaluation metrics in section 3. Section 4 presents an overview of the existing evaluation metrics for class imbalance in uci data sets and section 5 presents a comprehensive analysis of their performance in the absence of imbalance in section 6. Section 7 concludes the paper with a discussion of the future research directions in the field of uci learning and evaluation metrics. The remainder of this paper is structured as follows: in section 8 we review the existing class imbalance evaluation metrics and their performance evaluation in the uci domain.
+															Section 9 presents a detailed review of their evaluations in section 10. Section 11 presents an analysis of how the current evaluation metrics can be improved in the future and section 12 presents a summary of their future directions in section 13. In section 13 we present a detailed comparison of the performance evaluation metrics of different uci evaluation metrics with respect to their effectiveness in the current uci environment. Section 14 presents a comparison of different evaluation metrics based on their effectiveness and their efficiency in dealing with the imbalanced problem in the present uci scenario.</p>
+				<p align="justify" style="font-size: 0.5em">In the following section, we will introduce existing works in each category in detail.</p>
+			<h2 style="padding: 0px; color: black; font-size: 0.7em">Methodology</h2>
+				<p align="justify" style="font-size: 0.5em">We reviewed existing works and classify them into three types namely: Training Dataset, Outliers Noise,  and Cost Sensitive. The first category is about the training dataset. as a result, the ratio of majority class is decreased significantly, and the final balance training dataset is more suitable for the traditional classification algorithms.  The sencond category is about the outliers noise. therefore, although the existing class imbalance learning (cil) methods can make svms less sensitive to class imbalance, they can still suffer from the problem of outliers and noise.  The third category is about the cost sensitive. in this paper, we develop a cost-sensitive boosting algorithm to improve the classification performance of imbalanced data involving multiple classes.  Empirical tests show that the proposed cost-sensitive boosting algorithm improves the classification performances of imbalanced data sets significantly. </p>
+				<h3 style="font-size: 0.6em">Training Dataset</h3>
+					<p align="justify" style="font-size: 0.5em">For Training Dataset, there are several existing works. Baccianella, et al. [1] proposes a simple way to turn standard measures for or into ones robust to imbalance.  E.A.P.A. et al. [2] performs a broad experimental evaluation involving ten methods, three of them proposed by the authors, to deal with the class imbalance problem in thirteen uci data sets.  V. et al. [3] implements a wrapper approach that computes the amount of under-sampling and synthetic generation of the minority class examples (smote) to improve minority class accuracy.  Chen, et al. [4] proposes a new feature selection method, feature assessment by sliding thresholds (fast), which is based on the area under a roc curve generated by moving the decision boundary of a single feature classifier with thresholds placed using an even-bin distribution.  Liu, et al. [5] proposes two algorithms to overcome this deficiency.  Song, et al. [6] proposes an improved adaboost algorithm called baboost (balanced adaboost), which gives higher weights to the misclassified examples from the minority class.  Van et al. [7] presents a comprehensive suite of experimentation on the subject of learning from imbalanced data.  an active under-sampling approach is proposed for handling the imbalanced problem in Yang, et al. [8].</p>
+				<h3 style="font-size: 0.6em">Outliers Noise</h3>
+					<p align="justify" style="font-size: 0.5em">For Outliers Noise, there are several existing works. Batuwita, et al. [9] presents a method to improve fsvms for cil (called fsvm-cil), which can be used to handle the class imbalance problem in the presence of outliers and noise.  Chen, et al. [10] presents ranked minority oversampling in boosting (ramoboost), which is a ramo technique based on the idea of adaptive synthetic data generation in an ensemble learning system.  In classifying documents, the system combines the predictions of the learners by applying evolutionary techniques as well [11]. Ertekin, et al. [12] is concerns with the class imbalance problem which has been known to hinder the learning performance of classification algorithms.  Li, et al. [13] proposes an oversampling method based on support degree in order to guide people to select minority class samples and generate new minority class samples.  J. et al. [14] considers the application of these ensembles to imbalanced data : classification problems where the class proportions are significantly different.  Tao, et al. [15] develops a mechanism to overcome these problems.  C. et al. [16] demonstrates that class probability estimates attained via supervised learning in imbalanced scenarios systematically underestimate the probabilities for minority class instances, despite ostensibly good overall calibration.  Yoon, et al. [17] proposes preprocessing majority instances by partitioning them into clusters.  Zheng, et al. [18] investigates the usefulness of explicit control of that combination within a proposed feature selection framework.</p>	<h3 style="font-size: 0.6em">Cost Sensitive</h3><p align="justify" style="font-size: 0.5em">For Cost Sensitive, there are several existing works. Batista, et al. [19] proposes a simple experimental design to assess the performance of class imbalance treatment methods.  Davis, et al. [20] shows that a deep connection exists between roc space and pr space, such that a curve dominates in roc space if and only if it dominates in pr space.  Drummond, et al. [21] proposes an alternative to roc representation, in which the expected cost of a classi er is represented explicitly.  Ertekin, et al. [22] demonstrates that active learning is capable of solving the problem.  Garcı́a, et al. [23] analyzes a generalization of a new metric to evaluate the classification performance in imbalanced domains, combining some estimate of the overall accuracy with a plain index about how dominant the class with the highest individual accuracy is.  Ghasemi, et al. [24] proposes an active learning algorithm that can work when only samples of one class as well as a set of unlabeled data are available.  He, et al. [25] provides a comprehensive review of the development of research in learning from imbalanced data.  Li, et al. [26] analyzes the intrinsic factors behind this failure and proposes a suitable re-sampling method.  Lin, et al. [27] applies a fuzzy membership to each input point and reformulate the svms such that different input points can make different constributions to the learning of decision surface.  Seiffert, et al. [28] presents a new hybrid sampling/boosting algorithm, called rusboost, for learning from skewed training data.  Sun, et al. [29] develops a cost-sensitive boosting algorithm to improve the classification performance of imbalanced data involving multiple classes.  Torgo et al. [30] presents a generalization of regression error characteristic (rec) curves.  Wasikowski, et al. [31] presents a first systematic comparison of the three types of methods developed for imbalanced data classification problems and of seven feature selection metrics evaluated on small sample data sets from different applications.  Zhou, et al. [32] studies empirically the effect of sampling and threshold-moving in training cost-sensitive neural networks.
+			<h2 style="padding: 0px; color: black;font-size: 0.7em">Conclusion</h2>
+				<p align="justify" style="font-size: 0.5em">In this survey, we conduct a comprehensive overview of predictive modeling on imbalanced data. We provide a taxonomy which groups the researchs of predictive modeling on imbalanced data into three categories: Training Dataset, Outliers Noise,  and Cost Sensitive.</p>
+			<h2 style="padding: 0px; color: black;font-size: 0.7em"> References </h2>
+				<p style="color:black; font-size: 0.5em">[1]   Stefano Baccianella, Andrea Esuli, and Fabrizio Sebastiani. 2009. Evaluation measures for ordinal regression. Ninth International Conference on Intelligent Systems Design and Applications, 2009. ISDA'09. IEEE, 283–287.</p>
+                <p style="color:black; font-size: 0.5em">[2]   Guilherme Batista, Danilo Silva, and Ronaldo Prati. 2012. An experimental design to evaluate class imbalance treatment methods. 2012 11th International Conference on Machine Learning and Applications (ICMLA), Vol. 2. IEEE, 95–101.</p>
+                <p style="color:black; font-size: 0.5em">[3]   Gustavo E.A.P.A. Batista, Ronaldo C. Prati, and Maria Carolina Monard. 2004. A study of the behavior of several methods for balancing machine learning training data. ACM SIGKDD Explor. Newslett. 6, 1 (2004), 20–29.</p>
+                <p style="color:black; font-size: 0.5em">[4]   Rukshan Batuwita, and Vasile Palade. 2010. FSVM-CIL: Fuzzy support vector machines for class imbalance learning. IEEE Trans. Fuzzy Syst. 18, 3 (2010), 558–571.</p>
+                <p style="color:black; font-size: 0.5em">[5]   Nitesh V. Chawla, Lawrence O. Hall, and Ajay Joshi. 2005. Wrapper-based computation and evaluation of sampling methods for imbalanced datasets. Proceedings of the 1st International Workshop on UtilityBased Data Mining. ACM, New York, NY, 24–33.</p>
+                <p style="color:black; font-size: 0.5em">[6]   Sheng Chen, Haibo He, and Edwardo A. Garcia. 2010. Ramoboost: Ranked minority oversampling in boosting. IEEE Trans. Neural Networks 21, 10 (2010), 1624–1642.</p>
+                <p style="color:black; font-size: 0.5em">[7]   Xue-wen Chen, and Michael Wasikowski. 2008. Fast: A roc-based feature selection metric for small samples and imbalanced data classification problems. Proceedings of the 14th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. ACM, New York, NY, 124–132.</p>
+                <p style="color:black; font-size: 0.5em">[8]   Jesse Davis, and Mark Goadrich. 2006. The relationship between Precision-Recall and ROC curves. ICML'06: Proc. of the 23rd Int. Conf. on Machine Learning (ACM ICPS). ACM, New York, NY, 233– 240.</p>
+                <p style="color:black; font-size: 0.5em">[9]   Marı́a Dolores Del Castillo, and José Ignacio Serrano 2004. A multistrategy approach for digital text categorization from imbalanced documents. ACM SIGKDD Explor. Newslett</p>
+                <p style="color:black; font-size: 0.5em">[10]   Chris Drummond, and Robert C. Holte. 2000. Explicitly representing expected cost: An alternative to ROC representation. Proceedings of the Sixth ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. ACM, New York, NY, 198–207.</p>
+                <p style="color:black; font-size: 0.5em">[11]   Şeyda Ertekin, Jian Huang, Leon Bottou, and Lee Giles. 2007. Learning on the border: Active learning in imbalanced data classification. Proceedings of the Sixteenth ACM Conference on Conference on Information and Knowledge Management. ACM, New York, NY, 127–136.</p>
+                <p style="color:black; font-size: 0.5em">[12]   Şeyda Ertekin, Jian Huang, and C. Lee Giles. 2007. Active learning for class imbalance problem. Proceedings of the 30th Annual International ACM SIGIR Conference on Research and Development in Information Retrieval. ACM, New York, NY, 823–824.</p>
+                <p style="color:black; font-size: 0.5em">[13]   Vicente Garcı́a, Ramón Alberto Mollineda, and José Salvador Sánchez 2010. Theoretical analysis of a performance measure for imbalanced data. In 2010 20th International Conference on Pattern Recognition (ICPR)</p>
+                <p style="color:black; font-size: 0.5em">[14]   Alireza Ghasemi, Hamid R. Rabiee, Mohsen Fadaee, Mohammad T. Manzuri, and Mohammad H. Rohban. 2011. Active learning from positive and unlabeled data. 2011 IEEE 11th International Conference on Data Mining Workshops (ICDMW). IEEE, 244–250.</p>
+                <p style="color:black; font-size: 0.5em">[15]   Haibo He, and Edwardo A. Garcia. 2009. Learning from imbalanced data. IEEE Knowl. Data Eng. 21, 9 (2009), 1263–1284.</p>
+                <p style="color:black; font-size: 0.5em">[16]   Kewen Li, Wenrong Zhang, Qinghua Lu, and Xianghua Fang. 2014. An improved SMOTE imbalanced data classification method based on support degree. 2014 International Conference on Identification, Information and Knowledge in the Internet of Things (IIKI). IEEE, 34–38.</p>
+                <p style="color:black; font-size: 0.5em">[17]   Peng Li, Pei-Li Qiao, and Yuan-Chao Liu. 2008. A hybrid re-sampling method for SVM learning from imbalanced data sets. Fifth International Conference on Fuzzy Systems and Knowledge Discovery, 2008. FSKD'08. Vol. 2. IEEE, 65–69.</p>
+                <p style="color:black; font-size: 0.5em">[18]   Chun-Fu Lin, and Sheng-De Wang. 2002. Fuzzy support vector machines. IEEE Trans. Neur. Network. 13, 2 (2002), 464–471.</p>
+                <p style="color:black; font-size: 0.5em">[19]   Xu-Ying Liu, Jianxin Wu, and Zhi-Hua Zhou. 2009. Exploratory undersampling for class-imbalance learning. IEEE Trans. Syst. Man Cybernet. B 39, 2 (2009), 539–550.</p>
+                <p style="color:black; font-size: 0.5em">[20]   Juan J. Rodrı́guez, José-Francisco Dı́ez-Pastor, Jesús Maudes, and César Garcı́a-Osorio 2012. Disturbing neighbors ensembles of trees for imbalanced data. In 2012 11th International Conference on Machine Learning and Applications (ICMLA),</p>
+                <p style="color:black; font-size: 0.5em">[21]   Chris Seiffert, Taghi M. Khoshgoftaar, Jason Van Hulse, and Amri Napolitano. 2010. RUSBoost: A hybrid approach to alleviating class imbalance. IEEE Trans.Syst. Man Cybernet. A 40, 1 (2010), 185–197.</p>
+                <p style="color:black; font-size: 0.5em">[22]   Jie Song, Xiaoling Lu, and Xizhi Wu. 2009. An improved AdaBoost algorithm for unbalanced classification data. Sixth International Conference on Fuzzy Systems and Knowledge Discovery, 2009. FSKD'09. Vol. 1. IEEE, 109–113.</p>
+                <p style="color:black; font-size: 0.5em">[23]   Yanmin Sun, Mohamed S. Kamel, and Yang Wang. 2006. Boosting for learning multiple classes with imbalanced class distribution. Sixth International Conference on Data Mining, 2006. ICDM'06. IEEE, 592–602.</p>
+                <p style="color:black; font-size: 0.5em">[24]   Dacheng Tao, Xiaoou Tang, Xuelong Li, and Xindong Wu. 2006. Asymmetric bagging and random subspace for support vector machines-based relevance feedback in image retrieval. IEEE Trans. Pattern Anal. Mach. Intell. 28, 7 (2006), 1088–1099.</p>
+                <p style="color:black; font-size: 0.5em">[25]   Luı́s Torgo 2005. Regression error characteristic surfaces. In KDD'05: Proc. of the 11th ACM SIGKDD Int. Conf. on Knowledge Discovery and Data Mining. ACM Press,</p>
+                <p style="color:black; font-size: 0.5em">[26]   Jason Van Hulse, Taghi M. Khoshgoftaar, and Amri Napolitano. 2007. Experimental perspectives on learning from imbalanced data. Proceedings of the 24th International Conference on Machine Learning. ACM, 935–942.</p>
+                <p style="color:black; font-size: 0.5em">[27]   Byron C. Wallace, and Issa J. Dahabreh. 2012. Class probability estimates are unreliable for imbalanced data (and how to fix them). 2012 IEEE 12th International Conference on Data Mining (ICDM). IEEE, 695–704.</p>
+                <p style="color:black; font-size: 0.5em">[28]   Mike Wasikowski, and Xue-wen Chen. 2010. Combating the small sample class imbalance problem using feature selection. IEEE Trans. Knowl. Data Eng. 22, 10 (2010), 1388–1400.</p>
+                <p style="color:black; font-size: 0.5em">[29]   Zeping Yang, and Daqi Gao. 2012. An active under-sampling approach for imbalanced data classification. 2012 Fifth International Symposium on Computational Intelligence and Design (ISCID). Vol. 2. IEEE, 270–273.</p>
+                <p style="color:black; font-size: 0.5em">[30]   Kihoon Yoon, and Stephen Kwek. 2005. An unsupervised learning approach to resolving the data imbalanced issue in supervised learning problems in functional genomics. Fifth International Conference on Hybrid Intelligent Systems, 2005. HIS'05. IEEE, 6–pp.</p>
+                <p style="color:black; font-size: 0.5em">[31]   Zhaohui Zheng, Xiaoyun Wu, and Rohini Srihari. 2004. Feature selection for text categorization on imbalanced data. ACM SIGKDD Explor. Newslett. 6, 1 (2004), 80–89.</p>
+                <p style="color:black; font-size: 0.5em">[32]   Zhi-Hua Zhou, and Xu-Ying Liu. 2006. Training cost-sensitive neural networks with methods addressing the class imbalance problem. IEEE Trans. Knowl. Data Eng. 18, 1 (2006), 63–77.</p>
+		</div>
+	</div>
+	<hr class="firsthr">
+
+	<!-- ===========================
+	CHOOSE TOPICS
+	============================ -->
+	<div class="col-md-12">
+			<div class="row">
+				<div id="select_refs">
+				<div class="row">
+					<div class="col-md-8" style="height: 60px">
+						<h2 align="left"><span class="fas fa-tags"></span> Please Input the Topic for Summarization: </h2>
+					</div>
+					<!-- <div class="col-md-4" style="height: 60px">
+						<button type="button" class="btn btn-danger" id="delete_button" name="delete_button" style="margin-top: 10px; margin-left: 50px; background-color: #dc3545; border-color: #dc3545;" onclick="deleteFiles()">
+							<i class="fa fa-trash" aria-hidden="true"></i> Delete All Local References
+						</button>
+					</div> -->
+				</div>
+				<br>
+
+				<div class="row">
+					<div class="col-md-12">
+						<form action="" method="post" id="topic_input" enctype="multipart/form-data">
+							{% csrf_token %}
+							<input type="text" class="form-control" placeholder="Predictive Modeling on Imbalanced Data" id="topic_input_box">
+							<br>
+							<div class="row">
+								<div class="col-md-8">
+									<div class="file" style="margin-top: 3px;">
+										<div id="file_list">
+											<span id="file_name">Please Select Reference Table from Your Computer...</span>
+										</div>
+										<input id="file" type="file" name="file" multiple title="Upload your files" onchange="displayFileNames()">
+									</div>
+								</div>
+								<div class="col-md-4">
+									<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 100px">
+										<i class="fa fa-paperclip" aria-hidden="true"></i>Upload References in Table
+									</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				</div>
+			</div>
+			<br>
+	</div>
+
+	<!-- ===========================
+     References
+    ============================ -->
+	<div class="col-md-12" style="display: none" id="refs">
+		<div class="alert alert-success alert-dismissable" style="height: 100px">
+			<button type="button" class="close" data-dismiss="alert"
+					aria-hidden="true">
+				&times;
+			</button>
+			<h4 align="center">Great! You have finish upload the reference papers!</h4>
+			<br>
+			<h4 align="center">Let's categorize the reference papers for organizing our survey!</h4>
+		</div>
+
+
+		<h2 align="left" id="refs_head"> <span class="fas fa-copy"></span> Here are the most related references from our dataset: </h2>
+		<form action="" method="post", id="ref_form">
+			{% csrf_token %}
+			<div class="list-group pre-scrollable" id="ref_list" style="height:800px">
+			</div>
+
+			<p align="right"> *(Select the references for instant survey generation)</p>
+
+
+			<div class="col-md-12"  style="text-align: center; display: none" id="auto_taxonomy">
+				<input placeholder="Please input your categorization standard" class="form-control", id="taxonomy_standard", name="taxonomy_standard">
+				<p></p>
+				<p></p>
+				<input type="button" class="btn btn-default" onclick="display_taxonomy()" value="Automatic Categorization" style="width: 200px; margin-left:40%">
+			</div>
+		</form>
+
+
+
+
+
+	</div>
+	<hr class="firsthr">
+	<!-- ===========================
+     Taxonomy Result
+    ============================ -->
+	<div class="col-md-12" style="display: none" id="taxonomy">
+
+		<h2 align="left"> <span class="fas fa-chart-pie"></span> The Categorization result of selected references based on the input standard: </h2>
+
+		<div class="row">
+			<div class="col-md-7" style="height:400px;">
+				<img src="#" style="width:400px;height:400px;", id="tsne_img">
+			</div>
+			<div class="col-md-5" style="height:400px;">
+					<p>  </p>
+					<ul id="legend" style="position: relative;top: 30%;transform: translateY(-30%);">
+					</ul>
+			</div>
+		</div>
+		<br>
+		<div class="alert alert-info alert-dismissable" style="height: 100px">
+			<button type="button" class="close" data-dismiss="alert"
+					aria-hidden="true">
+				&times;
+			</button>
+			<h4 align="center">Our system has finished the reference categorization.</h4>
+			<br>
+			<h4 align="center">Not satisfied with the results? You can modify it by yourself!</h4>
+		</div>
+		<br>
+		<div class="row" id="modify_taxonomy">
+
+		</div>
+		<hr class="firsthr">
+	</div>
+
+	<div class="col-md-12" style="display: none" id="generate_content_button">
+		<input type="button" class="btn btn-default" onclick="display_select_sections()" value="Confirm and Generate Survey Content" style="width: 300px; margin-left:35%">
+	</div>
+
+
+	<!-- ===========================
+     Select Sections
+    ============================ -->
+	<div class="col-md-12" style="display: none" id="sections">
+		<br>
+
+		<div class="alert alert-info alert-dismissable" style="height: 100px">
+			<button type="button" class="close" data-dismiss="alert"
+					aria-hidden="true">
+				&times;
+			</button>
+			<h4 align="center">The categorization result is saved!</h4>
+			<br>
+			<h4 align="center">Our model will learn from your modification! </h4>
+		</div>
+
+
+		<h2 align="left"> The Outline of the generated survey: </h2>
+		<form action="" method="post", id="sections_">
+			{% csrf_token %}
+		</form>
+	
+
+
+		<br>
+		<div style="text-align: center">
+			<input type="button" class="btn btn-default" onclick="display_survey()" value="Confirm">
+		</div>
+	</div>
+
+	<!-- ===========================
+     Content Modification
+    ============================ -->
+	<div class="col-md-12" style="display: none" id="modification">
+		<!-- <br>
+		<div class="alert alert-info alert-dismissable" style="height: 100px">
+			<button type="button" class="close" data-dismiss="alert"
+					aria-hidden="true">
+				&times;
+			</button>
+			<h4 align="center">This is the survey content draft generated by our model(and Polished by ChatGPT).</h4>
+			<br>
+			<h4 align="center">If you are not satisfied, you can revise it.</h4>
+		</div>
+
+
+		<form action="" method="post", id="content_modify">
+			{% csrf_token %}
+		</form>
+		<br>
+		<div style="text-align: center">
+			<input type="button" class="btn btn-default" onclick="display_survey()" value="Confirm">
+		</div> -->
+	</div>
+
+
+	<!-- ===========================
+     Generated survey
+    ============================ -->
+	<div class="col-md-12" style="display: none" id="survey">
+		<br>
+		<div class="alert alert-info alert-dismissable" style="height: 100px">
+			<button type="button" class="close" data-dismiss="alert"
+					aria-hidden="true">
+				&times;
+			</button>
+			<h4 align="center">You have finished all the steps!</h4>
+			<br>
+			<h4 align="center">Here is the generated survey paper!</h4>
+		</div>
+		<h2 align="left"> <span class="fas fa-scroll"></span> Here is the generated survey: </h2>
+		<div class="row">
+			<div class="col-md-0"></div>
+			<div class="col-md-12">
+				<button type="button" class="btn btn-info"  title="This is the Learned Survey Template"
+						data-toggle="popover" data-placement="bottom"
+						data-content="" id="template" style="float: right;">
+					Survey Template
+				</button>
+
+			</div>
+		</div>
+		<div class="container pre-scrollable col-md-12" style="max-height: 700px" id="survey_content">
+		</div>
+	</div>
+
+	<div class="col-md-12" style="display: none" id="references"></div>
+
+
+</div><!--container end-->
+
+
+
+
+
+<!-- =========================== Script ============================ -->
+
+
+<!--necessary scripts and plugins-->
+{% load static %}
+<!--<script src="{% static 'scripts/jquery-1.8.3.min.js' %}"></script>-->
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="{% static 'scripts/bootstrap.min.js' %}"></script>
+<script src="{% static 'scripts/jquery.nicescroll.min.js' %}"></script>
+<script src="{% static 'scripts/evenfly.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% block script %}
+<script>
+	function deleteFiles() {
+		$.ajax({
+			url: '/delete_files/',
+			type: 'POST',
+			headers: {
+				'X-CSRFToken': getCookie('csrftoken')
+			},
+			success: function(data) {
+				if (data.success) {
+					alert("Delete successfully.");
+				} else {
+					alert("Delete failed.");
+				}
+			},
+			error: function(xhr, status, error) {
+				console.error('Error:', error);
+			}
+		});
+	}
+
+	function getCookie(name) {
+		let cookieValue = null;
+		if (document.cookie && document.cookie !== '') {
+			const cookies = document.cookie.split(';');
+			for (let i = 0; i < cookies.length; i++) {
+				const cookie = cookies[i].trim();
+				if (cookie.substring(0, name.length + 1) === (name + '=')) {
+					cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					break;
+				}
+			}
+		}
+		return cookieValue;
+	}
+
+	var topic = ""
+
+    function handleFiles(event) {
+        if (!event || !event.target || !event.target.files) {
+            console.error('Invalid event');
+            return;
+        }
+
+        const files = event.target.files;
+        let fileNames = [];
+        for (let i = 0; i < files.length; i++) {
+            let filePath = files[i].name.split('\\');
+            let fileName = filePath[filePath.length - 1];
+            fileNames.push(fileName);
+        }
+        document.getElementById("file_name").innerHTML = fileNames.join(', ');
+    }
+
+
+	// Get the modal
+	var modal = document.getElementById("jsonModal");
+
+	// Get the <span> element that closes the modal
+	var span = document.getElementsByClassName("close")[0];
+
+	// When the user clicks on <span> (x), close the modal
+	span.onclick = function() {
+		modal.style.display = "none";
+	}
+
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function(event) {
+		if (event.target == modal) {
+			modal.style.display = "none";
+		}
+	}
+
+
+	function sanitizeFilename(filename) {
+		let title_new = filename.trim();
+		let invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*','_'];
+		for (let char of invalid_chars) {
+			title_new = title_new.replace(new RegExp(`\\${char}`, 'g'), ' ');
+		}
+		return title_new;
+	}
+
+	function displayFileNames() {
+		const input = document.getElementById('file');
+		const fileList = document.getElementById('file_list');
+		fileList.innerHTML = ''; // Clear previous file names
+
+		for (let i = 0; i < input.files.length; i++) {
+			const file = input.files[i];
+			const fileItem = document.createElement('div');
+			fileItem.className = 'file-item';
+			fileItem.innerHTML = `
+				<i class="fas fa-file-pdf"></i> ${file.name}
+			`;
+			fileList.appendChild(fileItem);
+		}
+	}
+
+
+    function upload_file(){
+    	/*
+    	const ref_list = []
+    	const fileList = document.getElementById("file").files; // now you can work with the file list
+  		for (let i = 0, numFiles = fileList.length; i < numFiles; i++) {
+  			ref_list.push(fileList[i].name);
+  		}
+  		*/
+
+		var formData = new FormData();
+		var files = document.getElementById("file").files;
+        for (var i = 0; i < files.length; i++) {
+            formData.append("file" + i, files[i]);
+        }
+		topic = $('#topic_input_box').val()
+		formData.append("topic", topic);
+		$.ajax({
+		type: "POST",
+		dataType: "json",
+		url: "/upload_refs",
+		processData: false,
+		contentType: false,
+		data: formData,
+		success: function(result) {
+			// Iterate over the filenames array
+			for (let i = 0, len = result['filenames'].length; i < len; i++) {
+			let filename = result['filenames'][i];
+			let filesize = result['filesizes'][i];
+			let sanitizedFilename = sanitizeFilename(filename);
+			let survey_id = result['survey_id'];
+			let ref_id = result['ref_ids'][i];
+			// let parts = filename.split(' ');
+			// parts.pop();
+			// let cleanedFileName = parts.join(' ');
+			let cleanedFileName = filename;
+
+			// Create HTML structure for PDF icon with clickable link
+			let pdfHtml = `
+			<div class="pdf-item" style="display: flex; align-items: center; font-size: 0.8em;">
+				<div class="pdf-icon" style="flex-shrink: 0;">
+					<i class="fas fa-file-pdf"></i>
+				</div>
+				<div class="pdf-details" style="flex-grow: 1; margin-left: 10px;">
+					<a href="#" onclick="fetchAndDisplayJson('/static/data/txt/${survey_id}/${filename}.json'); return false;">
+						<p class="pdf-name" style="margin: 0; font-size: 1em;">${sanitizedFilename}</p>
+						<p class="pdf-info" style="margin: 0; font-size: 0.9em;">${filesize} MB</p>
+					</a>
+				</div>
+
+				<input type="hidden" name="refs" value="${ref_id}" class="pdf-hidden-input">
+			</div>
+		`;
+			document.getElementById("ref_list").innerHTML += pdfHtml;
+			}
+			$("#refs").attr("style","display:inline;");
+			$("#select_refs").attr("style","display:none;");
+			$("#input_ref_head").html("<span class=\"fas fa-tags\"></span> You can input topic by yourself:");
+			$("#refs_head").html("<span class=\"fas fa-copy\"></span> Here are the uploaded references:");
+			$("#auto_taxonomy").attr("style","display:inline;");
+		},
+		error: function(jqXHR, textStatus, errorThrown){
+			alert(jqXHR.responseText);
+		}
+		});
+	}
+
+	function removePdf(element) {
+		element.parentElement.remove();
+		}
+
+
+	function fetchAndDisplayJson(path) {
+		$.ajax({
+			type: "GET",
+			url: path,
+			dataType: "json",
+			success: function(data) {
+				// Remove 'title' and 'introduction' fields
+				const filteredData = Object.fromEntries(
+					Object.entries(data).filter(
+						([key]) => key !== 'title' && key !== 'introduction'
+					)
+				);
+				let jsonContent = JSON.stringify(filteredData, null, 2);
+				document.getElementById("jsonContent").textContent = jsonContent;
+				document.getElementById("jsonModal").style.display = "block";
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				alert("Failed to load JSON data: " + errorThrown);
+			}
+		});
+	}
+
+    function sub_topic(){
+    	//alert($('#topic_form').serialize());
+		$.ajax({
+			type: "POST",
+			dataType: "json",
+			url: "/get_topic",
+			data: $('#topic_form').serialize(),
+
+			success: function(result) {
+				// alert(result);
+				for (let i = 0, len = result['references'].length; i < len; i++) {
+				// for (const v of result['references']) {
+					document.getElementById("ref_list").innerHTML += "<div class=\"input-group\"><span class=\"input-group-addon\"><input name=\"refs\" type=\"checkbox\" value="+result['ref_ids'][i] + " checked></span><a href=" + result['ref_links'][i]+ " target=\"_blank\" class=\"list-group-item\">" + result['references'][i] + "</a></div>";
+				}
+				$("#refs").attr("style","display:inline;");
+				$("#input_ref").attr("style","display:none;");
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+				alert(jqXHR.responseText);
+				/*
+				alert(jqXHR.status);
+				alert(jqXHR.readyState);
+				alert(jqXHR.statusText);
+				alert(textStatus);
+				alert(errorThrown);
+				*/
+			}
+		});
+	}
+
+	function formToJson (data) {
+    	data=data.replace(/&/g,"\",\"");
+    	data=data.replace(/=/g,"\":\"");
+    	data="{\""+data+"\"}";
+    	return data;
+	}
+	function display_taxonomy(){
+		$.ajax({
+			type: "POST",
+			dataType: "json",
+			url: "/automatic_taxonomy",
+			data: $('#ref_form').serialize(),
+			success: function(result) {
+				alert("Success!");
+				document.getElementById("legend").innerHTML += "<h2>" + $("#taxonomy_standard").val() + "</h2>";
+				for (let i = 0, len = result['colors'].length; i < len; i++) {
+					document.getElementById("legend").innerHTML += "<li class=\"list-group-item\"; style=\"color: "+ result['colors'][i]+" \">" + result['category_label'][i]+" </li>"
+				}
+				var addr = "static/img/tsne_";
+				addr += result['survey_id'];
+				addr += ".png";
+				$("#tsne_img").attr("src", addr);
+
+				// generate panels
+				document.getElementById("modify_taxonomy").innerHTML += "<h2> You can also modify the categorzation result: </h2>";
+				for (let i = 0, len = result['category_label'].length; i < len; i++) {
+					document.getElementById("modify_taxonomy").innerHTML +=
+						"<div class=\"panel panel-primary\" > " +
+                        "   <div class=\"panel-heading\" style=\"background-image: none; background-color:" + result['colors'][i] +"\"> " +
+                        "    <h3 class=\"panel-title\">"+ result['category_label'][i] +"</h3> " +
+                        "   </div> " +
+                        "   <div class=\"panel-body\" id=\"" + result['category_label'][i] + "\"> " +
+                        "   </div> " +
+                        "  </div>"
+
+                    for (let j = 0, len = result['ref_indexs'][i].length; j < len; j++) {
+                    	document.getElementById(result['category_label'][i]).innerHTML +=
+							"<div class=\"input-group\" id=\"ref_"+result['ref_indexs'][i][j] +"\"> " +
+							"     <span class=\"input-group-addon\">["+result['ref_indexs'][i][j]+"]</span> " +
+							"     <a href=\"0\" target=\"_blank\" class=\"list-group-item\">"+result['ref_titles'][i][j]+"</a> " +
+							"     <span class=\"input-group-addon\"> " +
+							"       <div class=\"btn-group\"> " +
+							"         <button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"> " +
+							"        Change to <span class=\"caret\"></span> " +
+							"         </button> " +
+							"         <ul class=\"dropdown-menu\" id=\"ref_"+result['ref_indexs'][i][j]+"_change\"> ";
+						for (let k = 0, len = result['category_label'].length; k < len; k++) {
+							if (result['category_label'][i] != result['category_label'][k]) {
+								document.getElementById("ref_"+result['ref_indexs'][i][j]+"_change").innerHTML +=
+								"          <li><a onclick=\"change_taxonomy('"+result['category_label'][i]+"', 'ref_"+result['ref_indexs'][i][j]+"', '"+result['category_label'][k]+"')\">"+result['category_label'][k]+"</a></li> ";
+							}
+						}
+						document.getElementById(result['category_label'][i]).innerHTML +=
+							"         </ul> " +
+							"       </div> " +
+							"     </span> " +
+							"    </div>"
+
+                    }
+
+				}
+				$("#taxonomy").attr("style","display:inline;");
+				// alert(result);
+				$("#generate_content_button").attr("style","display:inline; align: center; ");
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+				alert(jqXHR.responseText);
+				// alert("!!!");
+			}
+		});
+	}
+
+	function display_select_sections() {
+		// submit revised taxonomy to backend
+        let topic_word_list = [];
+		let ref_lists = [];
+		div_elements = document.getElementById('taxonomy').getElementsByTagName('*');
+		for (i=0;i<div_elements.length;i++){
+			if(div_elements[i].className == "panel-body") {
+				topic_word_list.push(div_elements[i].id);
+				tmp_list = []
+				refs = div_elements[i].getElementsByTagName('*');
+				for (j=0;j<refs.length;j++) {
+					if(refs[j].className == "input-group") {
+						tmp_list.push(refs[j].id.split('_')[1])
+					}
+				}
+				ref_lists.push(tmp_list)
+			}
+		}
+		// add a button
+
+		//New: Generate the outline
+		
+
+		$.ajax({
+			type: "POST",
+			dataType: "json",
+			url: "/annotate_categories",
+			data: {
+				'topic_word_list': topic_word_list,
+				'ref_lists': ref_lists
+			},
+			success: function(result) {
+				if (result.html) {
+					// 将返回的 HTML 内容插入到 form 中
+					$('#sections_').html(result.html);
+				} else if (result.error) {
+					// 处理错误信息
+					alert(result.error);
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				alert(jqXHR.responseText);
+			}
+		});
+		$("#sections").attr("style","display:inline;");
+
+
+	}
+
+
+
+function select_sections() {
+    var section_list = {};
+
+    if($('#cbx_abstract').is(":checked")) {section_list['abstract'] = 1}
+
+    if($('#cbx_introduction').is(":checked")) {section_list['introduction'] = 1}
+
+    if($('#cbx_background').is(":checked")) {section_list['background'] = 1}
+
+    if($('#cbx_method').is(":checked")) {section_list['method'] = 1}
+
+    if($('#cbx_reminder').is(":checked")) {section_list['reminder'] = 1}
+
+    if($('#cbx_c_and_c').is(":checked")) {section_list['c_and_c'] = 1}
+
+    if($('#cbx_evaluation').is(":checked")) {section_list['evaluation'] = 1}
+
+    if($('#cbx_app').is(":checked")) {section_list['app'] = 1}
+
+    if($('#cbx_clg').is(":checked")) {section_list['clg'] = 1}
+
+    if($('#cbx_methodology').is(":checked")) {section_list['methodology'] = 1}
+
+    if($('#cbx_conclusion').is(":checked")) {section_list['conclusion'] = 1}
+
+
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: "/select_sections",
+        data: section_list,
+        success: function(result) {
+            for(var p in result) {
+                if (p == "title") {
+                    document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Title </h2>";
+                    document.getElementById("content_modify").innerHTML+= "<p id=section_" + p + " class=\"form-control\">"  + "A Survey of " +document.getElementById("topic_input_box").value + "</p>";
+                }
+            }
+
+            for(var p in result) {
+                if (p == "abstract") {
+                    document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Abstract </h2>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 10 \">" + result[p][0] + " " + result[p][1] + "</textarea>";
+
+                }
+            }
+
+            for(var p in result) {
+                if (p == "introduction") {
+                    document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Introduction </h2>";
+
+                    document.getElementById("content_modify").innerHTML+= "<h3 style=\"padding: 0px; color: black\">" + result[p][0]["subtitle"]+ "</h3>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea name=\"intro_sub_content\" class=\"form-control\" rows = \" 30 \">" + result[p][0]["content"] + "</textarea><p>";
+
+                    document.getElementById("content_modify").innerHTML+= "<h3 style=\"padding: 0px; color: black\">" + result[p][1]["subtitle"]+ "</h3>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea name=\"intro_sub_content\" class=\"form-control\" rows = \" 30 \">" + result[p][1]["content"] + "</textarea><p>";
+
+                    document.getElementById("content_modify").innerHTML+= "<h3 style=\"padding: 0px; color: black\">" + result[p][2]["subtitle"]+ "</h3>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea name=\"intro_sub_content\" class=\"form-control\" rows = \" 10 \">" + result[p][2]["content"] + "</textarea><p>";
+                }
+            }
+
+			for(var p in result) {
+                if (p == "c_and_c") {
+                    document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Imbalanced Data: Causes and Characteristics </h2>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 20 \" >" + result[p] + "</textarea>";
+                }
+            }
+
+            for(var p in result) {
+                if (p == "evaluation") {
+                    document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Evaluation Metrics for Imbalanced Data </h2>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 30 \" >" + result[p] + "</textarea>";
+                }
+            }
+
+            for(var p in result) {
+                if (p == "methodology") {
+                    document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Techniques for Handling Imbalanced Data </h2>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 10 \">" + result[p][0] + "</textarea><p>";
+
+                    document.getElementById("content_modify").innerHTML+= "<h3 style=\"padding: 0px; color: black\"> Sub-section </h3>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea name=\"method_sub_title\" class=\"form-control\" rows = \" 1 \">" + result[p][1][0]["subtitle"] + "</textarea><p>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea name=\"method_sub_content\" class=\"form-control\" rows = \" 30 \">" + result[p][1][0]["content"] + "</textarea><p>";
+
+                    document.getElementById("content_modify").innerHTML+= "<h3 style=\"padding: 0px; color: black\"> Sub-section </h3>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea name=\"method_sub_title\" class=\"form-control\" rows = \" 1 \">" + result[p][1][1]["subtitle"] + "</textarea><p>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea name=\"method_sub_content\" class=\"form-control\" rows = \" 10 \">" + result[p][1][1]["content"] + "</textarea><p>";
+
+                    document.getElementById("content_modify").innerHTML+= "<h3 style=\"padding: 0px; color: black\"> Sub-section </h3>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea name=\"method_sub_title\" class=\"form-control\" rows = \" 1 \">" + result[p][1][2]["subtitle"] + "</textarea><p>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea name=\"method_sub_content\" class=\"form-control\" rows = \" 10 \">" + result[p][1][2]["content"] + "</textarea><p>";
+                }
+            }
+
+			for(var p in result) {
+                if (p == "app") {
+                    document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Applications of Predictive Modeling on Imbalanced Data </h2>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 20 \" >" + result[p] + "</textarea>";
+                }
+            }
+
+            for(var p in result) {
+                if (p == "clg") {
+                    document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\"> Challenges and Open Issues </h2>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 30 \" >" + result[p] + "</textarea>";
+                }
+            }
+
+
+            for(var p in result) {
+                if (p == "conclusion") {
+                    document.getElementById("content_modify").innerHTML+= "<h2 style=\"padding: 0px; color: black\">Conclusion and Future Directions (Future directions generated by ChatGPT) </h2>";
+                    document.getElementById("content_modify").innerHTML+= "<textarea id=section_" + p + " class=\"form-control\" rows = \" 35 \" >" + result[p] + "</textarea>";
+                }
+            }
+
+
+
+
+            for(var p in result) {
+                if (p == "references") {
+                    var cnt = 1;
+                    for (var entry in result[p]) {
+                        document.getElementById("references").innerHTML+= "<p style=\"color:black;\">[" + cnt + "]" + "   " + result[p][entry] + "</p>";
+                        cnt = cnt + 1;
+                    }
+                }
+            }
+
+            $("#modification").attr("style","display:inline;");
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            alert(jqXHR.responseText);
+        }
+    });
+
+    }
+
+	function change_taxonomy(source_taxonomy, ref_id, target_taxonomy) {
+        console.log(source_taxonomy);
+        console.log(ref_id);
+        console.log(target_taxonomy);
+		// remove this item from source_taxonomy
+        var Element = document.getElementById(ref_id);
+        console.log(Element);
+        var old_ul = document.getElementById(ref_id+'_change');
+        var ul_length = old_ul.children.length;
+
+        old_ul.parentNode.removeChild(old_ul);
+        Element.parentNode.removeChild(Element);
+
+        // edit the element
+		var new_ul = document.createElement('ul');
+		$(new_ul).attr('class', 'dropdown-menu');
+		$(new_ul).attr('id', ref_id+'_change');
+		for (var i = 0; i < ul_length; i ++) {
+            var li=document.createElement("li");
+            if (target_taxonomy == old_ul.children[i].textContent) {
+                var attr_ = "<a onclick=\'change_taxonomy(\""
+									+ target_taxonomy
+									+ "\" , \""
+									+ ref_id
+									+ "\", \""
+									+ source_taxonomy
+									+ "\")\'>"
+									+ source_taxonomy
+									+ "</a>";
+            } else {
+                var attr_ = "<a onclick=\'change_taxonomy(\""
+                    + target_taxonomy
+                    + "\" , \""
+                    + ref_id
+                    + "\", \""
+                    + old_ul.children[i].textContent
+                    + "\")\'>"
+                    + old_ul.children[i].textContent
+                    + "</a>";
+			}
+            $(attr_).appendTo(li);
+            $(li).appendTo(new_ul);
+		}
+		$(new_ul).appendTo(Element.children[2].children[0]);
+        // add this item to target_taxonomy
+        var target = document.getElementById(target_taxonomy);
+        // console.log(target.innerHTML);
+        target.appendChild(Element);
+
+
+
+    }
+	marked.setOptions({
+            sanitize: true,
+            // 可选：你还可以启用其他选项，如 smartypants
+            smartypants: true
+        });
+		
+	function display_survey() {
+    // 从 views 获取 survey_id
+    $.ajax({
+      url: '/get_survey_id', // 假设你的后端视图在这个 URL 上返回 survey_id
+      method: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        var survey_id = data.survey_id; // 假设 views 返回的 JSON 格式是 { "survey_id": "123" }
+
+        // 获取 JSON 文件内容
+        $.ajax({
+          url: '/static/data/txt/' + survey_id + '/generated_result.json',
+          method: 'GET',
+          dataType: 'json',
+          success: function(surveyData) {
+			document.getElementById("survey_content").innerHTML = "";
+
+			// 显示 Survey 标题
+			var topic = document.getElementById("topic_input_box").value || "Default Topic";
+			var surveyTitleMarkdown = "# A Survey of " + topic;
+			var surveyTitleHTML = marked.parse(surveyTitleMarkdown);
+			document.getElementById("survey_content").innerHTML += surveyTitleHTML;
+
+			// 显示 Survey 内容
+			var contentMarkdown = surveyData.content || "No content available.";
+			var contentHTML = marked.parse(contentMarkdown);
+			document.getElementById("survey_content").innerHTML += contentHTML;
+
+			// 显示 References 标题
+			var referencesTitleMarkdown = "## References";
+			var referencesTitleHTML = marked.parse(referencesTitleMarkdown);
+			referencesTitleHTML += "[1] Stefano Baccianella, Andrea Esuli, and Fabrizio Sebastiani. 2009. Evaluation measures for ordinal regression. Ninth International Conference on Intelligent Systems Design and Applications, 2009. ISDA’09. IEEE, 283–287. doi: https://doi.org/10.1109/ISDA.2009.230.\
+<br>[2] Guilherme Batista, Danilo Silva, and Ronaldo Prati. 2012. An experimental design to evaluate class imbalance treatment methods. 2012 11th International Conference on Machine Learning and Applications (ICMLA), Vol. 2. IEEE, 95–101. doi: https://doi.org/10.1109/ICMLA.2012.162.\
+<br>[3] Gustavo E.A.P.A. Batista, Ronaldo C. Prati, and Maria Carolina Monard. 2004. A study of the behavior of several methods for balancing machine learning training data. ACM SIGKDD Explor. Newslett. 6, 1 (2004), 20–29. doi: https://doi.org/10.1145/1007730.1007735.\
+<br>[4] Rukshan Batuwita, and Vasile Palade. 2010. FSVM-CIL: Fuzzy support vector machines for class imbalance learning. IEEE Trans. Fuzzy Syst. 18, 3 (2010), 558–571. doi: https://doi.org/10.1109/TFUZZ.2010.2042721.\
+<br>[5] Nitesh V. Chawla, Lawrence O. Hall, and Ajay Joshi. 2005. Wrapper-based computation and evaluation of sampling methods for imbalanced datasets. Proceedings of the 1st International Workshop on UtilityBased Data Mining. ACM, New York, NY, 24–33. doi: https://doi.org/10.1145/1089827.1089830.\
+<br>[6] Sheng Chen, Haibo He, and Edwardo A. Garcia. 2010. Ramoboost: Ranked minority oversampling in boosting. IEEE Trans. Neural Networks 21, 10 (2010), 1624–1642. doi: https://doi.org/10.1109/TNN.2010.2066988.\
+<br>[7] Xue-wen Chen, and Michael Wasikowski. 2008. Fast: A roc-based feature selection metric for small samples and imbalanced data classification problems. Proceedings of the 14th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. ACM, New York, NY, 124–132. doi: https://doi.org/10.1145/1401890.1401910.\
+<br>[8] Jesse Davis, and Mark Goadrich. 2006. The relationship between Precision-Recall and ROC curves. ICML’06: Proc. of the 23rd Int. Conf. on Machine Learning (ACM ICPS). ACM, New York, NY, 233– 240. doi: https://doi.org/10.1145/1143844.1143874.\
+<br>[9] Marı́a Dolores Del Castillo, and José Ignacio Serrano 2004. A multistrategy approach for digital text categorization from imbalanced documents. ACM SIGKDD Explor. Newslett. doi: https://doi.org/10.1145/1007730.1007740.\
+<br>[10] Chris Drummond, and Robert C. Holte. 2000. Explicitly representing expected cost: An alternative to ROC representation. Proceedings of the Sixth ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. ACM, New York, NY, 198–207. doi: https://doi.org/10.1145/347090.347126.\      \
+<br>[11] Şeyda Ertekin, Jian Huang, Leon Bottou, and Lee Giles. 2007. Learning on the border: Active learning in imbalanced data classification. Proceedings of the Sixteenth ACM Conference on Conference on Information and Knowledge Management. ACM, New York, NY, 127–136. doi: https://doi.org/10.1145/1321440.1321461.\
+<br>[12] Şeyda Ertekin, Jian Huang, and C. Lee Giles. 2007. Active learning for class imbalance problem. Proceedings of the 30th Annual International ACM SIGIR Conference on Research and Development in Information Retrieval. ACM, New York, NY, 823–824. doi: https://doi.org/10.1145/1277741.1277927.\
+<br>[13] Vicente Garcı́a, Ramón Alberto Mollineda, and José Salvador Sánchez 2010. Theoretical analysis of a performance measure for imbalanced data. In 2010 20th International Conference on Pattern Recognition (ICPR). doi: https://doi.org/10.1109/ICPR.2010.156.\
+<br>[14] Alireza Ghasemi, Hamid R. Rabiee, Mohsen Fadaee, Mohammad T. Manzuri, and Mohammad H. Rohban. 2011. Active learning from positive and unlabeled data. 2011 IEEE 11th International Conference on Data Mining Workshops (ICDMW). IEEE, 244–250. doi: https://doi.org/10.1109/ICDMW.2011.20.\
+<br>[15] Haibo He, and Edwardo A. Garcia. 2009. Learning from imbalanced data. IEEE Knowl. Data Eng. 21, 9 (2009), 1263–1284. doi: https://doi.org/10.1145/1007730.1007733.\
+<br>[16] Kewen Li, Wenrong Zhang, Qinghua Lu, and Xianghua Fang. 2014. An improved SMOTE imbalanced data classification method based on support degree. 2014 International Conference on Identification, Information and Knowledge in the Internet of Things (IIKI). IEEE, 34–38. doi: https://doi.org/10.1109/IIKI.2014.14.\
+<br>[17] Peng Li, Pei-Li Qiao, and Yuan-Chao Liu. 2008. A hybrid re-sampling method for SVM learning from imbalanced data sets. Fifth International Conference on Fuzzy Systems and Knowledge Discovery, 2008. FSKD’08. Vol. 2. IEEE, 65–69. doi: https://doi.org/10.1109/FSKD.2008.407.\
+<br>[18] Chun-Fu Lin, and Sheng-De Wang. 2002. Fuzzy support vector machines. IEEE Trans. Neur. Network. 13, 2 (2002), 464–471. doi: https://doi.org/10.1109/TFUZZ.2010.2042721.\
+<br>[19] Xu-Ying Liu, Jianxin Wu, and Zhi-Hua Zhou. 2009. Exploratory undersampling for class-imbalance learning. IEEE Trans. Syst. Man Cybernet. B 39, 2 (2009), 539–550. doi: https://doi.org/10.1109/TSMCB.2008.2007853.\
+<br>[20] Juan J. Rodrı́guez, José-Francisco Dı́ez-Pastor, Jesús Maudes, and César Garcı́a-Osorio 2012. Disturbing neighbors ensembles of trees for imbalanced data. In 2012 11th International Conference on Machine Learning and Applications (ICMLA),. doi: https://doi.org/10.1109/ICMLA.2012.181.\
+<br>[21] Chris Seiffert, Taghi M. Khoshgoftaar, Jason Van Hulse, and Amri Napolitano. 2010. RUSBoost: A hybrid approach to alleviating class imbalance. IEEE Trans.Syst. Man Cybernet. A 40, 1 (2010), 185–197. doi: https://doi.org/10.1109/TSMCA.2009.2029559.\
+<br>[22] Jie Song, Xiaoling Lu, and Xizhi Wu. 2009. An improved AdaBoost algorithm for unbalanced classification data. Sixth International Conference on Fuzzy Systems and Knowledge Discovery, 2009. FSKD’09. Vol. 1. IEEE, 109–113. doi: https://doi.org/10.1109/FSKD.2009.608.\
+<br>[23] Yanmin Sun, Mohamed S. Kamel, and Yang Wang. 2006. Boosting for learning multiple classes with imbalanced class distribution. Sixth International Conference on Data Mining, 2006. ICDM’06. IEEE, 592–602. doi: https://doi.org/10.1109/ICDM.2006.29.\
+<br>[24] Dacheng Tao, Xiaoou Tang, Xuelong Li, and Xindong Wu. 2006. Asymmetric bagging and random subspace for support vector machines-based relevance feedback in image retrieval. IEEE Trans. Pattern Anal. Mach. Intell. 28, 7 (2006), 1088–1099. doi: https://doi.org/10.1109/TPAMI.2006.134.\
+<br>[25] Luı́s Torgo 2005. Regression error characteristic surfaces. In KDD’05: Proc. of the 11th ACM SIGKDD Int. Conf. on Knowledge Discovery and Data Mining. ACM Press,. doi: https://doi.org/10.1145/1081870.1081959.\
+<br>[26] Jason Van Hulse, Taghi M. Khoshgoftaar, and Amri Napolitano. 2007. Experimental perspectives on learning from imbalanced data. Proceedings of the 24th International Conference on Machine Learning. ACM, 935–942. doi: https://doi.org/10.1145/1273496.1273614.\
+<br>[27] Byron C. Wallace, and Issa J. Dahabreh. 2012. Class probability estimates are unreliable for imbalanced data (and how to fix them). 2012 IEEE 12th International Conference on Data Mining (ICDM). IEEE, 695–704. doi: https://doi.org/10.1109/ICDM.2012.115.\
+<br>[28] Mike Wasikowski, and Xue-wen Chen. 2010. Combating the small sample class imbalance problem using feature selection. IEEE Trans. Knowl. Data Eng. 22, 10 (2010), 1388–1400. doi: https://doi.org/10.1109/TKDE.2009.187.\
+<br>[29] Zeping Yang, and Daqi Gao. 2012. An active under-sampling approach for imbalanced data classification. 2012 Fifth International Symposium on Computational Intelligence and Design (ISCID). Vol. 2. IEEE, 270–273. doi: https://doi.org/10.1109/ISCID.2012.219.\
+<br>[30] Kihoon Yoon, and Stephen Kwek. 2005. An unsupervised learning approach to resolving the data imbalanced issue in supervised learning problems in functional genomics. Fifth International Conference on Hybrid Intelligent Systems, 2005. HIS’05. IEEE, 6–pp. doi: https://doi.org/10.1109/ICHIS.2005.23. \
+<br>[31] Zhaohui Zheng, Xiaoyun Wu, and Rohini Srihari. 2004. Feature selection for text categorization on imbalanced data. ACM SIGKDD Explor. Newslett. 6, 1 (2004), 80–89. doi: https://doi.org/10.1145/1007730.1007741.\
+<br>[32] Zhi-Hua Zhou, and Xu-Ying Liu. 2006. Training cost-sensitive neural networks with methods addressing the class imbalance problem. IEEE Trans. Knowl. Data Eng. 18, 1 (2006), 63–77. doi: https://doi.org/10.1109/TKDE.2006.17."
+			document.getElementById("survey_content").innerHTML += referencesTitleHTML;
+
+			// 显示 References 的内容
+			// var referencesMarkdown = surveyData.references || "No references available.";
+			// var referencesHTML = marked.parse(referencesMarkdown);
+			// document.getElementById("survey_content").innerHTML += referencesHTML;
+            // 显示 Survey 区域
+            $("#survey").attr("style", "display:inline;");
+          },
+          error: function() {
+            alert("Failed to load survey content.");
+          }
+        });
+      },
+      error: function() {
+        alert("Failed to get survey ID.");
+      }
+    });
+  }
+
+</script>
+
+
+
+{% endblock %}
+{% endblock %}
+<!--<script src="http://code.jquery.com/jquery-1.9.1.js"></script>-->
+<!--<script src='../../../static/scripts/bootstrap.min.js' ></script>-->
+<!--<script src='../../../static/scripts/jquery.nicescroll.min.js' ></script>-->
+<!--<script src='../../../static/scripts/evenfly.js' ></script>-->
+
+</body>
+
+<footer>
+	<p>
+	<p>
+	<p>
+	<!--<h5 align="center" > IMCL NLP Group</h5>-->
+</footer>
+</html>
+
