@@ -56,8 +56,9 @@ TXT_PATH = './src/static/data/txt/'
 TSV_PATH = './src/static/data/tsv/'
 MD_PATH = './src/static/data/md/'
 INFO_PATH = './src/static/data/info/'
+IMG_PATH = './src/static/img/'
 
-paths = [DATA_PATH, TXT_PATH, TSV_PATH, MD_PATH, INFO_PATH]
+paths = [DATA_PATH, TXT_PATH, TSV_PATH, MD_PATH, INFO_PATH, IMG_PATH]
 
 for path in paths:
     path_obj = Path(path)
