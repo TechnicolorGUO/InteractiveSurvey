@@ -48,15 +48,21 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import os
+from pathlib import Path
+
 DATA_PATH = './src/static/data/pdf/'
 TXT_PATH = './src/static/data/txt/'
 TSV_PATH = './src/static/data/tsv/'
 MD_PATH = './src/static/data/md/'
-INFO_PATH = './src/static/data/info/' 
+INFO_PATH = './src/static/data/info/'
+
 paths = [DATA_PATH, TXT_PATH, TSV_PATH, MD_PATH, INFO_PATH]
+
 for path in paths:
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
+    path_obj = Path(path)
+    if not path_obj.exists():
+        path_obj.mkdir(parents=True, exist_ok=True)
         print(f"Created directory: {path}")
     else:
         print(f"Directory already exists: {path}")
@@ -96,7 +102,7 @@ Global_ref_list = []
 Global_category_description = []
 Global_category_label = []
 Global_df_selected = ""
-Global_test_flag = False
+Global_test_flag = True
 Global_collection_names = []
 Global_description_list = []
 Global_pipeline = None
