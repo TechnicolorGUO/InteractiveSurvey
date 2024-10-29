@@ -371,7 +371,7 @@ def generate_context_list(outline, collection_list):
         print(f"Generating context for section: {title}")
         context_temp = ""
         for i in range(len(collection_list[cluster_idx])):
-            context = query_embedding_for_title(collection_list[i], title)
+            context = query_embedding_for_title(collection_list[cluster_idx][i], title)
             context_temp += context
             context_temp += "\n"
         context_list.append(context_temp)
