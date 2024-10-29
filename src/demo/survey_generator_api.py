@@ -360,6 +360,7 @@ def generate_context_list(outline, collection_list):
     context_list = []
     subsections = parse_outline_with_subsections(outline)
     for level, title in subsections:
+        print(f"Generating context for section: {title}")
         context_temp = ""
         for i in range(len(collection_list)):
             context = query_embedding_for_title(collection_list[i], title)

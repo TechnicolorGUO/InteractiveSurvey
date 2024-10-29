@@ -35,7 +35,7 @@ from django.core.files.storage import default_storage
 
 from .asg_loader import DocumentLoading
 # from .parse import DocumentLoading
-from .asg_retriever import process_pdf, query_embeddings
+from .asg_retriever import legal_pdf, process_pdf, query_embeddings
 from .asg_generator import generate,generate_sentence_patterns
 from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen
 import glob
@@ -105,6 +105,7 @@ Global_category_label = []
 Global_df_selected = ""
 Global_test_flag = True
 Global_collection_names = []
+Global_collection_names_clustered = []
 Global_description_list = []
 Global_pipeline = None
 Global_cluster_names = []
@@ -782,6 +783,8 @@ def automatic_taxonomy(request):
 
 
     cluster_info = {category_label_summarized[i]:ref_titles[i] for i in range(len(category_label_summarized))}
+    for key, value in cluster_info.items():
+        cluster_info[key] = [legal_pdf(i) for i in value]
     cluster_info_path = f'./src/static/data/info/{Global_survey_id}/cluster_info.json'
     with open(cluster_info_path, 'w') as outfile:
         json.dump(cluster_info, outfile, indent=4, ensure_ascii=False)
