@@ -358,17 +358,26 @@ def query_embedding_for_title(collection_name: str, title: str, n_results: int =
     
 def generate_context_list(outline, collection_list):
     context_list = []
+    cluster_idx = -1
+
     subsections = parse_outline_with_subsections(outline)
     for level, title in subsections:
+        if(title.startswith("3")):
+            cluster_idx = 0
+        elif(title.startswith("4")):
+            cluster_idx = 1
+        elif(title.startswith("5")):
+            cluster_idx = 2
         print(f"Generating context for section: {title}")
         context_temp = ""
-        for i in range(len(collection_list)):
+        for i in range(len(collection_list[cluster_idx])):
             context = query_embedding_for_title(collection_list[i], title)
             context_temp += context
             context_temp += "\n"
         context_list.append(context_temp)
     print(f"Context list generated with length {len(context_list)}.")
     return context_list
+
 
 
 

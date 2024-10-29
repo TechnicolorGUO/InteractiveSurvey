@@ -666,7 +666,7 @@ def get_topic(request):
 
 @csrf_exempt
 def automatic_taxonomy(request):
-    global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label
+    global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label, Global_collection_names_clustered
     ref_dict = dict(request.POST)
     print(ref_dict)
     ref_list = ref_dict['refs']
@@ -784,7 +784,9 @@ def automatic_taxonomy(request):
 
     cluster_info = {category_label_summarized[i]:ref_titles[i] for i in range(len(category_label_summarized))}
     for key, value in cluster_info.items():
-        cluster_info[key] = [legal_pdf(i) for i in value]
+        temp = [legal_pdf(i) for i in value]
+        cluster_info[key] = temp
+        Global_collection_names_clustered.append(temp)
     cluster_info_path = f'./src/static/data/info/{Global_survey_id}/cluster_info.json'
     with open(cluster_info_path, 'w') as outfile:
         json.dump(cluster_info, outfile, indent=4, ensure_ascii=False)
@@ -964,7 +966,7 @@ def get_survey(request):
 @csrf_exempt
 def get_survey_id(request):
     global Global_survey_id, Global_survey_title, Global_collection_names, Global_pipeline
-    generateSurvey_qwen(Global_survey_id, Global_survey_title, Global_collection_names, Global_pipeline)
+    generateSurvey_qwen(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline)
     return JsonResponse({"survey_id": Global_survey_id})
 
 
