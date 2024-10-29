@@ -140,7 +140,7 @@ Context:
 Introduction:
 '''
 
-    formatted_prompt = template.format(context=context)
+    formatted_prompt = template.format(context=context, title=title)
     response = generateResponseIntroduction(client, formatted_prompt)
 
     # 从生成的结果中提取答案
