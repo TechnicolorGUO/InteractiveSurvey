@@ -102,7 +102,7 @@ Introduction:
 
     return answer
 
-def generate_introduction_alternate(context, client):
+def generate_introduction_alternate(title, context, client):
 
     template_explicit_section = '''
 Directly generate an introduction based on the following context (a survey paper).
@@ -131,6 +131,9 @@ The introduction should include 4 parts (6 paragraphs):
 The introduction should strictly follow the style of a standard academic introduction, with the total length limited to 600-700 words. Do not include any headings (words like "Background:", "Summary:") or extra explanations except for the introduction.
 Do not include any sentences like "The first section...", "The second section...".
 
+
+Survey title:
+{title}
 Context:
 {context}
 
@@ -236,13 +239,13 @@ def process_outline_with_empty_sections_new(outline_list, selected_outline, cont
 
     return content
 
-def generate_survey_paper_new(outline, context_list, client):
+def generate_survey_paper_new(title, outline, context_list, client):
     parsed_outline = ast.literal_eval(outline)
     selected_subsections = parse_outline_with_subsections(outline)
 
     full_survey_content = process_outline_with_empty_sections_new(parsed_outline, selected_subsections, context_list, client)
 
-    generated_introduction = generate_introduction_alternate(full_survey_content, client)
+    generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
     
     introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"
     full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)

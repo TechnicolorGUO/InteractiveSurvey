@@ -709,7 +709,7 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
         "html": ""
     }
 
-    generated_survey_paper = generate_survey_paper_new(outline, context_list, client)
+    generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client)
     print("Generated Survey Paper:\n", generated_survey_paper)
 
     generated_introduction = generate_introduction(generated_survey_paper, client)
