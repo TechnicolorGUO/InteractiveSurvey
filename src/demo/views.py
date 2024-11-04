@@ -380,9 +380,20 @@ def upload_refs(request):
                 # 保存新文件
                 saved_file_name = default_storage.save(file_path, file)
                 file_size = round(float(file.size) / 1024000, 2)
+
+                title = file.name
+                title_new = title.strip()
+                invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*','_']
+                for char in invalid_chars:
+                    title_new = title_new.replace(char, ' ')
+                print("============================")
+                print(title_new)
+                saved_file_name = f'./src/static/data/pdf/{uid_str}/{title_new}'
+
+
                 collection_name, processed_file = process_file(saved_file_name, Global_survey_id)
                 Global_collection_names.append(collection_name)
-                filenames.append(os.path.basename(file_path))
+                filenames.append(processed_file)
                 filesizes.append(file_size)
                 print(filenames)
                 print(filesizes)
