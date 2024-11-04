@@ -250,3 +250,7 @@ def query_embeddings(collection_name: str, query_list: list):
                 final_context += chunk.strip() + "//\n"
                 seen_chunks.add(chunk)
     return final_context
+
+
+if __name__ == "__main__":
+    print(legal_pdf("blockchain-enabled_federated_learning_data_protection_aggregata.json"))
