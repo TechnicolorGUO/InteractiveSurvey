@@ -216,8 +216,8 @@ def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings)
     # collection_name = os.path.basename(file_path).split('.')[0]
 
     # New logic to create collection_name
-    filename = os.path.basename(file_path)
-    collection_name = legal_pdf(filename)
+    # filename = os.path.basename(file_path)
+    collection_name = legal_pdf(title_new)
 
     retriever = Retriever()
     retriever.list_collections_chroma()
@@ -229,7 +229,7 @@ def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings)
         metadata_list=metadata_list
     )
 
-    return collection_name, embeddings_list, documents_list, metadata_list, title ,title_new
+    return collection_name, embeddings_list, documents_list, metadata_list,title_new
 
 def query_embeddings(collection_name: str, query_list: list):
     embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
