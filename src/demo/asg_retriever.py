@@ -229,7 +229,7 @@ def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings)
         metadata_list=metadata_list
     )
 
-    return collection_name, embeddings_list, documents_list, metadata_list, title_new
+    return collection_name, embeddings_list, documents_list, metadata_list, title ,title_new
 
 def query_embeddings(collection_name: str, query_list: list):
     embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
