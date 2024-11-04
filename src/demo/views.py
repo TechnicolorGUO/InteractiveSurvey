@@ -382,7 +382,7 @@ def upload_refs(request):
                 file_size = round(float(file.size) / 1024000, 2)
                 collection_name, processed_file = process_file(saved_file_name, Global_survey_id)
                 Global_collection_names.append(collection_name)
-                filenames.append(file.name)
+                filenames.append(os.path.basename(file_path))
                 filesizes.append(file_size)
                 print(filenames)
                 print(filesizes)
