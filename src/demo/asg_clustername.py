@@ -72,16 +72,7 @@ The description list is:{sentence_list}'''
 # print(result)  # Output might look like ["Cluster One", "Cluster Two", "Cluster Three"]
 
 def refine_cluster_name(cluster_names, survey_title):
-    """
-    Refines a list of cluster names as a cohesive group using the Qwen model.
-
-    Parameters:
-    - cluster_names (list): List of cluster names to refine.
-    - survey_title (str): The title of the survey to ensure relevance.
-
-    Returns:
-    - list: Refined list of cluster names.
-    """
+    cluster_names = str(cluster_names)  # Convert to string to handle list input
     # Define the system prompt to set the context
     system_prompt = f'''You are a research assistant tasked with optimizing and refining a set of section titles for a survey paper. The survey paper is about "{survey_title}". 
 '''
@@ -93,8 +84,8 @@ Here is a set of section titles generated for the survey topic "{survey_title}":
 Please ensure that all cluster names are coherent and consistent with each other, and that each name is clear, concise, and accurately reflects the corresponding section.
 Notice to remove the overlapping information between the cluster names.
 Each cluster name should be within 8 words and include a keyword from the survey title.
-Response with a list of section titles in the following format without any other irrelevant information:
-["Refined Title 1", "Refined Title 2", "Refined Title 3"]
+Response with a list of section titles in the following format without any other irrelevant information,
+For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
 '''
     
     messages = [
@@ -123,10 +114,8 @@ Response with a list of section titles in the following format without any other
         # Stream the response and concatenate into a complete text
         text = ""
         for chunk in chat_response:
-            if 'choices' in chunk and len(chunk.choices) > 0:
-                delta = chunk.choices[0].delta
-                if 'content' in delta:
-                    text += delta['content']
+            if chunk.choices[0].delta.content:
+                text += chunk.choices[0].delta.content
 
         print("The raw response text is:")
         print(text)
