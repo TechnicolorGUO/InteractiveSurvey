@@ -72,52 +72,86 @@ The description list is:{sentence_list}'''
 # print(result)  # Output might look like ["Cluster One", "Cluster Two", "Cluster Three"]
 
 def refine_cluster_name(cluster_names, survey_title):
-    system_prompt = f'''You are a research assistant working on a survey paper. The survey paper is about "{survey_title}".'''
-    user_prompt = f'''Given a list of 3 cluster names generated for the survey content, you need to refine them to make them more descriptive and relevant to the survey topic. \
-Your response should be a list with 3 elements, each element should be a refined cluster name in string. \
-For example, ["Pre-training of LLMs", "Fine-tuning of LLMs", "Evaluation of LLMs"]
-The current cluster names are: {cluster_names}'''
+    """
+    Refines a list of cluster names as a cohesive group using the Qwen model.
 
+    Parameters:
+    - cluster_names (list): List of cluster names to refine.
+    - survey_title (str): The title of the survey to ensure relevance.
+
+    Returns:
+    - list: Refined list of cluster names.
+    """
+    # Define the system prompt to set the context
+    system_prompt = f'''You are a research assistant tasked with optimizing and refining a set of section titles for a survey paper. The survey paper is about "{survey_title}". 
+Please ensure that all cluster names are coherent and consistent with each other, and that each name is clear, concise, and accurately reflects the corresponding section. 
+Each cluster name should be within 8 words and include a keyword from the survey title.'''
+    
+    # Construct the user prompt, including all cluster names
+    user_prompt = f'''
+Here is a set of section titles generated for the survey topic "{survey_title}":
+{cluster_names}
+
+Please perform a global optimization and refinement of these section titles. Ensure they are consistent overall, each title is concise (no more than 8 words), and includes a keyword from the survey title. 
+Provide the refined list of section titles in the following format:
+["Refined Title 1", "Refined Title 2", "Refined Title 3"]
+'''
+    
     messages = [
-        {"role": "system", "content": system_prompt}, 
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
-
+    
+    # Initialize OpenAI client
     openai_api_key = os.getenv("OPENAI_API_KEY")
     openai_api_base = os.getenv("OPENAI_API_BASE")
     client = OpenAI(
         api_key=openai_api_key,
         base_url=openai_api_base,
     )
-
-    chat_response = client.chat.completions.create(
-        model="Qwen2.5-72B-Instruct",
-        max_tokens=768,
-        temperature=0.5,
-        stop="<|im_end|>",
-        stream=True,
-        messages=messages
-    )
-
-    # Stream the response to a single text string
-    text = ""
-    for chunk in chat_response:
-        if chunk.choices[0].delta.content:
-            text += chunk.choices[0].delta.content
-
-    # Use regex to extract the first content within []
-    match = re.search(r'\[(.*?)\]', text)
-    if match:
-        refined_cluster_names = [match.group(1).strip().strip('"').strip("'")]
-    else:
-        refined_cluster_names = [
-            survey_title + ": Definition",
-            survey_title + ": Methods",
-            survey_title + ": Evaluation"
-        ]  # Handle cases where pattern isn't found
+    
+    try:
+        chat_response = client.chat.completions.create(
+            model="Qwen2.5-72B-Instruct",
+            max_tokens=256,
+            temperature=0.5,
+            stop="<|im_end|>",
+            stream=True,
+            messages=messages
+        )
+    
+        # Stream the response and concatenate into a complete text
+        text = ""
+        for chunk in chat_response:
+            if 'choices' in chunk and len(chunk.choices) > 0:
+                delta = chunk.choices[0].delta
+                if 'content' in delta:
+                    text += delta['content']
+    
+        # Use regex to extract content within square brackets
+        match = re.search(r'\[(.*?)\]', text, re.DOTALL)
+        if match:
+            # Extract each refined title enclosed in double quotes
+            refined_names = re.findall(r'"(.*?)"', match.group(1))
+            # If no matches found with double quotes, try single quotes
+            if not refined_names:
+                refined_names = re.findall(r"'(.*?)'", match.group(1))
+            # Strip any leading/trailing whitespace from each name
+            refined_cluster_names = [name.strip() for name in refined_names]
+        else:
+            refined_cluster_names = [
+                survey_title + ": Definition",
+                survey_title + ": Methods",
+                survey_title + ": Evaluation"
+            ]  # Handle cases where pattern isn't found
+    
+    except Exception as e:
+        print(f"An error occurred while refining cluster names: {e}")
+        refined_cluster_names = ["Refinement Error"] * len(cluster_names)
+    
     print("The refined cluster names are:")
     print(refined_cluster_names)
-    return refined_cluster_names
+    return refined_cluster_names  # Returns a list with the refined cluster names
 
 
 if __name__ == "__main__":
