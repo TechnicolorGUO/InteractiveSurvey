@@ -84,16 +84,16 @@ def refine_cluster_name(cluster_names, survey_title):
     """
     # Define the system prompt to set the context
     system_prompt = f'''You are a research assistant tasked with optimizing and refining a set of section titles for a survey paper. The survey paper is about "{survey_title}". 
-Please ensure that all cluster names are coherent and consistent with each other, and that each name is clear, concise, and accurately reflects the corresponding section. 
-Each cluster name should be within 8 words and include a keyword from the survey title.'''
+'''
     
     # Construct the user prompt, including all cluster names
     user_prompt = f'''
 Here is a set of section titles generated for the survey topic "{survey_title}":
 {cluster_names}
-
-Please perform a global optimization and refinement of these section titles. Ensure they are consistent overall, each title is concise (no more than 8 words), and includes a keyword from the survey title. 
-Provide the refined list of section titles in the following format:
+Please ensure that all cluster names are coherent and consistent with each other, and that each name is clear, concise, and accurately reflects the corresponding section.
+Notice to remove the overlapping information between the cluster names.
+Each cluster name should be within 8 words and include a keyword from the survey title.
+Response with a list of section titles in the following format without any other irrelevant information:
 ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
 '''
     
@@ -127,6 +127,9 @@ Provide the refined list of section titles in the following format:
                 delta = chunk.choices[0].delta
                 if 'content' in delta:
                     text += delta['content']
+
+        print("The raw response text is:")
+        print(text)
     
         # Use regex to extract content within square brackets
         match = re.search(r'\[(.*?)\]', text, re.DOTALL)
