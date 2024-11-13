@@ -1133,60 +1133,52 @@ function select_sections() {
 			// 显示 References 标题
 			var referencesTitleMarkdown = "## References";
 			var referencesTitleHTML = marked.parse(referencesTitleMarkdown);
-			referencesTitleHTML += "[1] Stefano Baccianella, Andrea Esuli, and Fabrizio Sebastiani. 2009. Evaluation measures for ordinal regression. Ninth International Conference on Intelligent Systems Design and Applications, 2009. ISDA’09. IEEE, 283–287. doi: https://doi.org/10.1109/ISDA.2009.230.\
-<br>[2] Guilherme Batista, Danilo Silva, and Ronaldo Prati. 2012. An experimental design to evaluate class imbalance treatment methods. 2012 11th International Conference on Machine Learning and Applications (ICMLA), Vol. 2. IEEE, 95–101. doi: https://doi.org/10.1109/ICMLA.2012.162.\
-<br>[3] Gustavo E.A.P.A. Batista, Ronaldo C. Prati, and Maria Carolina Monard. 2004. A study of the behavior of several methods for balancing machine learning training data. ACM SIGKDD Explor. Newslett. 6, 1 (2004), 20–29. doi: https://doi.org/10.1145/1007730.1007735.\
-<br>[4] Rukshan Batuwita, and Vasile Palade. 2010. FSVM-CIL: Fuzzy support vector machines for class imbalance learning. IEEE Trans. Fuzzy Syst. 18, 3 (2010), 558–571. doi: https://doi.org/10.1109/TFUZZ.2010.2042721.\
-<br>[5] Nitesh V. Chawla, Lawrence O. Hall, and Ajay Joshi. 2005. Wrapper-based computation and evaluation of sampling methods for imbalanced datasets. Proceedings of the 1st International Workshop on UtilityBased Data Mining. ACM, New York, NY, 24–33. doi: https://doi.org/10.1145/1089827.1089830.\
-<br>[6] Sheng Chen, Haibo He, and Edwardo A. Garcia. 2010. Ramoboost: Ranked minority oversampling in boosting. IEEE Trans. Neural Networks 21, 10 (2010), 1624–1642. doi: https://doi.org/10.1109/TNN.2010.2066988.\
-<br>[7] Xue-wen Chen, and Michael Wasikowski. 2008. Fast: A roc-based feature selection metric for small samples and imbalanced data classification problems. Proceedings of the 14th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. ACM, New York, NY, 124–132. doi: https://doi.org/10.1145/1401890.1401910.\
-<br>[8] Jesse Davis, and Mark Goadrich. 2006. The relationship between Precision-Recall and ROC curves. ICML’06: Proc. of the 23rd Int. Conf. on Machine Learning (ACM ICPS). ACM, New York, NY, 233– 240. doi: https://doi.org/10.1145/1143844.1143874.\
-<br>[9] Marı́a Dolores Del Castillo, and José Ignacio Serrano 2004. A multistrategy approach for digital text categorization from imbalanced documents. ACM SIGKDD Explor. Newslett. doi: https://doi.org/10.1145/1007730.1007740.\
-<br>[10] Chris Drummond, and Robert C. Holte. 2000. Explicitly representing expected cost: An alternative to ROC representation. Proceedings of the Sixth ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. ACM, New York, NY, 198–207. doi: https://doi.org/10.1145/347090.347126.\      \
-<br>[11] Şeyda Ertekin, Jian Huang, Leon Bottou, and Lee Giles. 2007. Learning on the border: Active learning in imbalanced data classification. Proceedings of the Sixteenth ACM Conference on Conference on Information and Knowledge Management. ACM, New York, NY, 127–136. doi: https://doi.org/10.1145/1321440.1321461.\
-<br>[12] Şeyda Ertekin, Jian Huang, and C. Lee Giles. 2007. Active learning for class imbalance problem. Proceedings of the 30th Annual International ACM SIGIR Conference on Research and Development in Information Retrieval. ACM, New York, NY, 823–824. doi: https://doi.org/10.1145/1277741.1277927.\
-<br>[13] Vicente Garcı́a, Ramón Alberto Mollineda, and José Salvador Sánchez 2010. Theoretical analysis of a performance measure for imbalanced data. In 2010 20th International Conference on Pattern Recognition (ICPR). doi: https://doi.org/10.1109/ICPR.2010.156.\
-<br>[14] Alireza Ghasemi, Hamid R. Rabiee, Mohsen Fadaee, Mohammad T. Manzuri, and Mohammad H. Rohban. 2011. Active learning from positive and unlabeled data. 2011 IEEE 11th International Conference on Data Mining Workshops (ICDMW). IEEE, 244–250. doi: https://doi.org/10.1109/ICDMW.2011.20.\
-<br>[15] Haibo He, and Edwardo A. Garcia. 2009. Learning from imbalanced data. IEEE Knowl. Data Eng. 21, 9 (2009), 1263–1284. doi: https://doi.org/10.1145/1007730.1007733.\
-<br>[16] Kewen Li, Wenrong Zhang, Qinghua Lu, and Xianghua Fang. 2014. An improved SMOTE imbalanced data classification method based on support degree. 2014 International Conference on Identification, Information and Knowledge in the Internet of Things (IIKI). IEEE, 34–38. doi: https://doi.org/10.1109/IIKI.2014.14.\
-<br>[17] Peng Li, Pei-Li Qiao, and Yuan-Chao Liu. 2008. A hybrid re-sampling method for SVM learning from imbalanced data sets. Fifth International Conference on Fuzzy Systems and Knowledge Discovery, 2008. FSKD’08. Vol. 2. IEEE, 65–69. doi: https://doi.org/10.1109/FSKD.2008.407.\
-<br>[18] Chun-Fu Lin, and Sheng-De Wang. 2002. Fuzzy support vector machines. IEEE Trans. Neur. Network. 13, 2 (2002), 464–471. doi: https://doi.org/10.1109/TFUZZ.2010.2042721.\
-<br>[19] Xu-Ying Liu, Jianxin Wu, and Zhi-Hua Zhou. 2009. Exploratory undersampling for class-imbalance learning. IEEE Trans. Syst. Man Cybernet. B 39, 2 (2009), 539–550. doi: https://doi.org/10.1109/TSMCB.2008.2007853.\
-<br>[20] Juan J. Rodrı́guez, José-Francisco Dı́ez-Pastor, Jesús Maudes, and César Garcı́a-Osorio 2012. Disturbing neighbors ensembles of trees for imbalanced data. In 2012 11th International Conference on Machine Learning and Applications (ICMLA),. doi: https://doi.org/10.1109/ICMLA.2012.181.\
-<br>[21] Chris Seiffert, Taghi M. Khoshgoftaar, Jason Van Hulse, and Amri Napolitano. 2010. RUSBoost: A hybrid approach to alleviating class imbalance. IEEE Trans.Syst. Man Cybernet. A 40, 1 (2010), 185–197. doi: https://doi.org/10.1109/TSMCA.2009.2029559.\
-<br>[22] Jie Song, Xiaoling Lu, and Xizhi Wu. 2009. An improved AdaBoost algorithm for unbalanced classification data. Sixth International Conference on Fuzzy Systems and Knowledge Discovery, 2009. FSKD’09. Vol. 1. IEEE, 109–113. doi: https://doi.org/10.1109/FSKD.2009.608.\
-<br>[23] Yanmin Sun, Mohamed S. Kamel, and Yang Wang. 2006. Boosting for learning multiple classes with imbalanced class distribution. Sixth International Conference on Data Mining, 2006. ICDM’06. IEEE, 592–602. doi: https://doi.org/10.1109/ICDM.2006.29.\
-<br>[24] Dacheng Tao, Xiaoou Tang, Xuelong Li, and Xindong Wu. 2006. Asymmetric bagging and random subspace for support vector machines-based relevance feedback in image retrieval. IEEE Trans. Pattern Anal. Mach. Intell. 28, 7 (2006), 1088–1099. doi: https://doi.org/10.1109/TPAMI.2006.134.\
-<br>[25] Luı́s Torgo 2005. Regression error characteristic surfaces. In KDD’05: Proc. of the 11th ACM SIGKDD Int. Conf. on Knowledge Discovery and Data Mining. ACM Press,. doi: https://doi.org/10.1145/1081870.1081959.\
-<br>[26] Jason Van Hulse, Taghi M. Khoshgoftaar, and Amri Napolitano. 2007. Experimental perspectives on learning from imbalanced data. Proceedings of the 24th International Conference on Machine Learning. ACM, 935–942. doi: https://doi.org/10.1145/1273496.1273614.\
-<br>[27] Byron C. Wallace, and Issa J. Dahabreh. 2012. Class probability estimates are unreliable for imbalanced data (and how to fix them). 2012 IEEE 12th International Conference on Data Mining (ICDM). IEEE, 695–704. doi: https://doi.org/10.1109/ICDM.2012.115.\
-<br>[28] Mike Wasikowski, and Xue-wen Chen. 2010. Combating the small sample class imbalance problem using feature selection. IEEE Trans. Knowl. Data Eng. 22, 10 (2010), 1388–1400. doi: https://doi.org/10.1109/TKDE.2009.187.\
-<br>[29] Zeping Yang, and Daqi Gao. 2012. An active under-sampling approach for imbalanced data classification. 2012 Fifth International Symposium on Computational Intelligence and Design (ISCID). Vol. 2. IEEE, 270–273. doi: https://doi.org/10.1109/ISCID.2012.219.\
-<br>[30] Kihoon Yoon, and Stephen Kwek. 2005. An unsupervised learning approach to resolving the data imbalanced issue in supervised learning problems in functional genomics. Fifth International Conference on Hybrid Intelligent Systems, 2005. HIS’05. IEEE, 6–pp. doi: https://doi.org/10.1109/ICHIS.2005.23. \
-<br>[31] Zhaohui Zheng, Xiaoyun Wu, and Rohini Srihari. 2004. Feature selection for text categorization on imbalanced data. ACM SIGKDD Explor. Newslett. 6, 1 (2004), 80–89. doi: https://doi.org/10.1145/1007730.1007741.\
-<br>[32] Zhi-Hua Zhou, and Xu-Ying Liu. 2006. Training cost-sensitive neural networks with methods addressing the class imbalance problem. IEEE Trans. Knowl. Data Eng. 18, 1 (2006), 63–77. doi: https://doi.org/10.1109/TKDE.2006.17."
 			document.getElementById("survey_content").innerHTML += referencesTitleHTML;
 
-            // 点击按钮生成 Markdown 文件并下载
-            $('#downloadBtn').on('click', function() {
-                // 获取当前页面的 HTML
-                var surveyContentHTML = document.getElementById("survey_content").innerHTML;
+			var surveyContentHTML = document.getElementById("survey_content").innerHTML;
+			var turndownService = new TurndownService();
+			var markdownContent = turndownService.turndown(surveyContentHTML);
 
-                // 使用 Turndown 将 HTML 转换为 Markdown
-                var turndownService = new TurndownService();
-                var markdownContent = turndownService.turndown(surveyContentHTML);
+			$.ajax({
+				url: '/generate_pdf',
+				method: 'POST',
+				data: {
+					content: markdownContent,
+					survey_id: survey_id
+				},
+				success: function(path) {
+					alert("Success!");
+					$('#downloadBtn').on('click', function(){
+						const link = document.createElement('a');
+						link.href = path;
+						link.download = 'survey.pdf';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+					});
+				},
+			})
 
-                // 创建一个 Blob 对象来存储 Markdown 内容
-                var blob = new Blob([markdownContent], { type: 'text/markdown' });
+            // // 点击按钮生成 Markdown 文件并下载
+            // $('#downloadBtn').on('click', function() {
+            //     // 获取当前页面的 HTML
+            //     var surveyContentHTML = document.getElementById("survey_content").innerHTML;
 
-                // 创建下载链接
-                var link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.download = 'survey.md';
+            //     // 使用 Turndown 将 HTML 转换为 Markdown
+            //     var turndownService = new TurndownService();
+            //     var markdownContent = turndownService.turndown(surveyContentHTML);
 
-                // 模拟点击下载
-                link.click();
-            });
+            //     // 创建一个 Blob 对象来存储 Markdown 内容
+            //     var blob = new Blob([markdownContent], { type: 'text/markdown' });
+
+            //     // 创建下载链接
+            //     var link = document.createElement('a');
+            //     link.href = window.URL.createObjectURL(blob);
+            //     link.download = 'survey.md';
+
+            //     // 模拟点击下载
+            //     link.click();
+            // });
 
 			// 显示 References 的内容
 			// var referencesMarkdown = surveyData.references || "No references available.";

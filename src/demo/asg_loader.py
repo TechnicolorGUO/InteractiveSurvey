@@ -29,6 +29,37 @@ class DocumentLoading:
             except subprocess.CalledProcessError as e:
                 print(f"An error occurred: {e}")
 
+    # new
+    def convert_pdf_to_md_new(self, pdf_dir, output_dir="output", method="auto"):
+        pdf_files = glob.glob(os.path.join(pdf_dir, "*.pdf"))
+
+        for pdf_file in pdf_files:
+            base_name = os.path.splitext(os.path.basename(pdf_file))[0]
+            target_dir = os.path.join(output_dir, base_name)
+
+            if os.path.exists(target_dir):
+                print(f"Folder for {pdf_file} already exists in {output_dir}. Skipping conversion.")
+            else:
+                command = ["magic-pdf", "-p", pdf_file, "-o", output_dir, "-m", method]
+                try:
+                    subprocess.run(command, check=True)
+                    print(f"Successfully converted {pdf_file} to markdown format in {target_dir}.")
+                except subprocess.CalledProcessError as e:
+                    print(f"An error occurred: {e}")
+
+    def batch_convert_pdfs(pdf_files, output_dir="output", method="auto", max_workers=None):
+        # Create a process pool to run the conversion in parallel
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            # Submit each PDF file to the process pool for conversion
+            futures = [executor.submit(convert_pdf_to_md, pdf, output_dir, method) for pdf in pdf_files]
+
+            # Optionally, you can monitor the status of each future as they complete
+            for future in futures:
+                try:
+                    future.result()  # This will raise any exceptions that occurred during the processing
+                except Exception as exc:
+                    print(f"An error occurred during processing: {exc}")
+
     def extract_information_from_md(self, md_text):
         # Title: 在第一个双换行符之前的内容。
         title_match = re.search(r'^(.*?)(\n\n|\Z)', md_text, re.DOTALL)
@@ -82,11 +113,8 @@ class DocumentLoading:
         extracted_data = self.extract_information_from_md(extracted_text)
         if len(extracted_data["abstract"]) < 10:
             extracted_data["abstract"] = extracted_data['title']
-        # json_file_path = 'extracted_info.json'
-        # with open(json_file_path, 'w', encoding='utf-8') as f:
-        #     json.dump(extracted_data, f, ensure_ascii=False, indent=4)
 
-        title = md_file_path.split('/')[-1].split('.')[0]
+        title = os.path.splitext(os.path.basename(md_file_path))[0]
         title_new = title.strip()
         invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*', '_']
         for char in invalid_chars:
@@ -96,14 +124,7 @@ class DocumentLoading:
         os.makedirs(f'./src/static/data/txt/{survey_id}', exist_ok=True)
         with open(f'./src/static/data/txt/{survey_id}/{title_new}.json', 'w', encoding='utf-8') as f:
             json.dump(extracted_data, f, ensure_ascii=False, indent=4)
-        print(extracted_data)
-        
-        # 消除噪声 保留abstract及之后的内容
-        # abstract_position = re.search(r'\n\n[aA][\s]*[bB][\s]*[sS][\s]*[tT][\s]*[rR][\s]*[aA][\s]*[cC][\s]*[tT][^\n]*\n\n', extracted_text)
-        # if abstract_position:
-        #     extracted_text = extracted_text[abstract_position.start():]
-        # return extracted_text
-
+        # print(extracted_data)
         return extracted_data['introduction']
 
     
@@ -122,6 +143,38 @@ class DocumentLoading:
             raise FileNotFoundError(f"Markdown file {md_file_path} does not exist. Conversion might have failed.")
 
         return self.process_md_file(md_file_path, survey_id)
+
+    # wrong, still being tested
+    def load_pdf_new(self, pdf_dir, survey_id):
+        os.makedirs(f'./src/static/data/md/{survey_id}', exist_ok=True)
+        output_dir = f"./src/static/data/md/{survey_id}"
+        self.convert_pdf_to_md_new(pdf_dir, output_dir)
+        markdown_files = glob.glob(os.path.join(output_dir, "*", "auto", "*.md"))
+        all_introductions = []
+        
+        for md_file_path in markdown_files:
+            try:
+                introduction = self.process_md_file(md_file_path, survey_id)
+                all_introductions.append(introduction)
+            except FileNotFoundError as e:
+                print(f"Markdown file {md_file_path} does not exist. Conversion might have failed.")
+        
+        return all_introductions
+
+
+
+    def parallel_load_pdfs(self, pdf_files, survey_id, max_workers=4):
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            # Submit tasks for parallel execution
+            futures = [executor.submit(self.load_pdf, pdf, survey_id) for pdf in pdf_files]
+            
+            # Collect results
+            for future in futures:
+                try:
+                    result = future.result()
+                    print(f"Processed result: {result}")
+                except Exception as e:
+                    print(f"Error processing PDF: {e}")
     
     def extract_names(self, text):
         '''
@@ -211,17 +264,10 @@ class DocumentLoading:
             data['title'] = title_match.group(1).strip() + ' ' + title_match.group(2).strip()
 
         authors_match = re.search(r'\n(.+?)\n(?:\n|ABSTRACT|INTRODUCTION)', text, re.DOTALL)
-        # authors_match = re.search(rf'{re.escape(data["title"])}\n(.+?)(?:\nABSTRACT|\nINTRODUCTION)', text, re.DOTALL)
-        # authors_match = re.search(rf'{re.escape(data["title"])}(.*?)\n(?:ABSTRACT|Abstract|Abstract\.|Abstract—)', text, re.DOTALL)
 
         if authors_match:
             data['authors'] = authors_match.group(1).replace('\n', ' ').strip()
             print(data['authors'])
-            # authors_text = authors_match.group(1).replace('\n', ' ').strip()
-            # cleaned_authors_text = self.clean_authors_text(authors_text)
-            # authors = self.extract_names(cleaned_authors_text)
-            # authors = [re.sub(r'\d+$', '', author).strip() for author in authors]
-            # data['authors'] = ", ".join(authors)
         else:
             print("Authors not found")
 
@@ -335,35 +381,7 @@ class DocumentLoading:
         with open('extracted_info.json', 'w', encoding='utf-8') as f:
             json.dump(extracted_data, f, ensure_ascii=False, indent=4)
         print(extracted_data)    
-
-    def pypdf_loader_old(self, file_path):
-        '''
-        Comibine extracted 4 parts into one text (pypdf loader version)
-        '''
-        loader = PyPDFLoader(file_path)
-        documents = loader.load()
-        # print(documents[0]) # for testing
-
-        text_blocks = [doc.page_content for doc in documents]
-        split_blocks = [block.split('\n') for block in text_blocks]
-        flat_blocks = [item for sublist in split_blocks for item in sublist]
-        cleaned_blocks = self.clean_headers_footers(flat_blocks)
-        # cleaned_blocks = self.clean_annotations(cleaned_blocks)
-        text = "\n".join(cleaned_blocks)
-        text = "\n".join([doc.page_content for doc in documents])
-        # clean empty lines and numeric lines
-        text = self.clean_empty_and_numeric_lines(text)
-        text = self.clean_hyphenation_pypdf(text)
-
-        extracted_data = self.extract_information_pypdf(text)
-
-        # the logic to join the extracted data
-        extracted_text = f"Title: {extracted_data['title']}\n\n" \
-                  f"Authors: {extracted_data['authors']}\n\n" \
-                  f"Abstract: {extracted_data['abstract']}\n\n" \
-                  f"Introduction: {extracted_data['introduction']}\n\n"
-        return extracted_text
-    
+  
     def unstructured_loader(self, file_path, survey_id):
         '''
         Comibine extracted 4 parts into one text (unstructured loader version)
@@ -389,7 +407,7 @@ class DocumentLoading:
         # to display 4 sections
         extracted_text = extracted_data
 
-        title = file_path.split('/')[-1].split('.')[0]
+        title = os.path.splitext(os.path.basename(file_path))[0]
 
         title_new = title.strip()
         invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*', '_']
@@ -439,7 +457,7 @@ class DocumentLoading:
         extracted_text = self.clean_empty_and_numeric_lines(extracted_text)
         return extracted_text
 
-if __name__ == "__main__":
-    asg_loader = DocumentLoading()
-    extracted_text = asg_loader.unstructured_loader("./Test3.pdf")
-    print(extracted_text)
+# if __name__ == "__main__":
+#     asg_loader = DocumentLoading()
+#     extracted_text = asg_loader.unstructured_loader("./Test3.pdf")
+#     print(extracted_text)

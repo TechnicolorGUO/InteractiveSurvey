@@ -23,7 +23,7 @@ class TextSplitting:
             length_function=len,
             is_separator_regex=False,
         )
-        print(docs) # output before splitting
+        # print(docs) # output before splitting
         texts = text_splitter.create_documents([docs])
         return texts # output after splitting
         # print(len(texts))

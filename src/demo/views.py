@@ -35,9 +35,11 @@ from django.core.files.storage import default_storage
 
 from .asg_loader import DocumentLoading
 # from .parse import DocumentLoading
-from .asg_retriever import legal_pdf, process_pdf, query_embeddings
+from .asg_retriever import legal_pdf, process_pdf, query_embeddings,query_embeddings_new
 from .asg_generator import generate,generate_sentence_patterns
 from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen
+from .asg_clustername import generate_cluster_name_qwen_sep
+
 import glob
 import nltk
 
@@ -50,6 +52,7 @@ load_dotenv()
 
 import os
 from pathlib import Path
+from markdown_pdf import MarkdownPdf, Section
 
 DATA_PATH = './src/static/data/pdf/'
 TXT_PATH = './src/static/data/txt/'
@@ -679,6 +682,7 @@ def get_topic(request):
 def automatic_taxonomy(request):
     global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label, Global_collection_names_clustered
     ref_dict = dict(request.POST)
+    print("The ref_dict is: ")
     print(ref_dict)
     ref_list = ref_dict['refs']
     query = ref_dict['taxonomy_standard'][0]
@@ -694,13 +698,14 @@ def automatic_taxonomy(request):
     # "[Method] is designed to [Function], using [Key Feature/Tool].",
     # "To enhance [Aspect], [Method] incorporates [Advanced Technique] in [Context]."
     # ]
-    query_list = generate_sentence_patterns(query, Global_pipeline)
+    query_list = generate_sentence_patterns(query)
     print(query_list)
     print("x"*36)
 
     for name in Global_collection_names:
-        context = query_embeddings(name, query_list)
-        description = generate(context, Global_pipeline, query)
+        # context = query_embeddings(name, query_list)
+        context = query_embeddings_new(name, query_list)
+        description = generate(context, query)
         Global_description_list.append(description)
 
     # 定义文件名
@@ -774,7 +779,8 @@ def automatic_taxonomy(request):
             category_label_summarized.append(category_label[i][0])
         else:
             category_label_summarized.append(outputs[0]["generated_text"][-1]['content'].replace("'",'').replace('"','').strip())
-    
+    tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
+    category_label_summarized = generate_cluster_name_qwen_sep(tsv_path, Global_survey_title)    
     Global_cluster_names = category_label_summarized
 
     print(category_label)
@@ -979,6 +985,31 @@ def get_survey_id(request):
     global Global_survey_id, Global_survey_title, Global_collection_names, Global_pipeline
     generateSurvey_qwen(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline)
     return JsonResponse({"survey_id": Global_survey_id})
+
+
+@csrf_exempt
+def generate_pdf(request):
+    if request.method == 'POST':
+        # 获取前端传递的 HTML 内容
+        markdown_content = request.POST.get('content', '')
+        survey_id = request.POST.get('survey_id', '')
+
+        # 生成唯一的 PDF 文件名
+        pdf_filename = f'survey_{survey_id}.pdf'
+        pdf_filepath = f'./src/static/data/pdfs/{pdf_filename}'
+
+        # 使用 markdown_pdf 库生成 PDF
+        pdf = MarkdownPdf()
+        pdf.meta["title"] = "Survey Results"  # 设置 PDF 的元数据
+        pdf.add_section(Section(markdown_content, toc=False))  # 添加 Markdown 内容，不生成目录
+        pdf.save(pdf_filepath)  # 将 PDF 保存到文件
+
+        # 返回 PDF 文件的 URL
+        pdf_url = f'/static/data/pdfs/{pdf_filename}'
+
+        return JsonResponse({'path': pdf_url})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 def get_refs(topic):

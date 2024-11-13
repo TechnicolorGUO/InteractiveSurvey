@@ -1,9 +1,3 @@
-'''
-0. The deletion function does not work. 多个相同检索结果是因为chroma中数据删除不干净 需手动删除
-1*. HyDE方面调查多篇论文 找到其中描述方法的共性 反推通用的描述方法的语句格式 基于此调整预期query能产生的虚拟文档 在此基础上调整HyDE效果
-2*. 在生成HyDE过程中调用llama3 总结论文中常用于表示"关键词"的句式 这个关键词可以是methods, application... 利用这个HyDE进行检索
-'''
-
 import torch
 import uuid
 import re
@@ -15,11 +9,11 @@ from .asg_splitter import TextSplitting
 from langchain_huggingface import HuggingFaceEmbeddings
 from .asg_loader import DocumentLoading
 import time
+import concurrent.futures
 
 class Retriever:
     client = None
     cur_dir = os.getcwd()  # current directory
-    # cur_dir = os.path.dirname(os.path.abspath(__file__))
     chromadb_path = os.path.join(cur_dir, "chromadb")
 
     def __init__ (self):
@@ -97,7 +91,7 @@ class Retriever:
             query_embeddings=query_embeddings,
             n_results=n_results,
         )
-        print(f"Query executed on collection '{collection_name}'.")
+        # print(f"Query executed on collection '{collection_name}'.")
         return result
 
     def update_chroma (self, collection_name: str, id_list: list[str], embeddings_list: list[list[float]], documents_list: list[str], metadata_list: list[dict]):
@@ -203,7 +197,8 @@ def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings)
     # Prepare metadata
     metadata_list = [{"doc_name": os.path.basename(file_path)} for i in range(len(documents_list))]
 
-    title = file_path.split('/')[-1].split('.')[0]
+    title = os.path.splitext(os.path.basename(file_path))[0]
+    
 
     title_new = title.strip()
     invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*','_']
@@ -211,9 +206,6 @@ def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings)
         title_new = title_new.replace(char, ' ')
     print("============================")
     print(title_new)
-
-    # new
-    # collection_name = os.path.basename(file_path).split('.')[0]
 
     # New logic to create collection_name
     # filename = os.path.basename(file_path)
@@ -251,6 +243,33 @@ def query_embeddings(collection_name: str, query_list: list):
                 seen_chunks.add(chunk)
     return final_context
 
+# new, may be in parallel
+def query_embeddings_new(collection_name: str, query_list: list):
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    retriever = Retriever()
+
+    final_context = ""
+
+    seen_chunks = set()
+    def process_query(query_text):
+        query_embeddings = embedder.embed_query(query_text)
+        query_result = retriever.query_chroma(
+            collection_name=collection_name,
+            query_embeddings=[query_embeddings],
+            n_results=2
+        )
+        query_result_chunks = query_result["documents"][0]
+        return query_result_chunks
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = {executor.submit(process_query, query_text): query_text for query_text in query_list}
+        for future in concurrent.futures.as_completed(futures):
+            query_result_chunks = future.result()
+            for chunk in query_result_chunks:
+                if chunk not in seen_chunks:
+                    final_context += chunk.strip() + "//\n"
+                    seen_chunks.add(chunk)
+    return final_context
 
 if __name__ == "__main__":
     print(legal_pdf("blockchain-enabled_federated_learning_data_protection_aggregata.json"))

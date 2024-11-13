@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('delete_files/', views.delete_files, name='delete_files'),
     path('get_survey_id/', views.get_survey_id, name='get_survey_id'),
+    path('generate_pdf/', views.generate_pdf, name='generate_pdf'),
     url(r'^get_topic$', views.get_topic, name='get_topic'),
     url(r'^get_survey$', views.get_survey, name='get_survey'),
     url(r'^automatic_taxonomy$', views.automatic_taxonomy, name='automatic_taxonomy'),

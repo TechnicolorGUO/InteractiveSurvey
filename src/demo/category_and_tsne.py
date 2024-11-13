@@ -113,7 +113,9 @@ def clustering(df, n_cluster, survey_id):
     text = df['retrieval_result'].astype(str)
     clustering = ClusteringWithTopic(text, n_cluster)
     df['label'] = clustering.fit_and_get_labels(text)
-    print(clustering.topic_model.get_topic_info())
+    print("The clustering result is: ")
+    for col in df.columns:
+        print(f"{col}: {df.iloc[0][col]}")
     topic_json = clustering.topic_model.get_topic_info().to_json()
     with open(f'./src/static/data/info/{survey_id}/topic.json', 'w') as file:
         file.write(topic_json)
@@ -133,6 +135,8 @@ def clustering(df, n_cluster, survey_id):
     plt.savefig(IMG_PATH + 'tsne_' + survey_id + '.png', dpi=800, transparent=True)
 
     plt.close()
+    output_tsv_filename = "./src/static/data/tsv/" + survey_id + '.tsv'
+    df.to_csv(output_tsv_filename, sep='\t')
     return df, colors
 
 def scatter(x, colors):
