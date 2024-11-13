@@ -754,9 +754,15 @@ def generate_references_dir(dir):
     for file in os.listdir(dir):
         if file.endswith(".json"):
             file_path = os.path.join(dir, file)
-            with open(file_path, 'r', encoding='utf-8') as file:
-                data = json.load(file)
-                papers_info.append(data)
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                print("The data is: ")
+                print(data)
+                papers_info.append({
+                    "file_path": file_path,
+                    "title": data.get("title", "Unknown Title"),
+                    "author": data.get("authors", "Unknown Author")
+                })
     references = generate_references(papers_info, client)
     return references
 
