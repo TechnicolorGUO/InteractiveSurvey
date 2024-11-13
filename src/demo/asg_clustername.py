@@ -132,15 +132,9 @@ Response with a list of section titles in the following format without any other
         print(text)
     
         # Use regex to extract content within square brackets
-        match = re.search(r'\[(.*?)\]', text, re.DOTALL)
+        match = re.search(r'\[(.*?)\]', text)
         if match:
-            # Extract each refined title enclosed in double quotes
-            refined_names = re.findall(r'"(.*?)"', match.group(1))
-            # If no matches found with double quotes, try single quotes
-            if not refined_names:
-                refined_names = re.findall(r"'(.*?)'", match.group(1))
-            # Strip any leading/trailing whitespace from each name
-            refined_cluster_names = [name.strip() for name in refined_names]
+            refined_cluster_names = match.group(1).strip()  # Extract and clean the cluster name
         else:
             refined_cluster_names = [
                 survey_title + ": Definition",
