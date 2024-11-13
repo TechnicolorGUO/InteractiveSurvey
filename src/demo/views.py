@@ -635,28 +635,28 @@ def upload_refs(request):
 def annotate_categories(request):
     # Global_survey_id = request.POST.get('uid', False)
     # global Global_survey_id
-    POST_dict = dict(request.POST)
-    topic_word_list = POST_dict['topic_word_list[]']
-    annotated_paper_ids_list_list= []
-    for i in range(len(POST_dict)-1):
-        annotated_paper_ids_list_list.append([int(i) for i in POST_dict['ref_lists['+str(i)+'][]']])
+    # POST_dict = dict(request.POST)
+    # topic_word_list = POST_dict['topic_word_list[]']
+    # annotated_paper_ids_list_list= []
+    # for i in range(len(POST_dict)-1):
+    #     annotated_paper_ids_list_list.append([int(i) for i in POST_dict['ref_lists['+str(i)+'][]']])
 
-    assert(len(topic_word_list)==len(annotated_paper_ids_list_list))
+    # assert(len(topic_word_list)==len(annotated_paper_ids_list_list))
 
-    tsvfile_name = Global_survey_id + '.tsv'
-    input_pd = pd.read_csv(TSV_PATH + tsvfile_name, sep = '\t')
-    #assert(len(annotated_topic_word_list)==input_pd.shape[0])
+    # tsvfile_name = Global_survey_id + '.tsv'
+    # input_pd = pd.read_csv(TSV_PATH + tsvfile_name, sep = '\t')
+    # #assert(len(annotated_topic_word_list)==input_pd.shape[0])
 
-    annotated_topic_word_list = ['']*input_pd.shape[0]
-    for category_id,annotated_paper_ids_list in enumerate(annotated_paper_ids_list_list):
-        for annotated_paper_id in annotated_paper_ids_list:
-            annotated_topic_word_list[annotated_paper_id] = topic_word_list[category_id]
+    # annotated_topic_word_list = ['']*input_pd.shape[0]
+    # for category_id,annotated_paper_ids_list in enumerate(annotated_paper_ids_list_list):
+    #     for annotated_paper_id in annotated_paper_ids_list:
+    #         annotated_topic_word_list[annotated_paper_id] = topic_word_list[category_id]
 
-    input_pd['label'] = annotated_topic_word_list
-    #pdb.set_trace()
-    output_tsv_filename = TSV_PATH + tsvfile_name
-    os.remove(output_tsv_filename)
-    input_pd.to_csv(output_tsv_filename, sep='\t')
+    # input_pd['label'] = annotated_topic_word_list
+    # #pdb.set_trace()
+    # output_tsv_filename = TSV_PATH + tsvfile_name
+    # os.remove(output_tsv_filename)
+    # input_pd.to_csv(output_tsv_filename, sep='\t')
 
     html = generateOutlineHTML_qwen(Global_survey_id)
     print("The outline has been parsed successfully.")
