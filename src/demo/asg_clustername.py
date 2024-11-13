@@ -3,6 +3,7 @@ import pandas as pd
 import openai
 import re  # Import the regular expressions module
 from openai import OpenAI
+import ast
 
 def generate_cluster_name_qwen_sep(tsv_path, survey_title):
     global Global_survey_id
@@ -134,6 +135,8 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
     except Exception as e:
         print(f"An error occurred while refining cluster names: {e}")
         refined_cluster_names = ["Refinement Error"] * len(cluster_names)
+    
+    refined_cluster_names = ast.literal_eval(refined_cluster_names)  # Convert string to list
     
     print("The refined cluster names are:")
     print(refined_cluster_names)
