@@ -106,13 +106,17 @@ The current cluster names are: {cluster_names}'''
             text += chunk.choices[0].delta.content
 
     # Use regex to extract the first content within []
-    match = re.findall(r'\[(.*?)\]', text)
+    match = re.search(r'\[(.*?)\]', text)
     if match:
-        refined_cluster_names = [name.strip().strip('"').strip("'") for name in match]
+        refined_cluster_names = [match.group(1).strip().strip('"').strip("'")]
     else:
-        refined_cluster_names = [survey_title+": Definition", survey_title+": Methods", survey_title+": Evaluation"]  # Handle cases where pattern isn't found
+        refined_cluster_names = [
+            survey_title + ": Definition",
+            survey_title + ": Methods",
+            survey_title + ": Evaluation"
+        ]  # Handle cases where pattern isn't found
     print("The refined cluster names are:")
     print(refined_cluster_names)
-    return refined_cluster_names  # This will be a list with three elements
+    return refined_cluster_names
         
     
