@@ -38,7 +38,7 @@ from .asg_loader import DocumentLoading
 from .asg_retriever import legal_pdf, process_pdf, query_embeddings,query_embeddings_new
 from .asg_generator import generate,generate_sentence_patterns
 from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen
-from .asg_clustername import generate_cluster_name_qwen_sep
+from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name
 
 import glob
 import nltk
@@ -782,7 +782,8 @@ def automatic_taxonomy(request):
     tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
 
     # comment this for old version
-    category_label_summarized = generate_cluster_name_qwen_sep(tsv_path, Global_survey_title)    
+    category_label_summarized = generate_cluster_name_qwen_sep(tsv_path, Global_survey_title)
+    category_label_summarized = refine_cluster_name(category_label_summarized)   
     Global_cluster_names = category_label_summarized
 
     print(category_label)
@@ -1023,10 +1024,6 @@ def generate_pdf(request):
             response['Content-Disposition'] = f'attachment; filename="{pdf_filename}"'
             return response
 
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-    # 如果请求方法不是 POST
-    print("Invalid request method.")
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 

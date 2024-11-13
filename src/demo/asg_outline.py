@@ -9,6 +9,7 @@ from .survey_generator_api import *
 from .asg_abstract import AbstractGenerator
 from .asg_conclusion import ConclusionGenerator
 import pandas as df
+from .references import generate_references
 
 class OutlineGenerator():
     def __init__(self, pipeline, df, cluster_names, mode='desp'):
@@ -623,7 +624,7 @@ def generateSurvey(survey_id, title, collection_list, pipeline):
         "introduction": "",
         "content": "",
         "conclusion": "",
-        "html": ""
+        "references": ""
     }
 
     generated_survey_paper = generate_survey_paper_new(outline, context_list, client)
@@ -706,7 +707,7 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
         "content": "",
         "future_directions":"",
         "conclusion": "",
-        "html": ""
+        "references": ""
     }
 
     generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client)
@@ -726,6 +727,8 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
     conclusion = conclusion.replace("Conclusion:", "")
     future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
 
+    references = generate_references_dir('./src/static/data/txt/'+survey_id)
+
     temp["abstract"] = abstract
     temp["introduction"] = generated_introduction
     temp["content"] = generated_survey_paper
@@ -735,6 +738,7 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
     temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
     temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
     temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
+    temp["references"] = references
 
     output_path = f'./src/static/data/txt/{survey_id}/generated_result.json'
     with open(output_path, 'w', encoding='utf-8') as f:
@@ -743,7 +747,18 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
 
     return
 
-        
+
+def generate_references_dir(dir):
+    client = getQwenClient()
+    papers_info = []
+    for file in os.listdir(dir):
+        if file.endswith(".json"):
+            file_path = os.path.join(dir, file)
+            with open(file_path, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                papers_info.append(data)
+    references = generate_references(papers_info, client)
+    return references
 
 if __name__ == '__main__':
     model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"

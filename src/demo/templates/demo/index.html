@@ -1135,6 +1135,11 @@ function select_sections() {
 			var referencesTitleHTML = marked.parse(referencesTitleMarkdown);
 			document.getElementById("survey_content").innerHTML += referencesTitleHTML;
 
+			// 显示 References 的内容
+			var referencesMarkdown = surveyData.references || "No references available.";
+			var referencesHTML = marked.parse(referencesMarkdown);
+			document.getElementById("survey_content").innerHTML += referencesHTML;
+
 			var surveyContentHTML = document.getElementById("survey_content").innerHTML;
 			var turndownService = new TurndownService();
 			var markdownContent = turndownService.turndown(surveyContentHTML);
