@@ -1139,25 +1139,45 @@ function select_sections() {
 			var turndownService = new TurndownService();
 			var markdownContent = turndownService.turndown(surveyContentHTML);
 
-			$.ajax({
-				url: '/generate_pdf/',
-				method: 'POST',
-				data: {
-					content: markdownContent,
-					survey_id: survey_id
-				},
-				success: function(path) {
-					alert("Success!");
-					$('#downloadBtn').on('click', function(){
-						const link = document.createElement('a');
-						link.href = path;
-						link.download = 'survey.pdf';
+			function downloadPDF() {
+				// 创建隐藏的表单来提交数据
+				var form = new FormData();
+				form.append('content', markdownContent);  // 添加 Markdown 内容
+				form.append('survey_id', survey_id);      // 添加 survey_id
+
+				// 创建 XMLHttpRequest 对象
+				var xhr = new XMLHttpRequest();
+				xhr.open('POST', '/generate_pdf/', true);
+				xhr.responseType = 'blob';  // 告诉浏览器我们期望的是二进制数据（文件）
+
+				xhr.onload = function () {
+					if (xhr.status === 200) {
+						// 创建一个临时的 <a> 元素来触发下载
+						var blob = new Blob([xhr.response], { type: 'application/pdf' });
+						var link = document.createElement('a');
+						link.href = window.URL.createObjectURL(blob);
+						link.download = 'survey.pdf';  // 下载的文件名
 						document.body.appendChild(link);
-						link.click();
-						document.body.removeChild(link);
-					});
-				},
-			})
+						link.click();  // 触发下载
+						document.body.removeChild(link);  // 移除临时元素
+						alert('PDF downloaded successfully!');
+					} else {
+						alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
+					}
+				};
+
+				xhr.onerror = function () {
+					alert('An error occurred while processing the request.');
+				};
+
+				// 发送表单数据
+				xhr.send(form);
+			}
+
+			// 绑定下载按钮的点击事件
+			$('#downloadBtn').on('click', function(){
+				downloadPDF();
+});
 
             // // 点击按钮生成 Markdown 文件并下载
             // $('#downloadBtn').on('click', function() {

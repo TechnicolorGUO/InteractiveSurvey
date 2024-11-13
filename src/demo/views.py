@@ -780,6 +780,8 @@ def automatic_taxonomy(request):
         else:
             category_label_summarized.append(outputs[0]["generated_text"][-1]['content'].replace("'",'').replace('"','').strip())
     tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
+
+    # comment this for old version
     category_label_summarized = generate_cluster_name_qwen_sep(tsv_path, Global_survey_title)    
     Global_cluster_names = category_label_summarized
 
@@ -1015,11 +1017,13 @@ def generate_pdf(request):
         pdf.add_section(Section(markdown_content, toc=False))  # 添加 Markdown 内容，不生成目录
         pdf.save(pdf_filepath)  # 将 PDF 保存到文件
 
-        # 返回 PDF 文件的 URL
-        pdf_url = f'/static/data/results/{pdf_filename}'
-        print(f"PDF URL: {pdf_url}")
+        # 打开文件并将其作为响应返回
+        with open(pdf_filepath, 'rb') as pdf_file:
+            response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{pdf_filename}"'
+            return response
 
-        return JsonResponse({'path': pdf_url})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
     # 如果请求方法不是 POST
     print("Invalid request method.")
