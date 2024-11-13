@@ -1140,7 +1140,7 @@ function select_sections() {
 			var markdownContent = turndownService.turndown(surveyContentHTML);
 
 			$.ajax({
-				url: '/generate_pdf',
+				url: '/generate_pdf/',
 				method: 'POST',
 				data: {
 					content: markdownContent,

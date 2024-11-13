@@ -996,7 +996,18 @@ def generate_pdf(request):
 
         # 生成唯一的 PDF 文件名
         pdf_filename = f'survey_{survey_id}.pdf'
-        pdf_filepath = f'./src/static/data/pdfs/{pdf_filename}'
+        pdf_dir = './src/static/data/results'
+        pdf_filepath = os.path.join(pdf_dir, pdf_filename)
+
+        # 检查并创建 results 目录
+        if not os.path.exists(pdf_dir):
+            os.makedirs(pdf_dir)
+            print(f"Directory '{pdf_dir}' created.")
+        else:
+            print(f"Directory '{pdf_dir}' already exists.")
+
+        # 打印文件保存路径信息
+        print(f"PDF will be saved to: {pdf_filepath}")
 
         # 使用 markdown_pdf 库生成 PDF
         pdf = MarkdownPdf()
@@ -1005,10 +1016,13 @@ def generate_pdf(request):
         pdf.save(pdf_filepath)  # 将 PDF 保存到文件
 
         # 返回 PDF 文件的 URL
-        pdf_url = f'/static/data/pdfs/{pdf_filename}'
+        pdf_url = f'/static/data/results/{pdf_filename}'
+        print(f"PDF URL: {pdf_url}")
 
         return JsonResponse({'path': pdf_url})
 
+    # 如果请求方法不是 POST
+    print("Invalid request method.")
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
