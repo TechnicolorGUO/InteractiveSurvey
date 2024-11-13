@@ -783,7 +783,7 @@ def automatic_taxonomy(request):
 
     # comment this for old version
     category_label_summarized = generate_cluster_name_qwen_sep(tsv_path, Global_survey_title)
-    category_label_summarized = refine_cluster_name(category_label_summarized)   
+    category_label_summarized = refine_cluster_name(category_label_summarized, Global_survey_title)   
     Global_cluster_names = category_label_summarized
 
     print(category_label)
