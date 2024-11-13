@@ -118,5 +118,10 @@ The current cluster names are: {cluster_names}'''
     print("The refined cluster names are:")
     print(refined_cluster_names)
     return refined_cluster_names
+
+
+if __name__ == "__main__":
+    refined_result = refine_cluster_name(["Pre-training of LLMs", "Fine-tuning of LLMs", "Evaluation of LLMs"], 'Survey of LLMs')
+    print(refined_result)
         
     
