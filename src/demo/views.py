@@ -38,7 +38,7 @@ from .asg_loader import DocumentLoading
 from .asg_retriever import legal_pdf, process_pdf, query_embeddings,query_embeddings_new
 from .asg_generator import generate,generate_sentence_patterns
 from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen
-from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name
+from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name, generate_cluster_name_new
 
 import glob
 import nltk
@@ -782,8 +782,13 @@ def automatic_taxonomy(request):
     tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
 
     # comment this for old version
-    category_label_summarized = generate_cluster_name_qwen_sep(tsv_path, Global_survey_title)
-    category_label_summarized = refine_cluster_name(category_label_summarized, Global_survey_title)   
+
+    #V1
+    # category_label_summarized = generate_cluster_name_qwen_sep(tsv_path, Global_survey_title)
+    # category_label_summarized = refine_cluster_name(category_label_summarized, Global_survey_title)
+
+    #V2
+    category_label_summarized = generate_cluster_name_new(tsv_path, Global_survey_title)   
     Global_cluster_names = category_label_summarized
 
     print(category_label)

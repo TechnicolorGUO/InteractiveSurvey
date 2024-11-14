@@ -763,6 +763,7 @@ def generate_references_dir(dir):
                     "title": data.get("title", "Unknown Title"),
                     "author": data.get("authors", "Unknown Author")
                 })
+                print("The length of papers_info is: ", len(papers_info))
     references = generate_references(papers_info, client)
     return references
 

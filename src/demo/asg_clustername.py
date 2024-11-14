@@ -6,7 +6,6 @@ from openai import OpenAI
 import ast
 
 def generate_cluster_name_qwen_sep(tsv_path, survey_title):
-    global Global_survey_id
     data = pd.read_csv(tsv_path, sep='\t')
     
     # Define the system prompt once, outside the loop
@@ -140,7 +139,84 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
     
     print("The refined cluster names are:")
     print(refined_cluster_names)
-    return refined_cluster_names  # Returns a list with the refined cluster names
+    return refined_cluster_names  # Returns a list with the refined cluster names、
+
+
+
+
+def generate_cluster_name_new(tsv_path, survey_title):
+    data = pd.read_csv(tsv_path, sep='\t')
+    desp=[]
+
+
+    for i in range(3):  # Assuming labels are 0, 1, 2
+        sentence_list = []  # Initialize the sentence list
+        for j in range(len(data)):
+            if data['label'][j] == i:
+                sentence_list.append(data['retrieval_result'][j])
+        desp.append(sentence_list)
+
+    system_prompt = f'''
+    You are a research assistant working on a survey paper. The survey paper is about "{survey_title}". '''
+
+    user_prompt = f'''
+    Your task is to generate three distinctive cluster names (e.g., "Pre-training of LLMs") of the given clusters of reference papers, each reference paper is describe by a sentence.
+
+    The clusters of reference papers are: 
+    Cluster 1: "{desp[0]}",  
+    Cluster 2: "{desp[1]}",  
+    Cluster 3: "{desp[2]}".
+
+    Your output should be a single list of cluster names, e.g., ["Pre-training of LLMs", "Fine-tuning of LLMs", "Evaluation of LLMs"]
+    Do not output any other text or information.
+
+    '''
+
+    messages = [
+        {"role": "system", "content": system_prompt}, 
+        {"role": "user", "content": user_prompt},
+    ]
+    
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    openai_api_base = os.getenv("OPENAI_API_BASE")
+    client = OpenAI(
+        api_key=openai_api_key,
+        base_url=openai_api_base,
+    )
+    
+    chat_response = client.chat.completions.create(
+        model="Qwen2.5-72B-Instruct",
+        max_tokens=768,
+        temperature=0.5,
+        stop="<|im_end|>",
+        stream=True,
+        messages=messages
+    )
+    
+    # Stream the response to a single text string
+    text = ""
+    for chunk in chat_response:
+        if chunk.choices[0].delta.content:
+            text += chunk.choices[0].delta.content
+    print("The raw response text is:")
+    print(text)
+
+    # Use regex to extract content within square brackets
+    match = re.search(r'\[(.*?)\]', text)
+    if match:
+        refined_cluster_names = match.group(1).strip()  # Extract and clean the cluster name
+    else:
+        refined_cluster_names = [
+            survey_title + ": Definition",
+            survey_title + ": Methods",
+            survey_title + ": Evaluation"
+        ]  # Handle cases where pattern isn't found
+    
+    refined_cluster_names = ast.literal_eval(refined_cluster_names)  # Convert string to list
+    
+    print("The refined cluster names are:")
+    print(refined_cluster_names)
+    return refined_cluster_names  # Returns a list with the refined cluster names、
 
 
 if __name__ == "__main__":
