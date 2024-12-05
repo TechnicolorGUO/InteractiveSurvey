@@ -2,17 +2,17 @@
 ## Version 1.0.0
 
 ### 🔥 New Features
-- **Feature 1**: Briefly describe the first major feature introduced in this version.
-- **Feature 2**: Highlight another new feature or functionality.
-- **Feature 3**: Include any additional features or enhancements.
+- **Feature 1**: Generate a comprehensive academic survey in one go.
+- **Feature 2**: Dynamic reference generation.
+- **Feature 3**: RAG / Prompt Engineering.
 
 ### 🛠 Improvements
-- **Improvement 1**: Explain what was improved (e.g., performance, code structure, UI/UX).
-- **Improvement 2**: Mention other refinements or optimizations.
+- **Improvement 1**: Quality of section 'Conclusion'
+- **Improvement 2**: Faster processing speed (around 15 mins)
 
 ### 🐞 Bug Fixes
-- **Bug 1**: Describe a specific bug that was fixed in this version.
-- **Bug 2**: Highlight another fixed issue or resolved problem.
+- **Bug 1**: Format of section 'future directions'.
+- **Bug 2**: Parsing markdown to PDF.
 
 ---
 
