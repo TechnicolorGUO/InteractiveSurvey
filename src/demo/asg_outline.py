@@ -8,6 +8,7 @@ import ast
 from .survey_generator_api import *
 from .asg_abstract import AbstractGenerator
 from .asg_conclusion import ConclusionGenerator
+from .asg_retriever import *
 import pandas as df
 from .references import generate_references
 
@@ -105,7 +106,7 @@ class OutlineGenerator():
 
         outputs = self.pipeline(
             messages,
-            max_new_tokens=4096,
+            max_new_tokens=9192,
         )
         result = outputs[0]["generated_text"][-1]['content']
 
@@ -152,7 +153,7 @@ class OutlineGenerator():
         )
         chat_response = client.chat.completions.create(
             model="Qwen2.5-72B-Instruct",
-            max_tokens=768,
+            max_tokens=2048,
             temperature=0.5,
             stop="<|im_end|>",
             stream=True,
@@ -169,8 +170,6 @@ class OutlineGenerator():
         text = match.group(1)
         clean_text = re.sub(r'\s+', ' ', text).strip()
         return messages, clean_text
-
-        
 
     
 def parseOutline(survey_id):
@@ -407,9 +406,6 @@ def insert_section(content, section_header, section_content):
     if count == 0:
         print(f"警告: 未找到标题 '{section_header}'。无法插入内容。")
     return new_content
-
-
-
 
 def generateOutlineHTML(survey_id):
     outline_list = parseOutline(survey_id)
@@ -661,7 +657,7 @@ def generateSurvey(survey_id, title, collection_list, pipeline):
 def generate_future_directions_qwen(client, title, intro):
     system_prompt = f'''You are a helpful assistant that help to generate the future directions of the survey paper given the survey title and survey introduction.'''
     # user_prompt = {"survey_title":survey_title, "claims":cluster_with_claims}
-    user_prompt = f'''Help me to generate the future directions of a survey paper given the title: *{title}*, and and the introduction:{intro}'''
+    user_prompt = f'''Help me to generate the future directions of a survey paper given the title: *{title}*, and and the introduction:{intro} within 300 words.'''
 
     messages = [
         {"role": "system", "content": system_prompt}, 
@@ -715,36 +711,93 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
 
     generated_introduction = generate_introduction(generated_survey_paper, client)
     print("\nGenerated Introduction:\n", generated_introduction)
+    abs_generator = AbstractGenerator(pipeline)
+    abstract = abs_generator.generate(title, generated_introduction)
+    print("\nGenerated Abstract:\n", abstract)
+    con_generator = ConclusionGenerator(pipeline)
+    # conclusion = con_generator.generate(title, generated_introduction)
+    #New version: 12/03
+    conclusion = generate_conclusion(generated_survey_paper, client)
+    print("\nGenerated Conclusion:\n", conclusion)
+    abstract = abstract.replace("Abstract:", "")
+    conclusion = conclusion.replace("Conclusion:", "")
+    # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
+    #New version: 12/03
+    future_directions = generate_future_work(generated_survey_paper, client)
+    references = generate_references_dir('./src/static/data/txt/'+survey_id)
+    temp["abstract"] = abstract
+    temp["introduction"] = generated_introduction
+    temp["content"] = generated_survey_paper
+    temp["conclusion"] = conclusion
+    temp["future_directions"] = future_directions
+    temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
+    temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
+    temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
+    temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
+    output_path = f'./src/static/data/txt/{survey_id}/generated_result.json'
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(temp, f, ensure_ascii=False, indent=4)
+    print(f"Survey has been saved to {output_path}.")
+    return
 
+# wza
+def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline):
+    outline = str(parseOutline(survey_id))
+    
+    client = getQwenClient()
+
+    context_list = generate_context_list(outline, collection_list)
+    
+    citation_data_list = []
+    for collection_name in collection_list:
+        query_list = [title]  # Assume the title is the query for each collection
+        context, citation_data = query_embeddings_new_new(collection_name, query_list)
+        citation_data_list.append(citation_data)
+
+    temp = {
+        "survey_id": survey_id,
+        "outline": outline, 
+        "survey_title": title,
+        "context": context_list, 
+        "abstract": "",
+        "introduction": "",
+        "content": "",
+        "future_directions": "",
+        "conclusion": "",
+        "references": ""
+    }
+
+    # Include citation_data_list in the call to generate_survey_paper_new
+    generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client, citation_data_list)
+    print("Generated Survey Paper:\n", generated_survey_paper)
+
+    generated_introduction = generate_introduction(generated_survey_paper, client)
+    print("\nGenerated Introduction:\n", generated_introduction)
     abs_generator = AbstractGenerator(pipeline)
     abstract = abs_generator.generate(title, generated_introduction)
     print("\nGenerated Abstract:\n", abstract)
     con_generator = ConclusionGenerator(pipeline)
     conclusion = con_generator.generate(title, generated_introduction)
     print("\nGenerated Conclusion:\n", conclusion)
-
     abstract = abstract.replace("Abstract:", "")
     conclusion = conclusion.replace("Conclusion:", "")
-    future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
-
-    references = generate_references_dir('./src/static/data/txt/'+survey_id)
-
+    future_directions = generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:", "")
+    references = generate_references_dir('./src/static/data/txt/' + survey_id)
+    
     temp["abstract"] = abstract
     temp["introduction"] = generated_introduction
     temp["content"] = generated_survey_paper
     temp["conclusion"] = conclusion
     temp["future_directions"] = future_directions
-
+    temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
     temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
     temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
     temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
-    temp["references"] = references
 
     output_path = f'./src/static/data/txt/{survey_id}/generated_result.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(temp, f, ensure_ascii=False, indent=4)
     print(f"Survey has been saved to {output_path}.")
-
     return
 
 
@@ -796,12 +849,12 @@ if __name__ == '__main__':
     collection_list = ['activelearningfrompositiveandunlabeleddata', ]
 
     Global_pipeline = transformers.pipeline(
-    "text-generation",
-    model=model_id,
-    model_kwargs={"torch_dtype": torch.bfloat16},
-    token = os.getenv('HF_API_KEY'),
-    device_map="auto",
-)
+        "text-generation",
+        model=model_id,
+        model_kwargs={"torch_dtype": torch.bfloat16},
+        token = os.getenv('HF_API_KEY'),
+        device_map="auto",
+    )
     Global_pipeline.model.load_adapter(peft_model_id = "technicolor/llama3.1_8b_outline_generation", adapter_name="outline")
     Global_pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_conclusion_generation", adapter_name="conclusion")
     Global_pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_abstract_generation", adapter_name="abstract")
@@ -809,7 +862,3 @@ if __name__ == '__main__':
 
     # generateOutlineHTML('test')
     generateSurvey("test", "Predictive modeling of imbalanced data", collection_list, Global_pipeline)
-
-
-
-

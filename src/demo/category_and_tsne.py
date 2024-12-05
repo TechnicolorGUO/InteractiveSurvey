@@ -41,6 +41,7 @@ import spacy
 from rank_bm25 import BM25Okapi
 import torch
 from sklearn.cluster import AgglomerativeClustering
+import json
 nlp = spacy.load("en_core_sci_sm")
 
 IMG_PATH = './src/static/img/'
@@ -75,11 +76,11 @@ class DimensionalityReduction:
 
 class ClusteringWithTopic:
     def __init__(self, df, n_topics=3):
-        embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+        embedding_model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
         umap_model = DimensionalityReduction()
         hdbscan_model = AgglomerativeClustering(n_clusters=n_topics)
         vectorizer_model = CountVectorizer(stop_words="english", min_df=1, ngram_range=(1, 2))
-        ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=True)
+        ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=False)# True
         keybert_model = KeyBERTInspired()
 
         self.df = df
@@ -113,12 +114,22 @@ def clustering(df, n_cluster, survey_id):
     text = df['retrieval_result'].astype(str)
     clustering = ClusteringWithTopic(text, n_cluster)
     df['label'] = clustering.fit_and_get_labels(text)
+    
     print("The clustering result is: ")
     for col in df.columns:
         print(f"{col}: {df.iloc[0][col]}")
+    
+    # Save topic model information as JSON
     topic_json = clustering.topic_model.get_topic_info().to_json()
     with open(f'./src/static/data/info/{survey_id}/topic.json', 'w') as file:
         file.write(topic_json)
+    
+    # Create a dictionary from 'ref_title' and 'retrieval_result' columns
+    description_dict = dict(zip(df['ref_title'], df['retrieval_result']))
+    
+    # Save the dictionary to description.json
+    with open(f'./src/static/data/info/{survey_id}/description.json', 'w') as file:
+        json.dump(description_dict, file, ensure_ascii=False, indent=4)
     # df['top_n_words'] = clustering.topic_model.get_topic_info()['Representation'].tolist()
     # df['topic_word'] = clustering.topic_model.get_topic_info()['KeyBERT'].tolist()
 

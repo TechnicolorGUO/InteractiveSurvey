@@ -530,7 +530,7 @@ FONTS & ICONS
 			<div class="col-md-12">
 				<button id="downloadBtn" type="button" class="btn btn-info" title="Download as Markdown"
 				style="float: right;">
-					Download as Markdown
+					Download as PDF
 				</button>
 			</div>
 		</div>
@@ -633,14 +633,14 @@ FONTS & ICONS
 	}
 
 
-	function sanitizeFilename(filename) {
-		let title_new = filename.trim();
-		let invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*','_'];
-		for (let char of invalid_chars) {
-			title_new = title_new.replace(new RegExp(`\\${char}`, 'g'), ' ');
-		}
-		return title_new;
-	}
+	// function sanitizeFilename(filename) {
+	// 	let title_new = filename.trim();
+	// 	let invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*','_'];
+	// 	for (let char of invalid_chars) {
+	// 		title_new = title_new.replace(new RegExp(`\\${char}`, 'g'), ' ');
+	// 	}
+	// 	return title_new;
+	// }
 
 	function displayFileNames() {
 		const input = document.getElementById('file');
@@ -658,6 +658,44 @@ FONTS & ICONS
 		}
 	}
 
+	function sanitizeFilename(filename) {
+    var lastDot = filename.lastIndexOf('.');
+    
+    // Helper function to sanitize parts with spaces and capitalize first word
+    function sanitizePart(part) {
+        // Replace non-alphanumerics with space, collapse multiple spaces, and trim
+        part = part
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        // Split into words
+        var words = part.split(' ');
+        
+        if (words.length === 0) return '';
+        
+        // Capitalize the first word
+        words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1);
+        
+        // Rejoin with spaces
+        return words.join(' ');
+    }
+    
+    if (lastDot === -1) {
+        // No extension
+        return sanitizePart(filename);
+    } else if (lastDot === 0) {
+        // Hidden file (e.g., .bashrc)
+        var extension = filename.substring(1);
+        return '.' + sanitizePart(extension);
+    } else {
+        // File with extension
+        var name = filename.substring(0, lastDot);
+        var extension = filename.substring(lastDot + 1);
+        return sanitizePart(name) + '.' + sanitizePart(extension);
+    }
+}
 
     function upload_file(){
     	/*
@@ -702,7 +740,7 @@ FONTS & ICONS
 					<i class="fas fa-file-pdf"></i>
 				</div>
 				<div class="pdf-details" style="flex-grow: 1; margin-left: 10px;">
-					<a href="#" onclick="fetchAndDisplayJson('/static/data/txt/${survey_id}/${filename}.json'); return false;">
+					<a href="#" onclick="fetchAndDisplayJson('/static/data/txt/${survey_id}/${sanitizedFilename}.json'); return false;">
 						<p class="pdf-name" style="margin: 0; font-size: 1em;">${sanitizedFilename}</p>
 						<p class="pdf-info" style="margin: 0; font-size: 0.9em;">${filesize} MB</p>
 					</a>
@@ -1110,6 +1148,7 @@ function select_sections() {
       dataType: 'json',
       success: function(data) {
         var survey_id = data.survey_id; // 假设 views 返回的 JSON 格式是 { "survey_id": "123" }
+		console.log(survey_id);
 
         // 获取 JSON 文件内容
         $.ajax({
@@ -1117,6 +1156,7 @@ function select_sections() {
           method: 'GET',
           dataType: 'json',
           success: function(surveyData) {
+			console.log(surveyData);
 			document.getElementById("survey_content").innerHTML = "";
 
 			// 显示 Survey 标题
@@ -1161,7 +1201,7 @@ function select_sections() {
 						var blob = new Blob([xhr.response], { type: 'application/pdf' });
 						var link = document.createElement('a');
 						link.href = window.URL.createObjectURL(blob);
-						link.download = 'survey.pdf';  // 下载的文件名
+						link.download = 'A Survey of ' + topic + '.pdf';  // 下载的文件名
 						document.body.appendChild(link);
 						link.click();  // 触发下载
 						document.body.removeChild(link);  // 移除临时元素

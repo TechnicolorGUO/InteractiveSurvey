@@ -1,9 +1,3 @@
-
-
-
-
-
-
 from __future__ import unicode_literals
 
 from django.shortcuts import render
@@ -32,12 +26,13 @@ import csv
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
+from django.utils.text import slugify
 
 from .asg_loader import DocumentLoading
 # from .parse import DocumentLoading
-from .asg_retriever import legal_pdf, process_pdf, query_embeddings,query_embeddings_new
+from .asg_retriever import legal_pdf, process_pdf, query_embeddings,query_embeddings_new, query_embeddings_new_new, query_multiple_collections
 from .asg_generator import generate,generate_sentence_patterns
-from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen
+from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen, generateSurvey_qwen_new
 from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name, generate_cluster_name_new
 
 import glob
@@ -171,8 +166,6 @@ def generate_uid():
 def index(request):
     return render(request, 'demo/index.html')
 
-
-
 class PosRank(pke.unsupervised.PositionRank):
     def __init__(self):
         """Redefining initializer for PositionRank."""
@@ -216,7 +209,6 @@ def delete_files(request):
             return JsonResponse({'success': False, 'message': str(e)})
 
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
-
 
 def clean_str(input_str):
     input_str = str(input_str).strip().lower()
@@ -320,7 +312,6 @@ def PosRank_get_top5_ngrams(input_pd):
         '''
     return abs_top5_unigram_list_list,abs_top5_bigram_list_list,abs_top5_trigram_list_list
 
-
 def process_file(file_name, survey_id):
     # parser = DocumentLoading()
     global embedder
@@ -331,9 +322,43 @@ def process_file(file_name, survey_id):
     print("++++++++++++++++++++++++++++++++++++++++++++++")
     return collection_name, name
 
-# def process_file(file_name, survey_id):
-#     parser = DocumentLoading()
-#     return parser.pypdf_loader(file_name, survey_id)
+def sanitize_filename_py(filename):
+    last_dot = filename.rfind('.')
+    
+    def sanitize_part(part):
+        # Convert to lowercase
+        part = part.lower()
+        # Replace non-alphanumerics with space
+        part = re.sub(r'[^a-z0-9]', ' ', part)
+        # Collapse multiple spaces
+        part = re.sub(r'\s+', ' ', part)
+        # Strip leading/trailing spaces
+        part = part.strip()
+        
+        # Split into words
+        words = part.split(' ')
+        
+        if len(words) == 0:
+            return ''
+        
+        # Capitalize the first word
+        words[0] = words[0].capitalize()
+        
+        # Rejoin with spaces
+        return ' '.join(words)
+    
+    if last_dot == -1:
+        # No extension
+        return sanitize_part(filename)
+    elif last_dot == 0:
+        # Hidden file
+        extension = filename[1:]
+        return '.' + sanitize_part(extension)
+    else:
+        # With extension
+        name = filename[:last_dot]
+        extension = filename[last_dot + 1:]
+        return sanitize_part(name) + '.' + sanitize_part(extension)
 
 @csrf_exempt
 def upload_refs(request):
@@ -362,7 +387,7 @@ def upload_refs(request):
         Global_survey_title = request.POST.get('topic', False)
 
         if Global_test_flag == True:
-            uid_str = 'test'
+            uid_str = 'test_2'
         else:
             uid_str = generate_uid()
         Global_survey_id = uid_str
@@ -373,7 +398,16 @@ def upload_refs(request):
             if not file.name:
                 return JsonResponse({'error': 'No selected file'}, status=400)
             if file:
-                file_path = f'./src/static/data/pdf/{uid_str}/{file.name}'
+                # 规范化文件名，去除不合法字符，使用空格替换
+                sanitized_filename = sanitize_filename_py(os.path.splitext(file.name)[0])
+                file_extension = os.path.splitext(file.name)[1].lower()  # 统一扩展名为小写
+                sanitized_filename = f"{sanitized_filename}{file_extension}"  # 加上扩展名
+
+                # 构建文件存储路径
+                # Replace spaces with underscores or another safe character if needed in paths
+                # Here, spaces are kept as per requirement
+                file_path = os.path.join('src', 'static', 'data', 'pdf', uid_str, sanitized_filename)
+         
                 
                 # 检查文件是否存在
                 if default_storage.exists(file_path):
@@ -406,7 +440,7 @@ def upload_refs(request):
         #     file_obj = file_dict[file_name]
         # else:
         #     is_valid_submission = False
-
+        print("The global collection names are:", Global_collection_names)
         global Survey_dict
         survey_title = file_name.split('.')[-1].title()
         Survey_dict[uid_str] = survey_title
@@ -630,7 +664,6 @@ def upload_refs(request):
         print("--- %s seconds used in processing files ---" % (time.time() - start_time))
         return HttpResponse(ref_list)
 
-
 @csrf_exempt
 def annotate_categories(request):
     # Global_survey_id = request.POST.get('uid', False)
@@ -663,7 +696,6 @@ def annotate_categories(request):
     print("The generated html: ", html)
     return JsonResponse({'html': html})
 
-
 @csrf_exempt
 def get_topic(request):
     topic = request.POST.get('topics', False)
@@ -686,27 +718,28 @@ def automatic_taxonomy(request):
     print(ref_dict)
     ref_list = ref_dict['refs']
     query = ref_dict['taxonomy_standard'][0]
-    # query_list = [
-    # "First, [Method/Approach] is used to [Purpose/Action].",
-    # "Second, [Approach] is implemented for [Purpose].",
-    # "To achieve [Outcome], [Method] is applied to [Action].",
-    # "The proposed [Method] allows for [Outcome], improving [Action].",
-    # "[Action] is conducted using [Method], showing [Result].",
-    # "[Method/Approach] involves [Technique] to [Outcome].",
-    # "In this paper, [Method] is applied to [Task] by [Technique].",
-    # "[Method/Approach] combines [Technique 1] and [Technique 2] for [Goal].",
-    # "[Method] is designed to [Function], using [Key Feature/Tool].",
-    # "To enhance [Aspect], [Method] incorporates [Advanced Technique] in [Context]."
-    # ]
     query_list = generate_sentence_patterns(query)
     print(query_list)
-    print("x"*36)
+
+    # Initialize citation data for the entire taxonomy process
+    Global_citation_data = []
 
     for name in Global_collection_names:
-        # context = query_embeddings(name, query_list)
-        context = query_embeddings_new(name, query_list)
-        description = generate(context, query)
+        # old
+        # context = query_embeddings_new(name, query_list)
+
+        # wza
+        context, citation_data = query_embeddings_new_new(name, query_list)
+        Global_citation_data.extend(citation_data)
+
+        description = generate(context, query, name)
         Global_description_list.append(description)
+
+    # Save citation data to file for debugging or reference
+    citation_path = f'./src/static/data/info/{Global_survey_id}/citation_data.json'
+    os.makedirs(os.path.dirname(citation_path), exist_ok=True)
+    with open(citation_path, 'w') as outfile:
+        json.dump(Global_citation_data, outfile, indent=4, ensure_ascii=False)
 
     # 定义文件名
     file_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
@@ -806,7 +839,6 @@ def automatic_taxonomy(request):
     print(cate_list)
     cate_list = json.dumps(cate_list)
 
-
     cluster_info = {category_label_summarized[i]:ref_titles[i] for i in range(len(category_label_summarized))}
     for key, value in cluster_info.items():
         temp = [legal_pdf(i) for i in value]
@@ -829,7 +861,6 @@ def automatic_taxonomy(request):
         json.dump(outline_json, outfile, indent=4, ensure_ascii=False)
 
     return HttpResponse(cate_list)
-
 
 @csrf_exempt
 def select_sections(request):
@@ -934,37 +965,8 @@ def select_sections(request):
             '''
             survey['conclusion'] = conclusion
 
-        # for k, v in sections.items():
-        #     if k == "title":
-        #         survey['title'] = "A Survey of " + Survey_dict[Global_survey_id]
-        #     if k == "abstract":
-        #         abs, last_sent = absGen(Global_survey_id, Global_df_selected, Global_category_label)
-        #         survey['abstract'] = [abs, last_sent]
-        #     if k == "introduction":
-        #         # intro = introGen_supervised(Global_survey_id, Global_df_selected, Global_category_label, Global_category_description, sections)
-        #         intro = introGen(Global_survey_id, Global_df_selected, Global_category_label,
-        #                          Global_category_description, sections)
-        #         survey['introduction'] = intro
-        #     if k == "methodology":
-        #         proceeding, detailed_des = methodologyGen(Global_survey_id, Global_df_selected, Global_category_label,
-        #                                                   Global_category_description)
-        #         survey['methodology'] = [proceeding, detailed_des]
-        #         print('======')
-        #         print(survey['methodology'])
-        #         print('======')
-        #
-        #     if k == "conclusion":
-        #         conclusion = conclusionGen(Global_survey_id, Global_category_label)
-        #         survey['conclusion'] = conclusion
-
-
-        ## reference
-        ## here is the algorithm part
-        # df = pd.read_csv(data_path, sep='\t')
-
     survey['references'] = []
     try:
-        # print(Global_df_selected.head())
         for ref in Global_df_selected['ref_entry']:
             entry = str(ref)
             survey['references'].append(entry)
@@ -976,11 +978,9 @@ def select_sections(request):
         #     entry = str(ref).encode('utf-8')
         #     survey['references'].append(entry)
 
-
     survey_dict = json.dumps(survey)
 
     return HttpResponse(survey_dict)
-
 
 @csrf_exempt
 def get_survey(request):
@@ -992,8 +992,11 @@ def get_survey(request):
 def get_survey_id(request):
     global Global_survey_id, Global_survey_title, Global_collection_names, Global_pipeline
     generateSurvey_qwen(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline)
-    return JsonResponse({"survey_id": Global_survey_id})
+    
+    # wza
+    # generateSurvey_qwen_new(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline)
 
+    return JsonResponse({"survey_id": Global_survey_id})
 
 @csrf_exempt
 def generate_pdf(request):
@@ -1031,7 +1034,6 @@ def generate_pdf(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
 def get_refs(topic):
     '''
     Get the references from given topic
@@ -1061,7 +1063,6 @@ def get_refs(topic):
         ref_ids = default_ref_ids
     print(len(ref_ids))
     return references, ref_links, ref_ids
-
 
 def get_survey_text(refs=Global_ref_list):
     '''
@@ -1101,9 +1102,6 @@ def get_survey_text(refs=Global_ref_list):
         conclusion = conclusionGen(Global_survey_id, Global_category_label)
         survey['Conclusion'] = conclusion
 
-        ## reference
-        ## here is the algorithm part
-        # df = pd.read_csv(data_path, sep='\t')
         try:
             for ref in Global_df_selected['ref_entry']:
                 entry = str(ref)
@@ -1117,7 +1115,6 @@ def get_survey_text(refs=Global_ref_list):
     except:
         print(traceback.print_exc())
     return survey
-
 
 def Clustering_refs(n_clusters):
     df = pd.read_csv(TSV_PATH + Global_survey_id + '.tsv', sep='\t', index_col=0, encoding='utf-8')

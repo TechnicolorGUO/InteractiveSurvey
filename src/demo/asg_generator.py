@@ -35,19 +35,18 @@ def generateResponse(client, prompt):
             text += chunk.choices[0].delta.content
     return text
 
-def generate_sentence_patterns(keyword, num_patterns=10, temp=0.7):
+def generate_sentence_patterns(keyword, num_patterns=5, temp=0.7):
     template = f"""
 You are a helpful assistant that provides only the output requested, without any additional text.
 
-Please generate {num_patterns} commonly used sentence templates in academic papers to describe the keyword '{keyword}'.
+Please generate {num_patterns} commonly used sentence templates in academic papers to describe the '{keyword}'.
 - Do not include any explanations, sign-offs, or additional text.
 - The list should be in the following format:
 [
     "First template should be here",
     "Second template should be here",
     ...
-    "Ninth template should be here",
-    "Tenth template should be here"
+    
 ]
 
 Begin your response immediately with the list, and do not include any other text.
@@ -62,13 +61,20 @@ Begin your response immediately with the list, and do not include any other text
     response = generateResponse(client, template)
     return response
 
-def generate(context, keyword, temp=0.7):
+def generate(context, keyword, paper_title, temp=0.7):
     template = f"""
-According to the following context, answer the question: What {keyword} are used in the paper?
-Please provide a direct answer in a single paragraph of no more than 30 words.
+Context:
 {context}
 ------------------------------------------------------------
+Based on the above context, answer the question: What {keyword} are mentioned in the paper {paper_title}?
+Please provide a direct answer in one paragraph, no longer than 100 words. 
+
+If the context provides enough information, answer strictly based on it. 
+If the context provided does not contain any specified {keyword}, deduce and integrate your own opinion as if the {keyword} were described in the context. 
+Ensure that your answer remains consistent with the style and format of the provided context, as if the information you provide is naturally part of it.
+------------------------------------------------------------
 Answer:
+The {keyword} mentioned in this paper discuss [Your oberservation or opinion]...
 """
     openai_api_key = os.getenv("OPENAI_API_KEY")
     openai_api_base = os.getenv("OPENAI_API_BASE")
@@ -117,10 +123,10 @@ Generated Query List: [
     "The primary methods used in this research are...",
     "In this study, we adopted the following methods...",
     "The methods section outlines the procedures and techniques used...",
-    "The research methods are designed to...",
-    "We applied a range of methods, including...",
-    "The methods described herein were selected to...",
-    "The methods used in this investigation were carefully chosen to..."
+    "The research methods are...",
+    "In this paper, we...",
+    "We propose...",
+    "Our method is..."
 ]
 Generated Result: The paper employs a method that divides text embeddings into real and imaginary parts within a complex space, computes the angle difference between these embeddings according to complex space division rules, and optimizes the normalized angle difference to enhance semantic similarity. This approach is tested on both short and long text datasets, showing superior performance in semantic textual similarity (STS) tasks compared to state-of-the-art models. An ablation study confirms the positive contribution of each component of the method.
 '''

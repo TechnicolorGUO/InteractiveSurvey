@@ -161,12 +161,13 @@ def generate_cluster_name_new(tsv_path, survey_title):
 
     user_prompt = f'''
     Your task is to generate three distinctive cluster names (e.g., "Pre-training of LLMs") of the given clusters of reference papers, each reference paper is describe by a sentence.
-
+    
     The clusters of reference papers are: 
     Cluster 1: "{desp[0]}",  
     Cluster 2: "{desp[1]}",  
     Cluster 3: "{desp[2]}".
 
+    
     Your output should be a single list of cluster names, e.g., ["Pre-training of LLMs", "Fine-tuning of LLMs", "Evaluation of LLMs"]
     Do not output any other text or information.
 

@@ -14,12 +14,14 @@ import openai
 import dotenv
 import json
 import base64
-
+import concurrent.futures
 from .asg_retriever import Retriever
 
 def getQwenClient(): 
-    openai_api_key = os.environ.get("OPENAI_API_KEY")
-    openai_api_base = os.environ.get("OPENAI_API_BASE")
+    # openai_api_key = os.environ.get("OPENAI_API_KEY")
+    # openai_api_base = os.environ.get("OPENAI_API_BASE")
+    openai_api_key = "qwen2.5-72b-instruct-8eeac2dad9cc4155af49b58c6bca953f"
+    openai_api_base = "https://its-tyk1.polyu.edu.hk:8080/llm/qwen2.5-72b-instruct"
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
         api_key = openai_api_key,
@@ -100,6 +102,96 @@ Introduction:
     else:
         answer = "\n\n".join(paragraphs)
 
+    return answer
+
+def generate_future_work(context, client):
+    """
+    Generates the Future Work section based on the context of a survey paper.
+    The Future Work section is typically structured into:
+    1. Summary of current limitations or gaps.
+    2. Proposed directions for future research.
+    3. Potential impact of the proposed future work.
+    Total length is limited to 300-500 words.
+    """
+    
+    template = '''
+Directly generate the Future Work section based on the following context (a survey paper). 
+The section includes 3 elements:
+1. Summary of current limitations or gaps (1 paragraph).
+2. Proposed directions for future research (1-2 paragraphs).
+3. Potential impact of the proposed future work (1 paragraph).
+The Future Work section should strictly follow the style of a standard academic paper, with a total length of 300-500 words. Do not include any headings or extra explanations except for the Future Work content.
+
+Context:
+{context}
+
+Future Work:
+'''
+    
+    formatted_prompt = template.format(context=context)
+    response = generateResponseIntroduction(client, formatted_prompt)  # Assuming this function handles the response generation
+    
+    # Extract the Future Work content from the response
+    answer_start = "Future Work:"
+    start_index = response.find(answer_start)
+    if start_index != -1:
+        answer = response[start_index + len(answer_start):].strip()
+    else:
+        answer = response.strip()
+    
+    # Split the content into paragraphs
+    paragraphs = answer.split("\n\n")
+    if len(paragraphs) < 3:
+        # Ensure the Future Work section has at least three paragraphs
+        answer = "\n\n".join(paragraphs[:3])
+    else:
+        answer = "\n\n".join(paragraphs)
+    
+    return answer
+
+def generate_conclusion(context, client):
+    """
+    Generates the Conclusion section based on the context of a survey paper.
+    The Conclusion is typically structured into:
+    1. Recap of the main findings or discussions.
+    2. Significance of the survey.
+    3. Final remarks or call to action.
+    Total length is limited to 300-500 words.
+    """
+    
+    template = '''
+Directly generate the Conclusion section based on the following context (a survey paper). 
+The section includes 3 elements:
+1. Recap of the main findings or discussions (1 paragraph).
+2. Significance of the survey (1 paragraph).
+3. Final remarks or call to action (1 paragraph).
+The Conclusion should strictly follow the style of a standard academic paper, with a total length of 300-500 words. Do not include any headings or extra explanations except for the Conclusion content.
+
+Context:
+{context}
+
+Conclusion:
+'''
+    
+    formatted_prompt = template.format(context=context)
+    response = generateResponseIntroduction(client, formatted_prompt)  # Assuming this function handles the response generation
+    
+    # Extract the Conclusion content from the response
+    answer_start = "Conclusion:"
+    start_index = response.find(answer_start)
+    if start_index != -1:
+        answer = response[start_index + len(answer_start):].strip()
+    else:
+        answer = response.strip()
+    
+    # Split the content into paragraphs
+    paragraphs = answer.split("\n\n")
+    if len(paragraphs) < 3:
+        # Ensure the Conclusion section has at least three paragraphs
+        answer = "\n\n".join(paragraphs[:3])
+    else:
+        answer = "\n\n".join(paragraphs)
+    
     return answer
 
 def generate_introduction_alternate(title, context, client):
@@ -239,55 +331,170 @@ def process_outline_with_empty_sections_new(outline_list, selected_outline, cont
 
     return content
 
-def generate_survey_paper_new(title, outline, context_list, client):
-    parsed_outline = ast.literal_eval(outline)
-    selected_subsections = parse_outline_with_subsections(outline)
-
-    full_survey_content = process_outline_with_empty_sections_new(parsed_outline, selected_subsections, context_list, client)
-
-    generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
+def process_outline_with_empty_sections_new_new(outline_list, selected_outline, context_list, client):
+    content = ""
+    context_dict = {title: ctx for (lvl, title), ctx in zip(selected_outline, context_list)}
     
-    introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"
-    full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
+    # 准备需要生成内容的章节列表
+    sections_to_generate = []
+    for level, section_title in outline_list:
+        if (level, section_title) in selected_outline:
+            sections_to_generate.append((level, section_title))
+    
+    # 定义用于生成章节内容的函数
+    def generate_section(section_info):
+        level, section_title = section_info
+        section_content = generate_survey_section(context_dict[section_title], client, section_title)
+        return (section_title, level, section_content)
+    
+    # generate survey section in parallel
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_section = {executor.submit(generate_section, section): section for section in sections_to_generate}
+        generated_sections = {}
+        for future in concurrent.futures.as_completed(future_to_section):
+            section = future_to_section[future]
+            try:
+                section_title, level, section_content = future.result()
+                generated_sections[section_title] = (level, section_content)
+            except Exception as exc:
+                print(f'{section} generated an exception: {exc}')
 
-    return full_survey_content
-context_list = [
-    "Context for Predictive Modeling on Imbalance Data",
-    "Context for Class Imbalance as a Major Challenge",
-    "Context for Survey Scope and Organization",
-    "Context for Dealing with Class Imbalance",
-    "Context for Clustering Machine Learning Methods",
-    "Context for Microtubule Dynamics and Behavior",
-    "Context for Other Methods",
-    "Context for Conclusion",
-]
+    # combine generated sections with outline   
+    for level, section_title in outline_list:
+        if (level, section_title) in selected_outline:
+            if level == 1:
+                content += f"# {section_title}\n"
+            elif level == 2:
+                content += f"## {section_title}\n"
+            elif level == 3:
+                content += f"### {section_title}\n"
+            
+            # 添加生成的内容
+            if section_title in generated_sections:
+                section_content = generated_sections[section_title][1]
+                content += f"{section_content}\n\n"
+            else:
+                content += "\n\n"
+        else:
+            if level == 1:
+                content += f"# {section_title}\n\n"
+            elif level == 2:
+                content += f"## {section_title}\n\n"
+            elif level == 3:
+                content += f"### {section_title}\n\n"
+    
+    return content
 
-# 新的调用方式
-# generated_survey_paper = generate_survey_paper_new(outline1, context_list, client)
+# wza
+def process_outline_with_empty_sections_citations(outline_list, selected_outline, context_list, client, citation_data_list):
+    """
+    Generate survey sections with citations using parallel processing.
 
+    Args:
+        outline_list (list): Parsed outline structure.
+        selected_outline (list): List of selected sections/subsections.
+        context_list (list): List of contexts for each section.
+        client: LLM client for content generation.
+        citation_data_list (list): Citation metadata for context chunks.
 
-context = '''
-Many paradigms have been proposed to asses informativeness of data samples for active learning. One of the popular approaches is selecting the most uncertain data sample, i.e the data sample in which current classifier is least confident. Some other approaches are selecting the sample which yields a model with minimum risk or the data sample which yields fastest convergence in gradient based methods.//
-An active under-sampling approach is presented in this paper to change the data distribution of training datasets, and improve the classification accuracy of minority classes while maintaining overall classification performance.//
-In this paper, we propose an uncertainty-based active learning algorithm which requires only samples of one class and a set of unlabeled data in order to operate.//
-The principal contribution of our work is twofold: First, we use Bayes’ rule and density estimation to avoid the need to have a model of all classes for computing the uncertainty measure.//
-This technique reduces the number of input parameters of the problem. At the rest of this paper, we first review recent related works in the fields of active learning and active one-class learning (section II).//
-The classifier predicts that all the samples are non-fraud, it will have a quite high accuracy. However, for problems like fraud detection, minority class classification accuracy is more critical.//
-The algorithm used and the features selected are always the key points at design time, and many experiments are needed to select the final algorithm and the best suited feature set.//
-Active learning works by selecting among unlabeled data, the most informative data sample. The informativeness of a sample is the amount of accuracy gain achieved after adding it to the training set.//
-Some other approaches are selecting the sample which yields a model with minimum risk or the data sample which yields fastest convergence in gradient based methods.//
-In this paper, we propose a novel approach reducing each within group error, BABoost, that is a variant of AdaBoost.//
-Simulations on different unbalanced distribution data and experiments performed on several real datasets show that the new method is able to achieve a lower within group error.//
-Active learning with early stopping can achieve a faster and scalable solution without sacrificing prediction performance.//
-We also propose an efficient Support Vector Machine (SVM) active learning strategy which queries a small pool of data at each iterative step instead of querying the entire dataset.//
-The second part consists of applying a treatment method and inducing a classifier for each class distribution.//
-This time we measured the percentage of the performance loss that was recovered by the treatment method.//
-We used two well-known over-sampling methods, random over-sampling and SMOTE.//
-We tested our proposed technique on a sample of three representative functional genomic problems: splice site, protein subcellular localization and phosphorylation site prediction problems.//
-Among the possible PTMs, phosphorylation is the most studied and perhaps the most important.//
-The second part consists of applying a treatment method and inducing a classifier for each class distribution.//
-We show that Active Learning (AL) strategy can be a more efficient alternative to resampling methods to form a balanced training set for the learner in early stages of the learning.//
-'''
+    Returns:
+        str: Full survey content with citations.
+    """
+    content = ""
+    context_dict = {title: (ctx, citations) for (lvl, title), ctx, citations in zip(selected_outline, context_list, citation_data_list)}
+
+    # Function to generate content for a single section
+    def generate_section_with_citations(section_info):
+        level, section_title = section_info
+        if section_title not in context_dict:
+            return section_title, level, ""
+
+        context, citation_data = context_dict[section_title]
+        section_content = generate_survey_section_with_citations(context, client, section_title, citation_data)
+        return section_title, level, section_content
+
+    # Prepare sections to generate in parallel
+    sections_to_generate = [(level, section_title) for level, section_title in outline_list if (level, section_title) in selected_outline]
+
+    # Parallel processing for all sections
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_section = {executor.submit(generate_section_with_citations, section): section for section in sections_to_generate}
+        generated_sections = {}
+        for future in concurrent.futures.as_completed(future_to_section):
+            section_title, level, section_content = future.result()
+            generated_sections[section_title] = (level, section_content)
+
+    # Combine results into final content
+    for level, section_title in outline_list:
+        if (level, section_title) in selected_outline:
+            if level == 1:
+                content += f"# {section_title}\n"
+            elif level == 2:
+                content += f"## {section_title}\n"
+            elif level == 3:
+                content += f"### {section_title}\n"
+
+            # Add generated content
+            if section_title in generated_sections:
+                section_content = generated_sections[section_title][1]
+                content += f"{section_content}\n\n"
+            else:
+                content += "\n\n"
+        else:
+            # Add empty section
+            if level == 1:
+                content += f"# {section_title}\n\n"
+            elif level == 2:
+                content += f"## {section_title}\n\n"
+            elif level == 3:
+                content += f"### {section_title}\n\n"
+
+    return content
+
+# wza
+def generate_survey_section_with_citations(context, client, section_title, citation_data, 
+                                           temp=0.5, base_threshold=0.5, dynamic_threshold=True):
+    # Step 1: Generate content
+    template = """
+Generate a detailed and technical content for a survey paper's section based on the following context.
+The generated content should be in 3 paragraphs of no more than 300 words in total, following the style of a standard academic survey paper.
+It is expected to dive deeply into the section title "{section_title}".
+Directly return the 3-paragraph content without any other information.
+
+Context: 
+{context}
+------------------------------------------------------------
+Survey Paper Content for "{section_title}":
+"""
+    formatted_prompt = template.format(context=context, section_title=section_title)
+    generated_content = generateResponse(client, formatted_prompt).strip()
+
+    # Step 2: Split the generated content into sentences
+    sentences = re.split(r'(?<=[.!?])\s+', generated_content)
+
+    # Step 3: Embed sentences
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    sentence_embeddings = embedder.embed_documents(sentences)
+
+    # Step 4: Calculate threshold
+    adjusted_threshold = base_threshold
+    if dynamic_threshold:
+        distances = [1 - citation.get("distance", 1.0) for citation in citation_data]
+        if distances:
+            avg_similarity = sum(distances) / len(distances)
+            adjusted_threshold = min(max(avg_similarity * 0.9, 0.4), 0.85)
+
+    # Step 5: Add citations
+    updated_content = []
+    for sentence, sentence_embedding in zip(sentences, sentence_embeddings):
+        relevant_sources = [citation["source"] for citation in citation_data 
+                            if 1 - citation.get("distance", 1.0) >= adjusted_threshold]
+        unique_citations = list(set(relevant_sources))
+        citation_text = f" [{', '.join(unique_citations)}]" if unique_citations else ""
+        updated_content.append(sentence + citation_text)
+
+    # Combine sentences back into a single section
+    return "\n\n".join(updated_content).strip()
 
 def generate_survey_section(context, client, section_title, temp=0.5):
 
@@ -304,52 +511,42 @@ Survey Paper Content for "{section_title}":
 """
 
     formatted_prompt = template.format(context=context, section_title=section_title)
-    response = generateResponse(client, formatted_prompt)
+    response = generateResponse(client, formatted_prompt).strip()
+    return response
 
-    # # 解析生成的内容
-    # content_start = f"Survey Paper Content for \"{section_title}\":"
-    # start_index = response.rfind(content_start)
-    
-    # if start_index != -1:
-    #     # 去除提示和引导部分，保留生成的内容
-    #     answer = response[start_index + len(content_start):].strip()
-    # else:
-    #     answer = context  # 如果解析失败，返回原始 context
-
-    # return answer
-    return response.strip()
-
-
-# def generate_survey_paper(outline, context, client):
-#     '''
-#     Original version
-#     '''
-#     parsed_outline = ast.literal_eval(outline)
-#     selected_subsections = parse_outline_with_subsections(outline)
-
-#     # 生成并处理完整的 survey paper 内容
-#     full_survey_content = process_outline_with_empty_sections(parsed_outline, selected_subsections, context, client)
-#     return full_survey_content
-
-def generate_survey_paper(outline, context, client):
+# old
+def generate_survey_paper_new(title, outline, context_list, client):
     parsed_outline = ast.literal_eval(outline)
     selected_subsections = parse_outline_with_subsections(outline)
-
-    # 生成并处理完整的 survey paper 内容
-    full_survey_content = process_outline_with_empty_sections(parsed_outline, selected_subsections, context, client)
-
-    # 替换生成的引言部分
-    generated_introduction = generate_introduction_alternate(full_survey_content, client)
+    full_survey_content = process_outline_with_empty_sections_new_new(parsed_outline, selected_subsections, context_list, client)
     
-    # 正则表达式匹配引言内容，但保持标题完整
-    introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"  # 匹配从 # 2 Introduction 到下一个顶级 section 之间的内容
+    # Generate introduction and replace the existing one
+    generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
+    introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"
     full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
-
     return full_survey_content
 
-def query_embedding_for_title(collection_name: str, title: str, n_results: int = 1):
+# # wza
+# def generate_survey_paper_new(title, outline, context_list, client, citation_data_list):
+#     parsed_outline = ast.literal_eval(outline)
+#     selected_subsections = parse_outline_with_subsections(outline)
+    
+#     full_survey_content = process_outline_with_empty_sections_citations(
+#         parsed_outline, 
+#         selected_subsections, 
+#         context_list, 
+#         client, 
+#         citation_data_list
+#     )
+    # # Generate introduction and replace the existing one
+    # generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
+    # introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"
+    # full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
+
+    # return full_survey_content
+
+def query_embedding_for_title(collection_name: str, title: str, n_results: int = 1, embedder: HuggingFaceEmbeddings = None):
     final_context = ""
-    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     retriever = Retriever()
     title_embedding = embedder.embed_query(title)
     query_result = retriever.query_chroma(collection_name=collection_name, query_embeddings=[title_embedding], n_results=n_results)
@@ -358,11 +555,10 @@ def query_embedding_for_title(collection_name: str, title: str, n_results: int =
         final_context += chunk.strip() + "//\n"
     return final_context
 
-    
 def generate_context_list(outline, collection_list):
     context_list = []
     cluster_idx = -1
-
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     subsections = parse_outline_with_subsections(outline)
     for level, title in subsections:
         if(title.startswith("3")):
@@ -371,47 +567,11 @@ def generate_context_list(outline, collection_list):
             cluster_idx = 1
         elif(title.startswith("5")):
             cluster_idx = 2
-        print(f"Generating context for section: {title}")
         context_temp = ""
         for i in range(len(collection_list[cluster_idx])):
-            context = query_embedding_for_title(collection_list[cluster_idx][i], title)
+            context = query_embedding_for_title(collection_list[cluster_idx][i], title, embedder=embedder)
             context_temp += context
             context_temp += "\n"
         context_list.append(context_temp)
     print(f"Context list generated with length {len(context_list)}.")
     return context_list
-
-
-
-
-outline1 = """
-[
-    [1, '1 Abstract'], 
-    [1, '2 Introduction'],
-        [2, '2.1 Predictive Modeling on Imbalance Data: Problem Overview'], 
-        [2, '2.2 Class Imbalance: A Major Challenge in Predictive Modeling'], 
-        [2, '2.3 Survey Scope and Organization'], 
-            [3, '2.3.1 Dealing with Class Imbalance'], 
-            [3, '2.3.2 Clustering Machine Learning Methods'], 
-            [3, '2.3.3 Microtubule Dynamics and Behavior'], 
-            [3, '2.3.4 Other Methods'], 
-        [2, '2.4 Conclusion'], 
-    [1, '3 Dealing with Class Imbalance'], 
-        [2, '3.1 An Experimental Design to Evaluate Class Imbalance Treatment Methods'], 
-        [2, '3.2 An Improved SMOTE Imbalanced Data Classification Method Based on Support Degree'], 
-    [1, '4 Clustering Machine Learning Methods'], 
-        [2, '4.1 An unsupervised learning approach to resolving the data imbalanced issue in supervised learning problems in functional genomics'], 
-    [1, '5 Microtubule Dynamics and Behavior'], 
-        [2, '5.1 Active Learning for Class Imbalance Problem'], 
-    [1, '6 Conclusion'], 
-    [1, '7 Future Research Directions'], 
-    [1, '8 References']
-]
-"""
-# client = getQwenClient()
-
-# generated_survey_paper = generate_survey_paper(outline1, context, client)
-# print("Generated Survey Paper:\n", generated_survey_paper)
-
-# generated_introduction = generate_introduction(generated_survey_paper, client)
-# print("\nGenerated Introduction:\n", generated_introduction)

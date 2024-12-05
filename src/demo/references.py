@@ -5,8 +5,10 @@ from openai import OpenAI
 
 
 def getQwenClient(): 
-    openai_api_key = os.environ.get("OPENAI_API_KEY")
-    openai_api_base = os.environ.get("OPENAI_API_BASE")
+    openai_api_key = "qwen2.5-72b-instruct-8eeac2dad9cc4155af49b58c6bca953f"
+    
+    openai_api_base = "https://its-tyk1.polyu.edu.hk:8080/llm/qwen2.5-72b-instruct"
+    
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
         api_key = openai_api_key,
@@ -17,7 +19,7 @@ def getQwenClient():
 def generateResponse(client, prompt):
     chat_response = client.chat.completions.create(
         model="Qwen2.5-72B-Instruct",
-        max_tokens=768,
+        max_tokens=1536,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
@@ -52,10 +54,14 @@ Reference: Mikel Artetxe, Shruti Bhosale, Naman Goyal, Todor Mihaylov, Myle Ott,
 
     prompt = f'''
 Based on the following examples, generate the references based on the provided paper information.
-The generated references should be clear, legal.
-If the authors are so many, then you can just list the first few authors and add "et al." at the end.
+The generated references should be clear, legal and properly formatted.
+If the authors are many, list the first few authors followed by "et al.".
+
+Please include the "Reference:" label before each reference as shown in the examples.
+
 {examples}
 Now, please generate the references:
+
 '''
 
     for idx, paper in enumerate(papers_info):
@@ -66,13 +72,15 @@ Paper{idx+1}:
 Authors: {authors}
 Title: {title}
 Reference:'''
-
+    
     response = generateResponse(client, prompt)
+    # print("Generated Response:", response)
 
     # Extract references from response
     references = []
-    pattern = r'Paper\s*\d+:.*?Reference:(.*?)(?=\nPaper\s*\d+:|$)'
+    pattern = r'Reference:(.*?)(?=\n\n|$)'
     matches = re.findall(pattern, response, re.S)
+    
     for match in matches:
         reference = match.strip()
         if reference:
@@ -84,11 +92,20 @@ Reference:'''
 if __name__ == '__main__':
     client = getQwenClient()
     papers_info = [
-        {'authors': 'Alice Cooper2123323, Bob Dylan88888', 'title': 'Exploring Quantum Computing12201'},
-        {'authors': '999Charlie Evans, Diana Foster, Ethan Green, Fiona Harris, George King', 'title': 'An Introduction to Bioinformatics'},
-        {'authors': 'Sewon Min, Mikel Artetxe, Shruti Bhosale, Naman Goyal, Todor Mihaylov, Myle Ott, Sam Shleifer, Xi Victoria Lin, Jingfei Du, Srinivasan Iyer, Ramakanth Pasunuru, Giri Anantharaman, Xian Li, Shuohui Chen, Halil Akin, Mandeep Baines, Louis Martin, Xing Zhou, Punit Singh Koura, Brian OHoro, Jeff Wang, Luke Zettlemoyer, Mona Diab, Zornitsa Kozareva, Ves Stoyanov', 'title': 'Efficient large scale language modeling with mixtures of experts'}
+        {'authors': 'Jie Ren 1 , Han Xu 1 , Yiding Liu 2 , Yingqian Cui 1 , Shuaiqiang Wang 2 Dawei Yin 2 , Jiliang Tang 1 1 Michigan State University, Baidu Inc. {renjie3, xuhan1, cuiyingq, tangjili}@msu.edu liuyiding.tanh@gmail.com, shqiang.wang@gmail.com, yindawei@acm.org', 'title': 'A Robust Semantics-based Watermark for Large Language Models against Paraphrasing'},
+        {'authors': 'Alice Cooper, Bob Dylan', 'title': 'Exploring Quantum Computing'},
+        {'authors': 'Charlie Evans, Diana Foster, Ethan Green, Fiona Harris, George King', 'title': 'An Introduction to Bioinformatics'}
     ]
-    references = generate_references(papers_info, client)
-    print(references)
+
+    # papers_info = [
+    #     {'authors': 'Alice Cooper, Bob Dylan', 'title': 'Exploring Quantum Computing'},
+    #     {'authors': 'Charlie Evans, Diana Foster, Ethan Green, Fiona Harris, George King', 'title': 'An Introduction to Bioinformatics'},
+    #     {'authors': 'Sewon Min, Mikel Artetxe, Shruti Bhosale, Naman Goyal, Todor Mihaylov, Myle Ott, Sam Shleifer, Xi Victoria Lin, Jingfei Du, Srinivasan Iyer, Ramakanth Pasunuru, Giri Anantharaman, Xian Li, Shuohui Chen, Halil Akin, Mandeep Baines, Louis Martin, Xing Zhou, Punit Singh Koura, Brian OHoro, Jeff Wang, Luke Zettlemoyer, Mona Diab, Zornitsa Kozareva, Ves Stoyanov', 'title': 'Efficient large scale language modeling with mixtures of experts'}
+    # ]
+    # references = generate_references(papers_info, client)
+    # print(references)
+    # print("\n\n\n\n\n")
+
+    # print("Generated References:\n")
     # for ref in references:
     #     print(ref)

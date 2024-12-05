@@ -271,5 +271,111 @@ def query_embeddings_new(collection_name: str, query_list: list):
                     seen_chunks.add(chunk)
     return final_context
 
-if __name__ == "__main__":
-    print(legal_pdf("blockchain-enabled_federated_learning_data_protection_aggregata.json"))
+# wza
+def query_embeddings_new_new(collection_name: str, query_list: list):
+
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    retriever = Retriever()
+
+    final_context = ""  # Stores concatenated context
+    citation_data_list = []  # Stores chunk content and collection name as source
+
+    seen_chunks = set()  # Ensures unique chunks are added
+
+    def process_query(query_text):
+        # Embed the query text and retrieve relevant chunks
+        query_embeddings = embedder.embed_query(query_text)
+        query_result = retriever.query_chroma(
+            collection_name=collection_name,
+            query_embeddings=[query_embeddings],
+            n_results=5  # Fixed number of results
+        )
+        return query_result
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Process each query in parallel
+        futures = {executor.submit(process_query, query_text): query_text for query_text in query_list}
+        for future in concurrent.futures.as_completed(futures):
+            query_result = future.result()
+
+            chunks = query_result["documents"][0]
+            distances = query_result["distances"][0]
+
+            for chunk, distance in zip(chunks, distances):
+                if chunk not in seen_chunks:
+                    # Add chunk to final context
+                    final_context += chunk.strip() + "//\n"
+                    seen_chunks.add(chunk)
+
+                    # Store chunk content and source
+                    citation_data_list.append({
+                        "source": collection_name,  # Source is the collection name
+                        "distance": distance,
+                        "content": chunk.strip(),
+                    })
+
+    return final_context, citation_data_list
+
+# concurrent version for both collection names and queries
+def query_multiple_collections(collection_names: list[str], query_list: list[str], survey_id: str) -> dict:
+    """
+    Query multiple collections in parallel and return the combined results.
+
+    Args:
+        collection_names (list[str]): List of collection names to query.
+        query_list (list[str]): List of queries to execute on each collection.
+
+    Returns:
+        dict: Combined results from all collections, grouped by collection.
+    """
+    # Define embedder inside the function
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    retriever = Retriever()
+
+    def query_single_collection(collection_name: str):
+        """
+        Query a single collection for all queries in the query_list.
+        """
+        final_context = ""
+        seen_chunks = set()
+
+        def process_query(query_text):
+            # Embed the query
+            query_embeddings = embedder.embed_query(query_text)
+            # Query the collection
+            query_result = retriever.query_chroma(
+                collection_name=collection_name,
+                query_embeddings=[query_embeddings],
+                n_results=5
+            )
+            query_result_chunks = query_result["documents"][0]
+            return query_result_chunks
+
+        # Process all queries in parallel for the given collection
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = {executor.submit(process_query, query_text): query_text for query_text in query_list}
+            for future in concurrent.futures.as_completed(futures):
+                query_result_chunks = future.result()
+                for chunk in query_result_chunks:
+                    if chunk not in seen_chunks:
+                        final_context += chunk.strip() + "//\n"
+                        seen_chunks.add(chunk)
+
+        return final_context
+
+    # Outer parallelism for multiple collections
+    results = {}
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = {executor.submit(query_single_collection, collection_name): collection_name for collection_name in collection_names}
+        for future in concurrent.futures.as_completed(futures):
+            collection_name = futures[future]
+            results[collection_name] = future.result()
+
+    # Automatically save the results to a JSON file
+    file_path = f'./src/static/data/info/{survey_id}/retrieved_context.json'
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, ensure_ascii=False, indent=4)
+
+    print(f"Results saved to {file_path}")
+
+    return results
