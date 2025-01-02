@@ -4,3 +4,6 @@
 # 忽略 Python 缓存文件
 __pycache__/
 *.pyc
+
+src/static/
+chromadb
