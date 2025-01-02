@@ -1,7 +1,3 @@
-'''
-1. (not important) recursive character text splitter seperators can be determined by the user 如果要将retrieve到的文本应用到demo 需要完整句子
-2. chunk size of the splitter needs to be further optimized
-'''
 from .asg_loader import DocumentLoading
 from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
 

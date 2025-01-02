@@ -741,18 +741,13 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
     return
 
 # wza
-def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline):
+def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citation_data_list):
     outline = str(parseOutline(survey_id))
-    
     client = getQwenClient()
-
     context_list = generate_context_list(outline, collection_list)
     
-    citation_data_list = []
-    for collection_name in collection_list:
-        query_list = [title]  # Assume the title is the query for each collection
-        context, citation_data = query_embeddings_new_new(collection_name, query_list)
-        citation_data_list.append(citation_data)
+    # 不再重复查询citation数据，而是直接使用传入的citation_data_list
+    # citation_data_list来自get_survey_id传入的Global_citation_data
 
     temp = {
         "survey_id": survey_id,
@@ -767,7 +762,7 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline):
         "references": ""
     }
 
-    # Include citation_data_list in the call to generate_survey_paper_new
+    # 调用generate_survey_paper_new时传入citation_data_list
     generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client, citation_data_list)
     print("Generated Survey Paper:\n", generated_survey_paper)
 

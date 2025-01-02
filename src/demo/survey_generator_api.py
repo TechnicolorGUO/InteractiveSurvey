@@ -15,6 +15,8 @@ import dotenv
 import json
 import base64
 import concurrent.futures
+import numpy as np
+from numpy.linalg import norm
 from .asg_retriever import Retriever
 
 def getQwenClient(): 
@@ -387,74 +389,47 @@ def process_outline_with_empty_sections_new_new(outline_list, selected_outline, 
 
 # wza
 def process_outline_with_empty_sections_citations(outline_list, selected_outline, context_list, client, citation_data_list):
-    """
-    Generate survey sections with citations using parallel processing.
+    # 将selected_outline和context_list转成dict以根据section_title获取context
+    context_dict = {title: ctx for (lvl, title), ctx in zip(selected_outline, context_list)}
 
-    Args:
-        outline_list (list): Parsed outline structure.
-        selected_outline (list): List of selected sections/subsections.
-        context_list (list): List of contexts for each section.
-        client: LLM client for content generation.
-        citation_data_list (list): Citation metadata for context chunks.
+    sections_to_generate = [(level, title) for (level, title) in outline_list if (level, title) in selected_outline]
 
-    Returns:
-        str: Full survey content with citations.
-    """
-    content = ""
-    context_dict = {title: (ctx, citations) for (lvl, title), ctx, citations in zip(selected_outline, context_list, citation_data_list)}
-
-    # Function to generate content for a single section
-    def generate_section_with_citations(section_info):
+    def generate_section_with_citations_wrapper(section_info):
         level, section_title = section_info
-        if section_title not in context_dict:
-            return section_title, level, ""
-
-        context, citation_data = context_dict[section_title]
-        section_content = generate_survey_section_with_citations(context, client, section_title, citation_data)
+        section_context = context_dict[section_title]
+        section_content = generate_survey_section_with_citations(section_context, client, section_title, citation_data_list)
         return section_title, level, section_content
 
-    # Prepare sections to generate in parallel
-    sections_to_generate = [(level, section_title) for level, section_title in outline_list if (level, section_title) in selected_outline]
-
-    # Parallel processing for all sections
+    generated_sections = {}
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        future_to_section = {executor.submit(generate_section_with_citations, section): section for section in sections_to_generate}
-        generated_sections = {}
+        future_to_section = {executor.submit(generate_section_with_citations_wrapper, s): s for s in sections_to_generate}
         for future in concurrent.futures.as_completed(future_to_section):
-            section_title, level, section_content = future.result()
-            generated_sections[section_title] = (level, section_content)
+            s_title, s_level, s_content = future.result()
+            generated_sections[s_title] = (s_level, s_content)
 
-    # Combine results into final content
+    content = ""
     for level, section_title in outline_list:
-        if (level, section_title) in selected_outline:
+        if section_title in generated_sections:
+            s_level, s_content = generated_sections[section_title]
             if level == 1:
-                content += f"# {section_title}\n"
+                content += f"# {section_title}\n{s_content}\n\n"
             elif level == 2:
-                content += f"## {section_title}\n"
+                content += f"## {section_title}\n{s_content}\n\n"
             elif level == 3:
-                content += f"### {section_title}\n"
-
-            # Add generated content
-            if section_title in generated_sections:
-                section_content = generated_sections[section_title][1]
-                content += f"{section_content}\n\n"
-            else:
-                content += "\n\n"
+                content += f"### {section_title}\n{s_content}\n\n"
         else:
-            # Add empty section
             if level == 1:
                 content += f"# {section_title}\n\n"
             elif level == 2:
                 content += f"## {section_title}\n\n"
             elif level == 3:
                 content += f"### {section_title}\n\n"
-
     return content
 
+
 # wza
-def generate_survey_section_with_citations(context, client, section_title, citation_data, 
-                                           temp=0.5, base_threshold=0.5, dynamic_threshold=True):
-    # Step 1: Generate content
+def generate_survey_section_with_citations(context, client, section_title, citation_data_list, 
+                                           temp=0.5, base_threshold=0.7, dynamic_threshold=True):
     template = """
 Generate a detailed and technical content for a survey paper's section based on the following context.
 The generated content should be in 3 paragraphs of no more than 300 words in total, following the style of a standard academic survey paper.
@@ -467,34 +442,72 @@ Context:
 Survey Paper Content for "{section_title}":
 """
     formatted_prompt = template.format(context=context, section_title=section_title)
-    generated_content = generateResponse(client, formatted_prompt).strip()
+    response = generateResponse(client, formatted_prompt).strip()
+    sentences = re.split(r'(?<=[.!?])\s+', response.strip())
 
-    # Step 2: Split the generated content into sentences
-    sentences = re.split(r'(?<=[.!?])\s+', generated_content)
-
-    # Step 3: Embed sentences
     embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     sentence_embeddings = embedder.embed_documents(sentences)
+    chunk_texts = [c["content"] for c in citation_data_list]
+    chunk_sources = [c["source"] for c in citation_data_list]
+    chunk_embeddings = embedder.embed_documents(chunk_texts)
 
-    # Step 4: Calculate threshold
-    adjusted_threshold = base_threshold
-    if dynamic_threshold:
-        distances = [1 - citation.get("distance", 1.0) for citation in citation_data]
-        if distances:
-            avg_similarity = sum(distances) / len(distances)
-            adjusted_threshold = min(max(avg_similarity * 0.9, 0.4), 0.85)
+    def cosine_sim(a, b):
+        return np.dot(a, b) / (norm(a)*norm(b) + 1e-9)
 
-    # Step 5: Add citations
-    updated_content = []
-    for sentence, sentence_embedding in zip(sentences, sentence_embeddings):
-        relevant_sources = [citation["source"] for citation in citation_data 
-                            if 1 - citation.get("distance", 1.0) >= adjusted_threshold]
-        unique_citations = list(set(relevant_sources))
-        citation_text = f" [{', '.join(unique_citations)}]" if unique_citations else ""
-        updated_content.append(sentence + citation_text)
+    sim_matrix = []
+    for s_emb in sentence_embeddings:
+        row = [cosine_sim(s_emb, c_emb) for c_emb in chunk_embeddings]
+        sim_matrix.append(row)
+    sim_matrix = np.array(sim_matrix)
 
-    # Combine sentences back into a single section
-    return "\n\n".join(updated_content).strip()
+    all_sims = sim_matrix.flatten()
+    mean = np.mean(all_sims)
+    std = np.std(all_sims)
+    k = 0.5
+    threshold = max(base_threshold, mean + k*std) if dynamic_threshold else base_threshold
+
+    candidates = []
+    for i, sent in enumerate(sentences):
+        for j, sim in enumerate(sim_matrix[i]):
+            if sim >= threshold:
+                candidates.append((i,j,sim))
+
+    # min_references = 0
+    # current_refs = len(candidates)
+    # while current_refs < min_references and threshold > 0.1:
+    #     threshold -= 0.05
+    #     candidates = []
+    #     for i, sent in enumerate(sentences):
+    #         for j, sim in enumerate(sim_matrix[i]):
+    #             if sim >= threshold:
+    #                 candidates.append((i,j,sim))
+    #     current_refs = len(candidates)
+
+    source_count = {}
+    for s in chunk_sources:
+        source_count[s] = 0
+    candidates.sort(key=lambda x: x[2], reverse=True)
+    assigned = {}
+    diversity_limit = 3
+
+    for (sent_id, chk_id, sim) in candidates:
+        if sent_id not in assigned:
+            src = chunk_sources[chk_id]
+            if source_count[src] < diversity_limit:
+                assigned[sent_id] = src
+                source_count[src] += 1
+
+    updated_sentences = []
+    # 不使用编号，直接使用collection_name
+    for i, sentence in enumerate(sentences):
+        if i in assigned:
+            collection_name = assigned[i]  # 直接使用source作为引用
+            updated_sentences.append(sentence + f" [{collection_name}]")
+        else:
+            updated_sentences.append(sentence)
+
+    updated_content = " ".join(updated_sentences)
+    return updated_content
 
 def generate_survey_section(context, client, section_title, temp=0.5):
 
@@ -526,24 +539,23 @@ def generate_survey_paper_new(title, outline, context_list, client):
     full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
     return full_survey_content
 
-# # wza
-# def generate_survey_paper_new(title, outline, context_list, client, citation_data_list):
-#     parsed_outline = ast.literal_eval(outline)
-#     selected_subsections = parse_outline_with_subsections(outline)
-    
-#     full_survey_content = process_outline_with_empty_sections_citations(
-#         parsed_outline, 
-#         selected_subsections, 
-#         context_list, 
-#         client, 
-#         citation_data_list
-#     )
-    # # Generate introduction and replace the existing one
-    # generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
-    # introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"
-    # full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
+# wza
+def generate_survey_paper_new(title, outline, context_list, client, citation_data_list):
+    parsed_outline = ast.literal_eval(outline)
+    selected_subsections = parse_outline_with_subsections(outline)
 
-    # return full_survey_content
+    full_survey_content = process_outline_with_empty_sections_citations(
+        parsed_outline,
+        selected_subsections,
+        context_list,
+        client,
+        citation_data_list
+    )
+    generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
+    introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"
+    full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
+    return full_survey_content
+
 
 def query_embedding_for_title(collection_name: str, title: str, n_results: int = 1, embedder: HuggingFaceEmbeddings = None):
     final_context = ""

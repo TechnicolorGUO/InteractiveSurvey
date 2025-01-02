@@ -228,6 +228,49 @@ textarea {
     text-indent: 2em; /* 文字首行缩进 */
 }
 
+.recommendation-container {
+	margin-top: 30px;
+}
+
+.recommendation-list {
+	display: flex;
+	overflow-x: auto;
+	padding: 10px;
+	gap: 20px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+}
+
+.recommendation-item {
+	flex: 0 0 300px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	padding: 15px;
+	background-color: #f9f9f9;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-item h4 {
+	font-size: 18px;
+	margin-bottom: 10px;
+}
+
+.recommendation-item p {
+	font-size: 14px;
+	color: #555;
+	margin-bottom: 10px;
+}
+
+.recommendation-item a {
+	text-decoration: none;
+	color: #007bff;
+	font-weight: bold;
+}
+
+.recommendation-item a:hover {
+	text-decoration: underline;
+}
+
 </style>
 
 <!-- ===========================
@@ -358,14 +401,14 @@ FONTS & ICONS
 								<div class="col-md-8">
 									<div class="file" style="margin-top: 3px;">
 										<div id="file_list">
-											<span id="file_name">Please Select Reference Table from Your Computer...</span>
+											<span id="file_name">Please Select References from Your Computer...</span>
 										</div>
 										<input id="file" type="file" name="file" multiple title="Upload your files" onchange="displayFileNames()">
 									</div>
 								</div>
 								<div class="col-md-4">
 									<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 100px">
-										<i class="fa fa-paperclip" aria-hidden="true"></i>Upload References in Table
+										<i class="fa fa-paperclip" aria-hidden="true"></i>Upload References
 									</button>
 								</div>
 							</div>
@@ -376,6 +419,81 @@ FONTS & ICONS
 			</div>
 			<br>
 	</div>
+
+	    <!-- Recommendation Section -->
+		<div class="recommendation-container">
+			<div class="recommendation-header">
+				<h2><span class="fas fa-lightbulb"></span> Recommendations Based on Arxiv</h2>
+			</div>
+			<br>
+			<div id="recommendation-list" class="recommendation-list">
+				<!-- Recommendations will appear here dynamically -->
+				Recommendations...
+			</div>
+			<br>
+			<button type="button" class="btn btn-default" onclick="fetchRecommendations()">Generate Recommendations</button>
+		</div>
+		<br>
+	
+		<script>
+			// Function to fetch recommendations from Arxiv API
+			function fetchRecommendations() {
+				const topic = document.getElementById("topic_input_box").value.trim();
+				if (!topic) {
+					alert("Please enter a topic!");
+					return;
+				}
+	
+				// Clear previous results
+				const recommendationList = document.getElementById("recommendation-list");
+				recommendationList.innerHTML = `<p>Loading recommendations...</p>`;
+	
+				// Fetch data from Arxiv API
+				fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(topic)}&start=0&max_results=10`)
+					.then(response => response.text())
+					.then(data => {
+						// Parse Arxiv XML Response
+						const parser = new DOMParser();
+						const xml = parser.parseFromString(data, "text/xml");
+						const entries = xml.getElementsByTagName("entry");
+	
+						// Clear loading message
+						recommendationList.innerHTML = "";
+	
+						// Loop through entries and create recommendation items
+						for (let i = 0; i < entries.length; i++) {
+							const title = entries[i].getElementsByTagName("title")[0].textContent;
+							const summary = entries[i].getElementsByTagName("summary")[0].textContent;
+							const link = entries[i].getElementsByTagName("id")[0].textContent;
+							// Extract the Arxiv ID from the link
+							const arxivId = link.split('/').pop();
+							const recommendationItem = document.createElement("div");
+							recommendationItem.className = "recommendation-item";
+	
+							recommendationItem.innerHTML = `
+                            <h4>${title}</h4>
+                            <p>${summary.substring(0, 150)}...</p>
+                            <a href="#" onclick="downloadPDF('${arxivId}')">Download PDF</a>
+                        `;
+	
+							recommendationList.appendChild(recommendationItem);
+						}
+	
+						// If no entries found
+						if (entries.length === 0) {
+							recommendationList.innerHTML = `<p>No recommendations found for the topic "${topic}".</p>`;
+						}
+					})
+					.catch(error => {
+						console.error("Error fetching recommendations:", error);
+						recommendationList.innerHTML = `<p>Error fetching recommendations. Please try again later.</p>`;
+					});
+			}
+			function downloadPDF(arxivId) {
+    const pdfURL = `https://arxiv.org/pdf/${arxivId}.pdf`;
+    window.open(pdfURL, '_blank'); // 在新标签页中打开 PDF 文件
+}
+		</script>
 
 	<!-- ===========================
      References

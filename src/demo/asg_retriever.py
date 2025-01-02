@@ -273,13 +273,11 @@ def query_embeddings_new(collection_name: str, query_list: list):
 
 # wza
 def query_embeddings_new_new(collection_name: str, query_list: list):
-
     embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     retriever = Retriever()
 
     final_context = ""  # Stores concatenated context
     citation_data_list = []  # Stores chunk content and collection name as source
-
     seen_chunks = set()  # Ensures unique chunks are added
 
     def process_query(query_text):
@@ -293,25 +291,37 @@ def query_embeddings_new_new(collection_name: str, query_list: list):
         return query_result
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Process each query in parallel
-        futures = {executor.submit(process_query, query_text): query_text for query_text in query_list}
-        for future in concurrent.futures.as_completed(futures):
-            query_result = future.result()
+        future_to_query = {executor.submit(process_query, q): q for q in query_list}
+        for future in concurrent.futures.as_completed(future_to_query):
+            query_text = future_to_query[future]
+            try:
+                query_result = future.result()
+            except Exception as e:
+                # 如果某个查询出现异常，可选择打印或记录
+                print(f"Query '{query_text}' failed with exception: {e}")
+                continue
 
-            chunks = query_result["documents"][0]
-            distances = query_result["distances"][0]
+            # 验证 query_result 的结构和内容
+            if "documents" not in query_result or "distances" not in query_result:
+                continue
+            if not query_result["documents"] or not query_result["distances"]:
+                continue
+            # documents和distances是嵌套列表，通常是 [[doc1, doc2...]] 的形式
+            docs_list = query_result["documents"][0] if query_result["documents"] else []
+            dist_list = query_result["distances"][0] if query_result["distances"] else []
 
-            for chunk, distance in zip(chunks, distances):
-                if chunk not in seen_chunks:
-                    # Add chunk to final context
-                    final_context += chunk.strip() + "//\n"
-                    seen_chunks.add(chunk)
+            if len(docs_list) != len(dist_list):
+                continue
 
-                    # Store chunk content and source
+            for chunk, distance in zip(docs_list, dist_list):
+                processed_chunk = chunk.strip()
+                if processed_chunk not in seen_chunks:
+                    final_context += processed_chunk + "//\n"
+                    seen_chunks.add(processed_chunk)
                     citation_data_list.append({
-                        "source": collection_name,  # Source is the collection name
+                        "source": collection_name,
                         "distance": distance,
-                        "content": chunk.strip(),
+                        "content": processed_chunk,
                     })
 
     return final_context, citation_data_list
