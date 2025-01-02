@@ -283,7 +283,7 @@ def generateOutlineHTML_qwen(survey_id):
         </style>
 
         <div class="custom-card">
-            <div class="custom-card-body">
+            <div class="custom-card-body" id="display-outline">
                 <ul class="list-group list-group-flush">
     '''
 
@@ -368,24 +368,108 @@ def generateOutlineHTML_qwen(survey_id):
             html += generate_node_html(section)
 
         return html
+    
+    def generate_list_html(combined_list, editable=True):
+        html = '<ul class="list-group list-group-flush">\n'  # 开始 <ul>
+        for level, content in combined_list:
+            # 根据层级添加对应的 class
+            if level == 1:  # Level 1 的输入框需要禁用
+                if editable:
+                    html += f'<li class="list-group-item level-1"><input type="text" class="form-control" value="{content}" disabled></li>\n'
+                else:
+                    html += f'<li class="list-group-item level-1">{content}</li>\n'
+            elif level == 2:
+                if editable:
+                    html += f'<li class="list-group-item level-2" style="padding-left: 20px;"><input type="text" class="form-control" value="{content}"></li>\n'
+                else:
+                    html += f'<li class="list-group-item level-2" style="padding-left: 20px;">{content}</li>\n'
+            elif level == 3:
+                if editable:
+                    html += f'<li class="list-group-item level-3" style="padding-left: 40px;"><input type="text" class="form-control" value="{content}"></li>\n'
+                else:
+                    html += f'<li class="list-group-item level-3" style="padding-left: 40px;">{content}</li>\n'
+        html += '</ul>'  # 结束 </ul>
+        return html
 
+    # 生成列表 HTML
+    list_html = generate_list_html(combined_list)
     html += generate_html_from_sections(sections)
 
-    html += '''
+    html += f'''
                 </ul>
             </div>
+            <div class="custom-card-body" style="display: none" id="edit-outline">
+                {list_html}
+            </div>
+            <button type="button" class="btn btn-default" id="edit-btn" onclick="editOutline()">Edit</button>
+            <button type="button" class="btn btn-success" id="confirm-btn" style="display: none;" onclick="confirmOutline()">Proceed</button>
         </div>
         <!-- 添加 Bootstrap v3.3.0 的 JavaScript 来处理折叠功能 -->
         <script>
-        $(document).ready(function(){
-            // 切换箭头方向
-            $('.collapsed').click(function(){
+        $(document).ready(function(){{
+            $('.collapsed').click(function(){{
                 $(this).toggleClass('collapsed');
-            });
-        });
+            }});
+        }});
         </script>
+
     </div>
     '''
+
+    html+='''
+        <script>
+        // 切换到编辑模式
+        function editOutline() {
+            document.getElementById("display-outline").style.display = "none"; // 隐藏不可编辑部分
+            document.getElementById("edit-outline").style.display = "block";  // 显示可编辑部分
+
+            // 显示 "Confirm" 按钮，隐藏 "Edit" 按钮
+            document.getElementById("edit-btn").style.display = "none";
+            document.getElementById("confirm-btn").style.display = "inline-block";
+        }
+
+        // 确认编辑并提交数据
+function confirmOutline() {
+    const outlineData = []; // 用于存储提交到后端的数据
+
+    // 遍历所有的可编辑输入框
+    document.querySelectorAll("#edit-outline .list-group-item").forEach((item) => {
+        const level = item.classList.contains("level-1") ? 1 :
+                      item.classList.contains("level-2") ? 2 : 3; // 获取层级
+        const content = item.querySelector("input").value.trim(); // 获取编辑框的值
+
+        // 将数据转换为数组格式 [level, content]
+        outlineData.push([level, content]); 
+    });
+
+    console.log("Submitting to backend:", outlineData); // 打印提交数据以供调试
+
+    // 使用 AJAX 提交数据到后端
+    const csrftoken = getCookie("csrftoken"); // 获取 CSRF token
+    fetch("/save_outline/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken, // Django 的 CSRF 令牌
+        },
+        body: JSON.stringify({ outline: outlineData }) // 将数据转换为 JSON 字符串
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status === "success") {
+                $('#sections_').html(data.html);
+                alert("Outline updated successfully!");
+            } else {
+                alert("Error updating outline: " + data.message);
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            alert("Error updating outline. Please check the console for details.");
+        });
+}
+        </script>
+        '''
     print(html)
     print('+++++++++++++++++++++++++++++++++')
     return html

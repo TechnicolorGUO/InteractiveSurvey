@@ -24,9 +24,11 @@ import os
 import csv
 
 from django.http import JsonResponse
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.utils.text import slugify
+from django.middleware.csrf import get_token
 
 from .asg_loader import DocumentLoading
 # from .parse import DocumentLoading
@@ -695,7 +697,7 @@ def annotate_categories(request):
 
     html = generateOutlineHTML_qwen(Global_survey_id)
     print("The outline has been parsed successfully.")
-    print("The generated html: ", html)
+    # print("The generated html: ", html)
     return JsonResponse({'html': html})
 
 @csrf_exempt
@@ -860,6 +862,55 @@ def automatic_taxonomy(request):
         json.dump(outline_json, outfile, indent=4, ensure_ascii=False)
 
     return HttpResponse(cate_list)
+
+
+import os
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+@csrf_exempt  # 如果前端未发送 CSRF token，可以暂时使用它，但建议在生产环境中避免
+def save_outline(request):
+    if request.method == 'POST':
+        try:
+            # 从 request.body 获取 JSON 数据
+            data = json.loads(request.body)
+            updated_outline = data.get('outline', [])  # 从 JSON 数据中获取 "outline" 字段
+
+            # 构造要保存的 JSON 数据
+            outline_data = {
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "Finish the outline of the survey paper..."
+                    },
+                    {
+                        "role": "user",
+                        "content": "Finish the outline..."
+                    }
+                ],
+                "outline": str(updated_outline)
+            }
+
+            # 动态生成文件路径
+            file_path = os.path.join(settings.BASE_DIR, 'static', 'data', 'txt', Global_survey_id,'outline.json')
+
+            # 确保文件目录存在
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            # 保存到文件
+            with open(file_path, 'w', encoding='utf-8') as file:
+                json.dump(outline_data, file, indent=4, ensure_ascii=False)
+            
+            html = generateOutlineHTML_qwen(Global_survey_id)
+
+            return JsonResponse({"status": "success", "html": html})
+        except Exception as e:
+            # 捕获错误并返回
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
 
 @csrf_exempt
 def select_sections(request):
