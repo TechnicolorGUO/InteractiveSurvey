@@ -34,7 +34,7 @@ from .asg_retriever import legal_pdf, process_pdf, query_embeddings,query_embedd
 from .asg_generator import generate,generate_sentence_patterns
 from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen, generateSurvey_qwen_new
 from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name, generate_cluster_name_new
-
+from .postprocess import reindex_citations, generate_references_section
 import glob
 import nltk
 
@@ -107,6 +107,8 @@ Global_collection_names_clustered = []
 Global_description_list = []
 Global_pipeline = None
 Global_cluster_names = []
+Global_citation_data = []
+
 
 embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
@@ -721,9 +723,6 @@ def automatic_taxonomy(request):
     query_list = generate_sentence_patterns(query)
     print(query_list)
 
-    # Initialize citation data for the entire taxonomy process
-    Global_citation_data = []
-
     for name in Global_collection_names:
         # old
         # context = query_embeddings_new(name, query_list)
@@ -988,13 +987,26 @@ def get_survey(request):
     survey_dict = json.dumps(survey_dict)
     return HttpResponse(survey_dict)
     
+# @csrf_exempt
+# def get_survey_id(request):
+#     # global Global_survey_id, Global_survey_title, Global_collection_names, Global_pipeline
+#     global Global_survey_id, Global_survey_title, Global_collection_names, Global_pipeline, Global_citation_data
+
+#     # old
+#     # generateSurvey_qwen(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline)
+    
+#     # wza
+#     generateSurvey_qwen_new(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline, Global_citation_data)
+
+#     return JsonResponse({"survey_id": Global_survey_id})
+
 @csrf_exempt
 def get_survey_id(request):
-    global Global_survey_id, Global_survey_title, Global_collection_names, Global_pipeline
-    generateSurvey_qwen(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline)
-    
-    # wza
-    # generateSurvey_qwen_new(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline)
+    global Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline, Global_citation_data
+
+    # 调用生成Survey的函数（需事先确保generateSurvey_qwen_new的定义）
+    # generateSurvey_qwen_new会生成generated_result.json文件，其中包括"content"字段的完整survey文本
+    generateSurvey_qwen_new(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline, Global_citation_data)
 
     return JsonResponse({"survey_id": Global_survey_id})
 
