@@ -8,6 +8,7 @@ urlpatterns = [
     path('get_survey_id/', views.get_survey_id, name='get_survey_id'),
     path('generate_pdf/', views.generate_pdf, name='generate_pdf'),
     path('save_outline/', views.save_outline, name='save_outline'),
+    path('save_updated_cluster_info', views.save_updated_cluster_info, name='save_updated_cluster_info'),
     url(r'^get_topic$', views.get_topic, name='get_topic'),
     url(r'^get_survey$', views.get_survey, name='get_survey'),
     url(r'^automatic_taxonomy$', views.automatic_taxonomy, name='automatic_taxonomy'),

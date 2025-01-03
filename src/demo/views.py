@@ -106,6 +106,7 @@ Global_df_selected = ""
 Global_test_flag = True
 Global_collection_names = []
 Global_collection_names_clustered = []
+Global_file_names=[]
 Global_description_list = []
 Global_pipeline = None
 Global_cluster_names = []
@@ -387,6 +388,7 @@ def upload_refs(request):
         global Global_test_flag
         global Global_collection_names
         global Global_survey_title
+        global Global_file_names
 
         Global_survey_title = request.POST.get('topic', False)
 
@@ -434,6 +436,7 @@ def upload_refs(request):
 
                 collection_name, processed_file = process_file(saved_file_name, Global_survey_id)
                 Global_collection_names.append(collection_name)
+                Global_file_names.append(processed_file)
                 filenames.append(processed_file)
                 filesizes.append(file_size)
                 print(filenames)
@@ -862,6 +865,34 @@ def automatic_taxonomy(request):
         json.dump(outline_json, outfile, indent=4, ensure_ascii=False)
 
     return HttpResponse(cate_list)
+
+@csrf_exempt
+def save_updated_cluster_info(request):
+    if request.method == 'POST':  # 确保只处理 POST 请求
+        try:
+            # 获取请求数据
+            data = json.loads(request.body)  # 从 request.body 中解析 JSON 数据
+            survey_id = Global_survey_id
+            updated_cate_list = data.get('updated_cate_list')
+
+            if not survey_id or not updated_cate_list:
+                return JsonResponse({"error": "Missing survey_id or updated_cate_list"}, status=400)
+
+            # 构造保存路径
+            save_dir = os.path.join('./src/static/data/info/', str(survey_id))
+            os.makedirs(save_dir, exist_ok=True)  # 确保目录存在
+            save_path = os.path.join(save_dir, 'cluster_info_updated.json')
+
+            # 保存到 JSON 文件
+            with open(save_path, 'w', encoding='utf-8') as f:
+                json.dump(updated_cate_list, f, ensure_ascii=False, indent=4)
+
+            return JsonResponse({"message": "Cluster info updated and saved successfully!"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
 
 
 import os
