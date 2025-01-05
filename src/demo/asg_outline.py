@@ -190,7 +190,7 @@ class OutlineGenerator():
         return messages, result
 
     def generate_outline_qwen(self, survey_title):
-        claims = self.generate_claims()
+        claims = self.generate_claims_qwen()
         cluster_with_claims = ""
         cluster_names=[]
         for i in range(len(self.cluster)):
