@@ -393,7 +393,7 @@ def upload_refs(request):
         Global_survey_title = request.POST.get('topic', False)
 
         if Global_test_flag == True:
-            uid_str = 'test_2'
+            uid_str = 'test_4'
         else:
             uid_str = generate_uid()
         Global_survey_id = uid_str

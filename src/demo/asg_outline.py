@@ -76,9 +76,84 @@ class OutlineGenerator():
                     claims = claims + '\n' + claim
                 result.append(claims)
         return result
+    
+    
+    def generate_claims_qwen(self):
+        """
+        Generate claims for each cluster using Qwen API.
+
+        Returns:
+            list: A list of strings, where each string contains the claims generated
+                for a cluster.
+        """
+        result = []
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        openai_api_base = os.getenv("OPENAI_API_BASE")
+        client = OpenAI(
+            api_key=openai_api_key,
+            base_url=openai_api_base,
+        )
+
+        for i in range(len(self.cluster)):
+            cluster = self.cluster[i]
+            claims = ''
+            data = cluster['info']
+
+            for j in range(len(data)):
+                entry = data.iloc[j]
+                title = entry['title']
+                abstract = entry['abstract']
+                
+                # Construct the prompt for Qwen
+                prompt = f'''
+                    Title:
+                    {title}
+                    Abstract:
+                    {abstract}
+                    Task:
+                    Conclude new findings and null findings from the abstract in one sentence in the atomic format. Do not separate
+                    new findings and null findings. The finding must be relevant to the title. Do not include any other information.
+                    Definition:
+                    A scientific claim is an atomic verifiable statement expressing a finding about one aspect of a scientific entity or
+                    process, which can be verified from a single source.
+                '''
+                
+                # Define the input for Qwen
+                messages = [
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt},
+                ]
+
+                try:
+                    # Call Qwen API
+                    chat_response = client.chat.completions.create(
+                        model="Qwen2.5-72B-Instruct",
+                        max_tokens=512,
+                        temperature=0.5,
+                        messages=messages
+                    )
+                    
+                    # Extract the generated claim from Qwen's response
+                    claim = ""
+                    for chunk in chat_response:
+                        if "content" in chunk.choices[0].delta:
+                            claim += chunk.choices[0].delta.content
+                    
+                    # Clean and append the claim
+                    claims = claims + '\n' + claim.strip()
+                    print("Generated claim:", claim)
+                    print("+++++++++++++++++++++++++++++++++")
+                
+                except Exception as e:
+                    print(f"Error generating claim for entry {j} in cluster {i}: {e}")
+                    continue
+
+            result.append(claims)
+
+        return result
 
     def generate_outline(self, survey_title):
-        claims = self.generate_claims()
+        claims = self.generate_claims_qwen()
         cluster_with_claims = ""
         for i in range(len(self.cluster)):
             cluster = self.cluster[i]
