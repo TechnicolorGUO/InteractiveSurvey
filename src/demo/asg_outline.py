@@ -133,12 +133,12 @@ class OutlineGenerator():
         The second element in the sub-list refers to the section name.
         You are required to finish the second and third level subsections name under [1, '3 <Cluster 0's name>'], [1, '4 <Cluster 1's name>'] and [1, '5 <Cluster 2's name>']
         '''
-
-        example_json = {"title":"A Survey of Huebschmann and Stasheff's Paper: Formal Solution of the Master Equation via HPT and Deformation Theory","outline":[{"title":"1 Introduction","outline":[]},{"title":"2 Perturbations of (co)differentials","outline":[{"title":"2.1 Derivations of the tensor algebra","outline":[]},{"title":"2.2 Coderivations of the tensor coalgebra","outline":[]},{"title":"2.3 Coderivations of the symmetric coalgebra","outline":[]},{"title":"2.4 DGLA\u2019s and perturbations of the codifferential","outline":[]},{"title":"2.5 Strongly homotopy Lie algebras","outline":[]},{"title":"2.6 The Hochschild chain complex and DGA\u2019s","outline":[]},{"title":"2.7 Strongly homotopy associative algebras","outline":[]}]},{"title":"3 Master equation","outline":[]},{"title":"4 Twisting cochain","outline":[{"title":"4.1 Differential on Hom","outline":[]},{"title":"4.2 Cup product and cup bracket","outline":[]},{"title":"4.3 Twisting cochain","outline":[]}]},{"title":"5 Homological perturbation theory (HPT)","outline":[{"title":"5.1 Contraction","outline":[]},{"title":"5.2 The first main theorem.","outline":[]}]},{"title":"6 Corollaries and the second main theorem","outline":[{"title":"6.1 Other corollaries of Theorem\u00a01.","outline":[]},{"title":"6.2 The second main theorem","outline":[]}]},{"title":"7 Differential Gerstenhaber and BV algebras","outline":[{"title":"7.1 Differential Gerstenhaber algebras","outline":[]},{"title":"7.2 Differential BV algebras","outline":[]},{"title":"7.3 Formality","outline":[{"title":"7.3.1 Formality of differential graded P\ud835\udc43Pitalic_P-algebras","outline":[]},{"title":"7.3.2 Examples","outline":[]}]},{"title":"7.4 Differential BV algebras and formality","outline":[]}]},{"title":"8 Deformation theory","outline":[]},{"title":"References","outline":[]}]}
         # user_prompt = {"survey_title":survey_title, "claims":cluster_with_claims}
         user_prompt = f'''Finish the outline of the survey paper given the title:{survey_title}, and three lists of sentences describing each cluster of the references used by this survey:{cluster_with_claims}\
         The first level sections' hierarchy is given: [[1, '1 Abstract'], [1, '2 Introduction'], [1, '3 {cluster_names[0]}'], [level 2 and 3 sections to finish...], [1, '4 {cluster_names[1]}'], [level 2 and 3 sections to finish...],[1, '5 {cluster_names[2]}'],[level 2 and 3 sections to finish...], [1, '6 Future Directions'], [1, '7 Conclusion']] \
-        You are required to finish the second and third level subsections name under [1, '3 {cluster_names[0]}'], [1, '4 {cluster_names[1]}'] and [1, '5 {cluster_names[2]}'] with [2, 'a.b xxx'] and [3, 'a.b.c xxx']'''
+        You are required to finish the second and third level subsections name under [1, '3 {cluster_names[0]}'], [1, '4 {cluster_names[1]}'] and [1, '5 {cluster_names[2]}'] with [2, 'a.b xxx'] and [3, 'a.b.c xxx']
+        Notice that do not use the reference title directly as the level 3 subsection title, use comprehensive phrases to summarize the cluster with different aspects.
+        '''
 
         messages = [
             {"role": "system", "content": system_prompt}, 
@@ -401,8 +401,8 @@ def generateOutlineHTML_qwen(survey_id):
             <div class="custom-card-body" style="display: none" id="edit-outline">
                 {list_html}
             </div>
-            <button type="button" class="btn btn-default" id="edit-btn" onclick="editOutline()">Edit</button>
-            <button type="button" class="btn btn-success" id="confirm-btn" style="display: none;" onclick="confirmOutline()">Proceed</button>
+            <button type="button" class="btn btn-secondary btn-lg" id="edit-btn" onclick="editOutline()"><i class="bi bi-pen"></i></button>
+            <button type="button" class="btn btn-success btn-lg" id="confirm-btn" style="display: none;" onclick="confirmOutline()"><i class="bi bi-check"></i></button>
         </div>
         <!-- 添加 Bootstrap v3.3.0 的 JavaScript 来处理折叠功能 -->
         <script>
@@ -856,13 +856,15 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     abstract = abs_generator.generate(title, generated_introduction)
     print("\nGenerated Abstract:\n", abstract)
     con_generator = ConclusionGenerator(pipeline)
-    conclusion = con_generator.generate(title, generated_introduction)
+    # conclusion = con_generator.generate(title, generated_introduction)
+    conclusion = generate_conclusion(generated_survey_paper, client)
     print("\nGenerated Conclusion:\n", conclusion)
     abstract = abstract.replace("Abstract:", "")
     conclusion = conclusion.replace("Conclusion:", "")
-    future_directions = generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:", "")
-    references = generate_references_dir('./src/static/data/txt/' + survey_id)
-    
+    # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
+    #New version: 12/03
+    future_directions = generate_future_work(generated_survey_paper, client)
+    references = generate_references_dir('./src/static/data/txt/'+survey_id)
     temp["abstract"] = abstract
     temp["introduction"] = generated_introduction
     temp["content"] = generated_survey_paper
@@ -872,7 +874,6 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
     temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
     temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
-
     output_path = f'./src/static/data/txt/{survey_id}/generated_result.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(temp, f, ensure_ascii=False, indent=4)

@@ -41,6 +41,7 @@ STYLESHEETS
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 
 <!--<link rel="stylesheet" href= '../../../static/css/fontawesome-free-5.13.0-web/css/fontawesome.min.css'>-->
@@ -298,8 +299,8 @@ FONTS & ICONS
 	HEADER
 	============================ -->
 	<div class="jumbotron">
-		<h2 align="center" style="font-size: 3em"> Structured Summary Generation for Numerous Long Documents</h2>
-		<h2 align="right"> --- Automatic Survey Paper Generation</h2>
+		<h2 align="center" style="font-size: 3em"> Automatic Survey Paper Generation</h2>
+		<!-- <h2 align="right"> --- Automatic Survey Paper Generation</h2> -->
 		<br>
 		<br>
 	</div>
@@ -391,6 +392,15 @@ FONTS & ICONS
 				</div>
 				<br>
 
+				<!-- Recommendation Section -->
+				<div class="recommendation-container">
+					<div id="recommendation-list" class="recommendation-list">
+						<!-- Recommendations will appear here dynamically -->
+						Recommendations...
+					</div>
+					<br>
+				</div>
+
 				<div class="row">
 					<div class="col-md-12">
 						<form action="" method="post" id="topic_input" enctype="multipart/form-data">
@@ -407,8 +417,11 @@ FONTS & ICONS
 									</div>
 								</div>
 								<div class="col-md-4">
-									<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 100px">
+									<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 150px; margin-bottom: 10px;">
 										<i class="fa fa-paperclip" aria-hidden="true"></i>Upload References
+									</button>
+									<button type="button" class="btn btn-default" onclick="fetchRecommendations()" style="margin-top: 0px; margin-left: 150px">
+										<i class="fa fa-lightbulb" aria-hidden="true"></i>Search References
 									</button>
 								</div>
 							</div>
@@ -420,20 +433,6 @@ FONTS & ICONS
 			<br>
 	</div>
 
-	    <!-- Recommendation Section -->
-		<div class="recommendation-container">
-			<div class="recommendation-header">
-				<h2><span class="fas fa-lightbulb"></span> Recommendations Based on Arxiv</h2>
-			</div>
-			<br>
-			<div id="recommendation-list" class="recommendation-list">
-				<!-- Recommendations will appear here dynamically -->
-				Recommendations...
-			</div>
-			<br>
-			<button type="button" class="btn btn-default" onclick="fetchRecommendations()">Generate Recommendations</button>
-		</div>
-		<br>
 	
 		<script>
 			// Function to fetch recommendations from Arxiv API
@@ -449,7 +448,7 @@ FONTS & ICONS
 				recommendationList.innerHTML = `<p>Loading recommendations...</p>`;
 	
 				// Fetch data from Arxiv API
-				fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(topic)}&start=0&max_results=10`)
+				fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(topic)}&start=0&max_results=50`)
 					.then(response => response.text())
 					.then(data => {
 						// Parse Arxiv XML Response
@@ -516,7 +515,7 @@ FONTS & ICONS
 			<div class="list-group pre-scrollable" id="ref_list" style="height:800px">
 			</div>
 
-			<p align="right"> *(Select the references for instant survey generation)</p>
+			<p align="right"> *(Selected references for instant survey generation)</p>
 
 
 			<div class="col-md-12"  style="text-align: center; display: none" id="auto_taxonomy">
@@ -568,7 +567,7 @@ FONTS & ICONS
 	</div>
 
 	<div class="col-md-12" style="display: none" id="generate_content_button">
-		<input type="button" class="btn btn-default" onclick="display_select_sections()" value="Confirm and Generate Survey Content" style="width: 300px; margin-left:35%">
+		<input type="button" class="btn btn-default" onclick="confirm_display_select_sections()" value="Confirm and Display Outline" style="width: 300px; margin-left:35%">
 	</div>
 
 
@@ -598,7 +597,7 @@ FONTS & ICONS
 
 		<br>
 		<div style="text-align: center">
-			<input type="button" class="btn btn-default" onclick="display_survey()" value="Confirm">
+			<input type="button" class="btn btn-default" onclick="display_survey()" value="Generate Survey">
 		</div>
 	</div>
 
@@ -999,10 +998,10 @@ FONTS & ICONS
                     }
 
 				}
-				document.getElementById("modify_taxonomy").innerHTML += 
-    "<div style='text-align: center; margin-top: 20px;'>" +
-    "<button class='btn btn-primary' type='button' onclick='change_clustering()'>Confirm</button>" +
-    "</div>";
+	// 			document.getElementById("modify_taxonomy").innerHTML += 
+    // "<div style='text-align: center; margin-top: 20px;'>" +
+    // "<button class='btn btn-primary' type='button' onclick='change_clustering()'>Confirm</button>" +
+    // "</div>";
 				$("#taxonomy").attr("style","display:inline;");
 				// alert(result);
 				$("#generate_content_button").attr("style","display:inline; align: center; ");
@@ -1126,7 +1125,8 @@ FONTS & ICONS
 	}
 
 
-	function display_select_sections() {
+	function confirm_display_select_sections() {
+		change_clustering()
 		// submit revised taxonomy to backend
         let topic_word_list = [];
 		let ref_lists = [];
@@ -1353,14 +1353,14 @@ function select_sections() {
 			document.getElementById("survey_content").innerHTML += contentHTML;
 
 			// 显示 References 标题
-			var referencesTitleMarkdown = "## References";
-			var referencesTitleHTML = marked.parse(referencesTitleMarkdown);
-			document.getElementById("survey_content").innerHTML += referencesTitleHTML;
+			// var referencesTitleMarkdown = "## References";
+			// var referencesTitleHTML = marked.parse(referencesTitleMarkdown);
+			// document.getElementById("survey_content").innerHTML += referencesTitleHTML;
 
 			// 显示 References 的内容
-			var referencesMarkdown = surveyData.references || "No references available.";
-			var referencesHTML = marked.parse(referencesMarkdown);
-			document.getElementById("survey_content").innerHTML += referencesHTML;
+			// var referencesMarkdown = surveyData.references || "No references available.";
+			// var referencesHTML = marked.parse(referencesMarkdown);
+			// document.getElementById("survey_content").innerHTML += referencesHTML;
 
 			var surveyContentHTML = document.getElementById("survey_content").innerHTML;
 			var turndownService = new TurndownService();

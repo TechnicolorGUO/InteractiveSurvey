@@ -1097,6 +1097,12 @@ def generate_pdf(request):
     if request.method == 'POST':
         # 获取前端传递的 HTML 内容
         markdown_content = request.POST.get('content', '')
+        # print("The global collection names:")
+        # print(Global_collection_names)
+        # print("The global file names:")
+        # print(Global_file_names)
+        # print("="*24)
+        markdown_content = finalize_survey_paper(markdown_content,Global_collection_names, Global_file_names)
         survey_id = request.POST.get('survey_id', '')
 
         # 生成唯一的 PDF 文件名
@@ -1229,3 +1235,92 @@ def Clustering_refs(n_clusters):
 
     return colors, category_label
     # return 1,0,1
+
+# wza
+def remove_bracketed_numbers(paper_text):
+    # 使用正则表达式匹配所有形式为 [数字] 的部分
+    return re.sub(r'\[\d+\]', '', paper_text)
+
+# wza
+def normalize_citations_with_mapping(paper_text):
+    # 使用正则表达式匹配所有引用标记（形如 [citation1]）
+    citations = re.findall(r'\[.*?\]', paper_text)
+    # 去重并保持顺序
+    unique_citations = list(dict.fromkeys(citations))
+    # 生成引用映射表，把原始引用标记映射为数字引用
+    citation_mapping = {citation: f'[{i + 1}]' for i, citation in enumerate(unique_citations)}
+
+    # 在文本中替换老引用为新引用
+    normalized_text = paper_text
+    for old_citation, new_citation in citation_mapping.items():
+        normalized_text = normalized_text.replace(old_citation, new_citation)
+
+    # 生成从数字到原始引用标记的反向映射
+    # 用 rstrip('\\') 去掉末尾的反斜杠
+    reverse_mapping = {
+        i + 1: unique_citations[i].strip('[]').rstrip('\\')
+        for i in range(len(unique_citations))
+    }
+
+    return normalized_text, reverse_mapping
+
+# paper_with_non_standard_citations = """
+# This is a paper text with non-standard citations like [collection name1] and [collection name2].
+# Another reference to [collection name1] is here. And then we see [collection name3].
+# """
+
+# normalized_paper, citation_mapping = normalize_citations_with_mapping(paper_with_non_standard_citations)
+# print("Normalized Paper:")
+# print(normalized_paper)
+# print("\nCitation Mapping:")
+# print(citation_mapping)
+
+
+# wza
+def generate_references_section(citation_mapping, collection_pdf_mapping):
+    print("The citation mapping is:")
+    print(citation_mapping)
+    print("The collection pdf mapping is:")
+    print(collection_pdf_mapping)
+    print("-" * 24)
+    
+    references = ["# References"]  # 生成引用部分
+    for num in sorted(citation_mapping.keys()):
+        collection_name = citation_mapping[num]
+        pdf_name = collection_pdf_mapping.get(collection_name, "Unknown PDF")
+        if pdf_name.endswith(".pdf"):
+            pdf_name = pdf_name[:-4]
+        # 在每一行末尾添加两个空格以确保换行
+        references.append(f"[{num}] {pdf_name}  ")
+
+    return "\n".join(references)
+
+# wza
+def finalize_survey_paper(paper_text, 
+                          Global_collection_names, 
+                          Global_file_names):
+    # 第一步：归一化引用 => [1][2]...
+    normalized_text, citation_mapping = normalize_citations_with_mapping(paper_text)
+    
+    # 第二步：构造 collection_pdf_mapping => {collection_name: pdf_file_name, ...}
+    collection_pdf_mapping = dict(zip(Global_collection_names, Global_file_names))
+    
+    # 第三步：生成 References
+    references_section = generate_references_section(citation_mapping, collection_pdf_mapping)
+    
+    # 第四步：合并正文和 References 这里需要修改
+    final_paper = normalized_text.strip() + "\n\n" + references_section
+    
+    return final_paper
+
+# 调用
+# paper_text = """
+# In this paper, we discuss various approaches [collection_name_1]. 
+# Some of them are advanced in [collection_name_2].
+# """
+
+# Global_collection_names = ["collection_name_1", "collection_name_2"]
+# Global_file_names = ["paper1.pdf", "paper2.pdf"]
+
+# result = finalize_survey_paper(paper_text, Global_collection_names, Global_file_names)
+# print(result)
