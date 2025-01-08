@@ -725,3 +725,247 @@ def generate_context_list(outline, collection_list):
         context_list.append(context_temp)
     print(f"Context list generated with length {len(context_list)}.")
     return context_list
+
+
+# 1.7 输入introduction 输出带引用 (collection name) 的introduction
+def introduction_with_citations(
+    intro_text: str,
+    citation_data_list: list,
+    base_threshold: float = 0.7,
+    dynamic_threshold: bool = True,
+    diversity_limit: int = 3
+) -> str:
+    """
+    给已生成好的 Introduction 添加引用，保留原有段落结构。
+    :param intro_text: 已生成的引言文本（多段）。
+    :param citation_data_list: 需要引用的文献块列表，每个元素为 dict: {"content": "...", "source": "..."}。
+    :param base_threshold: 基础相似度阈值。
+    :param dynamic_threshold: 是否启用动态阈值 (mean + k*std)。
+    :param diversity_limit: 单个 source 最多被引用次数。
+    :return: 带有引用的最终引言文本。
+    """
+
+    # 1. 将生成的引言先按空行拆分成段落
+    paragraphs = [p.strip() for p in intro_text.split('\n\n') if p.strip()]
+
+    # 2. 拆分每段落为句子，并记录句子所属段落索引
+    all_sentences = []
+    para_index_map = []
+    for p_idx, para in enumerate(paragraphs):
+        # 使用正则按 .!? 分句
+        sentences_in_para = re.split(r'(?<=[.!?])\s+', para)
+        for sent in sentences_in_para:
+            if sent.strip():
+                all_sentences.append(sent.strip())
+                para_index_map.append(p_idx)
+
+    # 如果整篇引言只有空内容，直接返回
+    if not all_sentences:
+        return intro_text
+
+    # 3. 对所有句子进行向量化（一次性处理全文）
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    sentence_embeddings = embedder.embed_documents(all_sentences)
+
+    # 4. 对 citation_data_list 中的文献块做向量化
+    chunk_texts = [c["content"] for c in citation_data_list]
+    chunk_sources = [c["source"] for c in citation_data_list]
+    chunk_embeddings = embedder.embed_documents(chunk_texts)
+
+    # 定义一个余弦相似度函数
+    def cosine_sim(a, b):
+        return np.dot(a, b) / (norm(a) * norm(b) + 1e-9)
+
+    # 5. 构建句子-引用块相似度矩阵
+    sim_matrix = []
+    for s_emb in sentence_embeddings:
+        row = [cosine_sim(s_emb, c_emb) for c_emb in chunk_embeddings]
+        sim_matrix.append(row)
+    sim_matrix = np.array(sim_matrix)
+
+    # 6. 计算动态阈值（全局）
+    all_sims = sim_matrix.flatten()
+    mean_sim = np.mean(all_sims)
+    std_sim = np.std(all_sims)
+    k = 0.5
+    threshold = max(base_threshold, mean_sim + k * std_sim) if dynamic_threshold else base_threshold
+
+    # 7. 找出所有相似度 >= threshold 的 (句子ID, 引用块ID, 相似度)
+    candidates = []
+    for i, sent in enumerate(all_sentences):
+        for j, sim in enumerate(sim_matrix[i]):
+            if sim >= threshold:
+                candidates.append((i, j, sim))
+
+    # 8. 给每个文献 source 限制最多引用次数
+    source_count = {s: 0 for s in chunk_sources}
+
+    # 对候选引用按相似度降序排
+    candidates.sort(key=lambda x: x[2], reverse=True)
+
+    # assigned: 句子ID -> source
+    assigned = {}
+
+    for sent_id, chunk_id, sim in candidates:
+        if sent_id not in assigned:
+            src = chunk_sources[chunk_id]
+            if source_count[src] < diversity_limit:
+                assigned[sent_id] = src
+                source_count[src] += 1
+
+    # 9. 拼接引用到句子中
+    updated_sentences = []
+    for i, sentence in enumerate(all_sentences):
+        if i in assigned:
+            updated_sentences.append(sentence + f" [{assigned[i]}]")
+        else:
+            updated_sentences.append(sentence)
+
+    # 10. 重新按段落结构组装
+    final_paragraphs = []
+    current_para_idx = para_index_map[0]
+    temp_list = []
+
+    for i, sent in enumerate(updated_sentences):
+        p_idx = para_index_map[i]
+        if p_idx != current_para_idx:
+            # 进入新段落
+            final_paragraphs.append(" ".join(temp_list))
+            temp_list = []
+            current_para_idx = p_idx
+        temp_list.append(sent)
+
+    # 最后一段
+    if temp_list:
+        final_paragraphs.append(" ".join(temp_list))
+
+    # 11. 用空行拼成最终引言
+    updated_intro = "\n\n".join(final_paragraphs)
+
+    return updated_intro
+
+# 1.7
+# 在生成整篇collection name作为引用的paper (introduction + 3 sections)之后, finalize_survey_paper之前
+def ensure_all_papers_cited(
+    paper_text: str,
+    citation_data_list: list
+) -> str:
+    """
+    在整篇论文文本中检查并补充尚未引用的paper。
+    每个未被引用的paper会计算其所有chunk与整篇论文每个句子的相似度，
+    找到相似度最高的一句并在句末添加 [paperSource]。
+    
+    :param paper_text: 已经合并好的完整论文文本 (Introduction + Sections + ...)，
+                       其中可能已经包含了一些 [paperX] 引用。
+    :return: 更新后的 paper_text 保证所有paperName至少出现一次。
+    """
+
+    # 1. 找出已经引用过的 paper 集合
+
+    # 假设当前的引用格式是 [paperName]，如果你的引用是 [paperName\]，
+    # 或者别的格式，就要相应修改正则
+    pattern_citation = r'\[([^\]]+)\]'
+    cited_papers_in_text = set(re.findall(pattern_citation, paper_text))
+
+    # 2. 找出未被引用的 paper
+
+    all_papers = set([c["source"] for c in citation_data_list])
+    not_cited_papers = list(all_papers - cited_papers_in_text)
+    if not not_cited_papers:
+        # 如果所有paper都已被引用，直接返回即可
+        print("All papers have been cited at least once. No changes needed.")
+        return paper_text
+
+    print(f"Detected {len(not_cited_papers)} not-cited papers:", not_cited_papers)
+
+    # 3. 拆分整篇论文为句子，并对每个句子做embedding
+
+    # 按段落拆分
+    paragraphs = [p.strip() for p in paper_text.split('\n\n') if p.strip()]
+
+    # 记录每个句子属于哪个段落
+    all_sentences = []
+    para_index_map = []
+    for p_idx, para in enumerate(paragraphs):
+        # 与之前逻辑一致，按 .!? 分句
+        sents_in_para = re.split(r'(?<=[.!?])\s+', para)
+        for sent in sents_in_para:
+            if sent.strip():
+                all_sentences.append(sent.strip())
+                para_index_map.append(p_idx)
+
+    if not all_sentences:
+        print("No valid sentences found in the entire paper text.")
+        return paper_text
+
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    sentence_embeddings = embedder.embed_documents(all_sentences)
+
+    # 为了快速获取 paper->[chunk_embeddings]，做一个预处理
+    # paper_chunks_map: {paperName: [chunk_text1, chunk_text2, ...]}
+    paper_chunks_map = {}
+    for c in citation_data_list:
+        paper = c["source"]
+        content = c["content"]
+        if paper not in paper_chunks_map:
+            paper_chunks_map[paper] = []
+        paper_chunks_map[paper].append(content)
+
+    # 4. 对未被引用的 paper, 强行添加引用
+
+    # 我们只给每篇paper添加一次引用：找到与之最相似的那一句插入
+    for paper in not_cited_papers:
+        chunk_list = paper_chunks_map.get(paper, [])
+        if not chunk_list:
+            print(f"Warning: paper {paper} has no chunk content in citation_data_list.")
+            continue
+
+        # 4.1 先对该paper的所有 chunk 做 embedding
+        chunk_embeddings = embedder.embed_documents(chunk_list)
+
+        # 4.2 找到 "paper最能代表的向量"（这里演示一种简单策略：取这些chunk embedding的max或者mean）
+        #     或者也可以对每个chunk都算相似度，然后取max
+        #     下面演示 “对所有chunk的最大相似度”
+        best_global_sim = -1.0
+        best_global_sent_id = None
+        for chunk_idx, c_emb in enumerate(chunk_embeddings):
+            # 对此 chunk 与所有句子算相似度
+            sim_list = []
+            for s_idx, s_emb in enumerate(sentence_embeddings):
+                sim = cosine_sim(c_emb, s_emb)
+                if sim > best_global_sim:
+                    best_global_sim = sim
+                    best_global_sent_id = s_idx
+
+        if best_global_sent_id is not None:
+            # 4.3 在该句末尾添加此paper引用
+            print(f"Paper [{paper}] will be inserted in sentence ID #{best_global_sent_id} (similarity={best_global_sim:.4f})")
+            all_sentences[best_global_sent_id] += f" [{paper}]"
+        else:
+            print(f"No suitable sentence found for paper [{paper}] — unexpected!")
+            # 也可以在文末硬插一句
+            paragraphs.append(f"This survey also benefits from [{paper}].")
+
+    # 5. 重新组装文本
+
+    final_paragraphs = []
+    current_para = para_index_map[0] if para_index_map else 0
+    temp_list = []
+
+    for i, sent in enumerate(all_sentences):
+        p_idx = para_index_map[i]
+        if p_idx != current_para:
+            # 新段落
+            final_paragraphs.append(" ".join(temp_list))
+            temp_list = []
+            current_para = p_idx
+        temp_list.append(sent)
+    if temp_list:
+        final_paragraphs.append(" ".join(temp_list))
+
+    updated_text = "\n\n".join(final_paragraphs)
+
+    return updated_text
+
+def cosine_sim(a, b):
+    return np.dot(a, b) / (norm(a)*norm(b) + 1e-9)

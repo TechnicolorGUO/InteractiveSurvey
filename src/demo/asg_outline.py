@@ -11,6 +11,8 @@ from .asg_conclusion import ConclusionGenerator
 from .asg_retriever import *
 import pandas as df
 from .references import generate_references
+from .survey_generator_api import introduction_with_citations 
+
 
 class OutlineGenerator():
     def __init__(self, pipeline, df, cluster_names, mode='desp'):
@@ -153,7 +155,7 @@ class OutlineGenerator():
         return result
 
     def generate_outline(self, survey_title):
-        claims = self.generate_claims_qwen()
+        claims = self.generate_claims()
         cluster_with_claims = ""
         for i in range(len(self.cluster)):
             cluster = self.cluster[i]
@@ -190,7 +192,7 @@ class OutlineGenerator():
         return messages, result
 
     def generate_outline_qwen(self, survey_title):
-        claims = self.generate_claims_qwen()
+        claims = self.generate_claims()
         cluster_with_claims = ""
         cluster_names=[]
         for i in range(len(self.cluster)):
@@ -926,6 +928,7 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     print("Generated Survey Paper:\n", generated_survey_paper)
 
     generated_introduction = generate_introduction(generated_survey_paper, client)
+    # generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
     print("\nGenerated Introduction:\n", generated_introduction)
     abs_generator = AbstractGenerator(pipeline)
     abstract = abs_generator.generate(title, generated_introduction)

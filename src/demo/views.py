@@ -37,6 +37,7 @@ from .asg_generator import generate,generate_sentence_patterns
 from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen, generateSurvey_qwen_new
 from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name, generate_cluster_name_new
 from .postprocess import reindex_citations, generate_references_section
+from .survey_generator_api import ensure_all_papers_cited
 import glob
 import nltk
 
@@ -1098,16 +1099,11 @@ def generate_pdf(request):
         survey_id = request.POST.get('survey_id', '')
         # 获取前端传递的 HTML 内容
         markdown_content = request.POST.get('content', '')
-<<<<<<< HEAD
-=======
         # print("The global collection names:")
         # print(Global_collection_names)
         # print("The global file names:")
         # print(Global_file_names)
         # print("="*24)
-        markdown_content = finalize_survey_paper(markdown_content,Global_collection_names, Global_file_names)
-        survey_id = request.POST.get('survey_id', '')
->>>>>>> 9c99fed7376389523a9cf2534cda8d35589713e3
 
         # 设置 Markdown 文件的保存路径
         markdown_dir = f'./src/static/data/info/{survey_id}/'
@@ -1125,6 +1121,8 @@ def generate_pdf(request):
         with open(markdown_filepath, 'w', encoding='utf-8') as markdown_file:
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
+
+        # markdown_content = ensure_all_papers_cited(markdown_content, Global_citation_data)
 
         markdown_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
 
