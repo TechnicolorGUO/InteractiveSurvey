@@ -24,9 +24,11 @@ import os
 import csv
 
 from django.http import JsonResponse
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.utils.text import slugify
+from django.middleware.csrf import get_token
 
 from .asg_loader import DocumentLoading
 # from .parse import DocumentLoading
@@ -104,6 +106,7 @@ Global_df_selected = ""
 Global_test_flag = True
 Global_collection_names = []
 Global_collection_names_clustered = []
+Global_file_names=[]
 Global_description_list = []
 Global_pipeline = None
 Global_cluster_names = []
@@ -385,11 +388,12 @@ def upload_refs(request):
         global Global_test_flag
         global Global_collection_names
         global Global_survey_title
+        global Global_file_names
 
         Global_survey_title = request.POST.get('topic', False)
 
         if Global_test_flag == True:
-            uid_str = 'test_2'
+            uid_str = 'test_4'
         else:
             uid_str = generate_uid()
         Global_survey_id = uid_str
@@ -432,6 +436,7 @@ def upload_refs(request):
 
                 collection_name, processed_file = process_file(saved_file_name, Global_survey_id)
                 Global_collection_names.append(collection_name)
+                Global_file_names.append(processed_file)
                 filenames.append(processed_file)
                 filesizes.append(file_size)
                 print(filenames)
@@ -695,7 +700,7 @@ def annotate_categories(request):
 
     html = generateOutlineHTML_qwen(Global_survey_id)
     print("The outline has been parsed successfully.")
-    print("The generated html: ", html)
+    # print("The generated html: ", html)
     return JsonResponse({'html': html})
 
 @csrf_exempt
@@ -862,6 +867,83 @@ def automatic_taxonomy(request):
     return HttpResponse(cate_list)
 
 @csrf_exempt
+def save_updated_cluster_info(request):
+    if request.method == 'POST':  # 确保只处理 POST 请求
+        try:
+            # 获取请求数据
+            data = json.loads(request.body)  # 从 request.body 中解析 JSON 数据
+            survey_id = Global_survey_id
+            updated_cate_list = data.get('updated_cate_list')
+
+            if not survey_id or not updated_cate_list:
+                return JsonResponse({"error": "Missing survey_id or updated_cate_list"}, status=400)
+
+            # 构造保存路径
+            save_dir = os.path.join('./src/static/data/info/', str(survey_id))
+            os.makedirs(save_dir, exist_ok=True)  # 确保目录存在
+            save_path = os.path.join(save_dir, 'cluster_info_updated.json')
+
+            # 保存到 JSON 文件
+            with open(save_path, 'w', encoding='utf-8') as f:
+                json.dump(updated_cate_list, f, ensure_ascii=False, indent=4)
+
+            return JsonResponse({"message": "Cluster info updated and saved successfully!"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+
+
+import os
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+@csrf_exempt  # 如果前端未发送 CSRF token，可以暂时使用它，但建议在生产环境中避免
+def save_outline(request):
+    if request.method == 'POST':
+        try:
+            # 从 request.body 获取 JSON 数据
+            data = json.loads(request.body)
+            updated_outline = data.get('outline', [])  # 从 JSON 数据中获取 "outline" 字段
+
+            # 构造要保存的 JSON 数据
+            outline_data = {
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "Finish the outline of the survey paper..."
+                    },
+                    {
+                        "role": "user",
+                        "content": "Finish the outline..."
+                    }
+                ],
+                "outline": str(updated_outline)
+            }
+
+            # 动态生成文件路径
+            file_path = os.path.join(settings.BASE_DIR, 'static', 'data', 'txt', Global_survey_id,'outline.json')
+
+            # 确保文件目录存在
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            # 保存到文件
+            with open(file_path, 'w', encoding='utf-8') as file:
+                json.dump(outline_data, file, indent=4, ensure_ascii=False)
+            
+            html = generateOutlineHTML_qwen(Global_survey_id)
+
+            return JsonResponse({"status": "success", "html": html})
+        except Exception as e:
+            # 捕获错误并返回
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
+
+@csrf_exempt
 def select_sections(request):
 
     sections = request.POST
@@ -1013,11 +1095,47 @@ def get_survey_id(request):
 @csrf_exempt
 def generate_pdf(request):
     if request.method == 'POST':
+        survey_id = request.POST.get('survey_id', '')
         # 获取前端传递的 HTML 内容
         markdown_content = request.POST.get('content', '')
-        survey_id = request.POST.get('survey_id', '')
 
-        # 生成唯一的 PDF 文件名
+        # 设置 Markdown 文件的保存路径
+        markdown_dir = f'./src/static/data/info/{survey_id}/'
+        markdown_filename = f'survey_{survey_id}_vanilla.md'
+        markdown_filepath = os.path.join(markdown_dir, markdown_filename)
+
+        # 确保目标目录存在
+        if not os.path.exists(markdown_dir):
+            os.makedirs(markdown_dir)
+            print(f"Directory '{markdown_dir}' created.")
+        else:
+            print(f"Directory '{markdown_dir}' already exists.")
+
+        # 保存 Markdown 内容到文件
+        with open(markdown_filepath, 'w', encoding='utf-8') as markdown_file:
+            markdown_file.write(markdown_content)
+        print(f"Markdown content saved to: {markdown_filepath}")
+
+        markdown_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
+
+        # 设置 Markdown 文件的保存路径1
+        markdown_dir = f'./src/static/data/info/{survey_id}/'
+        markdown_filename = f'survey_{survey_id}_processed.md'
+        markdown_filepath = os.path.join(markdown_dir, markdown_filename)
+
+        # 确保目标目录存在1
+        if not os.path.exists(markdown_dir):
+            os.makedirs(markdown_dir)
+            print(f"Directory '{markdown_dir}' created.")
+        else:
+            print(f"Directory '{markdown_dir}' already exists.")
+
+        # 保存 Markdown 内容到文件1
+        with open(markdown_filepath, 'w', encoding='utf-8') as markdown_file:
+            markdown_file.write(markdown_content)
+        print(f"Markdown content saved to: {markdown_filepath}")
+
+        # 配置 PDF 文件的保存路径
         pdf_filename = f'survey_{survey_id}.pdf'
         pdf_dir = './src/static/data/results'
         pdf_filepath = os.path.join(pdf_dir, pdf_filename)
@@ -1147,3 +1265,128 @@ def Clustering_refs(n_clusters):
 
     return colors, category_label
     # return 1,0,1
+
+def remove_invalid_citations(text, valid_collection_names):
+    """
+    只保留 [xxx\] 中的 xxx 属于 valid_collection_names 的引用，
+    其余的引用标记一律删除。
+    """
+    pattern = r"\[(.*?)\\\]"  # 匹配形如 [xxx\] 的内容
+    all_matches = re.findall(pattern, text)
+
+    new_text = text
+    for match in all_matches:
+        cleaned_match = match.rstrip('\\')  # 去除末尾的 \
+        if cleaned_match not in valid_collection_names:
+            new_text = new_text.replace(f"[{match}\\]", "")
+    return new_text
+
+# wza
+def normalize_citations_with_mapping(paper_text):
+    # 使用正则表达式匹配所有引用标记（形如 [citation1]）
+    citations = re.findall(r'\[.*?\]', paper_text)
+    # 去重并保持顺序
+    unique_citations = list(dict.fromkeys(citations))
+    # 生成引用映射表，把原始引用标记映射为数字引用
+    citation_mapping = {citation: f'[{i + 1}]' for i, citation in enumerate(unique_citations)}
+
+    # 在文本中替换老引用为新引用
+    normalized_text = paper_text
+    for old_citation, new_citation in citation_mapping.items():
+        normalized_text = normalized_text.replace(old_citation, new_citation)
+
+    # 生成从数字到原始引用标记的反向映射
+    # 用 rstrip('\\') 去掉末尾的反斜杠
+    reverse_mapping = {
+        i + 1: unique_citations[i].strip('[]').rstrip('\\')
+        for i in range(len(unique_citations))
+    }
+
+    return normalized_text, reverse_mapping
+
+# paper_with_non_standard_citations = """
+# This is a paper text with non-standard citations like [collection name1] and [collection name2].
+# Another reference to [collection name1] is here. And then we see [collection name3].
+# """
+
+# normalized_paper, citation_mapping = normalize_citations_with_mapping(paper_with_non_standard_citations)
+# print("Normalized Paper:")
+# print(normalized_paper)
+# print("\nCitation Mapping:")
+# print(citation_mapping)
+
+
+# wza
+def generate_references_section(citation_mapping, collection_pdf_mapping):
+    print("The citation mapping is:")
+    print(citation_mapping)
+    print("The collection pdf mapping is:")
+    print(collection_pdf_mapping)
+    print("-" * 24)
+    
+    references = ["# References"]  # 生成引用部分
+    for num in sorted(citation_mapping.keys()):
+        collection_name = citation_mapping[num]
+        pdf_name = collection_pdf_mapping.get(collection_name, "Unknown PDF")
+        if pdf_name.endswith(".pdf"):
+            pdf_name = pdf_name[:-4]
+        # 在每一行末尾添加两个空格以确保换行
+        references.append(f"[{num}] {pdf_name}  ")
+
+    return "\n".join(references)
+
+#wzawza
+def fix_citation_punctuation_md(text):
+    """
+    把类似于 'some text. \[1]' 或 'some text. \[2]' 调整为 'some text \[1].'
+    仅针对已经变成 \[1], \[2] 之类数字引用的 Markdown 情况有效。
+    如果还没有变成 \[数字]，则需先经过 normalize_citations_with_mapping。
+    """
+    # 正则表达式匹配点号后带有空格或无空格，紧接 \[数字] 的情况
+    pattern = r'\.\s*(\\\[\d+\])'
+    replacement = r' \1.'
+    fixed_text = re.sub(pattern, replacement, text)
+    return fixed_text
+
+#wzawza
+def finalize_survey_paper(paper_text, 
+                          Global_collection_names, 
+                          Global_file_names):
+
+    print("=== finalize_survey_paper is called ===")
+    print("Global_collection_names =", Global_collection_names)
+    print("Global_file_names =", Global_file_names)
+    print("--- original paper_text ---")
+    print(paper_text)
+
+    # 1) 删除所有不想要的旧引用（包括 [数字]、[Sewon, 2021] 等）
+    paper_text = remove_invalid_citations(paper_text, Global_collection_names)
+
+    # 2) 规范化引用 => [1][2]...
+    normalized_text, citation_mapping = normalize_citations_with_mapping(paper_text)
+    
+    # 3) 修复标点，比如 .[1] => [1].
+    normalized_text = fix_citation_punctuation_md(normalized_text)
+
+    # 4) 构造 {collection_name: pdf_file_name} 字典
+    collection_pdf_mapping = dict(zip(Global_collection_names, Global_file_names))
+    
+    # 5) 生成 References
+    references_section = generate_references_section(citation_mapping, collection_pdf_mapping)
+    
+    # 6) 合并正文和 References
+    final_paper = normalized_text.strip() + "\n\n" + references_section
+    return final_paper
+
+
+# 调用
+# paper_text = """
+# In this paper, we discuss various approaches [collection_name_1]. 
+# Some of them are advanced in [collection_name_2].
+# """
+
+# Global_collection_names = ["collection_name_1", "collection_name_2"]
+# Global_file_names = ["paper1.pdf", "paper2.pdf"]
+
+# result = finalize_survey_paper(paper_text, Global_collection_names, Global_file_names)
+# print(result)

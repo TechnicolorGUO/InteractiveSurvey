@@ -41,6 +41,7 @@ STYLESHEETS
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 
 <!--<link rel="stylesheet" href= '../../../static/css/fontawesome-free-5.13.0-web/css/fontawesome.min.css'>-->
@@ -298,8 +299,8 @@ FONTS & ICONS
 	HEADER
 	============================ -->
 	<div class="jumbotron">
-		<h2 align="center" style="font-size: 3em"> Structured Summary Generation for Numerous Long Documents</h2>
-		<h2 align="right"> --- Automatic Survey Paper Generation</h2>
+		<h2 align="center" style="font-size: 3em"> Automatic Survey Paper Generation</h2>
+		<!-- <h2 align="right"> --- Automatic Survey Paper Generation</h2> -->
 		<br>
 		<br>
 	</div>
@@ -391,6 +392,15 @@ FONTS & ICONS
 				</div>
 				<br>
 
+				<!-- Recommendation Section -->
+				<div class="recommendation-container">
+					<div id="recommendation-list" class="recommendation-list">
+						<!-- Recommendations will appear here dynamically -->
+						Recommendations...
+					</div>
+					<br>
+				</div>
+
 				<div class="row">
 					<div class="col-md-12">
 						<form action="" method="post" id="topic_input" enctype="multipart/form-data">
@@ -407,8 +417,11 @@ FONTS & ICONS
 									</div>
 								</div>
 								<div class="col-md-4">
-									<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 100px">
+									<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 150px; margin-bottom: 10px;">
 										<i class="fa fa-paperclip" aria-hidden="true"></i>Upload References
+									</button>
+									<button type="button" class="btn btn-default" onclick="fetchRecommendations()" style="margin-top: 0px; margin-left: 150px">
+										<i class="fa fa-lightbulb" aria-hidden="true"></i>Search References
 									</button>
 								</div>
 							</div>
@@ -420,20 +433,6 @@ FONTS & ICONS
 			<br>
 	</div>
 
-	    <!-- Recommendation Section -->
-		<div class="recommendation-container">
-			<div class="recommendation-header">
-				<h2><span class="fas fa-lightbulb"></span> Recommendations Based on Arxiv</h2>
-			</div>
-			<br>
-			<div id="recommendation-list" class="recommendation-list">
-				<!-- Recommendations will appear here dynamically -->
-				Recommendations...
-			</div>
-			<br>
-			<button type="button" class="btn btn-default" onclick="fetchRecommendations()">Generate Recommendations</button>
-		</div>
-		<br>
 	
 		<script>
 			// Function to fetch recommendations from Arxiv API
@@ -449,7 +448,7 @@ FONTS & ICONS
 				recommendationList.innerHTML = `<p>Loading recommendations...</p>`;
 	
 				// Fetch data from Arxiv API
-				fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(topic)}&start=0&max_results=10`)
+				fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(topic)}&start=0&max_results=50`)
 					.then(response => response.text())
 					.then(data => {
 						// Parse Arxiv XML Response
@@ -516,7 +515,7 @@ FONTS & ICONS
 			<div class="list-group pre-scrollable" id="ref_list" style="height:800px">
 			</div>
 
-			<p align="right"> *(Select the references for instant survey generation)</p>
+			<p align="right"> *(Selected references for instant survey generation)</p>
 
 
 			<div class="col-md-12"  style="text-align: center; display: none" id="auto_taxonomy">
@@ -568,7 +567,7 @@ FONTS & ICONS
 	</div>
 
 	<div class="col-md-12" style="display: none" id="generate_content_button">
-		<input type="button" class="btn btn-default" onclick="display_select_sections()" value="Confirm and Generate Survey Content" style="width: 300px; margin-left:35%">
+		<input type="button" class="btn btn-default" onclick="confirm_display_select_sections()" value="Confirm and Display Outline" style="width: 300px; margin-left:35%">
 	</div>
 
 
@@ -598,7 +597,7 @@ FONTS & ICONS
 
 		<br>
 		<div style="text-align: center">
-			<input type="button" class="btn btn-default" onclick="display_survey()" value="Confirm">
+			<input type="button" class="btn btn-default" onclick="display_survey()" value="Generate Survey">
 		</div>
 	</div>
 
@@ -999,6 +998,10 @@ FONTS & ICONS
                     }
 
 				}
+	// 			document.getElementById("modify_taxonomy").innerHTML += 
+    // "<div style='text-align: center; margin-top: 20px;'>" +
+    // "<button class='btn btn-primary' type='button' onclick='change_clustering()'>Confirm</button>" +
+    // "</div>";
 				$("#taxonomy").attr("style","display:inline;");
 				// alert(result);
 				$("#generate_content_button").attr("style","display:inline; align: center; ");
@@ -1010,7 +1013,120 @@ FONTS & ICONS
 		});
 	}
 
-	function display_select_sections() {
+
+
+	function change_taxonomy(source_taxonomy, ref_id, target_taxonomy) {
+        console.log(source_taxonomy);
+        console.log(ref_id);
+        console.log(target_taxonomy);
+		// remove this item from source_taxonomy
+        var Element = document.getElementById(ref_id);
+        console.log(Element);
+        var old_ul = document.getElementById(ref_id+'_change');
+        var ul_length = old_ul.children.length;
+
+        old_ul.parentNode.removeChild(old_ul);
+        Element.parentNode.removeChild(Element);
+
+        // edit the element
+		var new_ul = document.createElement('ul');
+		$(new_ul).attr('class', 'dropdown-menu');
+		$(new_ul).attr('id', ref_id+'_change');
+		for (var i = 0; i < ul_length; i ++) {
+            var li=document.createElement("li");
+            if (target_taxonomy == old_ul.children[i].textContent) {
+                var attr_ = "<a onclick=\'change_taxonomy(\""
+									+ target_taxonomy
+									+ "\" , \""
+									+ ref_id
+									+ "\", \""
+									+ source_taxonomy
+									+ "\")\'>"
+									+ source_taxonomy
+									+ "</a>";
+            } else {
+                var attr_ = "<a onclick=\'change_taxonomy(\""
+                    + target_taxonomy
+                    + "\" , \""
+                    + ref_id
+                    + "\", \""
+                    + old_ul.children[i].textContent
+                    + "\")\'>"
+                    + old_ul.children[i].textContent
+                    + "</a>";
+			}
+            $(attr_).appendTo(li);
+            $(li).appendTo(new_ul);
+		}
+		$(new_ul).appendTo(Element.children[2].children[0]);
+        // add this item to target_taxonomy
+        var target = document.getElementById(target_taxonomy);
+        // console.log(target.innerHTML);
+        target.appendChild(Element);
+    }
+
+
+	function generate_updated_cate_list() {
+    // 初始化结果格式
+    var updated_cate_list = {
+        'colors': [],
+        'category_label': [],
+        'ref_titles': [],
+        'ref_indexs': []
+    };
+
+    // 遍历所有分类面板
+    $(".panel").each(function() {
+        // 获取当前分类名和颜色
+        var category_label = $(this).find(".panel-title").text();
+        var color = $(this).find(".panel-heading").css("background-color");
+
+        // 初始化分类的条目和索引
+        var titles = [];
+        var indices = [];
+
+        // 遍历分类下的条目
+        $(this).find(".input-group").each(function() {
+            var ref_title = $(this).find("a").text(); // 获取条目标题
+            var ref_index = $(this).find(".input-group-addon").first().text().replace("[", "").replace("]", ""); // 获取条目索引
+
+            titles.push(ref_title); // 添加标题
+            indices.push(parseInt(ref_index)); // 添加索引（转为整数）
+        });
+
+        // 将分类信息添加到结果中
+        updated_cate_list['colors'].push(color);
+        updated_cate_list['category_label'].push(category_label);
+        updated_cate_list['ref_titles'].push(titles);
+        updated_cate_list['ref_indexs'].push(indices);
+    });
+
+    return updated_cate_list;
+}
+
+
+
+	function change_clustering() {
+		var current_cate_list = generate_updated_cate_list();
+		$.ajax({
+			type: "POST",
+			url: "/save_updated_cluster_info", // 后端处理保存的接口
+			data: JSON.stringify({
+				updated_cate_list: current_cate_list
+			}),
+			contentType: "application/json",
+			success: function(response) {
+				alert("Updated cluster info saved successfully!");
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				alert("Failed to save updated cluster info: " + jqXHR.responseText);
+			}
+		});
+	}
+
+
+	function confirm_display_select_sections() {
+		change_clustering()
 		// submit revised taxonomy to backend
         let topic_word_list = [];
 		let ref_lists = [];
@@ -1200,58 +1316,6 @@ function select_sections() {
 
     }
 
-	function change_taxonomy(source_taxonomy, ref_id, target_taxonomy) {
-        console.log(source_taxonomy);
-        console.log(ref_id);
-        console.log(target_taxonomy);
-		// remove this item from source_taxonomy
-        var Element = document.getElementById(ref_id);
-        console.log(Element);
-        var old_ul = document.getElementById(ref_id+'_change');
-        var ul_length = old_ul.children.length;
-
-        old_ul.parentNode.removeChild(old_ul);
-        Element.parentNode.removeChild(Element);
-
-        // edit the element
-		var new_ul = document.createElement('ul');
-		$(new_ul).attr('class', 'dropdown-menu');
-		$(new_ul).attr('id', ref_id+'_change');
-		for (var i = 0; i < ul_length; i ++) {
-            var li=document.createElement("li");
-            if (target_taxonomy == old_ul.children[i].textContent) {
-                var attr_ = "<a onclick=\'change_taxonomy(\""
-									+ target_taxonomy
-									+ "\" , \""
-									+ ref_id
-									+ "\", \""
-									+ source_taxonomy
-									+ "\")\'>"
-									+ source_taxonomy
-									+ "</a>";
-            } else {
-                var attr_ = "<a onclick=\'change_taxonomy(\""
-                    + target_taxonomy
-                    + "\" , \""
-                    + ref_id
-                    + "\", \""
-                    + old_ul.children[i].textContent
-                    + "\")\'>"
-                    + old_ul.children[i].textContent
-                    + "</a>";
-			}
-            $(attr_).appendTo(li);
-            $(li).appendTo(new_ul);
-		}
-		$(new_ul).appendTo(Element.children[2].children[0]);
-        // add this item to target_taxonomy
-        var target = document.getElementById(target_taxonomy);
-        // console.log(target.innerHTML);
-        target.appendChild(Element);
-
-
-
-    }
 	marked.setOptions({
             sanitize: true,
             // 可选：你还可以启用其他选项，如 smartypants
@@ -1289,14 +1353,14 @@ function select_sections() {
 			document.getElementById("survey_content").innerHTML += contentHTML;
 
 			// 显示 References 标题
-			var referencesTitleMarkdown = "## References";
-			var referencesTitleHTML = marked.parse(referencesTitleMarkdown);
-			document.getElementById("survey_content").innerHTML += referencesTitleHTML;
+			// var referencesTitleMarkdown = "## References";
+			// var referencesTitleHTML = marked.parse(referencesTitleMarkdown);
+			// document.getElementById("survey_content").innerHTML += referencesTitleHTML;
 
 			// 显示 References 的内容
-			var referencesMarkdown = surveyData.references || "No references available.";
-			var referencesHTML = marked.parse(referencesMarkdown);
-			document.getElementById("survey_content").innerHTML += referencesHTML;
+			// var referencesMarkdown = surveyData.references || "No references available.";
+			// var referencesHTML = marked.parse(referencesMarkdown);
+			// document.getElementById("survey_content").innerHTML += referencesHTML;
 
 			var surveyContentHTML = document.getElementById("survey_content").innerHTML;
 			var turndownService = new TurndownService();

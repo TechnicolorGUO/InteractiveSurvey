@@ -37,8 +37,8 @@ class OutlineGenerator():
                 cluster = self.cluster[i]
                 claims = ''
                 for j in range(len(cluster['info'])):
-                    # claims = cluster['info'].iloc[j]['retrieval_result'] + '\n' + claims
-                    claims = cluster['info'].iloc[j]['ref_title'] + '\n' + claims
+                    claims = cluster['info'].iloc[j]['retrieval_result'] + '\n' + claims
+                    # claims = cluster['info'].iloc[j]['ref_title'] + '\n' + claims
                 result.append(claims)
         else:
             for i in range(len(self.cluster)):
@@ -76,9 +76,84 @@ class OutlineGenerator():
                     claims = claims + '\n' + claim
                 result.append(claims)
         return result
+    
+    
+    def generate_claims_qwen(self):
+        """
+        Generate claims for each cluster using Qwen API.
+
+        Returns:
+            list: A list of strings, where each string contains the claims generated
+                for a cluster.
+        """
+        result = []
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        openai_api_base = os.getenv("OPENAI_API_BASE")
+        client = OpenAI(
+            api_key=openai_api_key,
+            base_url=openai_api_base,
+        )
+
+        for i in range(len(self.cluster)):
+            cluster = self.cluster[i]
+            claims = ''
+            data = cluster['info']
+
+            for j in range(len(data)):
+                entry = data.iloc[j]
+                title = entry['title']
+                abstract = entry['abstract']
+                
+                # Construct the prompt for Qwen
+                prompt = f'''
+                    Title:
+                    {title}
+                    Abstract:
+                    {abstract}
+                    Task:
+                    Conclude new findings and null findings from the abstract in one sentence in the atomic format. Do not separate
+                    new findings and null findings. The finding must be relevant to the title. Do not include any other information.
+                    Definition:
+                    A scientific claim is an atomic verifiable statement expressing a finding about one aspect of a scientific entity or
+                    process, which can be verified from a single source.
+                '''
+                
+                # Define the input for Qwen
+                messages = [
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt},
+                ]
+
+                try:
+                    # Call Qwen API
+                    chat_response = client.chat.completions.create(
+                        model="Qwen2.5-72B-Instruct",
+                        max_tokens=512,
+                        temperature=0.5,
+                        messages=messages
+                    )
+                    
+                    # Extract the generated claim from Qwen's response
+                    claim = ""
+                    for chunk in chat_response:
+                        if "content" in chunk.choices[0].delta:
+                            claim += chunk.choices[0].delta.content
+                    
+                    # Clean and append the claim
+                    claims = claims + '\n' + claim.strip()
+                    print("Generated claim:", claim)
+                    print("+++++++++++++++++++++++++++++++++")
+                
+                except Exception as e:
+                    print(f"Error generating claim for entry {j} in cluster {i}: {e}")
+                    continue
+
+            result.append(claims)
+
+        return result
 
     def generate_outline(self, survey_title):
-        claims = self.generate_claims()
+        claims = self.generate_claims_qwen()
         cluster_with_claims = ""
         for i in range(len(self.cluster)):
             cluster = self.cluster[i]
@@ -133,12 +208,12 @@ class OutlineGenerator():
         The second element in the sub-list refers to the section name.
         You are required to finish the second and third level subsections name under [1, '3 <Cluster 0's name>'], [1, '4 <Cluster 1's name>'] and [1, '5 <Cluster 2's name>']
         '''
-
-        example_json = {"title":"A Survey of Huebschmann and Stasheff's Paper: Formal Solution of the Master Equation via HPT and Deformation Theory","outline":[{"title":"1 Introduction","outline":[]},{"title":"2 Perturbations of (co)differentials","outline":[{"title":"2.1 Derivations of the tensor algebra","outline":[]},{"title":"2.2 Coderivations of the tensor coalgebra","outline":[]},{"title":"2.3 Coderivations of the symmetric coalgebra","outline":[]},{"title":"2.4 DGLA\u2019s and perturbations of the codifferential","outline":[]},{"title":"2.5 Strongly homotopy Lie algebras","outline":[]},{"title":"2.6 The Hochschild chain complex and DGA\u2019s","outline":[]},{"title":"2.7 Strongly homotopy associative algebras","outline":[]}]},{"title":"3 Master equation","outline":[]},{"title":"4 Twisting cochain","outline":[{"title":"4.1 Differential on Hom","outline":[]},{"title":"4.2 Cup product and cup bracket","outline":[]},{"title":"4.3 Twisting cochain","outline":[]}]},{"title":"5 Homological perturbation theory (HPT)","outline":[{"title":"5.1 Contraction","outline":[]},{"title":"5.2 The first main theorem.","outline":[]}]},{"title":"6 Corollaries and the second main theorem","outline":[{"title":"6.1 Other corollaries of Theorem\u00a01.","outline":[]},{"title":"6.2 The second main theorem","outline":[]}]},{"title":"7 Differential Gerstenhaber and BV algebras","outline":[{"title":"7.1 Differential Gerstenhaber algebras","outline":[]},{"title":"7.2 Differential BV algebras","outline":[]},{"title":"7.3 Formality","outline":[{"title":"7.3.1 Formality of differential graded P\ud835\udc43Pitalic_P-algebras","outline":[]},{"title":"7.3.2 Examples","outline":[]}]},{"title":"7.4 Differential BV algebras and formality","outline":[]}]},{"title":"8 Deformation theory","outline":[]},{"title":"References","outline":[]}]}
         # user_prompt = {"survey_title":survey_title, "claims":cluster_with_claims}
         user_prompt = f'''Finish the outline of the survey paper given the title:{survey_title}, and three lists of sentences describing each cluster of the references used by this survey:{cluster_with_claims}\
         The first level sections' hierarchy is given: [[1, '1 Abstract'], [1, '2 Introduction'], [1, '3 {cluster_names[0]}'], [level 2 and 3 sections to finish...], [1, '4 {cluster_names[1]}'], [level 2 and 3 sections to finish...],[1, '5 {cluster_names[2]}'],[level 2 and 3 sections to finish...], [1, '6 Future Directions'], [1, '7 Conclusion']] \
-        You are required to finish the second and third level subsections name under [1, '3 {cluster_names[0]}'], [1, '4 {cluster_names[1]}'] and [1, '5 {cluster_names[2]}'] with [2, 'a.b xxx'] and [3, 'a.b.c xxx']'''
+        You are required to finish the second and third level subsections name under [1, '3 {cluster_names[0]}'], [1, '4 {cluster_names[1]}'] and [1, '5 {cluster_names[2]}'] with [2, 'a.b xxx'] and [3, 'a.b.c xxx']
+        Notice that do not use the reference title directly as the level 3 subsection title, use comprehensive phrases to summarize the cluster with different aspects.
+        '''
 
         messages = [
             {"role": "system", "content": system_prompt}, 
@@ -283,7 +358,7 @@ def generateOutlineHTML_qwen(survey_id):
         </style>
 
         <div class="custom-card">
-            <div class="custom-card-body">
+            <div class="custom-card-body" id="display-outline">
                 <ul class="list-group list-group-flush">
     '''
 
@@ -368,24 +443,108 @@ def generateOutlineHTML_qwen(survey_id):
             html += generate_node_html(section)
 
         return html
+    
+    def generate_list_html(combined_list, editable=True):
+        html = '<ul class="list-group list-group-flush">\n'  # 开始 <ul>
+        for level, content in combined_list:
+            # 根据层级添加对应的 class
+            if level == 1:  # Level 1 的输入框需要禁用
+                if editable:
+                    html += f'<li class="list-group-item level-1"><input type="text" class="form-control" value="{content}" disabled></li>\n'
+                else:
+                    html += f'<li class="list-group-item level-1">{content}</li>\n'
+            elif level == 2:
+                if editable:
+                    html += f'<li class="list-group-item level-2" style="padding-left: 20px;"><input type="text" class="form-control" value="{content}"></li>\n'
+                else:
+                    html += f'<li class="list-group-item level-2" style="padding-left: 20px;">{content}</li>\n'
+            elif level == 3:
+                if editable:
+                    html += f'<li class="list-group-item level-3" style="padding-left: 40px;"><input type="text" class="form-control" value="{content}"></li>\n'
+                else:
+                    html += f'<li class="list-group-item level-3" style="padding-left: 40px;">{content}</li>\n'
+        html += '</ul>'  # 结束 </ul>
+        return html
 
+    # 生成列表 HTML
+    list_html = generate_list_html(combined_list)
     html += generate_html_from_sections(sections)
 
-    html += '''
+    html += f'''
                 </ul>
             </div>
+            <div class="custom-card-body" style="display: none" id="edit-outline">
+                {list_html}
+            </div>
+            <button type="button" class="btn btn-secondary btn-lg" id="edit-btn" onclick="editOutline()"><i class="bi bi-pen"></i></button>
+            <button type="button" class="btn btn-success btn-lg" id="confirm-btn" style="display: none;" onclick="confirmOutline()"><i class="bi bi-check"></i></button>
         </div>
         <!-- 添加 Bootstrap v3.3.0 的 JavaScript 来处理折叠功能 -->
         <script>
-        $(document).ready(function(){
-            // 切换箭头方向
-            $('.collapsed').click(function(){
+        $(document).ready(function(){{
+            $('.collapsed').click(function(){{
                 $(this).toggleClass('collapsed');
-            });
-        });
+            }});
+        }});
         </script>
+
     </div>
     '''
+
+    html+='''
+        <script>
+        // 切换到编辑模式
+        function editOutline() {
+            document.getElementById("display-outline").style.display = "none"; // 隐藏不可编辑部分
+            document.getElementById("edit-outline").style.display = "block";  // 显示可编辑部分
+
+            // 显示 "Confirm" 按钮，隐藏 "Edit" 按钮
+            document.getElementById("edit-btn").style.display = "none";
+            document.getElementById("confirm-btn").style.display = "inline-block";
+        }
+
+        // 确认编辑并提交数据
+function confirmOutline() {
+    const outlineData = []; // 用于存储提交到后端的数据
+
+    // 遍历所有的可编辑输入框
+    document.querySelectorAll("#edit-outline .list-group-item").forEach((item) => {
+        const level = item.classList.contains("level-1") ? 1 :
+                      item.classList.contains("level-2") ? 2 : 3; // 获取层级
+        const content = item.querySelector("input").value.trim(); // 获取编辑框的值
+
+        // 将数据转换为数组格式 [level, content]
+        outlineData.push([level, content]); 
+    });
+
+    console.log("Submitting to backend:", outlineData); // 打印提交数据以供调试
+
+    // 使用 AJAX 提交数据到后端
+    const csrftoken = getCookie("csrftoken"); // 获取 CSRF token
+    fetch("/save_outline/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken, // Django 的 CSRF 令牌
+        },
+        body: JSON.stringify({ outline: outlineData }) // 将数据转换为 JSON 字符串
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status === "success") {
+                $('#sections_').html(data.html);
+                alert("Outline updated successfully!");
+            } else {
+                alert("Error updating outline: " + data.message);
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            alert("Error updating outline. Please check the console for details.");
+        });
+}
+        </script>
+        '''
     print(html)
     print('+++++++++++++++++++++++++++++++++')
     return html
@@ -772,13 +931,15 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     abstract = abs_generator.generate(title, generated_introduction)
     print("\nGenerated Abstract:\n", abstract)
     con_generator = ConclusionGenerator(pipeline)
-    conclusion = con_generator.generate(title, generated_introduction)
+    # conclusion = con_generator.generate(title, generated_introduction)
+    conclusion = generate_conclusion(generated_survey_paper, client)
     print("\nGenerated Conclusion:\n", conclusion)
     abstract = abstract.replace("Abstract:", "")
     conclusion = conclusion.replace("Conclusion:", "")
-    future_directions = generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:", "")
-    references = generate_references_dir('./src/static/data/txt/' + survey_id)
-    
+    # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
+    #New version: 12/03
+    future_directions = generate_future_work(generated_survey_paper, client)
+    references = generate_references_dir('./src/static/data/txt/'+survey_id)
     temp["abstract"] = abstract
     temp["introduction"] = generated_introduction
     temp["content"] = generated_survey_paper
@@ -788,7 +949,6 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
     temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
     temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
-
     output_path = f'./src/static/data/txt/{survey_id}/generated_result.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(temp, f, ensure_ascii=False, indent=4)

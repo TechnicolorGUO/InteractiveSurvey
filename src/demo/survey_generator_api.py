@@ -77,7 +77,7 @@ def generate_introduction(context, client):
     template = '''
 Directly generate an introduction based on the following context (a survey paper). 
 The introduction includes 4 elements: background of the general topic (1 paragraph), main problems mentioned in the paper (1 paragraph), contributions of the survey paper (2 paragraphs), and the aim and structure of the survey paper (1 paragraph). 
-The introduction should strictly follow the style of a standard academic introduction, with the total length of 500-700 words. Do not include any headings (words like "Background:", "Problems:") or extra explanations except for the introduction.
+The introduction should strictly follow the style of a standard academic introduction, with the total length of 500-700 words. Do not include any headings (words like "Background:", "Problems:") or extra explanations except for the introduction and exclude all citations or references.
 
 Context:
 {context}
@@ -122,7 +122,7 @@ The section includes 3 elements:
 1. Summary of current limitations or gaps (1 paragraph).
 2. Proposed directions for future research (1-2 paragraphs).
 3. Potential impact of the proposed future work (1 paragraph).
-The Future Work section should strictly follow the style of a standard academic paper, with a total length of 300-500 words. Do not include any headings or extra explanations except for the Future Work content.
+The Future Work section should strictly follow the style of a standard academic paper, with a total length of 300-500 words. Do not include any headings or extra explanations except for the Future Work content and exclude all citations or references.
 
 Context:
 {context}
@@ -167,7 +167,7 @@ The section includes 3 elements:
 1. Recap of the main findings or discussions (1 paragraph).
 2. Significance of the survey (1 paragraph).
 3. Final remarks or call to action (1 paragraph).
-The Conclusion should strictly follow the style of a standard academic paper, with a total length of 300-500 words. Do not include any headings or extra explanations except for the Conclusion content.
+The Conclusion should strictly follow the style of a standard academic paper, with a total length of 300-500 words. Do not include any headings or extra explanations except for the Conclusion content and exclude all citations or references.
 
 Context:
 {context}
@@ -428,13 +428,13 @@ def process_outline_with_empty_sections_citations(outline_list, selected_outline
 
 
 # wza
-def generate_survey_section_with_citations(context, client, section_title, citation_data_list, 
-                                           temp=0.5, base_threshold=0.7, dynamic_threshold=True):
+def generate_survey_section_with_citations_old(context, client, section_title, citation_data_list, 
+                                           temp=0.5, base_threshold=0.7, dynamic_threshold=True):    
     template = """
 Generate a detailed and technical content for a survey paper's section based on the following context.
 The generated content should be in 3 paragraphs of no more than 300 words in total, following the style of a standard academic survey paper.
 It is expected to dive deeply into the section title "{section_title}".
-Directly return the 3-paragraph content without any other information.
+Directly return the 3-paragraph content without any other information and exclude all citations or references.
 
 Context: 
 {context}
@@ -451,27 +451,39 @@ Survey Paper Content for "{section_title}":
     chunk_sources = [c["source"] for c in citation_data_list]
     chunk_embeddings = embedder.embed_documents(chunk_texts)
 
+    # 定义一个函数，用于计算两个向量之间的cosine similarity，避免分母为 0 加了 1e-9 做平滑
     def cosine_sim(a, b):
         return np.dot(a, b) / (norm(a)*norm(b) + 1e-9)
 
+    # 这里对每个句子的向量 s_emb，与所有引用块向量 c_emb 两两计算相似度，形成一行 row
+    # 然后把所有 row 组成一个列表 sim_matrix，相当于一个二维矩阵
     sim_matrix = []
     for s_emb in sentence_embeddings:
         row = [cosine_sim(s_emb, c_emb) for c_emb in chunk_embeddings]
         sim_matrix.append(row)
+    
+    # 转成 Numpy
     sim_matrix = np.array(sim_matrix)
 
+    # 将相似度矩阵展平后，计算 mean 和 std
+    # 用 mean + k*std 和 base_threshold 取最大值作为动态 threshold
+    # 否则直接用 base_threshold 作为阈值
+    # 这个 threshold 用来判断句子与某段引用文本是否足够相似，才能打上引用
     all_sims = sim_matrix.flatten()
     mean = np.mean(all_sims)
     std = np.std(all_sims)
     k = 0.5
     threshold = max(base_threshold, mean + k*std) if dynamic_threshold else base_threshold
 
+    # 这里遍历所有句子以及它们对应的引用相似度，如果相似度 >= threshold，就把 (句子ID, 引用块ID, 相似度) 放进 candidates
     candidates = []
     for i, sent in enumerate(sentences):
         for j, sim in enumerate(sim_matrix[i]):
             if sim >= threshold:
                 candidates.append((i,j,sim))
 
+    # 这段逻辑是为了保证至少有 min_references 条引用，但是 threshold -= 0.05 会导致部分section引用数量暴增
+    # 如果引用不足，并且 threshold 还大于 0.1，就不断降低 threshold 以获得更多符合条件的引用
     # min_references = 0
     # current_refs = len(candidates)
     # while current_refs < min_references and threshold > 0.1:
@@ -483,13 +495,22 @@ Survey Paper Content for "{section_title}":
     #                 candidates.append((i,j,sim))
     #     current_refs = len(candidates)
 
+    # 准备一个字典 source_count，用于统计每个文献 source 被使用了多少次
     source_count = {}
     for s in chunk_sources:
         source_count[s] = 0
+
+    # 按照相似度由高到低对 candidates 排序，先分配高相似度的引用
     candidates.sort(key=lambda x: x[2], reverse=True)
+
+    # assigned 是一个字典，将句子ID -> 文献source； diversity_limit 是对每个source的引用次数上限
     assigned = {}
     diversity_limit = 3
 
+    # 逐个遍历排序后的 candidates如果当前句子(sent_id)还没有分配过引用，则获取对应文献source
+    # 若该source在 source_count 中的使用次数还没达到 diversity_limit，就把这个 source 分配给该句子
+    # 并且 source_count[src] 加1
+    # 这样保证每个句子最多只加一个引用，并限制单个 source 不被滥用
     for (sent_id, chk_id, sim) in candidates:
         if sent_id not in assigned:
             src = chunk_sources[chk_id]
@@ -508,6 +529,123 @@ Survey Paper Content for "{section_title}":
 
     updated_content = " ".join(updated_sentences)
     return updated_content
+
+import re
+import numpy as np
+from numpy.linalg import norm
+from langchain.embeddings import HuggingFaceEmbeddings
+
+def generate_survey_section_with_citations(context, client, section_title, citation_data_list, 
+                                           temp=0.5, base_threshold=0.7, dynamic_threshold=True):
+    template = """
+Generate a detailed and technical content for a survey paper's section based on the following context.
+The generated content should be in 3 paragraphs of no more than 300 words in total, following the style of a standard academic survey paper.
+It is expected to dive deeply into the section title "{section_title}".
+Directly return the 3-paragraph content without any other information and exclude all citations or references.
+
+Context: 
+{context}
+------------------------------------------------------------
+Survey Paper Content for "{section_title}":
+"""
+    formatted_prompt = template.format(context=context, section_title=section_title)
+    response = generateResponse(client, formatted_prompt).strip()
+    
+    # -- 1. 先将生成的文本按空行（即段落）拆分 ---
+    paragraphs = [p.strip() for p in response.split('\n\n') if p.strip()]
+    
+    # -- 2. 拆分段落内部的句子，并记录每个句子所属的段落索引 ---
+    all_sentences = []
+    para_index_map = []  # 记录每个句子所属的段落编号
+    for p_idx, para in enumerate(paragraphs):
+        # 注意此处使用正则按 .!? 分句
+        sentences_in_para = re.split(r'(?<=[.!?])\s+', para)
+        for sent in sentences_in_para:
+            if sent.strip():
+                all_sentences.append(sent.strip())
+                para_index_map.append(p_idx)
+
+    # -- 3. 对所有句子进行向量化嵌入（保持逻辑：一次性处理全文） ---
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    sentence_embeddings = embedder.embed_documents(all_sentences)
+
+    # -- 4. 对 citation_data_list 做向量化嵌入 ---
+    chunk_texts = [c["content"] for c in citation_data_list]
+    chunk_sources = [c["source"] for c in citation_data_list]
+    chunk_embeddings = embedder.embed_documents(chunk_texts)
+
+    # 定义一个函数计算余弦相似度
+    def cosine_sim(a, b):
+        return np.dot(a, b) / (norm(a) * norm(b) + 1e-9)
+
+    # -- 5. 构建「句子-引用块」相似度矩阵 ---
+    sim_matrix = []
+    for s_emb in sentence_embeddings:
+        row = [cosine_sim(s_emb, c_emb) for c_emb in chunk_embeddings]
+        sim_matrix.append(row)
+    sim_matrix = np.array(sim_matrix)
+
+    # -- 6. 计算全局动态阈值（不按段落来，而是按全文来） ---
+    all_sims = sim_matrix.flatten()
+    mean_sim = np.mean(all_sims)
+    std_sim = np.std(all_sims)
+    k = 0.5
+    threshold = max(base_threshold, mean_sim + k * std_sim) if dynamic_threshold else base_threshold
+
+    # -- 7. 找出所有相似度 >= threshold 的 (句子ID, 引用块ID, 相似度) ---
+    candidates = []
+    for i, sent in enumerate(all_sentences):
+        for j, sim in enumerate(sim_matrix[i]):
+            if sim >= threshold:
+                candidates.append((i, j, sim))
+
+    # -- 8. 准备一个字典 source_count，用于统计每个文献 source 被使用了多少次 --
+    source_count = {s: 0 for s in chunk_sources}
+    # 对 candidates 按相似度降序排序
+    candidates.sort(key=lambda x: x[2], reverse=True)
+
+    # assigned 用来记录句子对应的引用文献
+    assigned = {}
+    diversity_limit = 3  # 同一个 source 最多被引用 3 次
+
+    for (sent_id, chk_id, sim) in candidates:
+        if sent_id not in assigned:
+            src = chunk_sources[chk_id]
+            if source_count[src] < diversity_limit:
+                assigned[sent_id] = src
+                source_count[src] += 1
+
+    # -- 9. 将引用插入回句子 ---
+    updated_sentences = []
+    for i, sentence in enumerate(all_sentences):
+        if i in assigned:
+            updated_sentences.append(sentence + f" [{assigned[i]}]")
+        else:
+            updated_sentences.append(sentence)
+
+    # -- 10. 将更新后的句子按原来的段落结构重新拼接 ---
+    final_paragraphs = []
+    current_p_idx = para_index_map[0] if para_index_map else 0
+    temp_list = []
+
+    for i, sent in enumerate(updated_sentences):
+        p_idx = para_index_map[i]
+        if p_idx != current_p_idx:
+            # 说明进入了新的段落
+            final_paragraphs.append(" ".join(temp_list))
+            temp_list = []
+            current_p_idx = p_idx
+        temp_list.append(sent)
+
+    # 别忘了把最后一个段落也加入
+    if temp_list:
+        final_paragraphs.append(" ".join(temp_list))
+
+    # -- 11. 用空行重新拼接成多段落文本 ---
+    updated_content = "\n\n".join(final_paragraphs)
+
+    return updated_content
+
 
 def generate_survey_section(context, client, section_title, temp=0.5):
 
