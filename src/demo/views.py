@@ -1098,6 +1098,16 @@ def generate_pdf(request):
         survey_id = request.POST.get('survey_id', '')
         # 获取前端传递的 HTML 内容
         markdown_content = request.POST.get('content', '')
+<<<<<<< HEAD
+=======
+        # print("The global collection names:")
+        # print(Global_collection_names)
+        # print("The global file names:")
+        # print(Global_file_names)
+        # print("="*24)
+        markdown_content = finalize_survey_paper(markdown_content,Global_collection_names, Global_file_names)
+        survey_id = request.POST.get('survey_id', '')
+>>>>>>> 9c99fed7376389523a9cf2534cda8d35589713e3
 
         # 设置 Markdown 文件的保存路径
         markdown_dir = f'./src/static/data/info/{survey_id}/'
