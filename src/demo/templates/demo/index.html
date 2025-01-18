@@ -272,6 +272,50 @@ textarea {
 	text-decoration: underline;
 }
 
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 20px;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: #4caf50;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(14px);
+  }
 </style>
 
 <!-- ===========================
@@ -403,95 +447,139 @@ FONTS & ICONS
 
 				<div class="row">
 					<div class="col-md-12">
-						<form action="" method="post" id="topic_input" enctype="multipart/form-data">
-							{% csrf_token %}
-							<input type="text" class="form-control" placeholder="Predictive Modeling on Imbalanced Data" id="topic_input_box">
-							<br>
-							<div class="row">
-								<div class="col-md-8">
-									<div class="file" style="margin-top: 3px;">
-										<div id="file_list">
-											<span id="file_name">Please Select References from Your Computer...</span>
-										</div>
-										<input id="file" type="file" name="file" multiple title="Upload your files" onchange="displayFileNames()">
-									</div>
-								</div>
-								<div class="col-md-4">
-									<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 150px; margin-bottom: 10px;">
-										<i class="fa fa-paperclip" aria-hidden="true"></i>Upload References
-									</button>
-									<button type="button" class="btn btn-default" onclick="fetchRecommendations()" style="margin-top: 0px; margin-left: 150px">
-										<i class="fa fa-lightbulb" aria-hidden="true"></i>Search References
-									</button>
-								</div>
+					  <form action="" method="post" id="topic_input" enctype="multipart/form-data">
+						{% csrf_token %}
+						<input type="text" class="form-control" placeholder="Predictive Modeling on Imbalanced Data" id="topic_input_box">
+						<br>
+						<div class="row">
+						  <div class="col-md-8">
+							<div class="file" style="margin-top: 3px;">
+							  <div id="file_list">
+								<span id="file_name">Please Select References from Your Computer...</span>
+							  </div>
+							  <input id="file" type="file" name="file" multiple title="Upload your files" onchange="displayFileNames()">
 							</div>
-						</form>
+						  </div>
+						  <div class="col-md-4">
+							<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 150px; margin-bottom: 10px;">
+							  <i class="fa fa-paperclip" aria-hidden="true"></i>Upload References
+							</button>
+							<button type="button" class="btn btn-default" onclick="fetchRecommendations()" style="margin-top: 0px; margin-left: 150px">
+							  <i class="fa fa-lightbulb" aria-hidden="true"></i>Search References
+							</button>
+						  </div>
+						</div>
+						<!-- Switch for full PDF mode -->
+						<div class="row" style="margin-top: 20px;">
+						  <div class="col-md-12 text-center">
+							<label class="switch">
+							  <input type="checkbox" id="mode_check_box" onchange="updateMode()">
+							  <span class="slider round"></span>
+							</label>
+							<span style="margin-left: 10px;">Enable Full PDF Mode</span>
+						  </div>
+						</div>
+					  </form>
 					</div>
-				</div>
-				</div>
+				  </div>
 			</div>
 			<br>
 	</div>
 
 	
 		<script>
+			  function updateMode() {
+				// 获取开关状态并设置值
+				const mode = document.getElementById('mode_check_box').checked ? 'full' : 'intro';
+				console.log(`Mode is now: ${mode}`);
+
+				// 通过 jQuery 更新隐藏的 input 值
+				$('#mode_check_box').val(mode);
+			}
+
+			// 初始化默认值为 "intro"
+			document.addEventListener('DOMContentLoaded', function () {
+				$('#mode_check_box').val('intro');
+			});
+
+			
 			// Function to fetch recommendations from Arxiv API
-			function fetchRecommendations() {
+			async function fetchRecommendations() {
 				const topic = document.getElementById("topic_input_box").value.trim();
 				if (!topic) {
 					alert("Please enter a topic!");
 					return;
 				}
-	
+
 				// Clear previous results
 				const recommendationList = document.getElementById("recommendation-list");
 				recommendationList.innerHTML = `<p>Loading recommendations...</p>`;
-	
-				// Fetch data from Arxiv API
-				fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(topic)}&start=0&max_results=50`)
-					.then(response => response.text())
-					.then(data => {
-						// Parse Arxiv XML Response
-						const parser = new DOMParser();
-						const xml = parser.parseFromString(data, "text/xml");
-						const entries = xml.getElementsByTagName("entry");
-	
-						// Clear loading message
-						recommendationList.innerHTML = "";
-	
-						// Loop through entries and create recommendation items
-						for (let i = 0; i < entries.length; i++) {
-							const title = entries[i].getElementsByTagName("title")[0].textContent;
-							const summary = entries[i].getElementsByTagName("summary")[0].textContent;
-							const link = entries[i].getElementsByTagName("id")[0].textContent;
-							// Extract the Arxiv ID from the link
-							const arxivId = link.split('/').pop();
-							const recommendationItem = document.createElement("div");
-							recommendationItem.className = "recommendation-item";
-	
-							recommendationItem.innerHTML = `
-                            <h4>${title}</h4>
-                            <p>${summary.substring(0, 150)}...</p>
-                            <a href="#" onclick="downloadPDF('${arxivId}')">Download PDF</a>
-                        `;
-	
-							recommendationList.appendChild(recommendationItem);
-						}
-	
-						// If no entries found
-						if (entries.length === 0) {
-							recommendationList.innerHTML = `<p>No recommendations found for the topic "${topic}".</p>`;
-						}
-					})
-					.catch(error => {
-						console.error("Error fetching recommendations:", error);
-						recommendationList.innerHTML = `<p>Error fetching recommendations. Please try again later.</p>`;
+
+				try {
+					// Step 1: Send topic to backend to generate query
+					const backendResponse = await fetch('/generate_arxiv_query/', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ topic: topic }),
 					});
+
+					if (!backendResponse.ok) {
+						throw new Error('Failed to generate query from backend.');
+					}
+
+					const backendData = await backendResponse.json();
+					const query = backendData.query; // The generated query from backend
+
+					// Step 2: Use the generated query to fetch data from Arxiv API
+					const arxivResponse = await fetch(`https://export.arxiv.org/api/query?search_query=${encodeURIComponent(query)}&start=0&max_results=50`);
+					if (!arxivResponse.ok) {
+						throw new Error('Failed to fetch data from Arxiv API.');
+					}
+
+					const data = await arxivResponse.text();
+
+					// Step 3: Parse the Arxiv XML response
+					const parser = new DOMParser();
+					const xml = parser.parseFromString(data, "text/xml");
+					const entries = xml.getElementsByTagName("entry");
+
+					// Clear loading message
+					recommendationList.innerHTML = "";
+
+					// Loop through entries and create recommendation items
+					for (let i = 0; i < entries.length; i++) {
+						const title = entries[i].getElementsByTagName("title")[0].textContent;
+						const summary = entries[i].getElementsByTagName("summary")[0].textContent;
+						const link = entries[i].getElementsByTagName("id")[0].textContent;
+						// Extract the Arxiv ID from the link
+						const arxivId = link.split('/').pop();
+						const recommendationItem = document.createElement("div");
+						recommendationItem.className = "recommendation-item";
+
+						recommendationItem.innerHTML = `
+							<h4>${title}</h4>
+							<p>${summary.substring(0, 150)}...</p>
+							<a href="#" onclick="downloadPDF('${arxivId}')">Download PDF</a>
+						`;
+
+						recommendationList.appendChild(recommendationItem);
+					}
+
+					// If no entries found
+					if (entries.length === 0) {
+						recommendationList.innerHTML = `<p>No recommendations found for the topic "${topic}".</p>`;
+					}
+				} catch (error) {
+					console.error("Error fetching recommendations:", error);
+					recommendationList.innerHTML = `<p>Error fetching recommendations. Please try again later.</p>`;
+				}
 			}
 			function downloadPDF(arxivId) {
-    const pdfURL = `https://arxiv.org/pdf/${arxivId}.pdf`;
-    window.open(pdfURL, '_blank'); // 在新标签页中打开 PDF 文件
-}
+			const pdfURL = `https://arxiv.org/pdf/${arxivId}.pdf`;
+			window.open(pdfURL, '_blank'); // 在新标签页中打开 PDF 文件
+		}
 		</script>
 
 	<!-- ===========================
@@ -829,7 +917,9 @@ FONTS & ICONS
             formData.append("file" + i, files[i]);
         }
 		topic = $('#topic_input_box').val()
+		mode = $('#mode_check_box').val()
 		formData.append("topic", topic);
+		formData.append("mode", mode);
 		$.ajax({
 		type: "POST",
 		dataType: "json",

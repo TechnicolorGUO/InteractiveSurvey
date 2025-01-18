@@ -172,12 +172,12 @@ def legal_pdf(filename: str) -> str:
         name = 'ip_' + name
     return name
 
-def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings):
+def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings, mode: str):
     # Load and split the PDF
     # splitters = TextSplitting().mineru_recursive_splitter(file_path)
 
     split_start_time = time.time()
-    splitters = TextSplitting().mineru_recursive_splitter(file_path, survey_id)
+    splitters = TextSplitting().mineru_recursive_splitter(file_path, survey_id, mode)
 
     documents_list = [document.page_content for document in splitters]
     for i in range(len(documents_list)):

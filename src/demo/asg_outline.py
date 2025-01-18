@@ -73,8 +73,8 @@ class OutlineGenerator():
                         max_new_tokens=256,
                     )
                     claim = outputs[0]["generated_text"][-1]['content']
-                    print(claim)
-                    print('+++++++++++++++++++++++++++++++++')
+                    # print(claim)
+                    # print('+++++++++++++++++++++++++++++++++')
                     claims = claims + '\n' + claim
                 result.append(claims)
         return result
@@ -143,8 +143,8 @@ class OutlineGenerator():
                     
                     # Clean and append the claim
                     claims = claims + '\n' + claim.strip()
-                    print("Generated claim:", claim)
-                    print("+++++++++++++++++++++++++++++++++")
+                    # print("Generated claim:", claim)
+                    # print("+++++++++++++++++++++++++++++++++")
                 
                 except Exception as e:
                     print(f"Error generating claim for entry {j} in cluster {i}: {e}")
@@ -241,7 +241,7 @@ class OutlineGenerator():
         for chunk in chat_response:
             if chunk.choices[0].delta.content:
                 text += chunk.choices[0].delta.content
-        print('The response is :', text)
+        # print('The response is :', text)
         pattern = r'\[(.*)\]'
         match = re.search(pattern, text, re.DOTALL)  # re.DOTALL 允许 . 匹配换行符
         text = match.group(1)
@@ -255,7 +255,7 @@ def parseOutline(survey_id):
         data = json.load(file)
   
     response = data['outline']
-    print(response)
+    # print(response)
 
 
     # Extract content between the first '[' and the last ']'
@@ -268,7 +268,7 @@ def parseOutline(survey_id):
 
     # prefix_extracted = extract_first_last(prefix)
     response_extracted = extract_first_last(response)
-    print(response_extracted)
+    # print(response_extracted)
 
     # if prefix_extracted:
     #     prefix_list = ast.literal_eval(prefix_extracted)
@@ -285,13 +285,10 @@ def parseOutline(survey_id):
     #     outline_list.append(item)
     for item in outline_list:
         result.append(item)
-    
-    print("The result is: ", result)
     return result
 
 def generateOutlineHTML_qwen(survey_id):
     outline_list = parseOutline(survey_id)
-    print(outline_list)
     html = '''
     <div class="container-fluid w-50 d-flex flex-column justify-content-center align-items-center">
 
@@ -547,8 +544,6 @@ function confirmOutline() {
 }
         </script>
         '''
-    print(html)
-    print('+++++++++++++++++++++++++++++++++')
     return html
 
 def insert_section(content, section_header, section_content):
@@ -570,7 +565,6 @@ def insert_section(content, section_header, section_content):
 
 def generateOutlineHTML(survey_id):
     outline_list = parseOutline(survey_id)
-    print(outline_list)
     html = '''
     <div class="container-fluid w-50 d-flex flex-column justify-content-center align-items-center">
 
@@ -742,8 +736,6 @@ def generateOutlineHTML(survey_id):
         </script>
     </div>
     '''
-    print(html)
-    print('+++++++++++++++++++++++++++++++++')
     return html
 
 def insert_section(content, section_header, section_content):
@@ -785,17 +777,14 @@ def generateSurvey(survey_id, title, collection_list, pipeline):
     }
 
     generated_survey_paper = generate_survey_paper_new(outline, context_list, client)
-    print("Generated Survey Paper:\n", generated_survey_paper)
 
     generated_introduction = generate_introduction(generated_survey_paper, client)
     print("\nGenerated Introduction:\n", generated_introduction)
 
     abs_generator = AbstractGenerator(pipeline)
     abstract = abs_generator.generate(title, generated_introduction)
-    print("\nGenerated Abstract:\n", abstract)
     con_generator = ConclusionGenerator(pipeline)
     conclusion = con_generator.generate(title, generated_introduction)
-    print("\nGenerated Conclusion:\n", conclusion)
 
     abstract = abstract.replace("Abstract:", "")
     conclusion = conclusion.replace("Conclusion:", "")
@@ -874,12 +863,10 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
     print("\nGenerated Introduction:\n", generated_introduction)
     abs_generator = AbstractGenerator(pipeline)
     abstract = abs_generator.generate(title, generated_introduction)
-    print("\nGenerated Abstract:\n", abstract)
     con_generator = ConclusionGenerator(pipeline)
     # conclusion = con_generator.generate(title, generated_introduction)
     #New version: 12/03
     conclusion = generate_conclusion(generated_survey_paper, client)
-    print("\nGenerated Conclusion:\n", conclusion)
     abstract = abstract.replace("Abstract:", "")
     conclusion = conclusion.replace("Conclusion:", "")
     # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
@@ -925,18 +912,15 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
 
     # 调用generate_survey_paper_new时传入citation_data_list
     generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client, citation_data_list)
-    print("Generated Survey Paper:\n", generated_survey_paper)
 
-    generated_introduction = generate_introduction(generated_survey_paper, client)
+    generated_introduction = generate_introduction_alternate(title, generated_survey_paper, client)
     # generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
     print("\nGenerated Introduction:\n", generated_introduction)
     abs_generator = AbstractGenerator(pipeline)
     abstract = abs_generator.generate(title, generated_introduction)
-    print("\nGenerated Abstract:\n", abstract)
-    con_generator = ConclusionGenerator(pipeline)
+    # con_generator = ConclusionGenerator(pipeline)
     # conclusion = con_generator.generate(title, generated_introduction)
     conclusion = generate_conclusion(generated_survey_paper, client)
-    print("\nGenerated Conclusion:\n", conclusion)
     abstract = abstract.replace("Abstract:", "")
     conclusion = conclusion.replace("Conclusion:", "")
     # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
@@ -967,8 +951,8 @@ def generate_references_dir(dir):
             file_path = os.path.join(dir, file)
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                print("The data is: ")
-                print(data)
+                # print("The data is: ")
+                # print(data)
                 papers_info.append({
                     "file_path": file_path,
                     "title": data.get("title", "Unknown Title"),

@@ -37,7 +37,8 @@ from .asg_generator import generate,generate_sentence_patterns
 from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen, generateSurvey_qwen_new
 from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name, generate_cluster_name_new
 from .postprocess import reindex_citations, generate_references_section
-from .survey_generator_api import ensure_all_papers_cited
+from .asg_query import generate_query_qwen
+# from .survey_generator_api import ensure_all_papers_cited
 import glob
 import nltk
 
@@ -318,14 +319,12 @@ def PosRank_get_top5_ngrams(input_pd):
         '''
     return abs_top5_unigram_list_list,abs_top5_bigram_list_list,abs_top5_trigram_list_list
 
-def process_file(file_name, survey_id):
+def process_file(file_name, survey_id, mode):
     # parser = DocumentLoading()
     global embedder
-    result = process_pdf(file_name, survey_id, embedder)
+    result = process_pdf(file_name, survey_id, embedder, mode)
     collection_name = result[0]
     name = result[-1]
-    print(name)
-    print("++++++++++++++++++++++++++++++++++++++++++++++")
     return collection_name, name
 
 def sanitize_filename_py(filename):
@@ -382,8 +381,8 @@ def upload_refs(request):
         filesizes = []
         file_dict = request.FILES
         file_name = list(file_dict.keys())[0]
-        print(file_dict)
-        print(list(file_dict.keys()))
+        # print(file_dict)
+        # print(list(file_dict.keys()))
 
         global Global_survey_id
         global Global_test_flag
@@ -392,6 +391,7 @@ def upload_refs(request):
         global Global_file_names
 
         Global_survey_title = request.POST.get('topic', False)
+        process_pdf_mode = request.POST.get('mode', False)
 
         if Global_test_flag == True:
             uid_str = 'test_4'
@@ -425,17 +425,7 @@ def upload_refs(request):
                 saved_file_name = default_storage.save(file_path, file)
                 file_size = round(float(file.size) / 1024000, 2)
 
-                # title = file.name
-                # title_new = title.strip()
-                # invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*','_']
-                # for char in invalid_chars:
-                #     title_new = title_new.replace(char, ' ')
-                # print("============================")
-                # print(title_new)
-                # saved_file_name = f'./src/static/data/pdf/{uid_str}/{title_new}'
-
-
-                collection_name, processed_file = process_file(saved_file_name, Global_survey_id)
+                collection_name, processed_file = process_file(saved_file_name, Global_survey_id, process_pdf_mode)
                 Global_collection_names.append(collection_name)
                 Global_file_names.append(processed_file)
                 filenames.append(processed_file)
@@ -443,12 +433,7 @@ def upload_refs(request):
                 print(filenames)
                 print(filesizes)
 
-        # if len(list(file_dict.keys())) > 0:
-        #     file_name = list(file_dict.keys())[0]
-        #     file_obj = file_dict[file_name]
-        # else:
-        #     is_valid_submission = False
-        print("The global collection names are:", Global_collection_names)
+        # print("The global collection names are:", Global_collection_names)
         global Survey_dict
         survey_title = file_name.split('.')[-1].title()
         Survey_dict[uid_str] = survey_title
@@ -536,8 +521,8 @@ def upload_refs(request):
                 # input_pd["ref_title"] = input_pd["reference paper title"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid title')
                 # input_pd['ref_title'] = ['_'.join(filename.split("_")[:-1]) for filename in filenames]
                 input_pd['ref_title'] = [filename for filename in filenames]
-                print(input_pd['ref_title'])
-                print('++++++++++++++++++++++++++++++++++++++++++++++')
+                # print(input_pd['ref_title'])
+                # print('++++++++++++++++++++++++++++++++++++++++++++++')
                 input_pd["ref_context"] = [""]*ref_paper_num
                 input_pd["ref_entry"] = input_pd["reference paper citation information (can be collected from Google scholar/DBLP)"]
                 input_pd["abstract"] = input_pd["reference paper abstract (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid abstract')
@@ -611,7 +596,7 @@ def upload_refs(request):
 
                 #output_df = input_pd[["ref_title","ref_context","ref_entry","abstract","intro","description"]]
                 output_df = input_pd[["ref_title","ref_context","ref_entry","abstract","intro","topic_word","topic_bigram","topic_trigram","description"]]
-                print(output_df)
+                # print(output_df)
 
                 if has_label_id == True:
                     output_df["label"]=input_pd["label"]
@@ -667,10 +652,28 @@ def upload_refs(request):
             #ref_list = {'references':[],'ref_links':[],'ref_ids':[]}
         #pdb.set_trace()
         ref_list = json.dumps(ref_list)
-        print(ref_list)
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        # print(ref_list)
+        # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         print("--- %s seconds used in processing files ---" % (time.time() - start_time))
         return HttpResponse(ref_list)
+
+@csrf_exempt
+def generate_arxiv_query(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            topic = data.get('topic', '')
+
+            if not topic:
+                return JsonResponse({'error': 'Topic is required.'}, status=400)
+
+            query = generate_query_qwen(topic)
+            return JsonResponse({'query': query}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
 @csrf_exempt
 def annotate_categories(request):
@@ -701,7 +704,6 @@ def annotate_categories(request):
 
     html = generateOutlineHTML_qwen(Global_survey_id)
     print("The outline has been parsed successfully.")
-    # print("The generated html: ", html)
     return JsonResponse({'html': html})
 
 @csrf_exempt
@@ -722,8 +724,6 @@ def get_topic(request):
 def automatic_taxonomy(request):
     global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label, Global_collection_names_clustered
     ref_dict = dict(request.POST)
-    print("The ref_dict is: ")
-    print(ref_dict)
     ref_list = ref_dict['refs']
     query = ref_dict['taxonomy_standard'][0]
     query_list = generate_sentence_patterns(query)
@@ -829,9 +829,9 @@ def automatic_taxonomy(request):
     category_label_summarized = generate_cluster_name_new(tsv_path, Global_survey_title)   
     Global_cluster_names = category_label_summarized
 
-    print(category_label)
-    print('+++++++++++++++++++++++++++++')
-    print(category_label_summarized)
+    # print(category_label)
+    # print('+++++++++++++++++++++++++++++')
+    # print(category_label_summarized)
 
 
     cate_list = {
@@ -857,7 +857,7 @@ def automatic_taxonomy(request):
     outline_generator = OutlineGenerator(Global_pipeline, Global_df_selected, Global_cluster_names)
     outline_generator.get_cluster_info()
     messages, outline = outline_generator.generate_outline_qwen(Global_survey_title)
-    print(outline)
+    # print(outline)
 
     outline_json = {'messages':messages, 'outline': outline}
     output_path = TXT_PATH + Global_survey_id + '/outline.json'
@@ -953,7 +953,7 @@ def select_sections(request):
     survey = {}
 
     for k,v in sections.items():
-        print(Survey_dict[Global_survey_id])
+        # print(Survey_dict[Global_survey_id])
         # if k == "title":
         survey['title'] = "A Survey of " + Survey_dict[Global_survey_id]
 
@@ -1122,8 +1122,9 @@ def generate_pdf(request):
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
 
+        # print(markdown_content)
         # markdown_content = ensure_all_papers_cited(markdown_content, Global_citation_data)
-
+        # print(markdown_content)
         markdown_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
 
         # 设置 Markdown 文件的保存路径1
@@ -1207,7 +1208,7 @@ def get_survey_text(refs=Global_ref_list):
     Get the survey text from a given ref list
     Return with a dict as below default value:
     '''
-    print('REFERENCES FOR GENERATING SURVEY CONTENT', refs)
+    # print('REFERENCES FOR GENERATING SURVEY CONTENT', refs)
     survey = {
         'Title': "A Survey of " + Survey_dict[Global_survey_id],
         'Abstract': "test "*150,
@@ -1256,12 +1257,12 @@ def get_survey_text(refs=Global_ref_list):
 
 def Clustering_refs(n_clusters):
     df = pd.read_csv(TSV_PATH + Global_survey_id + '.tsv', sep='\t', index_col=0, encoding='utf-8')
-    print(df.describe())
-    print(df)
-    print(Global_ref_list)
+    # print(df.describe())
+    # print(df)
+    # print(Global_ref_list)
     df_selected = df.iloc[Global_ref_list]
     
-    print(df_selected)
+    # print(df_selected)
 
     ## update cluster labels and keywords
     df_selected, colors = clustering(df_selected, n_clusters, Global_survey_id)
@@ -1312,25 +1313,8 @@ def normalize_citations_with_mapping(paper_text):
 
     return normalized_text, reverse_mapping
 
-# paper_with_non_standard_citations = """
-# This is a paper text with non-standard citations like [collection name1] and [collection name2].
-# Another reference to [collection name1] is here. And then we see [collection name3].
-# """
-
-# normalized_paper, citation_mapping = normalize_citations_with_mapping(paper_with_non_standard_citations)
-# print("Normalized Paper:")
-# print(normalized_paper)
-# print("\nCitation Mapping:")
-# print(citation_mapping)
-
-
 # wza
 def generate_references_section(citation_mapping, collection_pdf_mapping):
-    print("The citation mapping is:")
-    print(citation_mapping)
-    print("The collection pdf mapping is:")
-    print(collection_pdf_mapping)
-    print("-" * 24)
     
     references = ["# References"]  # 生成引用部分
     for num in sorted(citation_mapping.keys()):
@@ -1361,12 +1345,6 @@ def finalize_survey_paper(paper_text,
                           Global_collection_names, 
                           Global_file_names):
 
-    print("=== finalize_survey_paper is called ===")
-    print("Global_collection_names =", Global_collection_names)
-    print("Global_file_names =", Global_file_names)
-    print("--- original paper_text ---")
-    print(paper_text)
-
     # 1) 删除所有不想要的旧引用（包括 [数字]、[Sewon, 2021] 等）
     paper_text = remove_invalid_citations(paper_text, Global_collection_names)
 
@@ -1385,16 +1363,3 @@ def finalize_survey_paper(paper_text,
     # 6) 合并正文和 References
     final_paper = normalized_text.strip() + "\n\n" + references_section
     return final_paper
-
-
-# 调用
-# paper_text = """
-# In this paper, we discuss various approaches [collection_name_1]. 
-# Some of them are advanced in [collection_name_2].
-# """
-
-# Global_collection_names = ["collection_name_1", "collection_name_2"]
-# Global_file_names = ["paper1.pdf", "paper2.pdf"]
-
-# result = finalize_survey_paper(paper_text, Global_collection_names, Global_file_names)
-# print(result)

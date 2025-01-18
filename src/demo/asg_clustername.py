@@ -63,8 +63,8 @@ The description list is:{sentence_list}'''
             result.append(cluster_name)
         else:
             result.append("No Cluster Name Found")  # Handle cases where pattern isn't found
-    print("The generated cluster names are:")
-    print(result)
+    # print("The generated cluster names are:")
+    # print(result)
     return result  # This will be a list with three elements
     
 # Example usage:
@@ -117,8 +117,8 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
             if chunk.choices[0].delta.content:
                 text += chunk.choices[0].delta.content
 
-        print("The raw response text is:")
-        print(text)
+        # print("The raw response text is:")
+        # print(text)
     
         # Use regex to extract content within square brackets
         match = re.search(r'\[(.*?)\]', text)
@@ -137,8 +137,8 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
     
     refined_cluster_names = ast.literal_eval(refined_cluster_names)  # Convert string to list
     
-    print("The refined cluster names are:")
-    print(refined_cluster_names)
+    # print("The refined cluster names are:")
+    # print(refined_cluster_names)
     return refined_cluster_names  # Returns a list with the refined cluster names、
 
 
@@ -199,8 +199,8 @@ def generate_cluster_name_new(tsv_path, survey_title):
     for chunk in chat_response:
         if chunk.choices[0].delta.content:
             text += chunk.choices[0].delta.content
-    print("The raw response text is:")
-    print(text)
+    # print("The raw response text is:")
+    # print(text)
 
     # Use regex to extract content within square brackets
     match = re.search(r'\[(.*?)\]', text)
@@ -215,13 +215,13 @@ def generate_cluster_name_new(tsv_path, survey_title):
     
     refined_cluster_names = ast.literal_eval(refined_cluster_names)  # Convert string to list
     
-    print("The refined cluster names are:")
-    print(refined_cluster_names)
+    # print("The refined cluster names are:")
+    # print(refined_cluster_names)
     return refined_cluster_names  # Returns a list with the refined cluster names、
 
 
 if __name__ == "__main__":
     refined_result = refine_cluster_name(["Pre-training of LLMs", "Fine-tuning of LLMs", "Evaluation of LLMs"], 'Survey of LLMs')
-    print(refined_result)
+    # print(refined_result)
         
     

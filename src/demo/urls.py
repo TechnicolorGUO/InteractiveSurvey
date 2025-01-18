@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('delete_files/', views.delete_files, name='delete_files'),
+    path('generate_arxiv_query/', views.generate_arxiv_query, name='generate_arxiv_query'),
     path('get_survey_id/', views.get_survey_id, name='get_survey_id'),
     path('generate_pdf/', views.generate_pdf, name='generate_pdf'),
     path('save_outline/', views.save_outline, name='save_outline'),

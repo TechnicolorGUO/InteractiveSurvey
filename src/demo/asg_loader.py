@@ -59,47 +59,58 @@ class DocumentLoading:
                     print(f"An error occurred during processing: {exc}")
 
     def extract_information_from_md(self, md_text):
-        # Title: 在第一个双换行符之前的内容。
-        title_match = re.search(r'^(.*?)(\n\n|\Z)', md_text, re.DOTALL)
-        title = title_match.group(1).strip() if title_match else "N/A"
+            # Title: 在第一个双换行符之前的内容。
+            title_match = re.search(r'^(.*?)(\n\n|\Z)', md_text, re.DOTALL)
+            title = title_match.group(1).strip() if title_match else "N/A"
 
-        # Authors: 从第一个双换行符之后，到abstract标志（\n\nAbstract\n\n或者\n\nABSTRACT\n\n 或者\n\nAbstract.\n\n或者\n\nAbstract-\n\n或者\n\nA bstract\n\n(注意这里a和b之间有一个空格)或者\n\nA BSTRACT\n\n(注意这里a和b之间有一个空格)或者\n\nA bstract.\n\n或者\n\nA bstract-\n\n) 之前的内容。这里abstract标识符可以大小写不敏感。
-        authors_match = re.search(
-            r'\n\n(.*?)(\n\n[aA][\s]*[bB][\s]*[sS][\s]*[tT][\s]*[rR][\s]*[aA][\s]*[cC][\s]*[tT][^\n]*\n\n)', 
-            md_text, 
-            re.DOTALL
-        )
+            # Authors: 从第一个双换行符之后，到 Abstract 标志之前的内容。
+            authors_match = re.search(
+                r'\n\n(.*?)(\n\n[aA][\s]*[bB][\s]*[sS][\s]*[tT][\s]*[rR][\s]*[aA][\s]*[cC][\s]*[tT][^\n]*\n\n)', 
+                md_text, 
+                re.DOTALL
+            )
+            authors = authors_match.group(1).strip() if authors_match else "N/A"
 
-        authors = authors_match.group(1).strip() if authors_match else "N/A"
+            # Abstract: 从 Abstract 标志之后，到下一个双换行符之前的内容。
+            abstract_match = re.search(
+                r'(\n\n[aA][\s]*[bB][\s]*[sS][\s]*[tT][\s]*[rR][\s]*[aA][\s]*[cC][\s]*[tT][^\n]*\n\n)(.*?)(\n\n|\Z)', 
+                md_text, 
+                re.DOTALL
+            )
+            abstract = abstract_match.group(0).strip() if abstract_match else "N/A"
+            abstract = re.sub(r'^[aA]\s*[bB]\s*[sS]\s*[tT]\s*[rR]\s*[aA]\s*[cC]\s*[tT][^\w]*', '', abstract)
+            abstract = re.sub(r'^[^a-zA-Z]*', '', abstract)
 
-        # Abstract: 从 abstract标志（\n\nAbstract\n\n或者\n\nABSTRACT\n\n 或者\n\nAbstract.\n\n或者\n\nAbstract-\n\n或者\n\nA bstract\n\n(注意这里a和b之间有一个空格)或者\n\nA BSTRACT\n\n(注意这里a和b之间有一个空格)或者\n\nA bstract.\n\n或者\n\nA bstract-\n\n)之后，到 下一个\n\n之前的内容。
-        abstract_match = re.search(
-            r'(\n\n[aA][\s]*[bB][\s]*[sS][\s]*[tT][\s]*[rR][\s]*[aA][\s]*[cC][\s]*[tT][^\n]*\n\n)(.*?)(\n\n|\Z)', 
-            md_text, 
-            re.DOTALL
-        )
-        # abstract = abstract_match.group(2).strip() if abstract_match else "N/A"
-        abstract = abstract_match.group(0).strip() if abstract_match else "N/A"
-        abstract = re.sub(r'^[aA]\s*[bB]\s*[sS]\s*[tT]\s*[rR]\s*[aA]\s*[cC]\s*[tT][^\w]*', '', abstract)
-        abstract = re.sub(r'^[^a-zA-Z]*', '', abstract)
+            # Introduction
+            introduction_match = re.search(
+                r'\n\n([1I][\.\- ]?\s*)?[Ii]\s*[nN]\s*[tT]\s*[rR]\s*[oO]\s*[dD]\s*[uU]\s*[cC]\s*[tT]\s*[iI]\s*[oO]\s*[nN][\.\- ]?\s*\n\n(.*?)'
+                r'(?=\n\n(?:([2I][I]|\s*2)[^\n]*?\n\n|\n\n(?:[2I][I][^\n]*?\n\n)))',
+                md_text, 
+                re.DOTALL
+            )
+            introduction = introduction_match.group(2).strip() if introduction_match else "N/A"
 
-        # Introduction
-        introduction_match = re.search(
-            r'\n\n([1I][\.\- ]?\s*)?[Ii]\s*[nN]\s*[tT]\s*[rR]\s*[oO]\s*[dD]\s*[uU]\s*[cC]\s*[tT]\s*[iI]\s*[oO]\s*[nN][\.\- ]?\s*\n\n(.*?)'
-            # r'(?=\n\n(?:([2I][I]|\s*2)[\.\- ]?\s*[Rr]\s*[Ee]\s*[Ll]\s*[Aa]\s*[Tt]\s*[Ee]\s*[Dd]\s*[Ww]\s*[Oo]\s*[Rr]\s*[Kk][sS]?[\. ]?\s*\n\n|2\.\s.*?\n\n|\n\n(?:[2I][I]|\s*2)[^\n]*?\n\n))',
-            r'(?=\n\n(?:([2I][I]|\s*2)[^\n]*?\n\n|\n\n(?:[2I][I][^\n]*?\n\n)))',
+            # Main Content: 提取全文直到 References 部分为止
+            main_content_match = re.search(
+                r'(.*?)(\n\n([3I][\.\- ]?\s*)?[Rr][Ee][Ff][Ee][Rr][Ee][Nn][Cc][Ee][Ss][^\n]*\n\n|\Z)', 
+                md_text, 
+                re.DOTALL
+            )
+            
+            if main_content_match:
+                main_content = main_content_match.group(1).strip()
+            else:
+                main_content = "N/A"
 
-            md_text, re.DOTALL
-        )
-        introduction = introduction_match.group(2).strip() if introduction_match else "N/A"
-
-        extracted_data = {
-            "title": title,
-            "authors": authors,
-            "abstract": abstract,
-            "introduction": introduction
-        }
-        return extracted_data
+            # 将提取的数据存入字典中
+            extracted_data = {
+                "title": title,
+                "authors": authors,
+                "abstract": abstract,
+                "introduction": introduction,
+                "main_content": main_content
+            }
+            return extracted_data
     
     def process_md_file(self, md_file_path, survey_id):
         loader = UnstructuredMarkdownLoader(md_file_path)
@@ -124,9 +135,33 @@ class DocumentLoading:
             json.dump(extracted_data, f, ensure_ascii=False, indent=4)
         # print(extracted_data)
         return extracted_data['introduction']
+    
+    def process_md_file_full(self, md_file_path, survey_id):
+        loader = UnstructuredMarkdownLoader(md_file_path)
+        data = loader.load()
+        assert len(data) == 1, "Expected exactly one document in the markdown file."
+        assert isinstance(data[0], Document), "The loaded data is not of type Document."
+        extracted_text = data[0].page_content
+        
+        extracted_data = self.extract_information_from_md(extracted_text)
+        if len(extracted_data["abstract"]) < 10:
+            extracted_data["abstract"] = extracted_data['title']
+
+        title = os.path.splitext(os.path.basename(md_file_path))[0]
+        title_new = title.strip()
+        invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*', '_']
+        for char in invalid_chars:
+            title_new = title_new.replace(char, ' ')
+        # print("============================")
+        # print(title_new)
+        os.makedirs(f'./src/static/data/txt/{survey_id}', exist_ok=True)
+        with open(f'./src/static/data/txt/{survey_id}/{title_new}.json', 'w', encoding='utf-8') as f:
+            json.dump(extracted_data, f, ensure_ascii=False, indent=4)
+        # print(extracted_data)
+        return extracted_data['abstract'] + extracted_data['introduction'] + extracted_data['main_content']
 
     
-    def load_pdf(self, pdf_file, survey_id):
+    def load_pdf(self, pdf_file, survey_id, mode):
         os.makedirs(f'./src/static/data/md/{survey_id}', exist_ok=True)
         output_dir = f"./src/static/data/md/{survey_id}"
         base_name = os.path.splitext(os.path.basename(pdf_file))[0]
@@ -140,7 +175,10 @@ class DocumentLoading:
         if not os.path.exists(md_file_path):
             raise FileNotFoundError(f"Markdown file {md_file_path} does not exist. Conversion might have failed.")
 
-        return self.process_md_file(md_file_path, survey_id)
+        if mode == "intro":
+            return self.process_md_file(md_file_path, survey_id)
+        elif mode == "full":
+            return self.process_md_file_full(md_file_path, survey_id)
 
     # wrong, still being tested
     def load_pdf_new(self, pdf_dir, survey_id):

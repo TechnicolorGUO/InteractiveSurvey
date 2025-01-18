@@ -8,8 +8,8 @@ import time
 
 class TextSplitting:
 
-    def mineru_recursive_splitter(self, file_path, survey_id):
-        docs = DocumentLoading().load_pdf(file_path, survey_id)
+    def mineru_recursive_splitter(self, file_path, survey_id, mode):
+        docs = DocumentLoading().load_pdf(file_path, survey_id, mode)
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=400,
             chunk_overlap=30,

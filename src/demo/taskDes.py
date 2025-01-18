@@ -780,4 +780,4 @@ def generateSurvey(fileID, mask):
 if __name__ == "__main__":
     mask = [1] * 500
     abstract, introduction, methodology, conclusion, reference, survey = generateSurvey("2742488", mask)
-    print(survey)
+    # print(survey)

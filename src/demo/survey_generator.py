@@ -272,35 +272,3 @@ def generate_survey_paper(outline, context, client):
     full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
 
     return full_survey_content
-
-outline1 = """
-[
-    [1, '1 Abstract'], 
-    [1, '2 Introduction'],
-        [2, '2.1 Predictive Modeling on Imbalance Data: Problem Overview'], 
-        [2, '2.2 Class Imbalance: A Major Challenge in Predictive Modeling'], 
-        [2, '2.3 Survey Scope and Organization'], 
-            [3, '2.3.1 Dealing with Class Imbalance'], 
-            [3, '2.3.2 Clustering Machine Learning Methods'], 
-            [3, '2.3.3 Microtubule Dynamics and Behavior'], 
-            [3, '2.3.4 Other Methods'], 
-        [2, '2.4 Conclusion'], 
-    [1, '3 Dealing with Class Imbalance'], 
-        [2, '3.1 An Experimental Design to Evaluate Class Imbalance Treatment Methods'], 
-        [2, '3.2 An Improved SMOTE Imbalanced Data Classification Method Based on Support Degree'], 
-    [1, '4 Clustering Machine Learning Methods'], 
-        [2, '4.1 An unsupervised learning approach to resolving the data imbalanced issue in supervised learning problems in functional genomics'], 
-    [1, '5 Microtubule Dynamics and Behavior'], 
-        [2, '5.1 Active Learning for Class Imbalance Problem'], 
-    [1, '6 Conclusion'], 
-    [1, '7 Future Research Directions'], 
-    [1, '8 References']
-]
-"""
-client = getQwenClient()
-
-generated_survey_paper = generate_survey_paper(outline1, context, client)
-print("Generated Survey Paper:\n", generated_survey_paper)
-
-# generated_introduction = generate_introduction(generated_survey_paper, client)
-# print("\nGenerated Introduction:\n", generated_introduction)

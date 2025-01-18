@@ -89,8 +89,8 @@ class Text_Summarizer(object):
             output_sent_list = output_sent_list[:-1]
         output_text='. '.join(output_sent_list)+'.'
 
-        print(predictions)
-        print(output_text)
+        # print(predictions)
+        # print(output_text)
 
         #pdb.set_trace()
 

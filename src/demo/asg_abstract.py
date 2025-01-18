@@ -9,7 +9,6 @@ class AbstractGenerator:
         if mode == 'lora' or mode == 'test':
             if mode == 'lora':
                 self.pipeline.model.set_adapter("abstract")
-                print("Adapter abstract loaded")
 
             system_prompt = f'''You are a helpful assistant that help to generate the abstract of the survey paper given the survey title and survey introduction.'''
             # user_prompt = {"survey_title":survey_title, "claims":cluster_with_claims}
@@ -245,8 +244,4 @@ the remaining issues for future work.
 
     abstract_generator = AbstractGenerator(Global_pipeline)
     with_lora = abstract_generator.generate(title, intro, mode='lora')
-    print("The abstract generated with LORA is: \n", with_lora)
-    print("=============================================================")
     with_test = abstract_generator.generate(title, intro, mode='test')
-    print("The abstract generated with test is: \n", with_test)
-    print("=============================================================")
