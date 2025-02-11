@@ -397,7 +397,9 @@ def process_outline_with_empty_sections_citations(outline_list, selected_outline
     def generate_section_with_citations_wrapper(section_info):
         level, section_title = section_info
         section_context = context_dict[section_title]
-        section_content = generate_survey_section_with_citations(section_context, client, section_title, citation_data_list)
+        section_content = generate_survey_section_with_citations(
+            section_context, client, section_title, citation_data_list
+        )
         return section_title, level, section_content
 
     generated_sections = {}
@@ -550,10 +552,10 @@ Survey Paper Content for "{section_title}":
 """
     formatted_prompt = template.format(context=context, section_title=section_title)
     response = generateResponse(client, formatted_prompt).strip()
-    
+
     # -- 1. 先将生成的文本按空行（即段落）拆分 ---
     paragraphs = [p.strip() for p in response.split('\n\n') if p.strip()]
-    
+
     # -- 2. 拆分段落内部的句子，并记录每个句子所属的段落索引 ---
     all_sentences = []
     para_index_map = []  # 记录每个句子所属的段落编号
@@ -696,21 +698,39 @@ def generate_survey_paper_new(title, outline, context_list, client, citation_dat
     return full_survey_content
 
 
-def query_embedding_for_title(collection_name: str, title: str, n_results: int = 1, embedder: HuggingFaceEmbeddings = None):
+def query_embedding_for_title(
+    collection_name: str, 
+    title: str, 
+    n_results: int = 1, 
+    embedder: HuggingFaceEmbeddings = None
+):
     final_context = ""
     retriever = Retriever()
     title_embedding = embedder.embed_query(title)
-    query_result = retriever.query_chroma(collection_name=collection_name, query_embeddings=[title_embedding], n_results=n_results)
-    query_result_chunks = query_result["documents"][0]
-    for chunk in query_result_chunks:
-        final_context += chunk.strip() + "//\n"
+
+    query_result = retriever.query_chroma(
+        collection_name=collection_name, 
+        query_embeddings=[title_embedding], 
+        n_results=n_results
+    )
+    # old
+    # query_result_chunks = query_result["documents"][0]
+    # for chunk in query_result_chunks:
+    #     final_context += chunk.strip() + "//\n"
+
+    # 2025
+    if "documents" in query_result and len(query_result["documents"]) > 0:
+        for chunk in query_result["documents"][0]:
+            final_context += chunk.strip() + "//\n"
     return final_context
 
+# old
 def generate_context_list(outline, collection_list):
     context_list = []
     cluster_idx = -1
     embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     subsections = parse_outline_with_subsections(outline)
+    
     for level, title in subsections:
         if(title.startswith("3")):
             cluster_idx = 0
@@ -718,15 +738,47 @@ def generate_context_list(outline, collection_list):
             cluster_idx = 1
         elif(title.startswith("5")):
             cluster_idx = 2
+        
         context_temp = ""
         for i in range(len(collection_list[cluster_idx])):
-            context = query_embedding_for_title(collection_list[cluster_idx][i], title, embedder=embedder)
+            context = query_embedding_for_title(
+                collection_list[cluster_idx][i], 
+                title, 
+                embedder=embedder
+            )
             context_temp += context
             context_temp += "\n"
         context_list.append(context_temp)
-    print(f"Context list generated with length {len(context_list)}.")
     return context_list
 
+# 2025
+def generate_context_list(outline, collection_list):
+
+    subsections = parse_outline_with_subsections(outline)
+    print("[DEBUG] subsections:", subsections)
+
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    context_list_final = []
+    
+    for level, title in subsections:
+        if title.startswith("3"):
+            cluster_idx = 0
+        elif title.startswith("4"):
+            cluster_idx = 1
+        elif title.startswith("5"):
+            cluster_idx = 2
+        
+        context_temp = ""
+        for coll_name in collection_list[cluster_idx]:
+            retrieved_context = query_embedding_for_title(
+                collection_name=coll_name,
+                title=title,
+                n_results=3,
+                embedder=embedder
+            )
+            context_temp += retrieved_context + "\n"
+        context_list_final.append(context_temp)    
+    return context_list_final
 
 # 1.8 输入introduction 输出带引用 (collection name) 的introduction
 def introduction_with_citations(

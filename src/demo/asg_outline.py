@@ -779,7 +779,7 @@ def generateSurvey(survey_id, title, collection_list, pipeline):
     generated_survey_paper = generate_survey_paper_new(outline, context_list, client)
 
     generated_introduction = generate_introduction(generated_survey_paper, client)
-    print("\nGenerated Introduction:\n", generated_introduction)
+    # print("\nGenerated Introduction:\n", generated_introduction)
 
     abs_generator = AbstractGenerator(pipeline)
     abstract = abs_generator.generate(title, generated_introduction)
@@ -857,10 +857,10 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
     }
 
     generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client)
-    print("Generated Survey Paper:\n", generated_survey_paper)
+    # print("Generated Survey Paper:\n", generated_survey_paper)
 
     generated_introduction = generate_introduction(generated_survey_paper, client)
-    print("\nGenerated Introduction:\n", generated_introduction)
+    # print("\nGenerated Introduction:\n", generated_introduction)
     abs_generator = AbstractGenerator(pipeline)
     abstract = abs_generator.generate(title, generated_introduction)
     con_generator = ConclusionGenerator(pipeline)
@@ -893,6 +893,10 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     outline = str(parseOutline(survey_id))
     client = getQwenClient()
     context_list = generate_context_list(outline, collection_list)
+
+    # print("!!!!!!!!")
+    # print(context_list)
+    # print("2025")  
     
     # 不再重复查询citation数据，而是直接使用传入的citation_data_list
     # citation_data_list来自get_survey_id传入的Global_citation_data
@@ -915,7 +919,7 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
 
     generated_introduction = generate_introduction_alternate(title, generated_survey_paper, client)
     # generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
-    print("\nGenerated Introduction:\n", generated_introduction)
+    # print("\nGenerated Introduction:\n", generated_introduction)
     abs_generator = AbstractGenerator(pipeline)
     abstract = abs_generator.generate(title, generated_introduction)
     # con_generator = ConclusionGenerator(pipeline)

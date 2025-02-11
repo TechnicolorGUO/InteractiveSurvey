@@ -812,7 +812,6 @@ def automatic_taxonomy(request):
             messages,
             max_new_tokens=256,
         )
-        print(outputs[0]["generated_text"][-1]['content'])
         if len(outputs[0]["generated_text"][-1]['content'].split())>8:
             category_label_summarized.append(category_label[i][0])
         else:
@@ -869,12 +868,18 @@ def automatic_taxonomy(request):
 
 @csrf_exempt
 def save_updated_cluster_info(request):
+    global Global_collection_names
     if request.method == 'POST':  # 确保只处理 POST 请求
         try:
             # 获取请求数据
             data = json.loads(request.body)  # 从 request.body 中解析 JSON 数据
             survey_id = Global_survey_id
             updated_cate_list = data.get('updated_cate_list')
+            ref_indexs = updated_cate_list.get("ref_indexs", [])
+            rearranged_collection_names = [
+                [Global_collection_names[index] for index in group] for group in ref_indexs
+            ]
+            updated_cate_list["collection_name"] = rearranged_collection_names
 
             if not survey_id or not updated_cate_list:
                 return JsonResponse({"error": "Missing survey_id or updated_cate_list"}, status=400)
@@ -1070,19 +1075,6 @@ def get_survey(request):
     survey_dict = json.dumps(survey_dict)
     return HttpResponse(survey_dict)
     
-# @csrf_exempt
-# def get_survey_id(request):
-#     # global Global_survey_id, Global_survey_title, Global_collection_names, Global_pipeline
-#     global Global_survey_id, Global_survey_title, Global_collection_names, Global_pipeline, Global_citation_data
-
-#     # old
-#     # generateSurvey_qwen(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline)
-    
-#     # wza
-#     generateSurvey_qwen_new(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline, Global_citation_data)
-
-#     return JsonResponse({"survey_id": Global_survey_id})
-
 @csrf_exempt
 def get_survey_id(request):
     global Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline, Global_citation_data
@@ -1090,7 +1082,9 @@ def get_survey_id(request):
     # 调用生成Survey的函数（需事先确保generateSurvey_qwen_new的定义）
     # generateSurvey_qwen_new会生成generated_result.json文件，其中包括"content"字段的完整survey文本
     generateSurvey_qwen_new(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline, Global_citation_data)
-
+    print("Global_collection_names_clustered：")
+    for i, element in enumerate(Global_collection_names_clustered):
+        print(f"第 {i} 个元素：{element}")
     return JsonResponse({"survey_id": Global_survey_id})
 
 @csrf_exempt
