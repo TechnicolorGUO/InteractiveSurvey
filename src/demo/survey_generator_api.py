@@ -22,10 +22,11 @@ from .asg_retriever import Retriever
 def getQwenClient(): 
     # openai_api_key = os.environ.get("OPENAI_API_KEY")
     # openai_api_base = os.environ.get("OPENAI_API_BASE")
-    openai_api_key = "qwen2.5-72b-instruct-8eeac2dad9cc4155af49b58c6bca953f"
-    openai_api_base = "https://its-tyk1.polyu.edu.hk:8080/llm/qwen2.5-72b-instruct"
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    openai_api_base = os.getenv("OPENAI_API_BASE")
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
+
         api_key = openai_api_key,
         base_url = openai_api_base,
     )
@@ -33,7 +34,7 @@ def getQwenClient():
 
 def generateResponse(client, prompt):
     chat_response = client.chat.completions.create(
-        model="Qwen2.5-72B-Instruct",
+        model=os.environ.get("MODEL"),
         max_tokens=768,
         temperature=0.5,
         stop="<|im_end|>",
@@ -49,7 +50,7 @@ def generateResponse(client, prompt):
 
 def generateResponseIntroduction(client, prompt):
     chat_response = client.chat.completions.create(
-        model="Qwen2.5-72B-Instruct",
+        model=os.environ.get("MODEL"),
         max_tokens=1024,
         temperature=0.7,
         stop="<|im_end|>",
@@ -150,7 +151,50 @@ Future Work:
         answer = "\n\n".join(paragraphs)
     
     return answer
+def generate_abstract(context, client):
+    """
+    Generates the Abstract section based on the context of a survey paper.
+    The Abstract is typically structured into:
+    1. Introduction to the topic and background (1-2 sentences).
+    2. Purpose and scope of the survey (1-2 sentences).
+    3. Summary of the main findings or contributions (2-3 sentences).
+    4. Final summarizing statement (1 sentence).
+    Total length is limited to 150-250 words.
+    """
+    
+    template = '''
+Directly generate the Abstract section based on the following context (a survey paper). 
+The Abstract should include 4 elements:
+1. Introduction to the topic and background (1-2 sentences).
+2. Purpose and scope of the survey (1-2 sentences).
+3. Summary of the main findings or contributions (2-3 sentences).
+4. Final summarizing statement (1 sentence).
+The Abstract should strictly follow the style of a standard academic paper, with a total length of 150-250 words. Do not include any headings or extra explanations except for the Abstract content and exclude all citations or references.
 
+Context:
+{context}
+
+Abstract:
+'''
+    
+    formatted_prompt = template.format(context=context)
+    response = generateResponseIntroduction(client, formatted_prompt)  # Assuming this function handles the response generation
+    
+    # Extract the Abstract content from the response
+    answer_start = "Abstract:"
+    start_index = response.find(answer_start)
+    if start_index != -1:
+        answer = response[start_index + len(answer_start):].strip()
+    else:
+        answer = response.strip()
+    
+    # Split the content into paragraphs or sentences
+    sentences = answer.split("\n\n")
+    if len(sentences) > 1:
+        # Combine the sentences into the final abstract
+        answer = " ".join(sentences)
+    
+    return answer
 def generate_conclusion(context, client):
     """
     Generates the Conclusion section based on the context of a survey paper.

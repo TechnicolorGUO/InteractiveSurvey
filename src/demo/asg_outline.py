@@ -24,6 +24,12 @@ class OutlineGenerator():
         self._add_cluster_info()
         self.mode = mode
 
+    def __init__(self, df, cluster_names, mode='desp'): #Without local llms
+        self.df = df
+        self.cluster = [{'label': i, 'name': cluster_names[i]} for i in range(len(cluster_names))]
+        self._add_cluster_info()
+        self.mode = mode
+
     def _add_cluster_info(self):
         label_to_info = {label: self.df[self.df['label'] == label] for label in range(len(self.cluster))}
         for cluster in self.cluster:
@@ -129,7 +135,7 @@ class OutlineGenerator():
                 try:
                     # Call Qwen API
                     chat_response = client.chat.completions.create(
-                        model="Qwen2.5-72B-Instruct",
+                        model=os.environ.get("MODEL"),
                         max_tokens=512,
                         temperature=0.5,
                         messages=messages
@@ -191,13 +197,13 @@ class OutlineGenerator():
 
         return messages, result
 
-    def generate_outline_qwen(self, survey_title):
+    def generate_outline_qwen(self, survey_title, cluster_num = 3):
         claims = self.generate_claims()
         cluster_with_claims = ""
-        cluster_names=[]
-        for i in range(len(self.cluster)):
+        cluster_names = []
+        for i in range(cluster_num):  # 改为 cluster_num
             cluster = self.cluster[i]
-            cluster_with_claims = cluster_with_claims + f'Cluster {i}: {cluster["name"]}\n' + "Descriptions for entities in this cluster: \n" + claims[i] + '\n\n'
+            cluster_with_claims += f'Cluster {i}: {cluster["name"]}\nDescriptions for entities in this cluster:\n{claims[i]}\n\n'
             cluster_names.append(cluster["name"])
         # system_prompt = f'''
         #     You are a helpful assistant who is helping a researcher to generate an outline for a survey paper.
@@ -211,9 +217,11 @@ class OutlineGenerator():
         You are required to finish the second and third level subsections name under [1, '3 <Cluster 0's name>'], [1, '4 <Cluster 1's name>'] and [1, '5 <Cluster 2's name>']
         '''
         # user_prompt = {"survey_title":survey_title, "claims":cluster_with_claims}
-        user_prompt = f'''Finish the outline of the survey paper given the title:{survey_title}, and three lists of sentences describing each cluster of the references used by this survey:{cluster_with_claims}\
-        The first level sections' hierarchy is given: [[1, '1 Abstract'], [1, '2 Introduction'], [1, '3 {cluster_names[0]}'], [level 2 and 3 sections to finish...], [1, '4 {cluster_names[1]}'], [level 2 and 3 sections to finish...],[1, '5 {cluster_names[2]}'],[level 2 and 3 sections to finish...], [1, '6 Future Directions'], [1, '7 Conclusion']] \
-        You are required to finish the second and third level subsections name under [1, '3 {cluster_names[0]}'], [1, '4 {cluster_names[1]}'] and [1, '5 {cluster_names[2]}'] with [2, 'a.b xxx'] and [3, 'a.b.c xxx']
+        cluster_sections = "\n".join([f"[1, '{i+3} {cluster_names[i]}'], [level 2 and 3 sections to finish...]" for i in range(cluster_num)])
+
+        user_prompt = f'''Finish the outline of the survey paper given the title: {survey_title}, and lists of sentences describing each cluster of the references used by this survey:\n{cluster_with_claims}
+        The first level sections' hierarchy is given: [[1, '1 Abstract'], [1, '2 Introduction'], {cluster_sections}, [1, '{cluster_num+3} Future Directions'], [1, '{cluster_num+4} Conclusion']].
+        You are required to finish the second and third level subsections under each cluster section with [2, 'a.b xxx'] and [3, 'a.b.c xxx'].
         Notice that do not use the reference title directly as the level 3 subsection title, use comprehensive phrases to summarize the cluster with different aspects.
         '''
 
@@ -229,7 +237,7 @@ class OutlineGenerator():
             base_url = openai_api_base,
         )
         chat_response = client.chat.completions.create(
-            model="Qwen2.5-72B-Instruct",
+            model=os.environ.get("MODEL"),
             max_tokens=2048,
             temperature=0.5,
             stop="<|im_end|>",
@@ -822,7 +830,7 @@ def generate_future_directions_qwen(client, title, intro):
         base_url = openai_api_base,
     )
     chat_response = client.chat.completions.create(
-        model="Qwen2.5-72B-Instruct",
+        model=os.environ.get("MODEL"),
         max_tokens=768,
         temperature=0.5,
         stop="<|im_end|>",
@@ -920,8 +928,9 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     generated_introduction = generate_introduction_alternate(title, generated_survey_paper, client)
     # generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
     # print("\nGenerated Introduction:\n", generated_introduction)
-    abs_generator = AbstractGenerator(pipeline)
-    abstract = abs_generator.generate(title, generated_introduction)
+    # abs_generator = AbstractGenerator(pipeline)
+    # abstract = abs_generator.generate(title, generated_introduction)
+    abstract = generate_abstract(generated_survey_paper, client)
     # con_generator = ConclusionGenerator(pipeline)
     # conclusion = con_generator.generate(title, generated_introduction)
     conclusion = generate_conclusion(generated_survey_paper, client)

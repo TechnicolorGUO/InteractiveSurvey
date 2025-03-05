@@ -316,6 +316,21 @@ textarea {
   input:checked + .slider:before {
     transform: translateX(14px);
   }
+  #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: none; /* 初始隐藏 */
+            align-items: center;
+            justify-content: center;
+            z-index: 1000; /* 确保覆盖在最上层 */
+        }
 </style>
 
 <!-- ===========================
@@ -436,53 +451,130 @@ FONTS & ICONS
 				</div>
 				<br>
 
-				<!-- Recommendation Section -->
-				<div class="recommendation-container">
-					<div id="recommendation-list" class="recommendation-list">
-						<!-- Recommendations will appear here dynamically -->
-						Recommendations...
-					</div>
-					<br>
-				</div>
 
 				<div class="row">
 					<div class="col-md-12">
-					  <form action="" method="post" id="topic_input" enctype="multipart/form-data">
-						{% csrf_token %}
-						<input type="text" class="form-control" placeholder="Predictive Modeling on Imbalanced Data" id="topic_input_box">
-						<br>
-						<div class="row">
-						  <div class="col-md-8">
-							<div class="file" style="margin-top: 3px;">
-							  <div id="file_list">
-								<span id="file_name">Please Select References from Your Computer...</span>
-							  </div>
-							  <input id="file" type="file" name="file" multiple title="Upload your files" onchange="displayFileNames()">
+						<form action="" method="post" id="topic_input" enctype="multipart/form-data">
+							{% csrf_token %}
+							<!-- Survey ID Dropdown -->
+							<label for="survey-id">Select or Create Survey ID:</label>
+							<select id="survey-id" name="survey_id" class="form-control" onchange="handleSurveySelection()">
+								<!-- 选项由 Ajax 加载，加载完毕后会追加已有 ID -->
+								<!-- 此处预置新建选项，避免下拉框为空 -->
+								<option value="new">Create New Survey ID</option>
+							</select>
+			  
+							<!-- Custom Survey ID Input, 默认隐藏，只有选择 "new" 时显示 -->
+							<div id="custom-survey-id-container" style="display: none; margin-top: 10px;">
+								<input type="text" class="form-control" id="custom-survey-id" name="custom_survey_id" placeholder="Enter new survey ID">
 							</div>
-						  </div>
-						  <div class="col-md-4">
-							<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 150px; margin-bottom: 10px;">
-							  <i class="fa fa-paperclip" aria-hidden="true"></i>Upload References
-							</button>
-							<button type="button" class="btn btn-default" onclick="fetchRecommendations()" style="margin-top: 0px; margin-left: 150px">
-							  <i class="fa fa-lightbulb" aria-hidden="true"></i>Search References
-							</button>
-						  </div>
-						</div>
-						<!-- Switch for full PDF mode -->
-						<div class="row" style="margin-top: 20px;">
-						  <div class="col-md-12 text-center">
-							<label class="switch">
-							  <input type="checkbox" id="mode_check_box" onchange="updateMode()">
-							  <span class="slider round"></span>
-							</label>
-							<span style="margin-left: 10px;">Enable Full PDF Mode</span>
-						  </div>
-						</div>
-					  </form>
+							<br>
+			  
+							<!-- Topic Input (记得添加name属性，便于后端获取) -->
+							<input type="text" class="form-control" name="topic" placeholder="Predictive Modeling on Imbalanced Data" id="topic_input_box">
+							<br>
+							<!-- Recommendation Section -->
+							<div id = "recommendation-container" class="recommendation-container" style = "display: none;">
+								<div id="recommendation-list" class="recommendation-list">
+									<!-- Recommendations will appear here dynamically -->
+									Recommendations...
+								</div>
+								<br>
+								<div id="loading-overlay">Downloading PDFs...</div>
+								<button id="downloadAllBtn" class="btn btn-primary" onclick="sendPDFLinksToServer()", type="button" >
+									Download All PDFs on Server
+								</button>
+								<br>
+							</div>
+							<!-- File Upload -->
+							<div class="row">
+								<div class="col-md-8">
+									<div class="file" style="margin-top: 3px;">
+										<div id="file_list">
+											<span id="file_name">Please Select References from Your Computer...</span>
+										</div>
+										<input id="file" type="file" name="file" multiple title="Upload your files" onchange="displayFileNames()">
+									</div>
+								</div>
+								<div class="col-md-4">
+									<button type="button" class="btn btn-default" onclick="upload_file()" style="margin-top: 0px; margin-left: 150px; margin-bottom: 10px;">
+										<i class="fa fa-paperclip" aria-hidden="true"></i>Upload References
+									</button>
+									<button type="button" class="btn btn-default" onclick="fetchRecommendations()" style="margin-top: 0px; margin-left: 150px;">
+										<i class="fa fa-lightbulb" aria-hidden="true"></i>Search References
+									</button>
+								</div>
+							</div>
+			  
+							<!-- Switch for full PDF mode -->
+							<div class="row" style="margin-top: 20px;">
+								<div class="col-md-12 text-center">
+									<label class="switch">
+										<input type="checkbox" id="mode_check_box" onchange="updateMode()">
+										<span class="slider round"></span>
+									</label>
+									<span style="margin-left: 10px;">Enable Full PDF Mode</span>
+								</div>
+							</div>
+						</form>
 					</div>
-				  </div>
-			</div>
+				</div>
+			  
+				<script>
+				  // 当用户选择 'new' 时显示自定义输入框，否则隐藏
+				  function handleSurveySelection() {
+					const surveySelect = document.getElementById("survey-id");
+					const customSurveyContainer = document.getElementById("custom-survey-id-container");
+					const selectedValue = surveySelect.value;
+					console.log("Selected value:", selectedValue);
+					if (selectedValue === "new") {
+					  customSurveyContainer.style.display = "block";
+					} else {
+					  customSurveyContainer.style.display = "none";
+					}
+				  }
+			  
+				  // Ajax 加载 survey id 列表并更新下拉框
+				  function loadSurveyIDs() {
+					fetch('/get_surveys/')
+					  .then(response => response.json())
+					  .then(data => {
+						const surveys = data.surveys;  // 数组，例如 ['test_1', 'test_2']
+						const surveySelect = document.getElementById("survey-id");
+						
+						// 先清空下拉框内容
+						surveySelect.innerHTML = "";
+						
+						// 动态添加已有的 survey id
+						surveys.forEach(function(survey) {
+						  const option = document.createElement("option");
+						  option.value = survey;
+						  option.textContent = survey;
+						  surveySelect.appendChild(option);
+						});
+			  
+						// 添加 “new” 选项
+						const newOption = document.createElement("option");
+						newOption.value = "new";
+						newOption.textContent = "Create New Survey ID";
+						surveySelect.appendChild(newOption);
+			  
+						// 调用函数判断当前是否需显示输入框
+						handleSurveySelection();
+					  })
+					  .catch(error => console.error("Error fetching surveys:", error));
+				  }
+			  
+				  // 可选方案：提供一个更新按钮，点击时刷新下拉框
+				  function updateSurveyIDs() {
+					loadSurveyIDs();
+				  }
+			  
+				  // 页面加载时自动获取 survey id 列表
+				  document.addEventListener("DOMContentLoaded", function() {
+					loadSurveyIDs();
+				  });
+				</script>
 			<br>
 	</div>
 
@@ -502,9 +594,11 @@ FONTS & ICONS
 				$('#mode_check_box').val('intro');
 			});
 
-			
+			let pdfLinks = [];
+			let pdfTitles = [];
 			// Function to fetch recommendations from Arxiv API
 			async function fetchRecommendations() {
+				pdfLinks = []
 				const topic = document.getElementById("topic_input_box").value.trim();
 				if (!topic) {
 					alert("Please enter a topic!");
@@ -512,6 +606,9 @@ FONTS & ICONS
 				}
 
 				// Clear previous results
+				
+				const recommendationContainer = document.getElementById("recommendation-container")
+				recommendationContainer.style.display = "block"
 				const recommendationList = document.getElementById("recommendation-list");
 				recommendationList.innerHTML = `<p>Loading recommendations...</p>`;
 
@@ -533,7 +630,7 @@ FONTS & ICONS
 					const query = backendData.query; // The generated query from backend
 
 					// Step 2: Use the generated query to fetch data from Arxiv API
-					const arxivResponse = await fetch(`https://export.arxiv.org/api/query?search_query=${encodeURIComponent(query)}&start=0&max_results=50`);
+					const arxivResponse = await fetch(`https://export.arxiv.org/api/query?search_query=${encodeURIComponent(query)}&start=0&max_results=50&sortBy=submittedDate`);
 					if (!arxivResponse.ok) {
 						throw new Error('Failed to fetch data from Arxiv API.');
 					}
@@ -556,6 +653,7 @@ FONTS & ICONS
 						// Extract the Arxiv ID from the link
 						const arxivId = link.split('/').pop();
 						const recommendationItem = document.createElement("div");
+						const pdfURL = `https://arxiv.org/pdf/${arxivId}.pdf`;
 						recommendationItem.className = "recommendation-item";
 
 						recommendationItem.innerHTML = `
@@ -565,6 +663,8 @@ FONTS & ICONS
 						`;
 
 						recommendationList.appendChild(recommendationItem);
+						pdfLinks.push(pdfURL)
+						pdfTitles.push(title)
 					}
 
 					// If no entries found
@@ -580,6 +680,35 @@ FONTS & ICONS
 			const pdfURL = `https://arxiv.org/pdf/${arxivId}.pdf`;
 			window.open(pdfURL, '_blank'); // 在新标签页中打开 PDF 文件
 		}
+
+        async function sendPDFLinksToServer() {
+            if (pdfLinks.length === 0) {
+                alert("No PDFs to download.");
+                return;
+            }
+
+            // 显示加载遮罩层
+            document.getElementById("loading-overlay").style.display = "flex";
+
+            try {
+                const response = await fetch('/download_pdfs/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ pdf_links: pdfLinks, pdf_titles: pdfTitles }),
+                });
+
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                console.error("Error sending PDF links to server:", error);
+                alert("Failed to send PDF links to server.");
+            } finally {
+                // 无论成功或失败，都隐藏遮罩层，恢复页面交互
+                document.getElementById("loading-overlay").style.display = "none";
+            }
+        }
 		</script>
 
 	<!-- ===========================
@@ -606,12 +735,21 @@ FONTS & ICONS
 			<p align="right"> *(Selected references for instant survey generation)</p>
 
 
-			<div class="col-md-12"  style="text-align: center; display: none" id="auto_taxonomy">
-				<input placeholder="Please input your categorization standard" class="form-control", id="taxonomy_standard", name="taxonomy_standard">
-				<p></p>
-				<p></p>
-				<input type="button" class="btn btn-default" onclick="display_taxonomy()" value="Automatic Categorization" style="width: 200px; margin-left:40%">
-			</div>
+			<div class="col-md-12" style="text-align: center; display: none; align-items: center; justify-content: center;" id="auto_taxonomy">
+				<!-- 分类标准输入框 -->
+				<input placeholder="Please input your categorization standard and determine the number of clusters" class="form-control" id="taxonomy_standard" name="taxonomy_standard">
+				<br>
+				<!-- 选择 Global_cluster_num -->
+				<select class="form-control" id="cluster_num_select" name="Global_cluster_num" style="width: 100px; margin-right: 10px;">
+					<option value="2">2</option>
+					<option value="3" selected>3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+				</select>
+			
+				<!-- 触发 AJAX 的按钮 -->
+				<input type="button" class="btn btn-default" onclick="display_taxonomy()" value="Automatic Categorization" style="width: 200px; margin-left:40%">			</div>
 		</form>
 
 
@@ -918,8 +1056,12 @@ FONTS & ICONS
         }
 		topic = $('#topic_input_box').val()
 		mode = $('#mode_check_box').val()
+		survey_id = $('#survey-id').val()
+		custom_survey_id = $('#custom-survey-id').val()
 		formData.append("topic", topic);
 		formData.append("mode", mode);
+		formData.append("survey_id", survey_id);
+		formData.append("custom_survey_id", custom_survey_id);
 		$.ajax({
 		type: "POST",
 		dataType: "json",
@@ -1034,75 +1176,73 @@ FONTS & ICONS
     	return data;
 	}
 	function display_taxonomy(){
-		$.ajax({
-			type: "POST",
-			dataType: "json",
-			url: "/automatic_taxonomy",
-			data: $('#ref_form').serialize(),
-			success: function(result) {
-				alert("Success!");
-				document.getElementById("legend").innerHTML += "<h2>" + $("#taxonomy_standard").val() + "</h2>";
-				for (let i = 0, len = result['colors'].length; i < len; i++) {
-					document.getElementById("legend").innerHTML += "<li class=\"list-group-item\"; style=\"color: "+ result['colors'][i]+" \">" + result['category_label'][i]+" </li>"
-				}
-				var addr = "static/img/tsne_";
-				addr += result['survey_id'];
-				addr += ".png";
-				$("#tsne_img").attr("src", addr);
+    // 获取用户选择的 Global_cluster_num
+    const clusterNum = document.getElementById("cluster_num_select").value;
 
-				// generate panels
-				document.getElementById("modify_taxonomy").innerHTML += "<h2> You can also modify the categorzation result: </h2>";
-				for (let i = 0, len = result['category_label'].length; i < len; i++) {
-					document.getElementById("modify_taxonomy").innerHTML +=
-						"<div class=\"panel panel-primary\" > " +
-                        "   <div class=\"panel-heading\" style=\"background-image: none; background-color:" + result['colors'][i] +"\"> " +
-                        "    <h3 class=\"panel-title\">"+ result['category_label'][i] +"</h3> " +
-                        "   </div> " +
-                        "   <div class=\"panel-body\" id=\"" + result['category_label'][i] + "\"> " +
-                        "   </div> " +
-                        "  </div>"
+    // 在表单数据中添加 clusterNum
+    const formData = $('#ref_form').serialize() + "&Global_cluster_num=" + clusterNum;
 
-                    for (let j = 0, len = result['ref_indexs'][i].length; j < len; j++) {
-                    	document.getElementById(result['category_label'][i]).innerHTML +=
-							"<div class=\"input-group\" id=\"ref_"+result['ref_indexs'][i][j] +"\"> " +
-							"     <span class=\"input-group-addon\">["+result['ref_indexs'][i][j]+"]</span> " +
-							"     <a href=\"0\" target=\"_blank\" class=\"list-group-item\">"+result['ref_titles'][i][j]+"</a> " +
-							"     <span class=\"input-group-addon\"> " +
-							"       <div class=\"btn-group\"> " +
-							"         <button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"> " +
-							"        Change to <span class=\"caret\"></span> " +
-							"         </button> " +
-							"         <ul class=\"dropdown-menu\" id=\"ref_"+result['ref_indexs'][i][j]+"_change\"> ";
-						for (let k = 0, len = result['category_label'].length; k < len; k++) {
-							if (result['category_label'][i] != result['category_label'][k]) {
-								document.getElementById("ref_"+result['ref_indexs'][i][j]+"_change").innerHTML +=
-								"          <li><a onclick=\"change_taxonomy('"+result['category_label'][i]+"', 'ref_"+result['ref_indexs'][i][j]+"', '"+result['category_label'][k]+"')\">"+result['category_label'][k]+"</a></li> ";
-							}
-						}
-						document.getElementById(result['category_label'][i]).innerHTML +=
-							"         </ul> " +
-							"       </div> " +
-							"     </span> " +
-							"    </div>"
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: "/automatic_taxonomy",
+        data: formData,  // 发送包含 Global_cluster_num 的数据
+        success: function(result) {
+            alert("Success!");
+            document.getElementById("legend").innerHTML += "<h2>" + $("#taxonomy_standard").val() + "</h2>";
+            for (let i = 0, len = result['colors'].length; i < len; i++) {
+                document.getElementById("legend").innerHTML += "<li class=\"list-group-item\"; style=\"color: "+ result['colors'][i]+" \">" + result['category_label'][i]+" </li>"
+            }
+            
+            var addr = "static/img/tsne_" + result['survey_id'] + ".png";
+            $("#tsne_img").attr("src", addr);
 
+            // 生成分类结果面板
+            document.getElementById("modify_taxonomy").innerHTML += "<h2> You can also modify the categorization result: </h2>";
+            for (let i = 0, len = result['category_label'].length; i < len; i++) {
+                document.getElementById("modify_taxonomy").innerHTML +=
+                    `<div class="panel panel-primary">
+                        <div class="panel-heading" style="background-image: none; background-color:${result['colors'][i]}">
+                            <h3 class="panel-title">${result['category_label'][i]}</h3>
+                        </div>
+                        <div class="panel-body" id="${result['category_label'][i]}"></div>
+                    </div>`;
+
+                for (let j = 0, len = result['ref_indexs'][i].length; j < len; j++) {
+                    document.getElementById(result['category_label'][i]).innerHTML +=
+                        `<div class="input-group" id="ref_${result['ref_indexs'][i][j]}">
+                            <span class="input-group-addon">[${result['ref_indexs'][i][j]}]</span>
+                            <a href="0" target="_blank" class="list-group-item">${result['ref_titles'][i][j]}</a>
+                            <span class="input-group-addon">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Change to <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" id="ref_${result['ref_indexs'][i][j]}_change">`;
+                    
+                    for (let k = 0, len = result['category_label'].length; k < len; k++) {
+                        if (result['category_label'][i] != result['category_label'][k]) {
+                            document.getElementById(`ref_${result['ref_indexs'][i][j]}_change`).innerHTML +=
+                                `<li><a onclick="change_taxonomy('${result['category_label'][i]}', 'ref_${result['ref_indexs'][i][j]}', '${result['category_label'][k]}')">${result['category_label'][k]}</a></li>`;
+                        }
                     }
 
-				}
-	// 			document.getElementById("modify_taxonomy").innerHTML += 
-    // "<div style='text-align: center; margin-top: 20px;'>" +
-    // "<button class='btn btn-primary' type='button' onclick='change_clustering()'>Confirm</button>" +
-    // "</div>";
-				$("#taxonomy").attr("style","display:inline;");
-				// alert(result);
-				$("#generate_content_button").attr("style","display:inline; align: center; ");
-			},
-			error: function(jqXHR, textStatus, errorThrown){
-				alert(jqXHR.responseText);
-				// alert("!!!");
-			}
-		});
-	}
-
+                    document.getElementById(result['category_label'][i]).innerHTML +=
+                        `</ul>
+                                </div>
+                            </span>
+                        </div>`;
+                }
+            }
+            
+            $("#taxonomy").attr("style", "display:inline;");
+            $("#generate_content_button").attr("style", "display:inline; align: center;");
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            alert(jqXHR.responseText);
+        }
+    });
+}
 
 
 	function change_taxonomy(source_taxonomy, ref_id, target_taxonomy) {

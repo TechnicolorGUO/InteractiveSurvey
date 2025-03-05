@@ -2,142 +2,241 @@ import os
 from openai import OpenAI
 from datetime import datetime, timedelta
 import re
-def generate_query_qwen(topic):
-    # 获取当前日期并计算最近三年范围
-    today = datetime.now()
-    five_years_ago = today - timedelta(days=5*365)  # 简单近似，忽略闰年
-    start_date = five_years_ago.strftime('%Y%m%d')  # 格式化为 arXiv 格式
-    end_date = today.strftime('%Y%m%d')  # 当前日期
 
-    # Prompt that provides instructions to the assistant
-    system_prompt = f'''
-    You are a skilled research assistant specializing in crafting broad but effective search queries for the arXiv scientific paper repository. Broad first.
-    '''
-
-    # User prompt that specifies the task and guidelines
-    user_prompt = f'''
-    Task: Craft an effective and flexible search query tailored for the arXiv database, specifically designed to retrieve research papers pertaining to the following topic:
-
-    Topic: {topic}
-
-    Guidelines:
-    1. The query must contain **four main parts**, connected by the logical operator `AND`:
-        - **Part 1**: Extracts the 3 most likely entities or concepts related to the topic along with their synonyms, abbreviations, and alternative expressions, restricted to the `abs:` field only:
-            - Include synonyms, abbreviations, and alternative terms (e.g., "LLM" for "large language model").
-            - Use wildcards (`*`) where applicable to capture variations (e.g., `model*` matches `model`, `models`, etc.).
-            - Connect keywords using the `OR` operator to broaden the scope.
-        - **Part 2**: Describes fields and applications relevant to the topic, using **3 synonyms or closely related terms** restricted to the `abs:` field only:
-            - The terms must directly relate to the field or application described in the topic.
-            - Use the `OR` operator to connect terms.
-        - **Part 3**: Represents actions, methods, or processes relevant to the topic, using **3 verbs or action words**, restricted to the `abs:` field only:
-            - Use wildcards (`*`) whenever applicable to capture variations (e.g., `detect*` matches `detect`, `detecting`, etc.).
-            - Connect keywords using the `OR` operator.
-        - **Part 4**: Restricts the query to two **arXiv categories (large categories)** that are most relevant to the topic:
-            - Use `cat:` to specify the two categories (e.g., `cs` for Computer Science, `stat` for Statistics).
-            - Combine categories using the `OR` operator to broaden the scope.
-
-    2. Use wildcards (`*`) in all parts where appropriate to capture variations (e.g., plural forms or word stems).
-    3. Ensure the query structure is simple and adheres to arXiv's search syntax, with logical operators (`AND`, `OR`) and fields (`ti:` for title, `abs:` for abstract, `cat:` for categories).
-    4. Avoid excessive repetition and overloading the query with too many terms.
-    5. Prioritize flexibility to maximize the number of relevant papers retrieved.
-    6. Each term should not exceed 2 words to maintain query simplicity and effectiveness.
-    7. Restrict the query to papers **submitted within the last three years** using the date range `submittedDate:[{start_date} TO {end_date}]`.
-
-    Example Outputs:
-
-    | Topic                                      | Query                                                                                                                                                                                                                                                                                          |
-    | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-    | Automating Literature Review Generation with LLM | (abs:"LLM*" OR abs:"large language model*" OR abs:"language model*") AND (abs:"literature review*" OR "review generation*" OR "survey generation*") AND (abs:"automate*" OR "generate*" OR "summariz*") AND (cat:cs OR cat:stat) AND submittedDate:[{start_date} TO {end_date}] |
-    | Graph Neural Networks for Social Networks  | (abs:"graph neural*" OR abs:"GNN*" OR abs:"graph*") AND (abs:"social network*" OR "social graph*" OR "relation*") AND (abs:"detect*" OR "classify*" OR "analyz*") AND (cat:cs OR cat:stat) AND submittedDate:[{start_date} TO {end_date}] |
-    | Reinforcement Learning for Robotics        | (abs:"reinforcement learning" OR abs:"RL" OR abs:"reinforce*") AND (abs:"robot*" OR "agent*" OR "robotic*") AND (abs:"optim*" OR "control*" OR "learn*") AND (cat:cs OR cat:stat) AND submittedDate:[{start_date} TO {end_date}] |
-    | Explainable AI in Cybersecurity            | (abs:"explainable AI" OR abs:"XAI" OR abs:"interpretable model*") AND (abs:"cybersecurity*" OR "security*" OR "secur*") AND (abs:"explain*" OR "detect*" OR "analyz*") AND (cat:cs OR cat:stat) AND submittedDate:[{start_date} TO {end_date}] |
-    | Multimodal Learning for Vision and Language| (abs:"multimodal*" OR abs:"multimodal model*" OR abs:"cross-modal*") AND (abs:"vision*" OR "imag*" OR "video*") AND (abs:"recogniz*" OR "process*" OR "generate*") AND (cat:cs OR cat:stat) AND submittedDate:[{start_date} TO {end_date}] |
-
-    Output format:
-    * Provide the arxiv query only. Do not include any additional explanations or commentary.
-    '''
-
-    messages = [
-        {"role": "system", "content": system_prompt}, 
-        {"role": "user", "content": user_prompt},
-        ]
+def generate_abstract_qwen(topic):
+    
+    # Initialize the OpenAI client using environment variables
     openai_api_key = os.getenv("OPENAI_API_KEY")
     openai_api_base = os.getenv("OPENAI_API_BASE")
     client = OpenAI(
-        # defaults to os.environ.get("OPENAI_API_KEY")
         api_key = openai_api_key,
         base_url = openai_api_base,
     )
-    chat_response = client.chat.completions.create(
-        model="Qwen2.5-72B-Instruct",
+    
+    ###########################
+    # Step 1: Generate a survey abstract for the given topic.
+    ###########################
+    system_prompt_abstract = """
+You are a skilled research survey writer. Your task is to generate a survey abstract on the given topic. The abstract should cover the main challenges, key concepts, and research directions associated with the topic. Write in clear, concise academic English.
+"""
+    user_prompt_abstract = f"""
+Topic: {topic}
+
+Please generate a comprehensive survey abstract for this topic. Include discussion of core challenges, key terminologies, and emerging methodologies that are critical in the field. The total length of the abstract should be around 300–500 words.
+"""
+    messages_abstract = [
+        {"role": "system", "content": system_prompt_abstract},
+        {"role": "user", "content": user_prompt_abstract}
+    ]
+    
+    abstract_response = client.chat.completions.create(
+        model=os.environ.get("MODEL"),
+        max_tokens=2048,
+        temperature=0.5,
+        stop="<|im_end|>",
+        stream=True,
+        messages=messages_abstract
+    )
+    
+    abstract_text = ""
+    for chunk in abstract_response:
+        if chunk.choices[0].delta.content:
+            abstract_text += chunk.choices[0].delta.content
+    abstract_text = abstract_text.strip()
+    print("The abstract is:", abstract_text)
+
+    return abstract_text
+
+def generate_entity_lists_qwen(topic, abstract_text):
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    openai_api_base = os.getenv("OPENAI_API_BASE")
+    client = OpenAI(
+        api_key = openai_api_key,
+        base_url = openai_api_base,
+    )
+    system_prompt_abstract = f"""
+    You are an AI assistant specializing in natural language processing and entity recognition. Your task is to extract key entities and core concepts from a given abstract based on a specified topic.  
+
+    You should return two distinct lists:  
+    1. **Entity list**:  5 Entities that are synonymous or closely related to the given topic (nouns only). These should be concise (no more than two words) and simplified to their root forms (e.g., removing suffixes like "-ing", "-ed") such as llm for large language model.  
+    2. **Concept list**: Core concepts from the abstract that are highly relevant to the topic. These should also be concise (no more than two words) and in their simplest form, one single word is preferred unless the term is inseparable.  
+
+    Ensure that your response follows this exact format:
+    Entity list: [entity1, entity2, entity3, entity4, entity5]
+    Concept list: [concept1, concept2, concept3, ...concept n]
+    Do not include any explanations or additional text.  
+
+    ### **Example**  
+    #### **Input:**  
+    Topic: Large Language Models  
+    Abstract: Ever since the Turing Test was proposed in the 1950s, humans have explored the mastering of language intelligence by machine. Language is essentially a complex, intricate system of human expressions governed by grammatical rules. It poses a significant challenge to develop capable artificial intelligence (AI) algorithms for comprehending and grasping a language. As a major approach, language modeling has been widely studied for language understanding and generation in the past two decades, evolving from statistical language models to neural language models. Recently, pre-trained language models (PLMs) have been proposed by pretraining Transformer models over large-scale corpora, showing strong capabilities in solving various natural language processing (NLP) tasks. Since the researchers have found that model scaling can lead to an improved model capacity, they further investigate the scaling effect by increasing the parameter scale to an even larger size. Interestingly, when the parameter scale exceeds a certain level, these enlarged language models not only achieve a significant performance improvement, but also exhibit some special abilities (e.g., in-context learning) that are not present in small-scale language models (e.g., BERT). To discriminate the language models in different parameter scales, the research community has coined the term large language models (LLM) for the PLMs of significant size (e.g., containing tens or hundreds of billions of parameters). Recently, the research on LLMs has been largely advanced by both academia and industry, and a remarkable progress is the launch of ChatGPT (a powerful AI chatbot developed based on LLMs), which has attracted widespread attention from society. The technical evolution of LLMs has been making an important impact on the entire AI community, which would revolutionize the way how we develop and use AI algorithms. Considering this rapid technical progress, in this survey, we review the recent advances of LLMs by introducing the background, key findings, and mainstream techniques. In particular, we focus on four major aspects of LLMs, namely pre-training, adaptation tuning, utilization, and capacity evaluation. Furthermore, we also summarize the available resources for developing LLMs and discuss the remaining issues for future directions. This survey provides an up-to-date review of the literature on LLMs, which can be a useful resource for both researchers and engineers.  
+
+    #### **Expected Output:**
+    "entity list": ["language model", "plm", "large language", "llm", "llms"]  
+    "concept list": ["turing", "language intelligence", "ai", "generation", "statistical", "neural", "pre-train", "transformer", "corpora", "nlp", "in-context", "bert", "chatgpt", "adaptation", "utilization"]
+    Make sure to strictly follow this format in your response.
+    """
+
+    user_prompt_abstract = f"""
+    Topic: {topic}  
+    Abstract: {abstract_text}  
+
+    Based on the given topic and abstract, extract the following:  
+    1. A **list of 5 most key entities (nouns)** that are synonymous or closely related to the topic. Keep each entity under two words and in its simplest form.  
+    2. A **list of core concepts (terms) as many as possible** from the abstract that are highly relevant to the topic. Keep each concept under two words and in its simplest form.     
+    """
+
+    messages_abstract = [
+        {"role": "system", "content": system_prompt_abstract},
+        {"role": "user", "content": user_prompt_abstract}
+    ]
+    
+    entity_response = client.chat.completions.create(
+        model=os.environ.get("MODEL"),
+        max_tokens=2048,
+        temperature=0.5,
+        stop="<|im_end|>",
+        stream=True,
+        messages=messages_abstract
+    )
+    
+    entity_list = ""
+    for chunk in entity_response:
+        if chunk.choices[0].delta.content:
+            entity_list += chunk.choices[0].delta.content
+    entity_list = entity_list.strip()
+    print("The entity lists are:", entity_list)
+
+    return entity_list
+
+
+def generate_query_qwen(topic):
+    # Calculate date range for the arXiv query (last 5 years)
+    abstract_text = generate_abstract_qwen(topic)
+    entity_list = generate_entity_lists_qwen(topic, abstract_text)
+    today = datetime.now()
+    five_years_ago = today - timedelta(days=10 * 365)  # approximate calculation
+    start_date = five_years_ago.strftime('%Y%m%d')
+    end_date = today.strftime('%Y%m%d')
+
+
+    # System prompt: Focus on how to extract keywords from the abstract.
+    system_prompt_query = """
+    You are a research assistant specializing in constructing effective arXiv search queries. Your task is to generate a structured search query using **pre-extracted entity and concept lists** from a given abstract and the topic. Follow these instructions exactly:
+
+    1. **Input Data:**
+    - **Entity List:** A list of entities that are synonymous or closely related to the given topic.
+    - **Concept List:** A list of core concepts from the abstract that are highly relevant to the topic.
+
+    2. **Ensure Minimum Keyword Count:**
+    - **Entity List** must contain at least **3** nouns of entities. If there are fewer, intelligently supplement additional relevant terms, ensuring that entities are synonyms or closely related to the key entity in the topic (e.g., "LLM" for "Large Language Model").
+    - **Concept List** must contain **12-15** domain-specific terms. If there are fewer, intelligently supplement additional relevant terms. Avoid broad terms like "combine" or "introduce."
+
+    3. **Standardize Formatting:**
+    - Convert all terms to their **base form** without adding any wildcard (`*`).
+    - All terms must be **in lowercase**.
+
+    4. **Construct the Final Query:**
+    - The query must follow this exact structure:
+        ```
+        (abs:"<Term1>" AND abs:"<Term2>") AND
+        (abs:"<Entity1>" OR abs:"<Entity2>" OR abs:"<Entity3>" OR abs:"<Entity4>" OR abs:"<Entity5>") AND 
+        (abs:"<Concept1>" OR abs:"<Concept2>" OR ... OR abs:"<Concept12>")
+        ```
+    - **Terms are extracted from the topic and are grouped together using `AND` in the first part.**
+    - **Entities are grouped together using `OR` in the second part.**
+    - **Concepts are grouped together using `OR` in the third part.**
+    - **The two groups are combined using `AND`.**
+    - **For compound words with hyphens (e.g., "in-context"), replace `-` with a space, resulting in `"in context"`.**
+    - **Do not include any explanations or extra text. Output only the final query.**
+    """
+
+    # User prompt: Provide examples of topics with corresponding query formats.
+    # User prompt: Provide examples of topics with corresponding query formats.
+    # User prompt: Uses pre-extracted entities and concepts, ensures minimum count, and applies stemming + wildcards.
+    user_prompt_query = f"""
+    Below are the pre-extracted keywords for constructing the final arXiv query.
+
+    **Topic:** {topic}  
+    **Entity list and Concept list:** {entity_list}
+
+    ### **Processing Rules Applied:**
+    - **Ensure the key terms in the topic are included**.
+    - **Ensure at least 5 entities** (if fewer, supplement additional relevant terms).
+    - **Ensure 12-15 concepts** (if fewer, supplement additional relevant terms).
+    - **Convert all terms to lowercase.**
+    - **For compound words with hyphens (e.g., "in-context"), replace `-` with a space, resulting in `"in context"`**.
+    - **Output only the final query with no extra text.**
+
+    ### **Example Query Format:**
+
+    1. **Topic:** Large Language Models in Recommendation Systems  
+    **Transformed Entity List:** ["language model", "plm", "large language", "llm", "deep model"]  
+    **Transformed Concept List:** ["tur", "language intelligence", "ai", "generation", "statistical", "neural", "pretraining", "transformer", "corpora", "nlp", "in context", "bert", "chatgpt", "adaptation", "utilization"]  
+    **Query:**  
+    (abs:"large language model" AND abs:"recommendation") AND (abs:"language model" OR abs:"plm" OR abs:"large language" OR abs:"llm" OR abs:"deep model") AND (abs:"tur" OR abs:"language intelligence" OR abs:"ai" OR abs:"generation" OR abs:"statistical" OR abs:"neural" OR abs:"pretraining" OR abs:"transformer" OR abs:"corpora" OR abs:"nlp" OR abs:"in context" OR abs:"bert" OR abs:"chatgpt" OR abs:"adaptation" OR abs:"utilization")
+
+    2. **Topic:** Quantum Computing in Physics  
+    **Transformed Entity List:** ["quantum computing", "qubit", "qc", "quantum device", "topological computing"]  
+    **Transformed Concept List:** ["decoherence", "entanglement", "error", "topology", "annealing", "photon", "superconducting", "algorithm", "optimization", "verification", "fault tolerance", "noise", "circuit", "quantum machine", "measurement"]  
+    **Query:**  
+    (abs:"quantum computing" AND abs:"physics") AND (abs:"quantum computing" OR abs:"qubit" OR abs:"qc" OR abs:"quantum device" OR abs:"topological computing") AND (abs:"decoherence" OR abs:"entanglement" OR abs:"error" OR abs:"topology" OR abs:"annealing" OR abs:"photon" OR abs:"superconducting" OR abs:"algorithm" OR abs:"optimization" OR abs:"verification" OR abs:"fault tolerance" OR abs:"noise" OR abs:"circuit" OR abs:"quantum machine" OR abs:"measurement")
+
+    ---
+
+    ### **Now Generate the Query for This Topic:**
+    Using the provided **Entity List** and **Concept List**, apply the following steps:
+    1. **Ensure Entity List contains at least 5 items.** If fewer, supplement additional relevant terms.
+    2. **Ensure Concept List contains 12-15 items.** If fewer, supplement additional relevant terms.
+    3. **Convert all terms to lowercase.**
+    4. **For compound words with hyphens (`-`), replace `-` with a space, e.g., `"in-context"` → `"in context"`.**
+    5. **Construct the arXiv search query in the same format as the examples above.**
+    6. **Return only the final query. Do not include explanations or additional text.**
+    """
+
+    # Initialize the OpenAI API client
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    openai_api_base = os.getenv("OPENAI_API_BASE")
+    client = OpenAI(
+        api_key=openai_api_key,
+        base_url=openai_api_base,
+    )
+    
+    messages = [
+        {"role": "system", "content": system_prompt_query},
+        {"role": "user", "content": user_prompt_query}
+    ]
+    
+    response = client.chat.completions.create(
+        model=os.environ.get("MODEL"),
         max_tokens=512,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
-        messages= messages
+        messages=messages
     )
-    # Stream the response to console
-    text = ""
-    for chunk in chat_response:
+    
+    output_query = ""
+    for chunk in response:
         if chunk.choices[0].delta.content:
-            text += chunk.choices[0].delta.content
+            output_query += chunk.choices[0].delta.content
+    match = re.search(r'\(.*\)', output_query, re.DOTALL)
 
-    category_map = {
-        "cs": [
-            "cs.AI", "cs.CL", "cs.CC", "cs.CE", "cs.CG", "cs.GT", "cs.CV", "cs.CY",
-            "cs.CR", "cs.DS", "cs.DB", "cs.DL", "cs.DM", "cs.DC", "cs.ET", "cs.FL",
-            "cs.GL", "cs.GR", "cs.HC", "cs.IR", "cs.IT", "cs.LO", "cs.LG", "cs.MA",
-            "cs.MM", "cs.NI", "cs.NE", "cs.NA", "cs.OS", "cs.OH", "cs.PF", "cs.PL",
-            "cs.RO", "cs.SI", "cs.SE", "cs.SD", "cs.SC"
-        ],
-        "stat": [
-            "stat.AP", "stat.CO", "stat.ML", "stat.ME", "stat.OT", "stat.TH"
-        ],
-        "physics": [
-            "astro-ph.GA", "astro-ph.CO", "astro-ph.EP", "astro-ph.HE", "astro-ph.IM", "astro-ph.SR",
-            "cond-mat.dis-nn", "cond-mat.mtrl-sci", "cond-mat.mes-hall", "cond-mat.other",
-            "cond-mat.quant-gas", "cond-mat.soft", "cond-mat.stat-mech", "cond-mat.str-el",
-            "cond-mat.supr-con", "gr-qc", "hep-ex", "hep-lat", "hep-ph", "hep-th", "math-ph",
-            "nlin.AO", "nlin.CG", "nlin.CD", "nlin.SI", "nlin.PS", "nucl-ex", "nucl-th",
-            "physics.acc-ph", "physics.app-ph", "physics.ao-ph", "physics.atom-ph", "physics.bio-ph",
-            "physics.chem-ph", "physics.class-ph", "physics.comp-ph", "physics.data-an",
-            "physics.flu-dyn", "physics.gen-ph", "physics.geo-ph", "physics.hist-ph",
-            "physics.ins-det", "physics.med-ph", "physics.optics", "physics.ed-ph",
-            "physics.soc-ph", "physics.plasm-ph", "physics.pop-ph", "physics.space-ph",
-            "quant-ph"
-        ],
-        "math": [
-            "math.AG", "math.AT", "math.AP", "math.CT", "math.CA", "math.CO", "math.AC",
-            "math.CV", "math.DG", "math.DS", "math.FA", "math.GM", "math.GN", "math.GT",
-            "math.GR", "math.HO", "math.IT", "math.KT", "math.LO", "math.MP", "math.MG",
-            "math.NT", "math.NA", "math.OA", "math.OC", "math.PR", "math.QA", "math.RT",
-            "math.RA", "math.SP", "math.ST", "math.SG"
-        ],
-        "q-bio": [
-            "q-bio.BM", "q-bio.CB", "q-bio.GN", "q-bio.MN", "q-bio.NC", "q-bio.OT",
-            "q-bio.PE", "q-bio.QM", "q-bio.SC", "q-bio.TO"
-        ],
-        "q-fin": [
-            "q-fin.CP", "q-fin.EC", "q-fin.GN", "q-fin.MF", "q-fin.PM", "q-fin.PR",
-            "q-fin.RM", "q-fin.ST", "q-fin.TR"
-        ],
-        "eess": [
-            "eess.AS", "eess.IV", "eess.SP", "eess.SY"
-        ],
-        "econ": [
-            "econ.EM", "econ.GN", "econ.TH"
-        ]
-    }
-    def replace_categories(query, category_map):
-        # 遍历每个大类
-        for category, subcategories in category_map.items():
-            # 构造子类别的替换字符串
-            replacement = f"(cat:{' OR cat:'.join(subcategories)})"
-            # 使用正则表达式找到并替换对应的大类
-            # 注意 \b 确保匹配完整的词边界，避免部分匹配错误
-            query = re.sub(rf"\bcat:{category}\b", replacement, query)
-        return query
+    if match:
+        extracted_query = match.group(0)  # 保留匹配到的整个括号内容
+    else:
+        extracted_query = output_query.strip()  # 如果匹配失败，使用原始查询
 
-    updated_query = replace_categories(text, category_map)
+    # 重新拼接 `submittedDate`
+    # updated_query = f"{extracted_query} AND submittedDate:[{start_date} TO {end_date}]"
+    updated_query = f"{extracted_query}"
     print('The response is :', updated_query)
     return updated_query.strip()
+
+
+# Example usage:
+if __name__ == "__main__":
+    topic = "Quantum Computing"
+    final_query = generate_arxiv_query_chain_of_thought(topic)
+    print("\nFinal Query Returned:")
+    print(final_query)

@@ -18,7 +18,7 @@ def getQwenClient():
 
 def generateResponse(client, prompt):
     chat_response = client.chat.completions.create(
-        model="Qwen2.5-72B-Instruct",
+        model=os.environ.get("MODEL"),
         max_tokens=1536,
         temperature=0.5,
         stop="<|im_end|>",

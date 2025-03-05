@@ -40,7 +40,7 @@ The description list is:{sentence_list}'''
         )
         
         chat_response = client.chat.completions.create(
-            model="Qwen2.5-72B-Instruct",
+            model=os.environ.get("MODEL"),
             max_tokens=768,
             temperature=0.5,
             stop="<|im_end|>",
@@ -103,7 +103,7 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
     
     try:
         chat_response = client.chat.completions.create(
-            model="Qwen2.5-72B-Instruct",
+            model=os.environ.get("MODEL"),
             max_tokens=256,
             temperature=0.5,
             stop="<|im_end|>",
@@ -144,12 +144,12 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
 
 
 
-def generate_cluster_name_new(tsv_path, survey_title):
+def generate_cluster_name_new(tsv_path, survey_title, cluster_num = 3):
     data = pd.read_csv(tsv_path, sep='\t')
     desp=[]
 
 
-    for i in range(3):  # Assuming labels are 0, 1, 2
+    for i in range(cluster_num):  # Assuming labels are 0, 1, 2
         sentence_list = []  # Initialize the sentence list
         for j in range(len(data)):
             if data['label'][j] == i:
@@ -158,19 +158,17 @@ def generate_cluster_name_new(tsv_path, survey_title):
 
     system_prompt = f'''
     You are a research assistant working on a survey paper. The survey paper is about "{survey_title}". '''
+    
+    cluster_info = "\n".join([f'Cluster {i+1}: "{desp[i]}"' for i in range(cluster_num)])
 
     user_prompt = f'''
-    Your task is to generate three distinctive cluster names (e.g., "Pre-training of LLMs") of the given clusters of reference papers, each reference paper is describe by a sentence.
-    
+    Your task is to generate {cluster_num} distinctive cluster names (e.g., "Pre-training of LLMs") of the given clusters of reference papers, each reference paper is described by a sentence.
+
     The clusters of reference papers are: 
-    Cluster 1: "{desp[0]}",  
-    Cluster 2: "{desp[1]}",  
-    Cluster 3: "{desp[2]}".
+    {cluster_info}
 
-    
-    Your output should be a single list of cluster names, e.g., ["Pre-training of LLMs", "Fine-tuning of LLMs", "Evaluation of LLMs"]
+    Your output should be a single list of {cluster_num} cluster names, e.g., ["Pre-training of LLMs", "Fine-tuning of LLMs", "Evaluation of LLMs"]
     Do not output any other text or information.
-
     '''
 
     messages = [
@@ -186,7 +184,7 @@ def generate_cluster_name_new(tsv_path, survey_title):
     )
     
     chat_response = client.chat.completions.create(
-        model="Qwen2.5-72B-Instruct",
+        model=os.environ.get("MODEL"),
         max_tokens=768,
         temperature=0.5,
         stop="<|im_end|>",
@@ -207,11 +205,15 @@ def generate_cluster_name_new(tsv_path, survey_title):
     if match:
         refined_cluster_names = match.group(1).strip()  # Extract and clean the cluster name
     else:
+        predefined_sections = [
+            "Definition", "Methods", "Evaluation", "Applications",
+            "Challenges", "Future Directions", "Comparisons", "Case Studies"
+        ]
+        
+        # 根据 cluster_num 选择前 cluster_num 个预定义类别
         refined_cluster_names = [
-            survey_title + ": Definition",
-            survey_title + ": Methods",
-            survey_title + ": Evaluation"
-        ]  # Handle cases where pattern isn't found
+            f"{survey_title}: {predefined_sections[i]}" for i in range(cluster_num)
+        ]
     
     refined_cluster_names = ast.literal_eval(refined_cluster_names)  # Convert string to list
     

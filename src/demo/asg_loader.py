@@ -8,6 +8,7 @@ import json
 import subprocess
 from langchain_community.document_loaders import UnstructuredMarkdownLoader
 from langchain_core.documents import Document
+import shutil
 
 # load spaCy model
 # nlp = spacy.load("en_core_web_sm")
@@ -16,17 +17,30 @@ class DocumentLoading:
     def convert_pdf_to_md(self, pdf_file, output_dir="output", method="auto"):
         base_name = os.path.splitext(os.path.basename(pdf_file))[0]
         target_dir = os.path.join(output_dir, base_name)
+        md_file_path = os.path.join(target_dir, method, f"{base_name}.md")  # Markdown 文件路径
+        print("The md file path is: ", md_file_path)
 
-        if os.path.exists(target_dir):
-            print(f"Folder for {pdf_file} already exists in {output_dir}. Skipping conversion.")
-        else:
-            command = ["magic-pdf", "-p", pdf_file, "-o", output_dir, "-m", method]
-            try:
-                subprocess.run(command, check=True)
+        # 检查是否已存在 Markdown 文件
+        if os.path.exists(md_file_path):
+            print(f"Markdown file for {pdf_file} already exists at {md_file_path}. Skipping conversion.", flush=True)
+            return
+
+        # 执行转换命令
+        command = ["magic-pdf", "-p", pdf_file, "-o", output_dir, "-m", method]
+        try:
+            subprocess.run(command, check=True)
+            # 检查是否生成了 Markdown 文件
+            if not os.path.exists(md_file_path):
+                print(f"Conversion failed: Markdown file not found at {md_file_path}. Cleaning up folder...")
+                shutil.rmtree(target_dir)  # 删除生成的文件夹
+            else:
                 print(f"Successfully converted {pdf_file} to markdown format in {target_dir}.")
-            except subprocess.CalledProcessError as e:
-                print(f"An error occurred: {e}")
-
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred during conversion: {e}")
+            # 如果发生错误且文件夹已生成，则删除文件夹
+            if os.path.exists(target_dir):
+                print(f"Cleaning up incomplete folder: {target_dir}")
+                shutil.rmtree(target_dir)
     # new
     def convert_pdf_to_md_new(self, pdf_dir, output_dir="output", method="auto"):
         pdf_files = glob.glob(os.path.join(pdf_dir, "*.pdf"))
