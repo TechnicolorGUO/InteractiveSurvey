@@ -33,7 +33,8 @@ STYLESHEETS
 =========================== -->
 <script src="https://kit.fontawesome.com/a3d039cc94.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.1/turndown.min.js"></script>
-
+<!-- 引入 TinyMCE -->
+<script src="https://cdn.tiny.cloud/1/hydxooqdtqqbdmmpz8vzrwogprrvx1q5ctume0t9f2m5bvx2/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 <link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/fontawesome.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/brands.css' %}">
 <link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/solid.css' %}">
@@ -740,7 +741,7 @@ FONTS & ICONS
 				<input placeholder="Please input your categorization standard and determine the number of clusters" class="form-control" id="taxonomy_standard" name="taxonomy_standard">
 				<br>
 				<!-- 选择 Global_cluster_num -->
-				<select class="form-control" id="cluster_num_select" name="Global_cluster_num" style="width: 100px; margin-right: 10px;">
+				<select class="form-control" id="cluster_num_select" name="Global_cluster_num" style="width: 100px; margin-right: 10px; display: none;">
 					<option value="2">2</option>
 					<option value="3" selected>3</option>
 					<option value="4">4</option>
@@ -874,6 +875,16 @@ FONTS & ICONS
 				<button id="downloadBtn" type="button" class="btn btn-info" title="Download as Markdown"
 				style="float: right;">
 					Download as PDF (with references)
+				</button>
+				<br><br>
+				<button id="editBtn" type="button" class="btn btn-info" title="Edit Content"
+				style="float: right;">
+					Edit the content
+				</button>
+				<br>
+				<button id="saveBtn" type="button" class="btn btn-info" title="Edit Content"
+				style="float: right; display:none;">
+					Save
 				</button>
 			</div>
 		</div>
@@ -1581,6 +1592,76 @@ function select_sections() {
 			var contentMarkdown = surveyData.content || "No content available.";
 			var contentHTML = marked.parse(contentMarkdown);
 			document.getElementById("survey_content").innerHTML += contentHTML;
+			var turndownService = new TurndownService();
+			$("#survey").attr("style", "display:inline;");
+						// 绑定编辑功能
+          // 绑定编辑功能
+          $("#editBtn").on("click", function() {
+            var currentHTML = document.getElementById("survey_content").innerHTML;
+            var editorContainer = `<textarea id="richTextEditor">${currentHTML}</textarea>`;
+            $("#survey_content").html(editorContainer);
+
+            // 初始化 TinyMCE
+            tinymce.init({
+              selector: '#richTextEditor', // 绑定到指定的 textarea
+              height: 400, // 编辑器高度
+              menubar: false, // 是否显示菜单栏
+              plugins: 'lists link image table code help', // 插件
+              toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code | help', // 工具栏
+			  image_title: true,
+				/* enable automatic uploads of images represented by blob or data URIs*/
+				automatic_uploads: true,
+				/*
+					URL of our upload handler (for more details check: https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_url)
+					images_upload_url: 'postAcceptor.php',
+					here we add custom filepicker only to Image dialog
+				*/
+				file_picker_types: 'image',
+				/* and here's our custom image picker*/
+				file_picker_callback: (cb, value, meta) => {
+					const input = document.createElement('input');
+					input.setAttribute('type', 'file');
+					input.setAttribute('accept', 'image/*');
+
+					input.addEventListener('change', (e) => {
+					const file = e.target.files[0];
+
+					const reader = new FileReader();
+					reader.addEventListener('load', () => {
+						/*
+						Note: Now we need to register the blob in TinyMCEs image blob
+						registry. In the next release this part hopefully won't be
+						necessary, as we are looking to handle it internally.
+						*/
+						const id = 'blobid' + (new Date()).getTime();
+						const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+						const base64 = reader.result.split(',')[1];
+						const blobInfo = blobCache.create(id, file, base64);
+						blobCache.add(blobInfo);
+
+						/* call the callback and populate the Title field with the file name */
+						cb(blobInfo.blobUri(), { title: file.name });
+					});
+					reader.readAsDataURL(file);
+					});
+
+					input.click();
+				},			  
+			});
+
+            $("#editBtn").hide();
+            $("#saveBtn").show();
+          });
+
+          // 绑定保存功能
+          $("#saveBtn").on("click", function() {
+            var newHTML = tinymce.get('richTextEditor').getContent(); // 获取富文本编辑器的内容
+            $("#survey_content").html(newHTML);
+            tinymce.remove('#richTextEditor'); // 移除编辑器实例
+            $("#editBtn").show();
+            $("#saveBtn").hide();
+          });
+        
 
 			// 显示 References 标题
 			// var referencesTitleMarkdown = "## References";
@@ -1592,31 +1673,28 @@ function select_sections() {
 			// var referencesHTML = marked.parse(referencesMarkdown);
 			// document.getElementById("survey_content").innerHTML += referencesHTML;
 
-			var surveyContentHTML = document.getElementById("survey_content").innerHTML;
-			var turndownService = new TurndownService();
-			var markdownContent = turndownService.turndown(surveyContentHTML);
-
 			function downloadPDF() {
-				// 创建隐藏的表单来提交数据
-				var form = new FormData();
-				form.append('content', markdownContent);  // 添加 Markdown 内容
-				form.append('survey_id', survey_id);      // 添加 survey_id
+				var surveyContentHTML = document.getElementById("survey_content").innerHTML;
+				var turndownService = new TurndownService();
+				var markdownContent = turndownService.turndown(surveyContentHTML);
 
-				// 创建 XMLHttpRequest 对象
+				var form = new FormData();
+				form.append('content', markdownContent);
+				form.append('survey_id', survey_id);
+
 				var xhr = new XMLHttpRequest();
 				xhr.open('POST', '/generate_pdf/', true);
-				xhr.responseType = 'blob';  // 告诉浏览器我们期望的是二进制数据（文件）
+				xhr.responseType = 'blob';
 
 				xhr.onload = function () {
 					if (xhr.status === 200) {
-						// 创建一个临时的 <a> 元素来触发下载
 						var blob = new Blob([xhr.response], { type: 'application/pdf' });
 						var link = document.createElement('a');
 						link.href = window.URL.createObjectURL(blob);
-						link.download = 'A Survey of ' + topic + '.pdf';  // 下载的文件名
+						link.download = 'A Survey of ' + topic + '.pdf';
 						document.body.appendChild(link);
-						link.click();  // 触发下载
-						document.body.removeChild(link);  // 移除临时元素
+						link.click();
+						document.body.removeChild(link);
 						alert('PDF downloaded successfully!');
 					} else {
 						alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
@@ -1627,7 +1705,6 @@ function select_sections() {
 					alert('An error occurred while processing the request.');
 				};
 
-				// 发送表单数据
 				xhr.send(form);
 			}
 
@@ -1662,7 +1739,7 @@ function select_sections() {
 			// var referencesHTML = marked.parse(referencesMarkdown);
 			// document.getElementById("survey_content").innerHTML += referencesHTML;
             // 显示 Survey 区域
-            $("#survey").attr("style", "display:inline;");
+
           },
           error: function() {
             alert("Failed to load survey content.");

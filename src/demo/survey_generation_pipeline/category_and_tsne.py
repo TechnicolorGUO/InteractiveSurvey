@@ -1,4 +1,3 @@
-from mimetypes import init
 import gensim
 import pandas as pd
 from gensim.models.doc2vec import TaggedDocument, Doc2Vec
@@ -79,7 +78,7 @@ class ClusteringWithTopic:
     def __init__(self, df, n_topics=3):
         embedding_model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
         # umap_model = DimensionalityReduction()
-        umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine', init = 'pca')
+        umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine')
         hdbscan_model = AgglomerativeClustering(n_clusters=n_topics)
         vectorizer_model = CountVectorizer(stop_words="english", min_df=1, ngram_range=(1, 2))
         ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=False)# True
@@ -121,7 +120,7 @@ class ClusteringWithTopic:
         self.n_topics_list = n_topics_list
 
         self.embedding_model = embedding_model
-        self.umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine',init ='pca')
+        self.umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine')
         self.vectorizer_model = CountVectorizer(stop_words="english", min_df=1, ngram_range=(1, 2))
         self.ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=False)
         self.keybert_model = KeyBERTInspired()
@@ -170,7 +169,7 @@ class ClusteringWithTopic:
                 self.best_topic_model = topic_model
         
         print(f"Best n_topics={self.best_n_topics}, Best silhouette_score={self.best_score}")
-        return self.best_labels, self.best_topic_model, self.best_n_topics
+        return self.best_labels, self.best_topic_model
 
 def clustering(df, n_cluster, survey_id):
     text = df['retrieval_result'].astype(str)
@@ -212,10 +211,10 @@ def clustering(df, n_cluster, survey_id):
     df.to_csv(output_tsv_filename, sep='\t')
     return df, colors
 
-def clustering(df, n_topics_list, survey_id):
+def clustering(df, n_topics_list, survey_id, info_path='./src/static/data/info', tsv_path='./src/static/data/tsv'):
     text = df['retrieval_result'].astype(str)
     clustering = ClusteringWithTopic(text, n_topics_list)
-    df['label'], topic_model, best_n_topics = clustering.fit_and_get_labels()
+    df['label'], topic_model = clustering.fit_and_get_labels()
 
     print("The clustering result is: ")
     for col in df.columns:
@@ -223,12 +222,12 @@ def clustering(df, n_topics_list, survey_id):
 
     # 保存 topic model 信息
     topic_json = topic_model.get_topic_info().to_json()
-    with open(f'./src/static/data/info/{survey_id}/topic.json', 'w') as file:
+    with open(f'{info_path}/{survey_id}/topic.json', 'w') as file:
         file.write(topic_json)
 
     # 创建描述信息
     description_dict = dict(zip(df['ref_title'], df['retrieval_result']))
-    with open(f'./src/static/data/info/{survey_id}/description.json', 'w') as file:
+    with open(f'{info_path}/{survey_id}/description.json', 'w') as file:
         json.dump(description_dict, file, ensure_ascii=False, indent=4)
 
     # t-SNE 降维可视化
@@ -240,12 +239,12 @@ def clustering(df, n_topics_list, survey_id):
 
     colors = scatter(X_tsne, df['label'])  # 计算颜色
 
-    plt.savefig(IMG_PATH + 'tsne_' + survey_id + '.png', dpi=800, transparent=True)
+    # plt.savefig(IMG_PATH + 'tsne_' + survey_id + '.png', dpi=800, transparent=True)
 
-    plt.close()
-    output_tsv_filename = "./src/static/data/tsv/" + survey_id + '.tsv'
+    # plt.close()
+    output_tsv_filename = f"{tsv_path}/{survey_id}.tsv"
     df.to_csv(output_tsv_filename, sep='\t')
-    return df, colors, best_n_topics
+    return df, colors
 
 def scatter(x, colors):
     sns.set_style('whitegrid')

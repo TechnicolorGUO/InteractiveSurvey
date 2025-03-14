@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import sys
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -832,7 +833,14 @@ def automatic_taxonomy(request):
     ref_dict = dict(request.POST)
     ref_list = ref_dict['refs']
     query = ref_dict['taxonomy_standard'][0]
-    Global_cluster_num = int(ref_dict['Global_cluster_num'][0])
+
+    #3.10 Disable the cluster_num selection
+    # Global_cluster_num = int(ref_dict['Global_cluster_num'][0])
+
+    #Automatical cluster_num determination
+
+
+
     query_list = generate_sentence_patterns(query)
     print(query_list)
 
@@ -856,6 +864,7 @@ def automatic_taxonomy(request):
     # 定义文件名
     file_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
 
+    csv.field_size_limit(sys.maxsize)
     # 读取现有文件并追加新列
     with open(file_path, 'r', newline='', encoding='utf-8') as infile:
         reader = csv.reader(infile, delimiter='\t')
@@ -886,7 +895,7 @@ def automatic_taxonomy(request):
 
     print('Categorization survey id', Global_survey_id)
 
-    colors, category_label =  Clustering_refs(n_clusters=Global_cluster_num) # fix with 3
+    colors, category_label =  Clustering_refs(n_clusters=Global_cluster_num)
     # colors, category_label, category_description = Clustering_refs_with_criteria(n_clusters=Survey_n_clusters[Global_survey_id], query=query)
 
     Global_category_label = category_label
@@ -1359,6 +1368,7 @@ def get_survey_text(refs=Global_ref_list):
     return survey
 
 def Clustering_refs(n_clusters):
+    global Global_cluster_num
     df = pd.read_csv(TSV_PATH + Global_survey_id + '.tsv', sep='\t', index_col=0, encoding='utf-8')
     # print(df.describe())
     # print(df)
@@ -1369,7 +1379,9 @@ def Clustering_refs(n_clusters):
     # print(df_selected)
 
     ## update cluster labels and keywords
-    df_selected, colors = clustering(df_selected, n_clusters, Global_survey_id)
+    # df_selected, colors = clustering(df_selected, n_clusters, Global_survey_id)
+    df_selected, colors, best_n_topics = clustering(df_selected, [3,4,5], Global_survey_id)
+    Global_cluster_num = best_n_topics
 
     global Global_df_selected
     Global_df_selected = df_selected

@@ -109,7 +109,6 @@ def generate_entity_lists_qwen(topic, abstract_text):
 
     return entity_list
 
-
 def generate_query_qwen(topic):
     # Calculate date range for the arXiv query (last 5 years)
     abstract_text = generate_abstract_qwen(topic)
@@ -234,9 +233,3 @@ def generate_query_qwen(topic):
     return updated_query.strip()
 
 
-# Example usage:
-if __name__ == "__main__":
-    topic = "Quantum Computing"
-    final_query = generate_arxiv_query_chain_of_thought(topic)
-    print("\nFinal Query Returned:")
-    print(final_query)
