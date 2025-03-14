@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/logo.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/logo.png">
-    <img src="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/logo.png" alt="Logo" width="50%" height="50%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/log.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/log.svg">
+    <img src="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/log.svg" alt="Logo" width="50%" height="50%">
   </picture>
 </p>
 
