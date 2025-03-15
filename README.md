@@ -38,13 +38,48 @@
 
 ## Quick Start
 
+LiveSurvey requires Python 3.10.
 
+### 1️⃣ Clone the Repository  
+Clone the repository to your local machine:  
+```sh
+git clone https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf.git
+cd Auto_Survey_Generator_pdf
 ```
-pip install fundus
+
+### 2️⃣ Set Up the Environment
+Create a virtual environment and activate it:
+```sh
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+```
+Install the required dependencies:
+```sh
+python setup_env.py
 ```
 
-LiveSurvey requires Python 3.11.
+###3️⃣ Configure Environment Variables
+Create a  `.env` file in the root directory of the project and add the following configurations:
+```env
+OPENAI_API_KEY=<your_openai_api_key_here>
+OPENAI_API_BASE=<your_openai_api_base_here>
+MODEL=<your_preferred_model_here>
+```
+Replace the placeholders with your actual OpenAI API key, API base URL, and preferred model.
 
+### 4️⃣ Run the Application
+Start the development server by running the following command:
+```sh
+python src/manage.py runserver 0.0.0.0:8001
+```
+_(Replace 8001 with any available port number of your choice.)_
+
+### 5️⃣ Access the Application
+Once the server is running, open your browser and navigate to:
+```
+http://localhost:8001```
+```
+You can now use the ​Auto Literature Survey Generator to upload, analyze, and generate literature surveys!
 
 ## Use Docker
 
