@@ -15,7 +15,7 @@
 <div align="center">
 <hr>
 
-[Quick Start](#quick-start) | [Use Docker(Recommended)](#use-docker-recommended) | [Paper]()
+[Quick Start](#quick-start) | [Use Docker(Recommended)](#use-docker) | [Paper]()
 
 </div>
 
@@ -87,7 +87,7 @@ You can now use the ​Auto Literature Survey Generator to upload, analyze, and 
 
 <hr>
 
-## Use Docker(Recommended)
+## Use Docker
 Before proceeding, ensure you have cloned the repository and configured your `.env` file in the root directory of the project. The `.env` file must include the following configurations:
 ```env
 OPENAI_API_KEY=<your_openai_api_key_here>
