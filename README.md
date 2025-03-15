@@ -58,7 +58,7 @@ Install the required dependencies:
 python setup_env.py
 ```
 
-###3️⃣ Configure Environment Variables
+### 3️⃣ Configure Environment Variables
 Create a  `.env` file in the root directory of the project and add the following configurations:
 ```env
 OPENAI_API_KEY=<your_openai_api_key_here>
