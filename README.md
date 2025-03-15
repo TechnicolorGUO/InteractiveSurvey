@@ -58,6 +58,13 @@ Install the required dependencies:
 python scripts/setup_env.py
 ```
 
+For the `ConnectTimeout` error when downloading Huggingface models, please run the following script:
+```bash
+pip install modelscope
+wget https://gcore.jsdelivr.net/gh/opendatalab/MinerU@master/scripts/download_models.py -O download_models.py
+python download_models.py
+```
+
 ### 3️⃣ Configure Environment Variables
 Create a  `.env` file in the root directory of the project and add the following configurations:
 ```env
