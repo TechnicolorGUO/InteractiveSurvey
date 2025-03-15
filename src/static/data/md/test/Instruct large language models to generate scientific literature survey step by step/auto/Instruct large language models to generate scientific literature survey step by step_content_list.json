@@ -1,0 +1,641 @@
+[
+    {
+        "type": "text",
+        "text": "Instruct Large Language Models to Generate Scientiﬁc Literature Survey Step by Step ",
+        "text_level": 1,
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Yuxuan Lai 1,2( B ) , Yupeng Wu 3 , Yidan Wang 1 , Wenpeng Hu 4 , and Chen Zheng ",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1  The Open University of China, Beijing, China laiyx@ouchn.edu.cn, erutan@pku.org.cn 2  Engineering Research Center of Integration and Application of Digital Learning Technology, Ministry of Education, Beijing, China 3  FloatMiracle, Beijing, China 4  PLA Academy of Military Science, Beijing, China ",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract.  Automatically generating scientiﬁc literature surveys is a valuable task that can signiﬁcantly enhance research eﬃciency. However, the diverse and complex nature of information within a literature survey poses substantial challenges for generative models. In this paper, we design a series of prompts to systematically leverage large language models (LLMs), enabling the creation of comprehensive literature surveys through a step-by-step approach. Speciﬁcally, we design prompts to guide LLMs to sequentially generate the title, abstract, hierarchical headings, and the main content of the literature survey. We argue that this design enables the generation of the headings from a high-level perspective. During the content generation process, this design eﬀectively harnesses relevant information while minimizing costs by restricting the length of both input and output content in LLM queries. Our implementation with Qwen-long achieved third place in the NLPCC 2024  Scientiﬁc Literature Survey Generation  evaluation task, with an overall score only 0.03% lower than the second-place team. Additionally, our soft heading recall is 95.84%, the second best among the submissions. Thanks to the eﬃcient prompt design and the low cost of the Qwen-long API, our method reduces the expense for generating each literature survey to 0.1 RMB, enhancing the practical value of our method. ",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Keywords:  Automatic literature survey  ·  Large language model  · Prompt design ",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction ",
+        "text_level": 1,
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Conducting a literature survey is a crucial component of scientiﬁc research [ 1 ]. However, as the volume of scientiﬁc publications continues to grow exponentially and the rate of new publications accelerates [ 2 ], it costs the researchers increasing amounts of time on this task. With the advanced capabilities of large language models (LLMs) [ 3 – 5 ], AI-generated literature surveys oﬀer a promising solution by signiﬁcantly reducing the time and eﬀort required. ",
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/82195004c468689fe5608b528f5324b8755ab967631ec595fe0923c7226dc046.jpg",
+        "img_caption": [
+            "Fig. 1.  An illustration of the scientiﬁc survey generation task, and our step-by-step generation approach. "
+        ],
+        "img_footnote": [],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "However, generating scientiﬁc literature surveys presents several challenges. Firstly, these surveys are typically very lengthy, and even advanced models like GPT-4 [ 3 ] and Claude 3 [ 6 ] are constrained by a 4k-8k token output limit, making it impossible to generate a survey in a single pass. Attempting to generate the entire content sequentially based on all previous content can also be problematic, as it may cause the LLM to forget earlier information or fail to maintain a consistent structure without a comprehensive plan. Secondly, scientiﬁc literature surveys cover a vast amount of information. Transmitting this information to LLMs and generating a coherent survey can be very expensive in terms of LLM API usage, which diminishes its practical value. ",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we propose a novel approach to scientiﬁc literature survey generation that leverages LLMs in a step-by-step prompting manner. As shown in Fig.  1 , given the subjects and several reference papers, we design a series of prompts that guide LLMs to sequentially generate the title, abstract, hierarchical headings, and the main content of a literature survey. By breaking down the task into manageable steps, LLMs can maintain a high-level perspective while generating headings, thereby improving the coherence and relevance of the generated surveys. Additionally, after generating the headings, the main content generation can be conditioned on this structure rather than on all previous content, signiﬁcantly reducing the cost of API usage. ",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We implemented our system using the Qwen-long version of Alibaba’s Tongyi Qianwen model [ 5 ]. Our system was submitted in the NLPCC 2024  Scientiﬁc Literature Survey Generation  task, where it achieved third place, with an overall score of 61.11, just 0.03% behind the second-place team. Additionally, our method demonstrated a soft heading recall of 95.84%, the second highest among all submissions and only 1.17% lower than the ﬁrst-place team. These results highlight the eﬀectiveness of our approach in maintaining logical and coherent survey structures, which can be attributed to the plan-then-generate strategy employed in our sequential generation process. Thanks to the eﬃcient prompt design and the low cost of the Qwen-long API, our method reduces the expense of generating each literature survey to 0.1 RMB, enhancing its practical value. ",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The remainder of this paper is organized as follows: Sect.  2  reviews related works. Section  3  details our prompt design methodology and the step-by-step generation process. Section  4  presents the experimental setup and evaluation results, as well as discussing the advantages and limitations of our method. Finally, Sect.  5  concludes the paper. ",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2 Related Works ",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Automatic literature survey generation  has garnered increasing attention in recent years due to its potential to enhance research eﬃciency and reduce the time required for literature review processes. However, because of the inherent challenges involved, few works have provided a systematic methodology to leverage AI tools to address this task comprehensively. Recently, AutoSurvey [ 7 ], a contemporary work to this paper, proposes equipping LLMs with initial retrieval and outline generation capabilities to automatically generate literature surveys. Additionally, some surveys [ 8 ] are claimed to be written with the help of LLMs. ",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we focus on the NLPCC 2024  Scientiﬁc Literature Survey Generation  evaluation task [ 9 ]. To the best of our knowledge, this is the ﬁrst public evaluation task on automatic literature survey generation. Our system participated in this contest and achieved third place, with an overall score only 0.03% lower than the second-place team. ",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Leveraging LLMs for generating long-form text  has become a rapidly evolving area of research. Some eﬀorts have explored novel attention mechanisms to model long contexts eﬀectively [ 10 – 12 ]. However, recent studies [ 13 , 14 ] point out that these long-context LLMs cannot fully utilize the information embedded in the extensive context window. ",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Instead of extending the context window of LLMs, some works explore the use of outlines to organize long text generation. [ 15 ] employ detailed outlines to improve the coherence of long story generation. [ 16 ] propose a pipeline that includes outline generation, information retrieval augmentation, augmented outline generation, and content generation for long blog creation. In this paper, we also adopt an outline-based generation strategy to manage the long context required for generating scientiﬁc literature surveys in a step-by-step manner. ",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3 Methodology ",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.1 Task Formulation ",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we address the NLPCC 2024  Scientiﬁc Literature Survey Generation  evaluation task, which focuses on generating literature surveys based on given subjects and reference papers. ",
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/1ddb18318f509310b916e505f91a3608d4d606b9b049c3bf6c4cb98bbf6be662.jpg",
+        "img_caption": [
+            "Fig. 2.  An illustration of our step-by-step literature survey generation framework. "
+        ],
+        "img_footnote": [],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Speciﬁcally, illustrated in Fig.  1 , given a list of reference papers  R  = { r 1 , r 2 , ..., r n }  and a list of key subjects (topics)  S  =  { s 1 , s 2 , ..., s m } , our goal is to produce a well-structured literature survey  ⟨ T, A, M ⟩ . The output includes the title  T , abstract  A , and the main body  M  =  { ( h 1 , c 1 ) ,  ( h 2 , c 2 ) , ...,  ( h k , c k ) } , where  h i  represents the headings at diﬀerent levels and  c i  denotes the corresponding contents. ",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Notice that we did not utilize the  reference content  ﬁeld provided in the test set because the NLPCC 2024 task guideline claimed that only the  subject and  reference  were provided for testing. Additionally, we did not employ any retrieval-based methods to augment the reference content based on the titles of the reference papers, as the guidelines explicitly state that  data other than the training set cannot be used in the process of model development . ",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.2 Overview ",
+        "text_level": 1,
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The framework for our step-by-step literature survey generation is illustrated in Fig.  2 . The generation pipeline consists of six steps, divided into two main phases. ",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "In the ﬁrst phase, outline generation, we instruct the LLM to sequentially generate the title, section headings, and abstract. Each step is conditioned on all previous outputs to ensure a coherent planning of the entire literature survey. ",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "In the second phase, subsection and content generation, we select references for each section and then generate subsection headings and content based on the generated outline and the selected references. This design ensures that the ",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "generation of each subsection is aware of the overall structure of the paper, while also reducing the input length to save costs on LLM API usage. ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "3.3 Prompt Design ",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "In this section, we will elaborate on the prompt designs for each of the six steps in Fig.  2 . ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Step 1: Title Generation  - We instruct the LLM to generate a suitable title for the literature survey based on the provided subject and reference papers using the following prompt. We use semicolons (;) and newline characters ( to concatenate multiple subjects and references, respectively. \\ n) ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Prompt-1, title generation: ",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "There is an academic puzzle for you. ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "I will give you a list of references. In subject “ { subject } ”, a survey paper existing with these references. You will give me a guess of the title of the survey paper. ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Here are the references:  { references } ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "The output should be in several lines, and the content in the last one is your answer (the title that you guess). ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Only one guess is required. The title should start with “Title:”. ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We observe that a chain-of-thought strategy [ 17 ] is generally integrated into existing LLM products, causing the model likely to generate explanations as well. We do not penalize the generation of additional information. Instead, we instruct the model to generate the title on the last line with a speciﬁc marker, Title: . We verify the output format, and if the speciﬁc marker is not found, we reinstruct the LLM while retaining the memory. The same prompt is used, but we add a preﬁx:  The response format is incorrect. Note that only one guess is required. The title should start with “Title:” . ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Step 2: Section Heading Generation  - We use a follow-up question to generate the section headings while retaining the previous information, including references, subjects, title, and potentially, their explanations. We instruct the model to generate between 6 and 10 headings. Although the LLM might not always adhere strictly to this range, it is only required to regenerate the headings if the initial count falls outside the range of 3 to 25. We concatenate these headings and their indices with newline characters ( prompts. \\ n) to form the  outline  for the following Step 3: Abstract Generation  - We use the following prompt to generate the abstract of the paper by summarizing the generated title and outline under the given subjects. ",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Prompt-2, section heading generation (a follow-up question): ",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Can you guess the outline of this paper? Just generate a list of ﬁrst-level headings. About 6–10 ﬁrst-level headings are good! Just output the ﬁrst-level headings, do not generate any other content. No item number is required, each ﬁrst-level heading begins with “\\*”. ",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Prompt-3, abstract generation: ",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "You are an academic paper writing assistant in the subject  “ { subject } ” .   \nI am writing a survey paper titled with  “ { title } ” . Here is my outline :  { outline }   \nCan you write an abstract for me? You may write only 1 paragraph with about 200–500 words, do not include more detailed headings, or any lists.   \nYou should focus on the content of the abstract, do not repeat the word “abstract” or including any other content. ",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Step 4: Selecting References for Each Section  - The full reference list is so extensive that using it in the subsequent generation steps would incur high API usage costs. Additionally, conditioning each section on the same group of references may lead to similarity across sections. Therefore, we select a subset of references for each section before generating the detailed structure and content. ",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Speciﬁcally, for each section title generated in step 2, we instruct the LLM to generate relevant references using the following prompt. The generated references will be used in the generation of subsection headings and contents for the speciﬁc section. ",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Prompt-4, reference selection: ",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "You are an academic paper writing assistant in the subject  “ { subject } ” .   \nI am writing a survey paper titled with  “ { title } ” . Here is my outline :  { outline }   \nI will give you a list of references. Can you help me choose from these references that might be useful when I write this chapter the section  “ { sec heading } ” ?   \nHere are the references:  { references } The output should be in several lines. References that you think may be useful should be on one line each, beginning with “\\*”.   \nPlease retain the square bracketed numbers (like [1], [20]) I give for each reference. ",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "for all sections, providing a comprehensive outline for content generation in the next step. ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Prompt-5, subsection heading generation: ",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "You are an academic paper writing assistant in the subject  “ { subject } ” .   \nI am writing a survey paper titled with  “ { title } ” . Here is my outline:  { outline }   \nHere a list of reference papers:  { subset of references } I am working on the section  “ { sec heading } ” .   \nCan you write the second-level headings for this section? 3–5 second-level headings are cool!   \nJust output the corresponding second-level headings, do not generate any other content.   \nNo item number is required, each second-level heading begins with ”\\* ”. ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Step 6: Content Generation  - Finally, detailed content is generated for each subsection using prompt-6. To encourage the content is coherent and aligned with the overall structure, we provide an outline consisting of all the section and subsection headings. We also supply the subset of relevant references generated in step-4 and encourage the model to cite them appropriately by an example. ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "We observed that the prompt can become quite lengthy, causing the LLM to lose focus on the main task of generating subsection content. To address this, we emphasize the subsection title several times within the prompt to ensure the model remains focused. ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Prompt-6, subsection content generation: ",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "You are an academic paper writing assistant in the subject  “ { subject } ” . ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "I am writing a survey paper titled with  “ { title } ” . ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Here is my outline :  { outline } ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Here a list of reference papers. I hope you will cite these references in the generated content. For example, [123] indicates a reference to the reference that begins with [123].  { subset of references } ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Can you write the content of  “ { subsec heading } ”  part in the section  “ { sec heading } ” ? You may write 3–5 paragraphs with about 1000 words, do not include more detailed headings. You should focus on the subsection  “ { subsec heading } ” , do not repeat the headings or including other content. ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "4 Experiments ",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "4.1 Dataset ",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "We use the dataset from the NLPCC 2024  Scientiﬁc Literature Survey Generation  evaluation task, provided by Kexin Technology [ 9 ]. The dataset comprises randomly crawled arXiv survey papers along with their references, containing 500 survey papers in the training set and 200 in the test set. Since the evaluation task did not designate speciﬁc instances for validation rather than training, we have not included a separate validation set in our statistics. ",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 7
+    },
+    {
+        "type": "table",
+        "img_path": "images/ebe29c1eecd97926bc36a9e1672eec0d38d2eadf1be84fc48cb3eb6ee3f6cc24.jpg",
+        "table_caption": [
+            "Table 1.  Dataset statistics, including the total number of papers, the average number of subjects, references, references with content, and the average content length, respectively. "
+        ],
+        "table_footnote": [],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "In the training set, the ﬁelds including  title ,  article id ,  subject ,  abstract ,  content ,  reference , and  reference content  are provided. While in the test set, only  subject ,  reference , and  reference content  are provided. The statistics of the dataset is shown in Table  1 . ",
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we only use the training set for prompt design, instead of using them for parameter tuning or in-context learning. As discussed in of the requirements in task guideline, we did not utilize the  reference content  § 3.1 , because ﬁeld provided in the test set, nor did we employ any retrieval-based methods to augment the reference titles. ",
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "4.2 Implement Detail ",
+        "text_level": 1,
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We implemented our system using the Qwen-long version of Alibaba’s Tongyi Qianwen model [ 5 ], with a cost of 0.5 RMB per million tokens for input and 2 RMB per million tokens for output. For instances where the reference list is too long for Qwen-long to process (with the role of  user ), we truncate the references, leaving only the ﬁrst 80–100 references. Additionally, in cases where the reference list contains inappropriate content that Qwen-long refuses to process, we try to use references with odd or even indices to circumvent this issue. Generating all 200 surveys in the test set cost 20.86 RMB, approximately 0.10 RMB per paper. This low cost enhances the practicality of our method. ",
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "4.3 Evaluation Metric ",
+        "text_level": 1,
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "To evaluate the quality of the generated literature survey, we use three kinds of metrics: ",
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "ROUGE  [ 18 ] is a recall-oriented reference-based metrics. Speciﬁcally, we employ ROUGE1, ROUGE2, and ROUGEL scores. We use the implement provided by Google 1 . ",
+        "page_idx": 7
+    },
+    {
+        "type": "table",
+        "img_path": "images/e60a9bf7a3db0cb3a93632dbc3734e864ff51dc7200cc5bf10335e10a3c77ec5.jpg",
+        "table_caption": [
+            "Table 2.  Evaluation Results of Participating Teams "
+        ],
+        "table_footnote": [],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Soft Heading Recall  (S-H Recall for short) is used to evaluate the structure of the generated survey. ",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "T  =  { t 1 , t 2 , t 3 , . . . , t K }  represents a group of the chapter titles/heads in a generated/reference survey.  R  and  G  are the chapter titles of the generated and reference survey, respectively. The bge-large-en-v1.5 2   model is used for text embedding. This score encourages the similarity between generated and reference chapter titles while punishes the similarity of titles within the generated survey. ",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Human  evaluation is also used to manually evaluate the following aspects: ",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "– Fluent language with clear expression;   \n– Logical article structure;   \n– Ample, reliable, and accurate citations;   \n– Consistency of content with the theme, staying on-topic;   \n– Broad analytical scope. ",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "The overall  score  is calculated as the average of the ROUGE score, the soft heading recall, and the human score. Note that the ROUGE score here is the average of ROUGE1, ROUGE2, and ROUGEL. ",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "4.4 Evaluation Result ",
+        "text_level": 1,
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "The oﬃcial evaluation results is shown in Table  2 . We can see that our system, ID , achieved the third place in the evaluation task, with an overall score only 0.03% lower than the second-place team. ",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Additionally, our system demonstrates competitive performance across other metrics. Notably, in soft heading recall, our system achieves a score of 95.84%, securing second place and trailing the leading team by just 1.17%. This result highlights its eﬀectiveness in generating high-quality headings. We attribute this success to our sequential generation design, which includes an individual heading generation step, providing a high-level perspective that enhances the ability of large language models to generate meaningful headings. ",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "However, human evaluation remains a relatively weak aspect of our method. Without leveraging the content of the reference papers, the hallucination phenomenon of LLMs becomes signiﬁcant. Consequently, our method cannot ensure the accuracy and reliability of the citations and analysis in the generated survey, thereby impairing our human evaluation score. In the future, we will incorporate the reference content into our framework to improve the factual accuracy and reliability of our outputs, aiming to generate more accurate and trustworthy literature surveys. ",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "4.5 Case Study ",
+        "text_level": 1,
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "An example of our generated survey paper and the corresponding reference one is shown in Table  3 . Our system successfully captures the subject of the paper, interpretability in neural networks , and generates a relevant title. ",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "For the outline generation, this example achieves a soft heading recall of 97.78%. While the outline produced by our system is somewhat lengthy and too detailed, it successfully captures key aspects of the survey, such as  explainable AI , Saliency Maps , and  Black-Box Models . The discussion on  ethical considerations and  future directions  at the end of the survey is also well-founded. In the future, some speciﬁc instruction strategies can be designed to encourage the LLM to generate more concise outlines. ",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "For the abstract and content (citation), we can see that our generated paper captures several common points with the reference one ( bold  in Table.  3 ), resulting in appropriate abstracts and citations. However, some citations are still inﬂuenced by hallucinations, which could be mitigated by incorporating the detailed content of the reference papers. ",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Table 3.  A comparison between our generated survey and the reference paper [ 19 ]. ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Title Reference:  On Interpretability of Artiﬁcial Neural Networks: A Survey Ours:  A Comprehensive Survey on Explainable Machine Learning and Artiﬁcial Intelligence: Methods, Applications, and Challenges ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Outline ",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Reference: ",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "I. INTRODUCTION ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "A. What Does Interpretability Mean? B. Why Is Interpretability Diﬃcult? C. How to Build a Good Interpretation Method? ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "II. A SURVEY ON INTERPRETATION METHODS ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "A. Taxonomy Deﬁnition B. Post-hoc Interpretability Analysis C. Ad-hoc Interpretable Modeling ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "III. INTERPRETABILITY IN MEDICINE ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "IV. PERSPECTIVE V. CONCLUSION VI. ACKNOWLEDGEMENT ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Ours (partial): ",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "1. Introduction 1.1 Background and Importance of Explainable ML/AI 1.2 Historical Perspective and Evolution of XAI 1.3 Key Challenges and Objectives in Explainability ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "... 4. Saliency Maps and Visualization Techniques 5. Auditing and Fairness in Black-Box Models ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "15. Ethical Considerations and Regulations   \n16. Future Directions and Open Challenges ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Abstract ",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Reference  : ... In this paper, we propose a simple but comprehensive taxonomy for interpretability, systematically review recent studies in improving interpretability of neural networks,  describe applications of interpretability in medicine ... ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Ours:  ... The paper explores various XAI techniques, including Case-Based Reasoning, Saliency Maps, and Shapley Values, while examining their applications and limitations. It also discusses the  use of Deep Learning in healthcare  and the interpretability aspects of Generative Adversarial Networks (GANs) and Recurrent Neural Networks (RNNs) in Natural Language Processing. ... ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Content & Citation ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Reference  : ",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Also, interpretability plays an important role in ethic use of deep learning techniques [57]. ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "To build patients’ trust in deep learning , interpretability is needed to hold a deep learning system accountable [57]. ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Additionally, the ethical concerns surrounding data privacy, bias, and algorithmic accountability need to be addressed. Regulatory frameworks, such as those outlined in [57], must adapt to accommodate the integration of  AI technologies in healthcare while maintaining patient safety and privacy. ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Citation information: ",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "[57] J. R. Geis, et al., “Ethics of artiﬁcial intelligence in radiology: summary of the joint European and North American multisociety statement,” Canadian Association of Radiologists Journal, vol. 70, no. 4, pp. 329–34, 2019. ",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "5 Conclusion ",
+        "text_level": 1,
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we presented a novel approach to generating scientiﬁc literature surveys with LLMs. We designed a series of instructions to generate wellstructured and relevant content in a step-by-step manner. Our system with Qwen-long achieved third place in the NLPCC 2024  Scientiﬁc Literature Survey Generation  evaluation task, with an overall score only 0.03% lower than the second-place team. However, challenges remain in ensuring the accuracy and reliability of citations and content due to the hallucination of LLMs and the absence of reference content. Future work will focus on addressing these limitations to generate more robust and trustworthy automatic literature survey. ",
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgements.  This work is supported by NSFC (62206070) and the Innovation Fund Project of the Engineering Research Center of Integration and Application of Digital Learning Technology, Ministry of Education (1221014). The datasets used in this paper is supported from Kexin Technology. ",
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "References ",
+        "text_level": 1,
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "1. Fink, A.: Conducting research literature reviews: from the internet to paper. Sage publications (2019) 2. Liang, W., et al.: Mapping the increasing use of LLMs in scientiﬁc papers. arXiv preprint  arXiv:2404.01268  (2024) 3. OpenAI: GPT-4 technical report. arXiv preprint  arXiv:2303.08774  (2023) 4. Ouyang, L., et al.: Training language models to follow instructions with human feedback. In: NeurIPS (2022) 5. Bai, J., et al.: Qwen technical report. arXiv preprint  arXiv:2309.16609  (2023), https://ar5iv.org/abs/2309.16609 6. Anthropic, A.: The claude 3 model family: Opus, sonnet, haiku. Claude-3 Model Card  1  (2024) 7. Wang, Y., et al.: AutoSurvey: large language models can automatically write surveys. arXiv preprint  arXiv:2406.10252  (2024) 8. Schulhoﬀ, S., et al.: The prompt report: a systematic survey of prompting tech- niques. arXiv preprint  arXiv:2406.06608  (2024) 9. Tian, Y., et al.: Overview of the NLPCC2024 shared task6: scientiﬁc literature survey generation. In: Proceedings of the NLPCC 2024 Conference (2024)   \n10. Dao, T., Fu, D., Ermon, S., Rudra, A., R´ e, C.: FlashAttention: Fast and memoryeﬃcient exact attention with IO-awareness. Adv. Neural. Inf. Process. Syst.  35 , 16344–16359 (2022)   \n11. Ding, J., et al.: LongNet: scaling transformers to 1,000,000,000 tokens. arXiv preprint  arXiv:2307.02486  (2023)   \n12. Xiao, G., Tian, Y., Chen, B., Han, S., Lewis, M.: Eﬃcient streaming language models with attention sinks. In: ICLR (2023)   \n13. Li, J., Wang, M., Zheng, Z., Zhang, M.: LooGLE: can long-context language models understand long contexts? arXiv preprint  arXiv:2311.04939  (2023)   \n14. Li, T., Zhang, G., Do, Q.D., Yue, X., Chen, W.: Long-context LLMs struggle with long in-context learning. arXiv preprint  arXiv:2404.02060  (2024)   \n15. Yang, K., Klein, D., Peng, N., Tian, Y.: Doc: Improving long story coherence with detailed outline control. arXiv preprint  arXiv:2212.10077  (2022)   \n16. Lee, Y., Ka, S., Son, B., Kang, P., Kang, J.: Navigating the path of writing: outline-guided text generation with large language models. arXiv preprint arXiv:2404.13919  (2024)   \n17. Wei, J., et al.: Chain-of-thought prompting elicits reasoning in large language models. Adv. Neural. Inf. Process. Syst.  35 , 24824–24837 (2022)   \n18. Lin, C.Y.: Rouge: a package for automatic evaluation of summaries. In: Text Sum- marization Branches Out: Proceedings of the ACL-04 Workshop, pp. 74–81. Association for Computational Linguistics, Barcelona, Spain (2004)   \n19. Fan, F.L., Xiong, J., Li, M., Wang, G.: On interpretability of artiﬁcial neural networks: a survey. IEEE Trans. Radiat. Plasma Med. Sci.  5 (6), 741–760 (2021) ",
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 12
+    }
+]

@@ -1,0 +1,184 @@
+# From References to Insights: Collaborative Knowledge Minigraph Agents for Automating Scholarly Literature Review  
+
+Zhi Zhang 1 , Yan Liu , Sheng-hua Zhong 2 , Gong Chen 1 , Yu Yang 1 , Jiannong Cao 1  
+
+1 The Hong Kong Polytechnic University 2 Shenzhen University zhi271.zhang@connect.polyu.hk, yan.liu@polyu.edu.hk, csshzhong@szu.edu.cn, csgchen@comp.polyu.edu.hk, cs-yu.yang@polyu.edu.hk, jiannong.cao@polyu.edu.hk  
+
+# Abstract  
+
+Literature reviews play a crucial role in scientific research for understanding the current state of research, identifying gaps, and guiding future studies on specific topics. However, the process of conducting a comprehensive literature review is yet time-consuming. This paper proposes a novel framework, collaborative knowledge minigraph agents (CKMAs) 1 , to automate scholarly literature reviews. A novel promptbased algorithm, the knowledge minigraph construction agent (KMCA), is designed to identify relationships between information pieces from academic literature and automatically constructs knowledge minigraphs. By leveraging the capabilities of large language models on constructed knowledge minigraphs, the multiple path summarization agent (MPSA) efficiently organizes information pieces and relationships from different viewpoints to generate literature review paragraphs. We evaluate CKMAs on three benchmark datasets. Experimental results demonstrate that the proposed techniques generate informative, complete, consistent, and insightful summaries for different research problems, promoting the use of LLMs in more professional fields.  
+
+![](images/174f984331fe55acc74c1197739f0cb45f526b41de3c5cbc92db7adb9447b838.jpg)  
+
+Figure 1: Illustration of relationships between information pieces in scientific papers. Capturing these relationships is essential for composing a coherent story in literature reviews.  
+
+# Introduction  
+
+Artificial intelligence (AI) is being increasingly integrated into scientific discovery to augment and accelerate scientific research (Wang et al. 2023). Researchers are developing AI methods to, e.g., literature understanding, experiment development, and manuscript draft writing (Liu et al. 2022; Wang et al. 2024; Martin-Boyle et al. 2024).  
+
+Literature reviews play a crucial role in scientific research, assessing and integrating previous research on specific topics (Bolanos et al. 2024). They aim to meticulously identify and appraise all relevant literature related to a specific research question. Recent advancements in AI have shown promising performance in understanding research papers and generating human-like text (Van Dinter, Tekinerdogan, and Catal 2021). By leveraging AI capabilities, automatic literature review models enable researchers to save time and effort in the manual process of conducting literature reviews, rapidly identify key trends and gaps in recent research outputs, and uncover insights that might be overlooked in manual reviews (Wagner, Lukyanenko, and Par´ e 2022).  
+
+The automatic literature review models typically involve two stages (Shi et al. 2023): (1) selecting relevant reference papers and (2) determining logical relationships to compose a summary that presents the evolution of a specific field (these stages can be applied iteratively). Multiple scientific document summarization (MSDS), aiming to generate coherent and concise summaries for clusters of topic relevant scientific papers, is the representative work in the second stage. Past decades (Jin, Wang, and Wan 2020) have witnessed the development of summarization methods. Extractive methods directly select important sentences from original papers. Abstractive methods can generate new words and sentences but are technically more challenging than extractive methods.  
+
+Recently, large language models (LLMs), pre-trained on extensive text data, have transformed abstractive summarization and show human-like performance in understanding and coherent language synthesis. However, ideas arising in research papers often have complex relationships, e.g., conflicting or duplicate. Without explicit instructions, LLMs fall short in capturing the relations between ideas and composing a story that connects related work reflecting the author’s understanding of their field (Li and Ouyang 2024). As shown in Fig 1, effective summarization often involves the ability to understand concepts of materials, methods, and tasks in referencing papers, aggregate complementary ideas (e.g.,  M 1 is used for  T ) while contrasting differences (e.g.,  M 2  is additionally used for  B  compared with  A ).  
+
+To tackle this bottleneck, we propose equipping LLMs with structural knowledge. Different from knowledge graphs, which consist of entities as nodes and their relationships as edges, serving as general-purpose knowledge, we introduce knowledge minigraphs. Knowledge minigraphs are small-scale semantic graphs, comprising research-relevant concepts as nodes and their relationships as edges, specially designed to capture the structural information between ideas in references.  
+
+To automatically construct knowledge minigraphs, we propose a prompt-based algorithm, the knowledge minigraph construction agent (KMCA) to elicit LLMs to identify research-relevant concepts and relationships based on references. Benefiting from the designed iterative construction strategy, key information and relationships are itera- tively extracted and stored from numerous references into minigraphs.  
+
+By leveraging the capabilities of LLMs on knowledge minigraphs, the multiple path summarization agent (MPSA) is designed to organize the generated literature review. The MPSA samples multiple summaries from different viewpoints and logical paths in the knowledge minigraph, utilizing the mixture of experts technique. A self-evaluation mechanism is then employed to automatically route to the most desirable summary as the final output.  
+
+# Related Work  
+
+# Graphs in MSDS Tasks  
+
+To generate a summary that is representative of the overall content, graph-based methods construct external graphs to assist document representation and cross-document relation modeling, achieving promising progress. In this regard, LexRank (Erkan and Radev 2004) and TextRank (Mihalcea and Tarau 2004) first introduced graphs to extractive text summarization in 2004. They compute sentence importance using a graph representation of sentences to extract salient textual units from documents as summarization.In 2020, Wang et al. (Wang et al. 2020) propose to extract salient textual units from documents as summarization using a heterogeneous graph consisting of semantic nodes at several granularity levels of documents. In 2022, Wang et al. (Wang et al. 2022) incorporate knowledge graphs into document encoding and decoding, generating the summary from a knowledge graph template to achieve state-of-the-art performance.  
+
+However, to the best of our knowledge, no existing work integrates LLMs into graph-based methods to leverage their natural language understanding capabilities for improved graph construction and summary generation.  
+
+# Pre-trained Language Models in MSDS Tasks  
+
+In recent years, pre-trained language models (PLMs) have demonstrated promising results in multiple document summarization. Liu et al. (Liu and Lapata 2019) propose finetuning a pre-trained BERT model as the encoder and a randomly initialized decoder to enhance the quality of generated summaries. Building upon BART (Lewis et al. 2020), Beltagy et al. (Beltagy, Peters, and Cohan 2020) propose LED for lengthy text summarization, which is directly initialized from bart-large but employs global-local attention to better handle long context inputs. Xiao et al. (Xiao et al. 2022) introduce PRIMERA, a pre-trained encoder-decoder multi-document summarization model, by improving aggregating information across documents. More recently, pretrained large language models (LLMs) show promising generation adaptability by training billions of model parameters on massive amounts of text data (Zhao et al. 2023; Minaee et al. 2024). Zhang et al. (Zhang et al. 2024a) utilize welldesigned instructions to extract key elements, arrange key information, and generate summaries. Zakkas et al. (Zakkas, Verberne, and Zavrel 2024) propose a three-step approach to select papers, perform single-document summarization, and aggregate results.  
+
+PLMs can provide fluent summary results for referencing papers. However, they fall short in capturing the relations between ideas from multiple related papers.  
+
+# Method  
+
+Fig. 2 illustrates the architecture of the proposed collaborative knowledge minigraph agents (CKMAs). CKMAs consists of two key components: the knowledge minigraph construction agent and the multiple path summarization agent.  
+
+# Knowledge Minigraph Construction Agent  
+
+In this module, we are given  T  reference documents { C 1 , . . . , C t } ’s abstracts. We aim to construct a knowledge structure  O  that captures the relationships between concepts in the referenced papers.  
+
+Past decades have witnessed knowledge graphs become the basis of information systems that require access to structured knowledge (Zou 2020). Knowledge structures are represented as semantic graphs, where nodes denote entities and are connected by relations denoted by edges. However, the general-purpose knowledge graphs are unsuitable for scientific document summarization, as they do not necessarily involve the main ideas of research papers and are not suitable for identifying gaps not addressed by prior work. Thus, in this paper, we propose establishing a knowledge minigraph, defined as as a small set of research-relevant concepts and their relationships. The construction steps of the knowledge minigraph are as follows:  
+
+Reference chunking  Given a total of  T  reference documents, we first divide them into  I  chunks, each containing at most  k  reference documents. Here,  { C 1 i , . . . C k i }  represents the  k  reference papers in the  i -th chunk. MSDS usually involves numerous reference papers, forming a long context. LLMs either fail to process the entire context exceeding the acceptable length or suffer from missing crucial information positioned amidst a lengthy context (Zhang et al. 2024b). Thus, we chunk related works and use LLMs to construct the knowledge structure step by step with  k  reference papers each time.  
+
+![](images/1d82700564fcc019d817853a13f4622dc9737386edadff2cff3133e4853fadfe.jpg)  
+Figure 2: The overall architecture of the proposed collaborative knowledge minigraph agents (CKMAs).  
+
+Minigraph generation  We employ a knowledge minigraph prompt  G ( { C 1 i , . . . C k i } )  to construct the knowledge structure of interest based on the abstracts of referenced papers  { C 1 i , . . . C k i } . It is known that constructing knowledge graphs from raw text data requires entity recognition and relation extraction (Trajanoska, Stojanov, and Trajanov 2023). Tailoring recent advancements in prompt techniques, we design instructions for the integration of LLM into these tasks within a single round of dialogue (using the prompt for query and LLMs for response). As shown in Table 1, the prompt involves three special designs:  
+
+(1) Output Constraint: LLMs are well known for being relatively verbose and free-form in their output, making it hard for automated graph construction programs (Tan and Motani 2023). Thus, we prompt LLM to constrain output in a machine-understandable JSON format. (2) Scientific Constraints: To ensure the constructed knowledge structure revolves around the main idea of research topics, we design constraints on entities of interest and relationships of interest. Inspired by DYGIE++ (Wadden et al. 2019), we extract entities classified in six types, Task, Method, Metric, Material, Generic, and OtherScientificTerm, and relations are in seven types, Compare, Used-for, Feature-of, Hyponymof, Evaluate-for, Part-of, and Conjunction. (3) Volume Constraints: Redundant relationships will lead to length issues. To ensure the constructed knowledge structure is concise and informative, we constrain the focus to the topm  significant relationships.  
+
+Minigraph transformation  To enable LLMs to understand the derived knowledge minigraph, we design a function  R ( O )  to transform the knowledge minigraph  O  into a text representation for subsequent processing. In detail, available relationships whose type meet the constraints are transformed into a line of text in the format  head p  − rel p  → tail p , where  head p  and  tail p  are the head and tail entities, and  rel p  is the relationship.  
+
+Finally, iteratively employing these three steps, the knowledge structure  O i   is constructed as shown in Eq. 1.  
+
+In the first iteration, we apply the knowledge minigraph prompt  G  to the first chunk of reference papers to derive the initial knowledge minigraph  O 1 . For subsequent iterations, we transform the intermediate knowledge minigraph  O i − 1 into a text representation  R ( O i − 1 ) . This text representation is then input along with the  C 1 i , . . . C k i 	 , allowing for dynamic updates to the knowl i -th chunk of reference papers edge minigraph.  
+
+# Multiple Path Summarization Agent  
+
+In this module, we are given the knowledge structure  O , the referencing paper’s abstract  A , and the chunked referencing papers  { C 1 i , . . . C k i } ’s abstracts. We aim to generate a summary following the knowledge structure.  
+
+Even given  O  as guidance, generating a summary remains an ill-posed problem, i.e., the solution is not unique and depends on the specific discussion viewpoints. For example, one can highlight different concepts or choose different writing logic for different situations. Can we harness different understandings of the knowledge structure to create a more capable summary? Inspired by the mixture of experts approach (Shazeer et al. 2017), a machine learning technique to leverage diverse model capabilities where multiple expert networks specialize in different skill sets, we propose using LLMs with different hinted paths to understand the knowledge minigraph for generating multiple summaries and selecting the best viewpoint. The steps of the multiple path summarization agent are as follows:  
+
+Chunk summarization  As mentioned before, MSDS usually involves numerous reference papers, forming a long context problem. We chunk them into  I  chunks and formulate a hierarchical summarization process, first generating summaries for each chunk of referenced papers. With prompt engineering, we elicit the behavior of LLMs to generate summaries for each chunk under the guidance of derived knowledge minigraphs  O . As illustrated in Table 1, we instruct LLMs to take into consideration three kinds of information: the scientific article’s abstract  A , summaries of referenced paper  { C 1 i , . . . C k i } , and the knowledge minigraphs of referenced paper  O . After understanding this information, the LLM is tasked with writing a summary for each chunk, where  A  and  { C 1 i , . . . C k i }  provide textual details locally and  O  provide structural knowledge globally. Flexible to customize other instruction details, such as specifying writing style in real-world applications, the default instructions follow the prompts designed by Zakkas et al. (Zakkas, Verberne, and Zavrel 2024) for fair comparison. Mathematically, the chunk summarization can be denoted as:  
+
+Table 1: Prompts in the knowledge minigraph construction agent and the multiple path summarization agent.   
+
+![](images/f22995e932e7c6a67e97dc640e90d14c721b1c77c764242a7345e9aab7c5cda0.jpg)  
+
+where  S  is the prompt function for chunk summarization.  
+
+Path-aware summarization  We employ  E  experts to merge all chunk summaries  { M   i }  and generate final summaries, with each expert aware of different hinted paths to understand the knowledge minigraph. Given consistent knowledge, different human researchers may have varying understandings, selectively emphasizing concepts in a logical order. To automatically mimic human researchers and generate summaries of different understanding, we leverage the observation that LLMs are sensitive to prompt wording and their order (Pezeshkpour and Hruschka 2023). We find that the order of given referencing papers impacts the generated summary, affecting the order of introducing information from references and the highlighting of concepts. Thus, we propose sampling  E  permutations from the full permutations of referenced papers to serve as the order of input in the instructions as a hint of the potential logical path in knowledge minigraph, which are then used to prompt the LLM to generate summaries. We use the same prompt as in chunk summarization, except that summaries of referenced papers  C 1 i , . . . C  k i 	 	 are replaced by a permutation of chunk summaries M   i . Mathematically, the summaries generated by the  e -th expert can be denoted as:  
+
+where  S ( e )  represents the prompt function for the  e -th expert with the sampled  e -th permutation of referencing papers. For instance, given chunk summarizations  { M 1 , M 2 , M 3 } , where  M 1 ,  M 2 , and  M 3  are summaries of the first, second, and third chunks of referencing papers, respectively, three experts can be fed  [ M 1 , M 2 , M 3 ] ,  [ M 2 , M 1 , M 3 ] , and [ M 3 , M 2 , M 1 ]  as input. The remaining parts of the instructions remain consistent with  S .  
+
+Summarization router  We design a router to evaluate different experts’ summaries and automatically select the most desirable summary  Y ( e )  as the final output. Without requiring additional side information, this paper proposes a self-evaluation strategy. In detail, we observe that there are agreements between the experts’ viewpoints and their generated summaries. We propose to quantify the degree of agreement for each summary using the ROUGE-1 score (Lin 2004), which measures the overlap between a generated summary and other summaries. We then select the summary with the highest degree of agreement, which indicates that its understanding has the highest likelihood of being supported by other experts, or in other words, is relatively more acceptable. Mathematically, the final summary can be denoted as:  
+
+where  rouge1( Y ( e ) , Y ( j ) )  is the an 1-gram recall (ROUGE-1 score) between  e -expert’s generated summary  Y ( e )  and  j - expert’s generated summary  Y ( j ) .  
+
+Table 2: Comparasion of CKMAs with state-of-the-art methods on Multi-Xscience, TAS2, and TAD datasets.   
+
+![](images/5a5823cc99d47710d859a966ecdb79f5243b441340ee5ef6befac92f3c652545.jpg)  
+
+# Experiments  
+
+We evaluate our method on three public MSDS datasets: Multi-Xscience (Lu, Dong, and Charlin 2020), TAD (Chen et al. 2022), and TAS2 (Chen et al. 2022). Multi-Xscience is the first large-scale and open MDSS dataset, collected from arXiv and the Microsoft Academic Graph (MAG). It contains 5,093 instances for testing, primarily focusing on the computer science field. TAD and TAS2 are collected from the public scholar corpora S2ORC and Delve, respectively. While TAD contains papers from multiple fields, TAS2 focuses on the computer science field. Both TAD and TAS2 contain 5,000 instances for testing. The input and output format of the three datasets are consistent: each instance contains the abstract of a query paper and the abstracts of reference papers it cites as input, with a paragraph from the related work section of the query paper serving as the gold summary.  
+
+For a fair comparison, we follow relevant studies (Zakkas, Verberne, and Zavrel 2024) of prompt-based methods to use the same LLM, gpt-3.5-turbo, as the backbone model. We set the temperature of the sampling to 0.0 for reproducibility. We set the chunk size  k  to 3 and the number of experts  E  to 3. We set the volume constraint  m  to 32. Following previous work, we automatically evaluate the summarization quality using ROUGE scores (Lin 2004). We employ ROUGE-N to calculate the N-grams overlap between the output and gold summary, assessing the summary informativeness:  
+
+where  X  denotes a reference summary sampled from the reference summary collection  U ,  n  represents the length of the  n -gram,  C( . )  is the count of the  n -gram, and  C match ( . )  
+
+is the maximum number of  n -grams co-occurring in a candidate summary and a set of reference summaries. We report unigram and bigram co-occurrence (ROUGE-1 and ROUGE-2).  
+
+# Comparasion Experiments  
+
+Table 2 compares the proposed model with graph-based methods including LexRank (Erkan and Radev 2004), TextRank (Mihalcea and Tarau 2004), HeterSumGraph (Wang et al. 2020), GraphSum (Li et al. 2020), TAG (Chen et al. 2022), and KGSum (Wang et al. 2022) and pre-trained language model-based methods, including Pointer-Generator (See, Liu, and Manning 2017), BertABS (Liu and Lapata 2019), SciBertABS (Beltagy, Lo, and Cohan 2019), HiMAP (Fabbri et al. 2019), BART (Lewis et al. 2020), MGSum (Jin, Wang, and Wan 2020), PRIMERA (Xiao et al. 2022), GPT-3.5-turbo (Ouyang et al. 2022), and GPT-4 (Achiam et al. 2023). The proposed CKMAs achieves state-of-theart performance on all three datasets in terms of ROUGE-1 and ROUGE-2 scores. CKMAs also outperforms the latest prompt-powered MSDS, e.g., 3A-COT (Zhang et al. 2024a) and SumBlogger (Zakkas, Verberne, and Zavrel 2024).  
+
+# Ablation Studies  
+
+This section presents ablation studies to investigate the performance gains brought by the designed modules in CKMAs. We first ablate the knowledge minigraph construction agent (KMCA) and the multiple path summarization agent (MPSA), respectively. When ablating KMCA, we no longer construct the knowledge minigraph and do not include it as part of the MPSA instruction. When removing MPSA, we use the instruction in Table 1 to directly generate a single summary as the final summary. We report the performance  
+
+Table 3: Ablation study of the proposed collaborative knowledge minigraph agents (CKMAs) on the Multi-Xscience dataset.   
+
+![](images/fd72de83fd0533f123ef5a611362b4e5b88d6451adbd6b2b3c2a89c79527326b.jpg)  
+
+![](images/b27bf61f276e819a7722f729c288a4c99a083945ded031e47b894432e20b3d05.jpg)  
+Figure 3: ROUGE score comparison of the proposed CKMAs with its backbone models (vanilla GPT-3.5-turbo) group by reference paper number on the Multi-Xscience dataset.  
+
+# of the ablated version of the model in the first line of Table 3.  
+
+Then, we ablate the modules in MPSA and KMCA. For the knowledge minigraph construction agent, when ablating the scientific constraint or volume constraint ablation in minigraph generation, we remove the corresponding instruction in Table 1. To ablate iterative construction, we remove Eq. 1 and directly use all references as input. Due to the length issue, the over-length context is truncated. For the multiple path summarization agent, when ablating chunk summarization, we directly use all references’ abstracts as input. To ablate the path-aware summarization strategy, we use the references with original order as input, adjusting temperatures from 0.0 to 0.7. When removing the summarization router, we randomly select a generated summary.  
+
+Table 3 shows the results of ablation studies, with the full version of the proposed model reported in the last line. We find that removing any module leads to performance degradation. This indicates that all designs contribute to the final performance. The MPSA brings a 4% performance gain, and KMCA brings a 2% performance gain. For designs in the knowledge minigraph construction agent, the performance gain brought by iterative construction is the largest, indicating its effectiveness in understanding long contexts. For designs in the multiple path summarization agent, the performance gain brought by the summarization router is the largest, indicating the importance of selecting the most desirable summaries from different logical paths.  
+
+# Case Studies  
+
+This section conducts case studies to provide further insights into our model’s performance. We first perform statistical analysis to validate in which cases the model succeeds and in which it fails. We group the test samples based on the number of references contained in the gold summary. In every group, we calculate the average ROUGE-L scores for CKMAs and its backbone model (vanilla GPT-3.5-turbo), comparing generated summaries with gold summaries. The results are presented in Fig. 3. We observe that CKMAs consistently outperforms vanilla GPT-3.5-turbo regardless of the number of referencing papers. As the number of reference papers increases, the performance gap between CKMAs and vanilla GPT-3.5-turbo widens. CKMAs demonstrates the capability to model complex relationships within long context, even achieving better results due to more references benefiting the understanding of the research, in contrast to the performance decrease observed in vanilla GPT3.5-turbo.  
+
+For a detailed comparison, we sample an instance from the Multi-Xscience dataset and use well-known LLMs, GPT-3.5-turbo and GPT 4.0, to generate summaries with the default requirements listed in Table 1. The generated results are shown in Table 4. We find that GPT-3.5-turbo suffers from information loss, omitting citation 13. GPT 4.0 shows improvement but lists facts in parallel without logical connections. For example, citations 37 and 14 are listed side by side, but show no parallel logical relationship. It can even lead to hallucination problems, as no evidence shows citation 16 is a statistical method, while citation 16 and cita- tions 3, 6, 5 are all categorized as statistical methods. We then use different versions of the proposed CKMAs to generate a summary. It can be observed that without the knowledge minigraph construction agent (KMCA), the multiple path summarization agent (MPSA) contributes to highlighting different categories of algorithms from the desired viewpoint. Without MPSA, the KMCA contributes to organizing algorithms logically, e.g., from probabilistic to statistical approaches, and then to example-based learning methods. With both modules, CKMAs generates the best summary, categorizing algorithms as supervised learning as in the gold summary and detailing subcategories in a logical order.  
+
+Table 4: Case study of the proposed collaborative knowledge minigraph agents (CKMAs) on the Multi-Xscience dataset.   
+
+![](images/4d3a3a55e94fb2b6e804defbed10965749d6f704a0e43628ae58b7bd04333f5e.jpg)  
+
+We then analyze the differences between queried public knowledge graphs and the constructed knowledge minigraphs. We sample an instance from the Multi-Xscience dataset for this comparison. To query the knowledge graph, we use SPARQL to access Wikidata, a collaborative knowledge base. The queried knowledge graph is shown in the upper part of Fig. 4. For the knowledge minigraph, we employ the proposed method with knowledge minigraph construction, with the result displayed in the lower part. We observe that the entities in the queried knowledge graph are generalpurpose and lack specific insights into research problems. The minigraph clearly presents tasks and methods (some including metrics and materials), making it more informative for summarization purposes.  
+
+# Conclusions and Future Work  
+
+This paper aims to provide an intelligent research copilot to assist in writing literature reviews based on given references. While recent LLMs excel at natural language understanding and generation, they struggle to explicitly model complex relationships between ideas from multiple papers. To address this challenge, we propose collaborative knowledge minigraph agents (CKMAs). The contributions of this work are threefold: (1) We propose scientific document-oriented knowledge minigraphs and, for the first time, equip LLMs with knowledge minigraphs for multiple scientific document summarization. (2) We are the first to develop a promptbased iterative algorithm to process a vast amount of literature and automatically construct knowledge minigraphs for multiple scientific document summarization. (3) We firstly introduce a mixture of experts’ mechanisms to attempt the organization of literature reviews with different logical paths on minigraphs and derive the best one via self-evaluation.  
+
+We conduct comparison experiments, ablation studies, and case studies. The results show the effectiveness of the proposed method. For future work, we plan to explore finetuning LLMs with the proposed CKMAs to better follow instructions and approximate human-written literature reviews in collected datasets. We also intend to investigate the possibility of generating full survey papers with multiple paragraphs, which involve more scientific documents and more complex relationships and require planning of the survey paper’s organization.  
+
+![](images/d42a0abb59627394d2c8ae9b7f0f7d13279117525629103bdbed0f54e05de1d9.jpg)  
+Task Method Generic Metric Material Other   
+Figure 4: Case study of knowledge graphs queried from Wikidata (top) and knowledge minigraph constructed by CKMAs (bottom) for the topic “image denoising”.  
+
+# References  
+
+Achiam, J.; Adler, S.; Agarwal, S.; Ahmad, L.; Akkaya, I.; Aleman, F. L.; Almeida, D.; Altenschmidt, J.; Altman, S.; Anadkat, S.; et al. 2023. Gpt-4 technical report. arXiv preprint arXiv:2303.08774 .   
+Beltagy, I.; Lo, K.; and Cohan, A. 2019. SciBERT: A Pretrained Language Model for Scientific Text. In  Conference on Empirical Methods in Natural Language Processing , 3615–3620.   
+Beltagy, I.; Peters, M. E.; and Cohan, A. 2020. Long- former: The long-document transformer. arXiv preprint arXiv:2004.05150 .   
+Bolanos, F.; Salatino, A.; Osborne, F.; and Motta, E. 2024. Artificial intelligence for literature reviews: Opportunities and challenges.  arXiv preprint arXiv:2402.08565 .   
+Chen, X.; Alamro, H.; Li, M.; Gao, S.; Yan, R.; Gao, X.;and Zhang, X. 2022. Target-aware abstractive related work generation with contrastive learning. In  International ACM SIGIR Conference on Research and Development in Information Retrieval , 373–383.   
+Erkan, G.; and Radev, D. R. 2004. Lexrank: Graph-based lexical centrality as salience in text summarization.  Journal of Artificial Intelligence Research , 22: 457–479.   
+Fabbri, A. R.; Li, I.; She, T.; Li, S.; and Radev, D. 2019. Multi-News: A Large-Scale Multi-Document Summarization Dataset and Abstractive Hierarchical Model. In  Annual Meeting of the Association for Computational Linguistics , 1074–1084.   
+Jin, H.; Wang, T.; and Wan, X. 2020. Multi-granularity interaction network for extractive and abstractive multidocument summarization. In  Annual Meeting of the Association for Computational Linguistics , 6244–6254.   
+Lewis, M.; Liu, Y.; Goyal, N.; Ghazvininejad, M.; Mo- hamed, A.; Levy, O.; Stoyanov, V.; and Zettlemoyer, L. 2020. BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Comprehension. In  Annual Meeting of the Association for Computational Linguistics , 7871–7880.   
+Li, W.; Xiao, X.; Liu, J.; Wu, H.; Wang, H.; and Du, J. 2020. Leveraging Graph to Improve Abstractive Multi-Document Summarization. In  Annual Meeting of the Association for Computational Linguistics , 6232–6243.   
+Li, X.; and Ouyang, J. 2024. Related Work and Citation Text Generation: A Survey.  arXiv preprint arXiv:2404.11588 . Lin, C.-Y. 2004. Rouge: A package for automatic evaluation of summaries. In  Text summarization branches out , 74–81. Liu, S.; Cao, J.; Yang, R.; and Wen, Z. 2022. Generating a structured summary of numerous academic papers: Dataset and method. In  International Joint Conference on Artificial Intelligence , 4259–4265.   
+Liu, Y.; and Lapata, M. 2019. Text Summarization with Pretrained Encoders. In  Conference on Empirical Methods in Natural Language Processing , 3730–3740.   
+Lu, Y.; Dong, Y.; and Charlin, L. 2020. Multi-XScience: A Large-scale Dataset for Extreme Multi-document Summarization of Scientific Articles. In  Conference on Empirical Methods in Natural Language Processing (EMNLP) , 8068– 8074.   
+Martin-Boyle, A.; Tyagi, A.; Hearst, M. A.; and Kang, D. 2024. Shallow Synthesis of Knowledge in GPT-Generated Texts: A Case Study in Automatic Related Work Composition.  arXiv preprint arXiv:2402.12255 .   
+Mihalcea, R.; and Tarau, P. 2004. Textrank: Bringing order into text. In  Conference on Empirical Methods in Natural Language Processing , 404–411.   
+Minaee, S.; Mikolov, T.; Nikzad, N.; Chenaghlu, M.; Socher, R.; Amatriain, X.; and Gao, J. 2024. Large language models: A survey.  arXiv preprint arXiv:2402.06196 .   
+Ouyang, L.; Wu, J.; Jiang, X.; Almeida, D.; Wainwright, C.; Mishkin, P.; Zhang, C.; Agarwal, S.; Slama, K.; Ray, A.; et al. 2022. Training language models to follow instructions with human feedback.  Advances in Neural Information Processing Systems , 35: 27730–27744.   
+Pezeshkpour, P.; and Hruschka, E. 2023. Large language models sensitivity to the order of options in multiple-choice questions.  arXiv preprint arXiv:2308.11483 .   
+See, A.; Liu, P. J.; and Manning, C. D. 2017. Get To The Point: Summarization with Pointer-Generator Networks. In Annual Meeting of the Association for Computational Linguistics .   
+Shazeer, N.; Mirhoseini, A.; Maziarz, K.; Davis, A.; Le, Q.; Hinton, G.; and Dean, J. 2017. Outrageously large neural networks: The sparsely-gated mixture-of-experts layer. arXiv preprint arXiv:1701.06538 .   
+Shi, Z.; Gao, S.; Zhang, Z.; Chen, X.; Chen, Z.; Ren, P.; andRen, Z. 2023. Towards a Unified Framework for Reference Retrieval and Related Work Generation. In  Findings of the Association for Computational Linguistics , 5785–5799.   
+Tan, J. C. M.; and Motani, M. 2023. Large language model (llm) as a system of multiple expert agents: An approach to solve the abstraction and reasoning corpus (arc) challenge. arXiv preprint arXiv:2310.05146 .   
+Trajanoska, M.; Stojanov, R.; and Trajanov, D. 2023. Enhancing knowledge graph construction using large language models.  arXiv preprint arXiv:2305.04676 .   
+Van Dinter, R.; Tekinerdogan, B.; and Catal, C. 2021. Automation of systematic literature reviews: A systematic literature review.  Information and Software Technology , 136: 106589.   
+Wadden, D.; Wennberg, U.; Luan, Y.; and Hajishirzi, H. 2019. Entity, Relation, and Event Extraction with Contextualized Span Representations. In  Conference on Empirical Methods in Natural Language Processing .   
+Wagner, G.; Lukyanenko, R.; and Par´ e, G. 2022. Artificial intelligence and the conduct of literature reviews.  Journal of Information Technology , 37(2): 209–226.   
+Wang, D.; Liu, P.; Zheng, Y.; Qiu, X.; and Huang, X.-J. 2020. Heterogeneous Graph Neural Networks for Extractive Document Summarization. In  Annual Meeting of the Association for Computational Linguistics , 6209–6219. Wang, H.; Fu, T.; Du, Y.; Gao, W.; Huang, K.; Liu, Z.; Chan- dak, P.; Liu, S.; Van Katwyk, P.; Deac, A.; et al. 2023. Sci- entific discovery in the age of artificial intelligence.  Nature , 620(7972): 47–60.   
+Wang, P.; Li, S.; Pang, K.; He, L.; Li, D.; Tang, J.; and Wang, T. 2022. Multi-Document Scientific Summarization from a Knowledge Graph-Centric View. In  International Conference on Computational Linguistics , 6222–6233.   
+Wang, Q.; Edwards, C.; Ji, H.; and Hope, T. 2024. Towards a Human-Computer Collaborative Scientific Paper Lifecycle: A Pilot Study and Hands-On Tutorial. In  Joint International Conference on Computational Linguistics, Language Resources and EvaluationSummaries , 56–67.   
+Xiao, W.; Beltagy, I.; Carenini, G.; and Cohan, A. 2022. PRIMERA: Pyramid-based Masked Sentence Pre-training for Multi-document Summarization. In  Annual Meeting of the Association for Computational Linguistics , 5245–5263. Zakkas, P.; Verberne, S.; and Zavrel, J. 2024. SumBlogger: Abstractive Summarization of Large Collections of Scientific Articles. In  European Conference on Information Retrieval , 371–386.   
+Zhang, Y.; Gao, S.; Huang, Y.; Yu, Z.; and Tan, K. 2024a. 3A-COT: an attend-arrange-abstract chain-of-thought for multi-document summarization. International Journal of Machine Learning and Cybernetics , 1–19.   
+Zhang, Z.; Chen, R.; Liu, S.; Yao, Z.; Ruwase, O.; Chen, B.; Wu, X.; and Wang, Z. 2024b. Found in the middle: How language models use long contexts better via plug-and-play positional encoding.  arXiv preprint arXiv:2403.04797 .   
+Zhao, W. X.; Zhou, K.; Li, J.; Tang, T.; Wang, X.; Hou, Y.; Min, Y.; Zhang, B.; Zhang, J.; Dong, Z.; et al.2023. A survey of large language models.  arXiv preprint arXiv:2303.18223 .   
+Zou, X. 2020. A survey on application of knowledge graph. In  Journal of Physics: Conference Series , volume 1487, 012016.  
