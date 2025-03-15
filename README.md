@@ -50,8 +50,8 @@ cd Auto_Survey_Generator_pdf
 ### 2️⃣ Set Up the Environment
 Create a virtual environment and activate it:
 ```sh
-python -m venv venv
-source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+conda create -n livesurvey python=3.10
+conda activate livesurvey
 ```
 Install the required dependencies:
 ```sh
