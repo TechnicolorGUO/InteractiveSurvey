@@ -81,11 +81,20 @@ _(Replace 8001 with any available port number of your choice.)_
 ### 5️⃣ Access the Application
 Once the server is running, open your browser and navigate to:
 ```
-http://localhost:8001```
+http://localhost:8001
 ```
 You can now use the ​Auto Literature Survey Generator to upload, analyze, and generate literature surveys!
 
+<hr>
+
 ## Use Docker （Recommended）
+Before proceeding, ensure you have cloned the repository and configured your `.env` file in the root directory of the project. The `.env` file must include the following configurations:
+```env
+OPENAI_API_KEY=<your_openai_api_key_here>
+OPENAI_API_BASE=<your_openai_api_base_here>
+MODEL=<your_preferred_model_here>
+```
+Replace the placeholders with your actual OpenAI API key, API base URL, and preferred model.
 
 ### GPU Version
 If you have GPU support, you can build and run the GPU version of the Docker container using the following commands:
@@ -112,6 +121,9 @@ docker run -p 8001:8001 my-docker-app
 ```
 
 After starting the container, access http://localhost:8001 to confirm that the application is running correctly.
+
+<hr>
+
 ## Direct Survey Generation Without Frontend
 
 If you want to generate surveys directly without using the frontend, follow these steps:
