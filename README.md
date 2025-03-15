@@ -15,7 +15,7 @@
 <div align="center">
 <hr>
 
-[Quick Start](#quick-start) | [Use Docker(Recommended)](#use-docker(Recommended)) | [Paper]()
+[Quick Start](#quick-start) | [Use Docker(Recommended)](##use-docker-recommended) | [Paper]()
 
 </div>
 
