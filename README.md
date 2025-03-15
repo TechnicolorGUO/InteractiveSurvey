@@ -112,11 +112,42 @@ docker run -p 8001:8001 my-docker-app
 ```
 
 After starting the container, access http://localhost:8001 to confirm that the application is running correctly.
-## Cite
+## Direct Survey Generation Without Frontend
 
-Please cite the following 
+If you want to generate surveys directly without using the frontend, follow these steps:
 
+1. Navigate to the `src/demo/survey_generation_pipeline` directory:
+```bash
+cd src/demo/survey_generation_pipeline
 ```
+2. Copy the `.env` file to this directory. If you already have a .env file in the root of your project, you can copy it like this:
+```bash
+cp ../../../.env .
+```
+*Note*: Ensure the `.env` file contains the required configurations (e.g., `OPENAI_API_KEY`, `OPENAI_API_BASE`, and `MODEL`).
+
+3. Run the pipeline directly:
+```bash
+python main.py
+```
+This will execute the survey generation pipeline on our sample PDFs and output the results (.md and .pdf) to the `result` folder directly.
+
+4. Modify the script for your own sample
+The `main.py` contains the following code to generate a survey:
+
+```python
+if __name__ == "__main__":
+    root_path = "."
+    pdf_path = "./sample_pdfs" #Set this to the path of the folder containing your PDF files.
+    survey_title = "Automating Literature Review Generation with LLM" #Set this to the title of your survey.
+    cluster_standard = "method" #Set this to the clustering standard you want to use.
+    asg_system = ASG_system(root_path, 'test', pdf_path, survey_title, cluster_standard) #test refers to the survey_id which prevent you from parsing pdfs again.
+    asg_system.parsing_pdfs()
+    asg_system.description_generation()
+    asg_system.agglomerative_clustering()
+    asg_system.outline_generation()
+    asg_system.section_generation()
+    asg_system.citation_generation()
 ```
 
 ## Contact
