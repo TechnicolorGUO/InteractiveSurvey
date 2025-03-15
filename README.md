@@ -55,7 +55,7 @@ source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 ```
 Install the required dependencies:
 ```sh
-python setup_env.py
+python scripts/setup_env.py
 ```
 
 ### 3️⃣ Configure Environment Variables
