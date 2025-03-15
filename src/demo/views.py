@@ -1,9 +1,11 @@
 from __future__ import unicode_literals
+import sys
 
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
+from django.core.files.uploadedfile import InMemoryUploadedFile
 import os
 import json
 import requests
@@ -12,6 +14,7 @@ import pandas as pd
 import numpy as np
 import shutil
 import traceback
+from io import BytesIO
 
 from demo.ref_paper_desp import ref_desp
 import hashlib
@@ -34,7 +37,7 @@ from .asg_loader import DocumentLoading
 # from .parse import DocumentLoading
 from .asg_retriever import legal_pdf, process_pdf, query_embeddings,query_embeddings_new, query_embeddings_new_new, query_multiple_collections
 from .asg_generator import generate,generate_sentence_patterns
-from .asg_outline import OutlineGenerator, generateOutlineHTML,generateOutlineHTML_qwen, generateSurvey,generateSurvey_qwen, generateSurvey_qwen_new
+from .asg_outline import OutlineGenerator,generateOutlineHTML_qwen, generateSurvey_qwen_new
 from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name, generate_cluster_name_new
 from .postprocess import reindex_citations, generate_references_section
 from .asg_query import generate_query_qwen
@@ -113,6 +116,7 @@ Global_description_list = []
 Global_pipeline = None
 Global_cluster_names = []
 Global_citation_data = []
+Global_cluster_num = 4
 
 
 embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
@@ -122,17 +126,17 @@ from demo.taskDes import absGen, introGen,introGen_supervised, methodologyGen, c
 from demo.category_and_tsne import clustering
 
 
-model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-Global_pipeline = transformers.pipeline(
-    "text-generation",
-    model=model_id,
-    model_kwargs={"torch_dtype": torch.bfloat16},
-    token = os.getenv('HF_API_KEY'),
-    device_map="auto",
-)
-Global_pipeline.model.load_adapter(peft_model_id = "technicolor/llama3.1_8b_outline_generation", adapter_name="outline")
-Global_pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_abstract_generation", adapter_name="abstract")
-Global_pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_conclusion_generation", adapter_name="conclusion")
+# model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+# Global_pipeline = transformers.pipeline(
+#     "text-generation",
+#     model=model_id,
+#     model_kwargs={"torch_dtype": torch.bfloat16},
+#     token = os.getenv('HF_API_KEY'),
+#     device_map="auto",
+# )
+# Global_pipeline.model.load_adapter(peft_model_id = "technicolor/llama3.1_8b_outline_generation", adapter_name="outline")
+# Global_pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_abstract_generation", adapter_name="abstract")
+# Global_pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_conclusion_generation", adapter_name="conclusion")
 
 # Global_pipeline.model.disable_adapters()
 
@@ -365,6 +369,30 @@ def sanitize_filename_py(filename):
         extension = filename[last_dot + 1:]
         return sanitize_part(name) + '.' + sanitize_part(extension)
 
+def get_existing_survey_ids():
+    """
+    从 src/static/data/tsv 文件夹读取所有 TSV 文件，将文件名（不包含 .tsv 后缀）作为可选 survey id 返回。
+    如果你的项目结构较复杂，可能需要使用 Django 的 settings.BASE_DIR 来构造绝对路径。
+    """
+    # 拼接相对路径，这里假设当前工作目录能正确定位到 src 文件夹
+    tsv_directory = os.path.join("src", "static", "data", "tsv")
+    survey_ids = []
+    try:
+        for file_name in os.listdir(tsv_directory):
+            if file_name.endswith(".tsv"):
+                # 去掉 .tsv 后缀
+                survey_ids.append(file_name[:-4])
+    except Exception as e:
+        print("Error reading tsv directory:", e)
+    return survey_ids
+
+def get_surveys(request):
+    """
+    Ajax 接口：返回当前文件夹中的所有 survey id 列表
+    """
+    surveys = get_existing_survey_ids()
+    return JsonResponse({'surveys': surveys})
+
 @csrf_exempt
 def upload_refs(request):
     start_time = time.time()
@@ -383,6 +411,32 @@ def upload_refs(request):
         file_name = list(file_dict.keys())[0]
         # print(file_dict)
         # print(list(file_dict.keys()))
+        RECOMMENDED_PDF_DIR = os.path.join("src", "static", "data", "pdf", "recommend_pdfs")
+        file_dict = request.FILES.copy()  # 复制 request.FILES，避免直接修改 QueryDict
+        if os.path.exists(RECOMMENDED_PDF_DIR):
+            for pdf_name in os.listdir(RECOMMENDED_PDF_DIR):
+                if pdf_name.endswith(".pdf"):  # 只处理 PDF 文件
+                    pdf_path = os.path.join(RECOMMENDED_PDF_DIR, pdf_name)
+
+                    # 读取文件内容到内存
+                    with open(pdf_path, 'rb') as f:
+                        pdf_content = BytesIO(f.read())
+
+                    # 模拟 Django 上传文件对象
+                    uploaded_pdf = InMemoryUploadedFile(
+                        pdf_content,  # 文件数据
+                        field_name="file",  # 字段名
+                        name=pdf_name,  # 文件名
+                        content_type="application/pdf",  # MIME 类型
+                        size=os.path.getsize(pdf_path),  # 文件大小
+                        charset=None
+                    )
+
+                    # 加入到 `file_dict`
+                    file_dict[f"recommend_{pdf_name}"] = uploaded_pdf  # 避免冲突，加前缀
+
+            # 4️⃣ 删除 `recommend_pdfs/` 目录，避免重复上传
+            shutil.rmtree(RECOMMENDED_PDF_DIR)
 
         global Global_survey_id
         global Global_test_flag
@@ -393,15 +447,23 @@ def upload_refs(request):
         Global_survey_title = request.POST.get('topic', False)
         process_pdf_mode = request.POST.get('mode', False)
 
-        if Global_test_flag == True:
-            uid_str = 'test_4'
+        # 根据用户选择设置 Global_survey_id
+        survey_id_choice = request.POST.get('survey_id')
+        if survey_id_choice == "new":
+            # 用户选择新建 survey id
+            custom_survey_id = request.POST.get('custom_survey_id', '').strip()
+            if custom_survey_id:
+                Global_survey_id = custom_survey_id
+            else:
+                # 用户选择了新建但未填写自定义 id，则根据测试标志生成 id
+                Global_survey_id = 'test_4' if Global_test_flag else generate_uid()
         else:
-            uid_str = generate_uid()
-        Global_survey_id = uid_str
-        print('Uploaded survey id', Global_survey_id)
+            # 用户选择了已有的 survey id
+            Global_survey_id = survey_id_choice
+        uid_str = Global_survey_id
 
-        for file_name in request.FILES:
-            file = request.FILES[file_name]
+        for file_name in file_dict:
+            file = file_dict[file_name]
             if not file.name:
                 return JsonResponse({'error': 'No selected file'}, status=400)
             if file:
@@ -413,7 +475,7 @@ def upload_refs(request):
                 # 构建文件存储路径
                 # Replace spaces with underscores or another safe character if needed in paths
                 # Here, spaces are kept as per requirement
-                file_path = os.path.join('src', 'static', 'data', 'pdf', uid_str, sanitized_filename)
+                file_path = os.path.join('src', 'static', 'data', 'pdf', Global_survey_id, sanitized_filename)
          
                 
                 # 检查文件是否存在
@@ -434,9 +496,9 @@ def upload_refs(request):
                 print(filesizes)
 
         # print("The global collection names are:", Global_collection_names)
-        global Survey_dict
-        survey_title = file_name.split('.')[-1].title()
-        Survey_dict[uid_str] = survey_title
+        # global Survey_dict
+        # survey_title = file_name.split('.')[-1].title()
+        # Survey_dict[uid_str] = survey_title
 
         new_file_name = Global_survey_id
         csvfile_name = new_file_name + '.'+ file_name.split('.')[-1]
@@ -529,7 +591,7 @@ def upload_refs(request):
                 input_pd["intro"] = input_pd["reference paper introduction (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid introduction')
 
                 # optional columns
-                input_pd["ref_link"] = input_pd["reference paper doi link (optional)"].apply(lambda x: x if len(str(x))>0 else '')
+                # input_pd["ref_link"] = input_pd["reference paper doi link (optional)"].apply(lambda x: x if len(str(x))>0 else '')
                 input_pd["label"] = input_pd["reference paper category label (optional)"].apply(lambda x: str(x) if len(str(x))>0 else '')
                 #input_pd["label"] = input_pd["reference paper category id (optional)"].apply(lambda x: str(x) if len(str(x))>0 else '')
             except:
@@ -537,57 +599,57 @@ def upload_refs(request):
                 is_valid_submission = False
 
             ## get cluster_num, check has_label_id
-            stat_input_pd_labels = input_pd["label"].value_counts()
+            # stat_input_pd_labels = input_pd["label"].value_counts()
             #pdb.set_trace()
-            clusters_topic_words = []
-            if len(stat_input_pd_labels.keys())>1:
-                cluster_num = len(stat_input_pd_labels.keys())
-                clusters_topic_words = stat_input_pd_labels.keys().tolist()
-                has_label_id = True
-            else:
-                #pdb.set_trace()
-                cluster_num = 3
+            # clusters_topic_words = []
+            # if len(stat_input_pd_labels.keys())>1:
+            #     cluster_num = len(stat_input_pd_labels.keys())
+            #     clusters_topic_words = stat_input_pd_labels.keys().tolist()
+            #     has_label_id = True
+            # else:
+            #     #pdb.set_trace()
+            #     cluster_num = 3
                 
-            global Survey_n_clusters
-            Survey_n_clusters[uid_str] = cluster_num
-            global Survey_Topic_dict
-            Survey_Topic_dict[uid_str] = clusters_topic_words
+            # global Survey_n_clusters
+            # Survey_n_clusters[uid_str] = cluster_num
+            # global Survey_Topic_dict
+            # Survey_Topic_dict[uid_str] = clusters_topic_words
 
-            ## check has_ref_link
-            if len(input_pd["ref_link"].value_counts().keys())>1:
-                has_ref_link = True
+            # ## check has_ref_link
+            # if len(input_pd["ref_link"].value_counts().keys())>1:
+            #     has_ref_link = True
 
 
             ## get keywords
-            try:
-                #pdb.set_trace()
-                input_pd["topic_word"],input_pd["topic_bigram"],input_pd["topic_trigram"] = ['']*ref_paper_num,['']*ref_paper_num,['']*ref_paper_num
-                # input_pd["topic_word"],input_pd["topic_bigram"],input_pd["topic_trigram"] = PosRank_get_top5_ngrams(input_pd)
-                # input_pd["topic_word"],input_pd["topic_bigram"],input_pd["topic_trigram"] = abs_top5_unigram_list_list, abs_top5_bigram_list_list, abs_top5_trigram_list_list
+            # try:
+            #     #pdb.set_trace()
+            #     input_pd["topic_word"],input_pd["topic_bigram"],input_pd["topic_trigram"] = ['']*ref_paper_num,['']*ref_paper_num,['']*ref_paper_num
+            #     # input_pd["topic_word"],input_pd["topic_bigram"],input_pd["topic_trigram"] = PosRank_get_top5_ngrams(input_pd)
+            #     # input_pd["topic_word"],input_pd["topic_bigram"],input_pd["topic_trigram"] = abs_top5_unigram_list_list, abs_top5_bigram_list_list, abs_top5_trigram_list_list
 
-                #Survey_Topic_dict[uid_str] = input_pd["topic_word"]
-            except:
-                print("Cannot select keywords")
-                is_valid_submission = False
-                #Survey_Topic_dict[uid_str] = []
+            #     #Survey_Topic_dict[uid_str] = input_pd["topic_word"]
+            # except:
+            #     print("Cannot select keywords")
+            #     is_valid_submission = False
+            #     #Survey_Topic_dict[uid_str] = []
 
             #pdb.set_trace()
             ## generate reference description
-            try:
-                # nltk.download('punkt')
-                # nltk.download('averaged_perceptron_tagger')
-                # nltk.download('wordnet')
-                # nltk.download("maxent_treebank_pos_tagger")
-                ref_desp_gen = ref_desp(input_pd)
-                description_list = ref_desp_gen.ref_desp_generator()
-                ref_desp_list=[]
-                for ref_desp_set in description_list:
-                    ref_desp_list.append(ref_desp_set[1])
-                #pdb.set_trace()
-                input_pd["description"]=ref_desp_list
-            except:
-                print("Cannot generate reference paper's description")
-                is_valid_submission = False
+            # try:
+            #     # nltk.download('punkt')
+            #     # nltk.download('averaged_perceptron_tagger')
+            #     # nltk.download('wordnet')
+            #     # nltk.download("maxent_treebank_pos_tagger")
+            #     ref_desp_gen = ref_desp(input_pd)
+            #     description_list = ref_desp_gen.ref_desp_generator()
+            #     ref_desp_list=[]
+            #     for ref_desp_set in description_list:
+            #         ref_desp_list.append(ref_desp_set[1])
+            #     #pdb.set_trace()
+            #     input_pd["description"]=ref_desp_list
+            # except:
+            #     print("Cannot generate reference paper's description")
+            #     is_valid_submission = False
 
             #pdb.set_trace()
             ## output tsv
@@ -595,17 +657,17 @@ def upload_refs(request):
                 output_tsv_filename = "./src/static/data/tsv/" + new_file_name + '.tsv'
 
                 #output_df = input_pd[["ref_title","ref_context","ref_entry","abstract","intro","description"]]
-                output_df = input_pd[["ref_title","ref_context","ref_entry","abstract","intro","topic_word","topic_bigram","topic_trigram","description"]]
+                output_df = input_pd[["ref_title","ref_context","ref_entry","abstract","intro"]]
                 # print(output_df)
 
                 if has_label_id == True:
                     output_df["label"]=input_pd["label"]
                 else:
                     output_df["label"]=[""]*input_pd.shape[0]
-                if has_ref_link == True:
-                    output_df["ref_link"]=input_pd["ref_link"]
-                else:
-                    output_df["ref_link"]=[""]*input_pd.shape[0]
+                # if has_ref_link == True:
+                #     output_df["ref_link"]=input_pd["ref_link"]
+                # else:
+                #     output_df["ref_link"]=[""]*input_pd.shape[0]
 
                 #pdb.set_trace()
                 output_df.to_csv(output_tsv_filename, sep='\t')
@@ -619,36 +681,37 @@ def upload_refs(request):
             is_valid_submission = False
 
         if is_valid_submission == True:
-            if len(clusters_topic_words) == 0:
-                references = output_df['ref_title'].tolist()
-                ref_links = output_df['ref_link'].tolist()
-                ref_ids = [i for i in range(output_df['ref_title'].shape[0])]
+            # if len(clusters_topic_words) == 0:
+            #     references = output_df['ref_title'].tolist()
+            #     ref_links = output_df['ref_link'].tolist()
+            ref_ids = [i for i in range(output_df['ref_title'].shape[0])]
 
-            elif len(clusters_topic_words)>0:
-                references = []
-                ref_links = []
-                ref_ids = []
-                for df in output_df.groupby('label'):
-                    references.append(list(df[1]['ref_title']))
-                    ref_links.append(list(df[1]['ref_link']))
-                    ref_ids.append(df[1].index.tolist())
+            # elif len(clusters_topic_words)>0:
+            #     references = []
+            #     ref_links = []
+            # ref_ids = []
+            # for df in output_df.groupby('label'):
+                # references.append(list(df[1]['ref_title']))
+                # ref_links.append(list(df[1]['ref_link']))
+                # ref_ids.append(df[1].index.tolist())
                     #pdb.set_trace()
                     #ref_ids.append(list(df[1]['ref_id']))
 
-            ref_list = {'references':[i.title() for i in references],
-                        'ref_links':ref_links,
+            ref_list = {
+                        # 'references':[i.title() for i in references],
+                        # 'ref_links':ref_links,
                         'ref_ids':ref_ids,
                         'is_valid_submission':is_valid_submission,
                         "uid":uid_str,
                         "tsv_filename":output_tsv_filename,
-                        'topic_words': clusters_topic_words,
+                        # 'topic_words': clusters_topic_words,
                         'filenames': filenames,
                         'filesizes': filesizes,
                         'survey_id': Global_survey_id
                         }
 
         else:
-            ref_list = {'references':[],'ref_links':[],'ref_ids':[],'is_valid_submission':is_valid_submission,"uid":uid_str,"tsv_filename":output_tsv_filename,'topic_words': [], 'filenames': filenames, 'filesizes': filesizes, 'survey_id': Global_survey_id}
+            ref_list = {'ref_ids':[],'is_valid_submission':is_valid_submission,"uid":uid_str,"tsv_filename":output_tsv_filename, 'filenames': filenames, 'filesizes': filesizes, 'survey_id': Global_survey_id}
             #ref_list = {'references':[],'ref_links':[],'ref_ids':[]}
         #pdb.set_trace()
         ref_list = json.dumps(ref_list)
@@ -675,6 +738,50 @@ def generate_arxiv_query(request):
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
+@csrf_exempt
+def download_pdfs(request):
+    if request.method == "POST":
+        try:
+            # 解析 JSON 数据
+            data = json.loads(request.body)
+            pdf_links = data.get("pdf_links", [])
+            pdf_titles = data.get("pdf_titles", [])
+            print(pdf_links)
+
+            if not pdf_links:
+                return JsonResponse({"message": "No PDFs to download."}, status=400)
+
+            # 构建目标文件夹路径
+            base_dir = os.path.join(os.getcwd(), "src", "static", "data", "pdf", "recommend_pdfs")
+            os.makedirs(base_dir, exist_ok=True)  # 确保目录存在
+
+            downloaded_files = []
+            i=0
+            for pdf_url in pdf_links:
+                try:
+                    response = requests.get(pdf_url, stream=True)
+                    if response.status_code == 200:
+                        pdf_filename = os.path.join(base_dir, str(pdf_titles[i])+".pdf")
+                        i+=1
+                        with open(pdf_filename, "wb") as pdf_file:
+                            for chunk in response.iter_content(chunk_size=1024):
+                                pdf_file.write(chunk)
+                        downloaded_files.append(pdf_filename)
+                        print("Success")
+                    else:
+                        print(f"Failed to download {pdf_url}")
+                except Exception as e:
+                    print(f"Error downloading {pdf_url}: {e}")
+            
+            print("Download finish")
+            return JsonResponse({"message": f"Downloaded {len(downloaded_files)} PDFs successfully!", "files": downloaded_files})
+
+        except json.JSONDecodeError:
+            return JsonResponse({"message": "Invalid JSON data."}, status=400)
+        except Exception as e:
+            return JsonResponse({"message": "An error occurred.", "error": str(e)}, status=500)
+
+    return JsonResponse({"message": "Invalid request method."}, status=405)
 @csrf_exempt
 def annotate_categories(request):
     # Global_survey_id = request.POST.get('uid', False)
@@ -722,10 +829,18 @@ def get_topic(request):
 
 @csrf_exempt
 def automatic_taxonomy(request):
-    global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label, Global_collection_names_clustered
+    global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label, Global_collection_names_clustered, Global_cluster_num
     ref_dict = dict(request.POST)
     ref_list = ref_dict['refs']
     query = ref_dict['taxonomy_standard'][0]
+
+    #3.10 Disable the cluster_num selection
+    # Global_cluster_num = int(ref_dict['Global_cluster_num'][0])
+
+    #Automatical cluster_num determination
+
+
+
     query_list = generate_sentence_patterns(query)
     print(query_list)
 
@@ -749,6 +864,7 @@ def automatic_taxonomy(request):
     # 定义文件名
     file_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
 
+    csv.field_size_limit(sys.maxsize)
     # 读取现有文件并追加新列
     with open(file_path, 'r', newline='', encoding='utf-8') as infile:
         reader = csv.reader(infile, delimiter='\t')
@@ -779,7 +895,7 @@ def automatic_taxonomy(request):
 
     print('Categorization survey id', Global_survey_id)
 
-    colors, category_label =  Clustering_refs(n_clusters=3) # fix with 3
+    colors, category_label =  Clustering_refs(n_clusters=Global_cluster_num)
     # colors, category_label, category_description = Clustering_refs_with_criteria(n_clusters=Survey_n_clusters[Global_survey_id], query=query)
 
     Global_category_label = category_label
@@ -801,21 +917,21 @@ def automatic_taxonomy(request):
     #     token = os.getenv('HF_API_KEY'),
     #     device_map="auto",
     # )
-    for i in range(len(category_label)):
-        messages = [
-            {"role": "system", "content": "You are a research topic summarizer and your task is to summarize the following keywords into one phrase as a cluster name within five words research topic. Noted that you are only allowed to output one research topic in total.\
-                For example, the keywords are: Neural Networks_Deep Learning_Convolutional Layers_Backpropagation_Gradient Descent_Activation Functions_Supervised Learning_Model Training_Data Preprocessing_Overfitting\
-                and your response should be: 'Deep Learning Techniques' these three words purely."},
-            {"role": "user", "content": "The keywords are: " + str(category_label[i])},
-        ]
-        outputs = Global_pipeline(
-            messages,
-            max_new_tokens=256,
-        )
-        if len(outputs[0]["generated_text"][-1]['content'].split())>8:
-            category_label_summarized.append(category_label[i][0])
-        else:
-            category_label_summarized.append(outputs[0]["generated_text"][-1]['content'].replace("'",'').replace('"','').strip())
+    # for i in range(len(category_label)):
+    #     messages = [
+    #         {"role": "system", "content": "You are a research topic summarizer and your task is to summarize the following keywords into one phrase as a cluster name within five words research topic. Noted that you are only allowed to output one research topic in total.\
+    #             For example, the keywords are: Neural Networks_Deep Learning_Convolutional Layers_Backpropagation_Gradient Descent_Activation Functions_Supervised Learning_Model Training_Data Preprocessing_Overfitting\
+    #             and your response should be: 'Deep Learning Techniques' these three words purely."},
+    #         {"role": "user", "content": "The keywords are: " + str(category_label[i])},
+    #     ]
+    #     outputs = Global_pipeline(
+    #         messages,
+    #         max_new_tokens=256,
+    #     )
+    #     if len(outputs[0]["generated_text"][-1]['content'].split())>8:
+    #         category_label_summarized.append(category_label[i][0])
+    #     else:
+    #         category_label_summarized.append(outputs[0]["generated_text"][-1]['content'].replace("'",'').replace('"','').strip())
     tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
 
     # comment this for old version
@@ -825,7 +941,8 @@ def automatic_taxonomy(request):
     # category_label_summarized = refine_cluster_name(category_label_summarized, Global_survey_title)
 
     #V2
-    category_label_summarized = generate_cluster_name_new(tsv_path, Global_survey_title)   
+    cluster_num = Global_cluster_num
+    category_label_summarized = generate_cluster_name_new(tsv_path, Global_survey_title, cluster_num)   
     Global_cluster_names = category_label_summarized
 
     # print(category_label)
@@ -853,9 +970,10 @@ def automatic_taxonomy(request):
         json.dump(cluster_info, outfile, indent=4, ensure_ascii=False)
 
     
-    outline_generator = OutlineGenerator(Global_pipeline, Global_df_selected, Global_cluster_names)
+    # outline_generator = OutlineGenerator(Global_pipeline, Global_df_selected, Global_cluster_names)
+    outline_generator = OutlineGenerator(Global_df_selected, Global_cluster_names)
     outline_generator.get_cluster_info()
-    messages, outline = outline_generator.generate_outline_qwen(Global_survey_title)
+    messages, outline = outline_generator.generate_outline_qwen(Global_survey_title, Global_cluster_num)
     # print(outline)
 
     outline_json = {'messages':messages, 'outline': outline}
@@ -1250,16 +1368,20 @@ def get_survey_text(refs=Global_ref_list):
     return survey
 
 def Clustering_refs(n_clusters):
+    global Global_cluster_num
     df = pd.read_csv(TSV_PATH + Global_survey_id + '.tsv', sep='\t', index_col=0, encoding='utf-8')
     # print(df.describe())
     # print(df)
-    # print(Global_ref_list)
+    print(Global_ref_list)
+    print("x"*24)
     df_selected = df.iloc[Global_ref_list]
     
     # print(df_selected)
 
     ## update cluster labels and keywords
-    df_selected, colors = clustering(df_selected, n_clusters, Global_survey_id)
+    # df_selected, colors = clustering(df_selected, n_clusters, Global_survey_id)
+    df_selected, colors, best_n_topics = clustering(df_selected, [3,4,5], Global_survey_id)
+    Global_cluster_num = best_n_topics
 
     global Global_df_selected
     Global_df_selected = df_selected

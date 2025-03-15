@@ -5,13 +5,13 @@ import os
 import json
 import re
 import ast
-from .survey_generator_api import *
-from .asg_abstract import AbstractGenerator
-from .asg_conclusion import ConclusionGenerator
-from .asg_retriever import *
+from survey_generator_api import *
+from asg_abstract import AbstractGenerator
+from asg_conclusion import ConclusionGenerator
+from asg_retriever import *
 import pandas as df
-from .references import generate_references
-from .survey_generator_api import introduction_with_citations 
+from references import generate_references
+from survey_generator_api import introduction_with_citations 
 
 
 class OutlineGenerator():
@@ -257,8 +257,8 @@ class OutlineGenerator():
         return messages, clean_text
 
     
-def parseOutline(survey_id):
-    file_path = f'./src/static/data/txt/{survey_id}/outline.json'
+def parseOutline(survey_id, info_path = './src/static/data/txt'):
+    file_path = f'{info_path}/{survey_id}/outline.json'
     with open(file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
   
@@ -296,7 +296,7 @@ def parseOutline(survey_id):
     return result
 
 def generateOutlineHTML_qwen(survey_id):
-    outline_list = parseOutline(survey_id)
+    outline_list = parseOutline(survey_id, txt_path='./txt')
     html = '''
     <div class="container-fluid w-50 d-flex flex-column justify-content-center align-items-center">
 
@@ -897,8 +897,8 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
     return
 
 # wza
-def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citation_data_list):
-    outline = str(parseOutline(survey_id))
+def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citation_data_list, txt_path = "./src/static/data/txt"):
+    outline = str(parseOutline(survey_id,  info_path ='./info'))
     client = getQwenClient()
     context_list = generate_context_list(outline, collection_list)
 
@@ -926,7 +926,7 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client, citation_data_list)
 
     generated_introduction = generate_introduction_alternate(title, generated_survey_paper, client)
-    # generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
+    generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
     # print("\nGenerated Introduction:\n", generated_introduction)
     # abs_generator = AbstractGenerator(pipeline)
     # abstract = abs_generator.generate(title, generated_introduction)
@@ -939,7 +939,7 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
     #New version: 12/03
     future_directions = generate_future_work(generated_survey_paper, client)
-    references = generate_references_dir('./src/static/data/txt/'+survey_id)
+    references = generate_references_dir(txt_path+'/'+survey_id)
     temp["abstract"] = abstract
     temp["introduction"] = generated_introduction
     temp["content"] = generated_survey_paper
@@ -949,7 +949,7 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
     temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
     temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
-    output_path = f'./src/static/data/txt/{survey_id}/generated_result.json'
+    output_path = f'{txt_path}/{survey_id}/generated_result.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(temp, f, ensure_ascii=False, indent=4)
     print(f"Survey has been saved to {output_path}.")

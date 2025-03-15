@@ -5,9 +5,9 @@ import os
 import json
 import chromadb
 from langchain_chroma import Chroma
-from .asg_splitter import TextSplitting
+from asg_splitter import TextSplitting
 from langchain_huggingface import HuggingFaceEmbeddings
-from .asg_loader import DocumentLoading
+from asg_loader import DocumentLoading
 import time
 import concurrent.futures
 

@@ -17,7 +17,7 @@ import base64
 import concurrent.futures
 import numpy as np
 from numpy.linalg import norm
-from .asg_retriever import Retriever
+from asg_retriever import Retriever
 
 def getQwenClient(): 
     # openai_api_key = os.environ.get("OPENAI_API_KEY")
@@ -723,6 +723,7 @@ def generate_survey_paper_new(title, outline, context_list, client):
     full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
     return full_survey_content
 
+# wza
 # wza
 def generate_survey_paper_new(title, outline, context_list, client, citation_data_list):
     parsed_outline = ast.literal_eval(outline)
