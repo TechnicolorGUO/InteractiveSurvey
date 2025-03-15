@@ -1,12 +1,12 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/log.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/log.svg">
-    <img src="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/log.svg" alt="Logo" width="50%" height="50%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/resources/logo.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/resources/logo.svg">
+    <img src="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/resources/logo.svg" alt="Logo" width="50%" height="50%">
   </picture>
 </p>
 
-<p align="center">A <b>Interactive</b> and <b>Automatic</b> survey generator.
+<p align="center">A <b>Interactive</b> and <b>Automatic</b> literature survey generator.
 </p>
 <p align="center">
 <img alt="python" src="https://img.shields.io/badge/python-3.11-blue">
