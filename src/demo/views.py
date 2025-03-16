@@ -41,6 +41,7 @@ from .asg_outline import OutlineGenerator,generateOutlineHTML_qwen, generateSurv
 from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name, generate_cluster_name_new
 from .postprocess import reindex_citations, generate_references_section
 from .asg_query import generate_query_qwen
+from .asg_add_flowchart import insert_ref_images
 # from .survey_generator_api import ensure_all_papers_cited
 import glob
 import nltk
@@ -1433,15 +1434,17 @@ def normalize_citations_with_mapping(paper_text):
 def generate_references_section(citation_mapping, collection_pdf_mapping):
     
     references = ["# References"]  # 生成引用部分
+    ref_list = []
     for num in sorted(citation_mapping.keys()):
         collection_name = citation_mapping[num]
         pdf_name = collection_pdf_mapping.get(collection_name, "Unknown PDF")
         if pdf_name.endswith(".pdf"):
             pdf_name = pdf_name[:-4]
+        ref_list.append(pdf_name)
         # 在每一行末尾添加两个空格以确保换行
         references.append(f"[{num}] {pdf_name}  ")
 
-    return "\n".join(references)
+    return "\n".join(references), ref_list
 
 #wzawza
 def fix_citation_punctuation_md(text):
@@ -1460,7 +1463,7 @@ def fix_citation_punctuation_md(text):
 def finalize_survey_paper(paper_text, 
                           Global_collection_names, 
                           Global_file_names):
-
+    global Global_survey_id
     # 1) 删除所有不想要的旧引用（包括 [数字]、[Sewon, 2021] 等）
     paper_text = remove_invalid_citations(paper_text, Global_collection_names)
 
@@ -1474,8 +1477,11 @@ def finalize_survey_paper(paper_text,
     collection_pdf_mapping = dict(zip(Global_collection_names, Global_file_names))
     
     # 5) 生成 References
-    references_section = generate_references_section(citation_mapping, collection_pdf_mapping)
-    
+    references_section, ref_list = generate_references_section(citation_mapping, collection_pdf_mapping)
+    print(ref_list)
+    #5.5
+    normalized_text = insert_ref_images(f'src/static/data/info/{Global_survey_id}/flowchart_results.json', ref_list, normalized_text)
+
     # 6) 合并正文和 References
     final_paper = normalized_text.strip() + "\n\n" + references_section
     return final_paper

@@ -880,13 +880,13 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
     # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
     #New version: 12/03
     future_directions = generate_future_work(generated_survey_paper, client)
-    references = generate_references_dir('./src/static/data/txt/'+survey_id)
+    # references = generate_references_dir('./src/static/data/txt/'+survey_id)
     temp["abstract"] = abstract
     temp["introduction"] = generated_introduction
     temp["content"] = generated_survey_paper
     temp["conclusion"] = conclusion
     temp["future_directions"] = future_directions
-    temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
+    # temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
     temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
     temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
     temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
@@ -939,13 +939,13 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
     #New version: 12/03
     future_directions = generate_future_work(generated_survey_paper, client)
-    references = generate_references_dir('./src/static/data/txt/'+survey_id)
+    # references = generate_references_dir('./src/static/data/txt/'+survey_id)
     temp["abstract"] = abstract
     temp["introduction"] = generated_introduction
     temp["content"] = generated_survey_paper
     temp["conclusion"] = conclusion
     temp["future_directions"] = future_directions
-    temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
+    # temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
     temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
     temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
     temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
