@@ -486,10 +486,10 @@ class ASG_system:
 
 if __name__ == "__main__":
     root_path = "."
-    pdf_path = "./pdfs/test1"
+    pdf_path = "./sample_pdfs"
     survey_title = "Automating Literature Review Generation with LLM"
     cluster_standard = "method"
-    asg_system = ASG_system(root_path, 'test1', pdf_path, survey_title, cluster_standard)
+    asg_system = ASG_system(root_path, 'test', pdf_path, survey_title, cluster_standard)
     asg_system.parsing_pdfs()
     asg_system.description_generation()
     asg_system.agglomerative_clustering()

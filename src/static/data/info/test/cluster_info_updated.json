@@ -1,0 +1,60 @@
+{
+    "colors": [
+        "rgb(184, 30, 20)",
+        "rgb(184, 153, 20)",
+        "rgb(92, 184, 20)"
+    ],
+    "category_label": [
+        "Dynamic Selection and Optimization of LLM Agents",
+        "Human-Guided and Clustering-Enhanced LLMs for Literature Surveys",
+        "Domain-Specific and Citation-Driven LLMs"
+    ],
+    "ref_titles": [
+        [
+            "Ai In Literature Reviews A Survey Of Current And Emerging MethodsHuman-Guided and Clustering-Enhanced LLMs for Literature SurveysDomain-Specific and Citation-Driven LLMs",
+            "Automated Literature Review Using Nlp Techniques And Llm Based Retrieval Augmented GenerationHuman-Guided and Clustering-Enhanced LLMs for Literature SurveysDomain-Specific and Citation-Driven LLMs",
+            "Automating Systematic Literature Reviews With Retrieval Augmented Generation A Comprehensive OverviewHuman-Guided and Clustering-Enhanced LLMs for Literature SurveysDomain-Specific and Citation-Driven LLMs"
+        ],
+        [
+            "Autosurvey Large Language Models Can Automatically Write SurveysDynamic Selection and Optimization of LLM AgentsDomain-Specific and Citation-Driven LLMs",
+            "Chatcite Llm Agent With Human Workflow Guidance For Comparative Literature SummaryDynamic Selection and Optimization of LLM AgentsDomain-Specific and Citation-Driven LLMs",
+            "Cluster Based Effective Generation Of Ai Driven Literature SurveysDynamic Selection and Optimization of LLM AgentsDomain-Specific and Citation-Driven LLMs"
+        ],
+        [
+            "Automating Research Synthesis With Domain Specific Large Language Model Fine TuningDynamic Selection and Optimization of LLM AgentsHuman-Guided and Clustering-Enhanced LLMs for Literature Surveys",
+            "Enabling Large Language Models To Generate Text With CitationsDynamic Selection and Optimization of LLM AgentsHuman-Guided and Clustering-Enhanced LLMs for Literature Surveys"
+        ]
+    ],
+    "ref_indexs": [
+        [
+            0,
+            2,
+            4
+        ],
+        [
+            1,
+            5,
+            6
+        ],
+        [
+            3,
+            7
+        ]
+    ],
+    "collection_name": [
+        [
+            "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+            "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+            "automatingsystematicliteraturereviewswithretrievalaugmentedgena"
+        ],
+        [
+            "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+            "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+            "clusterbasedeffectivegenerationofaidrivenliteraturesurveya"
+        ],
+        [
+            "automatingresearchsynthesiswithdomainspecificlargelanguagemodea",
+            "enablinglargelanguagemodelstogeneratetextwithcitationa"
+        ]
+    ]
+}

@@ -1,0 +1,497 @@
+[
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.829483985900879,
+        "content": "must be carefully addressed, such as ensuring fairness and transparency in automated processes."
+    },
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.7400087102985318,
+        "content": "times, increased scalability, enhanced reproducibility, and reduced human bias. By leveraging AI tools, researchers can gather, sort, and synthesize relevant academic works more efficiently, enabling them to focus on higher-order cognitive tasks such as critical analysis and interpretation."
+    },
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.7313868902159844,
+        "content": "foundation for understanding the current capabilities of AI in this domain and offer perspectives on its evolving role in the academic landscape."
+    },
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.6922836303710938,
+        "content": "language model prompting for zero-shot knowledge graph question answering,” arXiv preprint arXiv:2306.04136 , 2023. [8] P. Sen, S. Mavadia, and A. Saffari, “Knowledge graph-augmented language models for complex question answering,” in Proceedings of the 1st Workshop on Natural Language Reasoning and Structured Explanations (NLRSE) , 2023, pp. 1–8. [9] L. Gui, B. Wang, Q. Huang, A. Hauptmann, Y."
+    },
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.7042903900146484,
+        "content": "The Adaptive-RAG framework [12] presents a dynamic approach to question answering by selecting the most suitable retrieval strategy based on the complexity of the query. It operates across various datasets, including single-hop and multihop question-answering tasks. The limitations of AdaptiveRAG include the absence of dedicated datasets for training the query-complexity classifier, leading to"
+    },
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.7818987369537354,
+        "content": "knowledge, and identifies potential avenues for future investigation. However, as the volume of scholarly publications expands exponentially, researchers face increasing challenges in keeping up with the sheer quantity of new information. Manually curating, synthesizing, and critically analyzing various academic sources has become increasingly time-consuming and labor-intensive. Consequently,"
+    },
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.5436909198760986,
+        "content": "Over the last few years, large language models (LLMs) have seen a meteoric rise due to their strengths in understanding context, generating human-like text, handling complex queries, and automating tasks such as summarization and translation. Their ability to adapt across domains and improve efficiency in various applications has driven widespread adoption. One such avenue of adoption is in"
+    },
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.600715160369873,
+        "content": "DyLAN [16] introduces a dynamic framework for selecting and organizing LLM agents for tasks like reasoning and code generation. It uses an inference-time selection mechanism and an agent team optimization algorithm based on Agent Importance Scores. The framework is context-dependent and may struggle with unseen or novel tasks. Its reliance on LLMpowered rankers might also limit performance in"
+    },
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.8496917555125356,
+        "content": "the interpretability of AI-generated insights is crucial; researchers must understand how and why the algorithms draw specific conclusions or summaries. In addition, there are concerns about the accessibility of AI tools, as their successful application often requires technical expertise and resources that may not be available to all researchers. Finally, ethical considerations must be carefully"
+    },
+    {
+        "source": "aiinliteraturereviewsasurveyofcurrentandemergingmethoda",
+        "distance": 1.856465026027546,
+        "content": "modeling, summarization, sentiment analysis, and network mapping functions. Machine learning models can also be trained to identify key concepts, themes, and relationships within large datasets of academic papers, helping researchers uncover new trends and synthesize data with greater accuracy and efficiency."
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.7283834218978882,
+        "content": "challenges. Firstly, context window limitations : LLMs encounter inherent restrictions in output length due to limited processing windows [ 13 – 17 ]. While several advanced large models, including GPT-4 and Claude 3, support inputs exceeding 100k tokens, their output is still limited to fewer than 8k tokens (the output length of GPT-4 is 8k, and the output length of Claude 3 is 4k). Writing a"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.5323201417922974,
+        "content": "6 Conclusion"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.5492465496063232,
+        "content": "1 Introduction"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.7086364030838013,
+        "content": "rho values indicate a moderate positive correlation between the rankings provided by the LLMs and those given by human experts. The mixture of models achieves the highest correlation at 0.5429, indicating a strong alignment with human preferences. These results reinforce the effectiveness of our multi-LLM scoring mechanism, providing a reliable proxy for human judgment across varying survey"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.575974702835083,
+        "content": "outlines. The model then consolidates these outlines to form the final comprehensive outline. Finally, the outline O of the entire survey is represented as O = Outline ( T, P init ) ."
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.6721924761203861,
+        "content": "across varying survey lengths."
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.7072498798370361,
+        "content": "to create detailed outlines. A final, comprehensive outline is then synthesized from these individual outlines, setting a clear framework for content development. Subsequently, each subsection of the survey is generated in parallel and guided by the outline, which significantly accelerates the process. To overcome potential transition and consistency issues due to segmented generation phases,"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.525641918182373,
+        "content": "surveys are still lacking, despite the overall growth in survey numbers. The research topics of the clusters in the T-SNE plot are generated using GPT-4 to describe their primary focus areas. These clusters of research voids can be addressed using AutoSurvey at a cost of \\$1.2 (cost analysis in Appendix D) and 3 minutes per survey. An example survey focused on Emotion Recognition using LLMs is in"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.7419540882110596,
+        "content": "1a illustrates a significant trend: in just the first four months of 2024 alone, over 4,000 papers containing the phrase \"Large Language Model\" in their titles or abstracts were submitted to arXiv. This surge highlights a critical academic issue: the rapid accumulation of new information often outpaces the capacity for comprehensive scholarly review and synthesis, emphasizing the growing need for"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.338180661201477,
+        "content": "Recognition using LLMs is in Appendix F."
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.6734161376953125,
+        "content": "Meta Evaluation To verify the consistency between our evaluation method and human evaluation, we conduct a meta-evaluation involving human experts and our automated evaluation system. Human experts judge pairs of generated surveys to determine which one is superior. This process, referred to as a \"which one is better\" game, serves as the golden standard for evaluation. We compare the judgments"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.6781039237976074,
+        "content": "performance, ours is close to human’s across different lengths."
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.7302166223526,
+        "content": "The results of this meta-evaluation are presented in Figure 3. The table shows the Spearman’s rho values, indicating the degree of correlation between the rankings given by each LLM and the human experts. The Spearman’s rho values indicate a moderate positive correlation between the rankings provided by the LLMs and those given by the human experts, with the mixture of models achieving the"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.692354679107666,
+        "content": "between human and LLM evaluations."
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.7531776428222656,
+        "content": "of Claude 3 is 4k). Writing a comprehensive survey typically requires reading hundreds of papers, resulting in input sizes far beyond the capacity of even the most advanced models. Moreover, a well-written survey itself spans tens of thousands of tokens, making it highly challenging to generate such extensive content directly with large models. Secondly, parametric knowledge constraints : Sole"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.7538928985595703,
+        "content": "Baselines We compare AutoSurvey with surveys authored by human experts (collected from Arxiv) and naive RAG-based LLMs across 20 different computer science topics across 20 different topics in the field of LLMs (see Table 6). For the naive RAG-based LLMs, we begin with a title and a survey length requirement, then iteratively prompt the model to write the content until completion. Note that we"
+    },
+    {
+        "source": "autosurveylargelanguagemodelscanautomaticallywritesurveya",
+        "distance": 1.754833459854126,
+        "content": "survey generated by naive RAG-based LLMs, (3) has access to a 32k survey generated by AutoSurvey, and (4) can refer to 20 papers (30k tokens in total) retrieved using the options provided (Upper-bound, directly retrieving the answers)."
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.5200058221817017,
+        "content": "I. I NTRODUCTION"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.6302248239517212,
+        "content": "Figure 7: The Preview of the System UI IV. S YSTEM E VALUATION"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.8165523174168468,
+        "content": "across diverse domains and detailed in-sights."
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.8561362026960353,
+        "content": "Review and Semi-Structured Interviews. Rapid Review emphasizes decision-making procedures for resolving issues, difficulties, and challenges that software engineers encounter in their daily work. Semi-structured interviews are used to explore researchers’ experiences, challenges, strategies, strengths, weaknesses of Systematic Literature Review tools, and requirements for effective support in"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.4619109630584717,
+        "content": "of the paper are given as ”source” and the summaries of the corresponding articles are given as ”target”. Only these two attributes are utilized in all three proposed procedures. There is no training for the spaCy approach, but the dataset is utilized for testing purposes. The T5 model is trained using the SciTLDR dataset for the transformer-based approach and later evaluated on the test dataset."
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.4843950271606445,
+        "content": "D. Comparison of Multiple Approaches  The comparison between all three approaches is provided in Table IV.  Table IV: Comparison of Rouge Scores  From the ROUGE scores, it is clear that the LLM-based model outperformed both T5 and spaCy. The Transformer-based model is in the second spot based on the ROUGE-1"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.0326699018478394,
+        "content": "V. R ESULT AND D ISCUSSION"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.7120801210403442,
+        "content": "E. The Final System Tool"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.748757243156433,
+        "content": "Figure 3: Training of Transformer Model"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.8624485669379673,
+        "content": "and noted the limitations of constructive feedback compared to human-written reviews. The models used in this research are not yet fully capable of automating Literature Reviews and they require human reviewers."
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.8714365270725426,
+        "content": "Peer-reviewed publications are growing exponentially with the rapid development of science. Therefore, Yuan et al. [7] have explored the use of machine learning techniques, natural language generation, multi-document summarization, and multi-objective optimization for automating scientific re-viewing. They have discussed the generation of comprehensive reviews and noted the limitations of"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.6189748048782349,
+        "content": "some prompt engineering is performed to produce the required output. Then the LLM results are evaluated using ROUGE SCORE. The overview of the creation of the OpenAI assistant is given in figure 5."
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.5746484994888306,
+        "content": "Figure 1: Building spaCy Model"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.5249502658843994,
+        "content": "Model are also successfully obtained and compared. Based on the comparisons, the LLM-based approach is proven to be the best-performing one based on ROUGE-N scores."
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.5859413146972656,
+        "content": "B. The Procedure Utilizing the Frequency-Based Approach using spaCy"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.6634248495101929,
+        "content": "Apr 8. [13] AllenAI. SCITL-DR Dataset. [Dataset]. Hugging Face. [Online]. Avail-able: https://huggingface.co/datasets/allenai/scitldr. [Accessed: Sep. 8, 2024]."
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.6842745542526245,
+        "content": "databases, and reviewing published materials. Screening reduces the search scope by limiting the collection to only the papers pertinent to a particular review, aiming to highlight important findings and facts that could influence policy. Mapping is used to comprehend research activity in a particular area, involve stakeholders, and define priorities concerning the review emphasis. Synthesizing"
+    },
+    {
+        "source": "automatedliteraturereviewusingnlptechniquesandllmbasedretrievaa",
+        "distance": 1.4905685186386108,
+        "content": "the Large Language Model GPT-3.5-turbo achieved the highest ROUGE-1 score, 0.364. The transformer model comes in second place and spaCy is at the last position. Finally, a graphical user interface is created for the best system based on the large language model."
+    },
+    {
+        "source": "automatingresearchsynthesiswithdomainspecificlargelanguagemodea",
+        "distance": 1.588967204093933,
+        "content": "Contribution"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.6995287253654554,
+        "content": "promotion of certain drugs) by mixing authentic papers with fallacious papers to mislead the public [ 5 ]."
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.842259789516109,
+        "content": "learning. However, such models are limited by the static knowledge they acquire during pre-training; this can lead to inaccuracies (especially in rapidly evolving fields). Inaccuracies often include plausible sounding but factually incorrect responses or “hallucinations” [ 3 , 4 ]. Moreover, these inaccuracies could be purposefully generated for malicious usage (e.g., promotion of certain drugs)"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.7217317827494585,
+        "content": "Rapidly developing Large Language Models (LLMs) like GPT-4 [ 1 ] and LLaMA [ 2 ] have transformed natural language processing (NLP) and artificial intelligence (AI) by generating human-like text and interpreting complex linguistic nuances across a wide range of fields. For example, LLMs have demonstrated rational thinking capabilities spanning drug discovery to personalized learning. However, such"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.7470477319421058,
+        "content": "stage to provide This study therefore makes two signiﬁcant contributions with the automation of sys-"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.4380264282226562,
+        "content": "Future Work"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.4389396905899048,
+        "content": "6. Conclusions"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.8668556213378906,
+        "content": "automate these tasks to significantly improve efficiency and accuracy. This study provides a comprehensive overview of the primary methodologies associated with using RAG in LLMs. Furthermore, it examines the application of RAG-based models to systematic literature reviews (SLRs), identifying existing gaps and emerging trends in this domain. Finally, this paper proposes a novel framework for"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.8338386933044164,
+        "content": "Retrieval-Augmented Generation (RAG) addresses these limitations by combining the generative power of LLMs with the precision of real-time information retrieval. RAG enhances LLM performance by grounding responses in dynamically updated and retrievable content to improve accuracy and reliability. This approach is crucial in fields like law, medicine, finance, and personalized care, which"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.4606735706329346,
+        "content": "2. Dense Retrievers"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.507926106452942,
+        "content": "Acknowledgments: This manuscript employed OpenAI’s GPT-4 to strengthen the sentence structure and accelerate the writing speed. All intellectual property (IP) in this document is exclusively owned by the authors. GPT-4 has not contributed to any of the original ideas, insights, or intellectual content presented in this manuscript."
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.4599852561950684,
+        "content": "to optimize prompts provided to LLMs, thereby improving knowledge integration and the effectiveness of these systems’ instructions."
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.6315491199493408,
+        "content": "searching for relevant studies, screening and selecting pertinent on a specific topic. It typically involves several key processes: defining research questions, systematically searching for relevant studies, screening and selecting pertinent studies, extracting data, and analyzing and synthesizing subsequent findings. RAG-based LLMs can facilitate and potentially automate these tasks to"
+    },
+    {
+        "source": "automatingsystematicliteraturereviewswithretrievalaugmentedgena",
+        "distance": 1.7275041341781616,
+        "content": "Conflicts of Interest: The authors declare no conflicts of interest."
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.7676899433135986,
+        "content": "In recent years, with the rapid development of large language models (LLMs) ( Radford et al. , 2019 ; Brown et al. , 2020 ), their powerful capabilities in natural language generation tasks have been demonstrated across various tasks, that provides possibilities for handling longer texts and generating comprehensive summaries. Researchers have started exploring how to leverage LLMs to generate"
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.8922578079434382,
+        "content": "G-Score. Experimental results demonstrate its consistency with human evaluations."
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.7180181565739105,
+        "content": "Figure 1: Literature Summary Task Description"
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.7841471751515237,
+        "content": "to leverage LLMs to generate automatic literature summaries. Wei et al. ( 2023 ) propose a Chain-of-Thought (CoT) prompting method to enhance the ability of large language models to perform complex reasoning. CoT allows LLMs to devise their own plan, resulting in generated text that aligns more closely with human preferences.Recent study by ( Huang and Tan , 2023 ) and Agarwal et al. ( 2024 ) on"
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.3652795553207397,
+        "content": "2 Related Work 3"
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.452022671699524,
+        "content": "1 Introduction"
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.635549545288086,
+        "content": "section. 2) A ground truth related work section. 3) Reference papers of the target paper (annotated with authors and years)."
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.5676796436309814,
+        "content": "and R , our agent generates a literature summary Y = f ( D , R ) ."
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.583925724029541,
+        "content": ") for i = 1 to steps do S′ ←{G(Dg, pro, refi, s, ns), s ∈Si−1}Ei ←E(De, Si′)S i ←{ S t , t ∈ Sort ( E i )(1 , n c ) } end for return S argmax i E n ( i )"
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.71416175365448,
+        "content": "Different from simple CoT prompting approach, the agent is designed with the human workflow guidance, rather than formulating the generation process in a blackbox manner, ensuring a more stable generation of higher-quality generic summaries."
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.7616645097732544,
+        "content": "Chat GPT 3.5 as the tool for validating the quality of the generated content and the functionalities of the various components of the agent. We did not explore any additional spec that can influence the result of the GPT3.5 model nor the possibility of using other models as the validation tool. The evaluation of the generated content poses a great challenge. We evaluated the generated results"
+    },
+    {
+        "source": "chatcitellmagentwithhumanworkflowguidanceforcomparativeliterata",
+        "distance": 1.8493547439575195,
+        "content": "experiment based on GPT-3.5 (version gpt-3.5-turbo-1106) as the decoder for the experiment. For evaluation, we use GPT-4.0 (gpt-4-turbopreview) as decoder."
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.800355315208435,
+        "content": "RAG with LLM: Employing Retrieval-Augmented Generation (RAG) alongside large language models (LLMs) to formulate headings, subheadings and contextualize each section.  Section Integration: Compiling the individually generated sections into an initial literature survey to create a comprehensive document that addresses various aspects of the research topic."
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.7471085677353144,
+        "content": "oﬀ-the-shelf large language models(LLMs), such as GPT-3 [ 1 ], ChatGPT and GPT-4 [ 2 ], have shown great potential in automating the generation of literature surveys, thereby alleviating the burden on researchers’ time and resources. Nonetheless, these models do have their own limitations."
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.779362440109253,
+        "content": "Recent advancements, notably the Retrieval-Augmented Generation (RAG) approach [ 4 ], have addressed some of these issues by integrating external knowledge sources [ 5 ]. While RAG can mitigate hallucinations and enhance factual accuracy, it also poses challenges in eﬃciently selecting and recalling relevant content without overwhelming the model with excessive tokens [ 6 ]. Therefore, there is a"
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.794895521394179,
+        "content": "Eﬀectiveness Evaluation: We demonstrate the eﬀectiveness of this clustering method through participation in the Scientiﬁc Literature Survey Generation competition (NLPCC 2024 shared task 6) [ 7 ]. Our approach achieved superior scores in metrics such as soft heading recall and ROUGE, surpassing those of other teams and demonstrating its eﬀectiveness in overcoming token limitations and enhancing"
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.736402153968811,
+        "content": "In scientiﬁc research, literature surveys are essential for summarizing and synthesizing existing knowledge, identifying research gaps, and guiding future studies. With the rapid increase of scientiﬁc publications, researchers face the challenge of eﬃciently managing and integrating extensive volumes of information. Artiﬁcial Intelligence (AI), particularly oﬀ-the-shelf large language"
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.7425097227096558,
+        "content": "limitations and enhancing overall content management."
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.7433512210845947,
+        "content": "model 1 , which is conﬁgured with a temperature of 0.6, a maximum token limit of 8192, and a top p value of 0.95. This setup balances creativity and precision, ensuring high-quality outputs suitable for various tasks. To tailor the model’s responses for diﬀerent generation tasks—such as creating headings, sections, abstracts, and titles—we design prompts using a structured format. The format"
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.8120499849319458,
+        "content": "Additionally, we employ the LLM API provided by Moonshot Corporation to perform text generation tasks. Speciﬁcally, we utilize the “moonshot-v1-32k”"
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.8180383443832397,
+        "content": "structured format. The format typically includes components such as “question”, “note”, “structure”, and “guideline”. For example, “question” deﬁnes the speciﬁc generation task, while “note” highlights any important considerations. This approach allows us to adapt the prompts to meet speciﬁc task requirements, ensuring that the content is contextually appropriate and adheres to academic"
+    },
+    {
+        "source": "clusterbasedeffectivegenerationofaidrivenliteraturesurveya",
+        "distance": 1.7825093066428652,
+        "content": "[ 6 ]. Therefore, there is a need for innovative solutions to handle large sets of references and generate structured and coherent outlines for literature surveys."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.7109835147857666,
+        "content": "{query} ” to search among the top-100 passages 11 by using GTR; the “ Output ” and “ End ” actions are the same as I NTERACT . For each “ Search ” action, we display the best retrieved passage in the context. The passage is removed after one action to save context space. Table 3 shows an example."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.727542519569397,
+        "content": "7 Related Work"
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.7446153163909912,
+        "content": "V ANILLA achieves strong performance. Despite its simplicity, V ANILLA (putting retrieved passages in context) achieves close-to-the-best performance among all prompting strategies."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.6229429244995117,
+        "content": "to fit in LLMs’ limited context."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.6951582431793213,
+        "content": "and Chat-70B refer to LLaMA-2-Chat."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.7114552024329632,
+        "content": "together contribute to a robust evaluation, preventing systems from exploiting shortcuts. Additionally, we conduct human evaluation and demonstrate a strong correlation with our automatic metrics."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.7211350826389673,
+        "content": "is expensive and difficult to reproduce. We argue that the absence of automated evaluation hinders the advances of such systems."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.5658955437115103,
+        "content": "passages for individual statements."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.7475751115559277,
+        "content": "Large language models (LLMs; Brown et al. , 2020 ; OpenAI , 2023 ) have gained increasing popularity as a tool for information seeking. While they generate engaging and coherent responses, their outputs are prone to hallucination and often contain factually incorrect information ( Ji et al. , 2023 ). This makes it harder for users to trust and verify LLMgenerated outputs without any supporting"
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.6327776908874512,
+        "content": "promising future directions, including developing better retrievers, advancing long-context LLMs, and improving the ability to synthesize information from multiple sources.Large language models (LLMs; Brown et al. , 2020 ; OpenAI , 2023 ) have gained increasing popularity as a tool for information seeking. While they generate engaging and coherent responses, their outputs are prone to"
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.7772853617438118,
+        "content": "Figure 1: The task setup of ALCE. Given a question, the system generates text while providing citing passages from a large retrieval corpus. Each statement may contain multiple citations (e.g., [1][2] )."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.7613942623138428,
+        "content": "Table 1: The three datasets used in our ALCE benchmark. These datasets cover a wide range of question types and the corresponding corpora span from Wikipedia to Web-scale document collection."
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.5381184442185403,
+        "content": "without any supporting evidence. In this work, we study a new generation paradigm for LLMs, in which we require LLMs to provide citations to one or a few text passages for any statement they generate (Figure 1 ). Incorporating citations brings several benefits: (1) users can easily verify LLMs’ claims with the provided citations; (2) LLMs can generate text that faithfully follows cited passages,"
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.560654640197754,
+        "content": "1 Introduction"
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.6202043294906616,
+        "content": "3.2 Correctness"
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.6221013069152832,
+        "content": "5.3 Retrieval Analysis"
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.7668817043304443,
+        "content": "around 50% generations of our ChatGPT and GPT-4 baselines are not fully supported by the cited passages. Additionally, we find that (1) a closed-book model (generating answers without accessing any retrieved documents)"
+    },
+    {
+        "source": "enablinglargelanguagemodelstogeneratetextwithcitationa",
+        "distance": 1.707557767629433,
+        "content": "follows cited passages, which has the promise to improve correctness and alleviate hallucination."
+    }
+]
