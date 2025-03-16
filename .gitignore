@@ -5,5 +5,14 @@
 __pycache__/
 *.pyc
 
-src/static/
+src/static/data
 chromadb
+
+src/demo/survey_generation_pipeline/info
+src/demo/survey_generation_pipeline/txt
+src/demo/survey_generation_pipeline/logs
+src/demo/survey_generation_pipeline/md
+src/demo/survey_generation_pipeline/pdfs
+src/demo/survey_generation_pipeline/result
+src/demo/survey_generation_pipeline/tsv
+src/demo/survey_generation_pipeline/txt
