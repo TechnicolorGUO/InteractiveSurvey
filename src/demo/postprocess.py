@@ -1,6 +1,4 @@
 import re
-import os
-import json
 
 def reindex_citations(content):
     """

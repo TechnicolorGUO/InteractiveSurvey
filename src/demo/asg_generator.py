@@ -1,5 +1,3 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-from langchain.prompts import PromptTemplate
 from openai import OpenAI
 import transformers
 import os

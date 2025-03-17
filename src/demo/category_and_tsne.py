@@ -1,49 +1,12 @@
-from mimetypes import init
-import gensim
-import pandas as pd
-from gensim.models.doc2vec import TaggedDocument, Doc2Vec
-from gensim import corpora, models, similarities
-from gensim.parsing.preprocessing import strip_punctuation, remove_stopwords
-from nltk.stem.lancaster import LancasterStemmer
-lancaster_stemmer = LancasterStemmer()
-from nltk.stem import WordNetLemmatizer
-wordnet_lemmatizer = WordNetLemmatizer()
-from summa import keywords
-TaggededDocument = gensim.models.doc2vec.TaggedDocument
 from sklearn.metrics import silhouette_score
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.cluster import SpectralClustering
-from operator import itemgetter
-import traceback
-
-
-import nltk
-from nltk.tokenize import word_tokenize,sent_tokenize
-
 
 import numpy as np
 import matplotlib.pyplot as plt
-from time import time
-from sklearn import datasets, manifold
 import seaborn as sns
 import matplotlib.pyplot as plt
-import matplotlib.patheffects as PathEffects
-import matplotlib
 from sklearn.manifold import TSNE
-
-
-import nltk
-from fuzzywuzzy import fuzz
-
-from summa.summarizer import summarize
-from transformers import AutoTokenizer, AutoModel
-import pandas as pd
-import spacy
-from rank_bm25 import BM25Okapi
-import torch
 from sklearn.cluster import AgglomerativeClustering
 import json
-nlp = spacy.load("en_core_sci_sm")
 
 IMG_PATH = './src/static/img/'
 
@@ -55,14 +18,12 @@ device = 0
 from sentence_transformers import SentenceTransformer
 from umap import UMAP
 from sklearn.decomposition import PCA
-from hdbscan import HDBSCAN
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.feature_extraction.text import CountVectorizer
 from bertopic.vectorizers import ClassTfidfTransformer
-from bertopic.representation import KeyBERTInspired, MaximalMarginalRelevance, OpenAI, PartOfSpeech
+from bertopic.representation import KeyBERTInspired
 from bertopic import BERTopic
 
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
@@ -183,14 +144,14 @@ def clustering(df, n_cluster, survey_id):
     
     # Save topic model information as JSON
     topic_json = clustering.topic_model.get_topic_info().to_json()
-    with open(f'./src/static/data/info/{survey_id}/topic.json', 'w') as file:
+    with open(f'./src/static/data/info/{survey_id}/topic.json', 'w', encoding="utf-8") as file:
         file.write(topic_json)
     
     # Create a dictionary from 'ref_title' and 'retrieval_result' columns
     description_dict = dict(zip(df['ref_title'], df['retrieval_result']))
     
     # Save the dictionary to description.json
-    with open(f'./src/static/data/info/{survey_id}/description.json', 'w') as file:
+    with open(f'./src/static/data/info/{survey_id}/description.json', 'w', encoding="utf-8") as file:
         json.dump(description_dict, file, ensure_ascii=False, indent=4)
     # df['top_n_words'] = clustering.topic_model.get_topic_info()['Representation'].tolist()
     # df['topic_word'] = clustering.topic_model.get_topic_info()['KeyBERT'].tolist()
@@ -223,12 +184,12 @@ def clustering(df, n_topics_list, survey_id):
 
     # 保存 topic model 信息
     topic_json = topic_model.get_topic_info().to_json()
-    with open(f'./src/static/data/info/{survey_id}/topic.json', 'w') as file:
+    with open(f'./src/static/data/info/{survey_id}/topic.json', 'w', encoding="utf-8") as file:
         file.write(topic_json)
 
     # 创建描述信息
     description_dict = dict(zip(df['ref_title'], df['retrieval_result']))
-    with open(f'./src/static/data/info/{survey_id}/description.json', 'w') as file:
+    with open(f'./src/static/data/info/{survey_id}/description.json', 'w', encoding="utf-8") as file:
         json.dump(description_dict, file, ensure_ascii=False, indent=4)
 
     # t-SNE 降维可视化

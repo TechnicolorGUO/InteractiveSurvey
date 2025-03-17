@@ -1,12 +1,10 @@
 import csv
-from email.mime import base
 import json
 import os
-import sys
 
 import pandas as pd
 from langchain_huggingface import HuggingFaceEmbeddings
-from asg_retriever import process_pdf, legal_pdf
+from asg_retriever import legal_pdf
 from asg_loader import DocumentLoading
 from asg_retriever import Retriever, query_embeddings_new_new
 from asg_generator import generate_sentence_patterns, generate
@@ -78,18 +76,17 @@ def generate_references_section(citation_mapping, collection_pdf_mapping):
         references.append(f"[{num}] {pdf_name}  ")
 
     return "\n".join(references)
-import re
-
 def fix_citation_punctuation_md(text):
     """
-    把类似于 'some text. [18]' 或 'some text.[18]' 或 'some text. \[18]' 调整为 'some text [18].'
+    把类似于 'some text. \[1]' 或 'some text. \[2]' 调整为 'some text \[1].'
+    仅针对已经变成 \[1], \[2] 之类数字引用的 Markdown 情况有效。
+    如果还没有变成 \[数字]，则需先经过 normalize_citations_with_mapping。
     """
-    # 匹配句号后可能的空格，紧接着 [数字] 的模式
-    pattern = r'\.\s*(\\?\[\d+\])'
+    # 正则表达式匹配点号后带有空格或无空格，紧接 \[数字] 的情况
+    pattern = r'\.\s*(\\\[\d+\])'
     replacement = r' \1.'
     fixed_text = re.sub(pattern, replacement, text)
     return fixed_text
-
 def finalize_survey_paper(paper_text, 
                           Global_collection_names, 
                           Global_file_names):
@@ -117,12 +114,11 @@ class ASG_system:
     def __init__(self, root_path: str, survey_id:str, pdf_path: str, survey_title: str, cluster_standard: str) -> None:
         load_dotenv()
         self.pdf_path = pdf_path
-        self.base_path = ""
-        self.txt_path = os.path.join(root_path, "txt")
-        self.tsv_path = os.path.join(root_path, "tsv")
-        self.md_path = os.path.join(root_path, "md")
-        self.info_path = os.path.join(root_path, "info")
-        self.result_path = os.path.join(root_path, "result")
+        self.txt_path = root_path + "/txt"
+        self.tsv_path = root_path + "/tsv"
+        self.md_path = root_path + "/md"
+        self.info_path = root_path + "/info"
+        self.result_path = root_path + "/result"
 
         self.survey_id = survey_id
         self.survey_title = survey_title
@@ -136,21 +132,20 @@ class ASG_system:
         self.cluster_names = []
         self.collection_names_clustered = []
         self.df_selected = ''
-        self.pipeline = None
 
 
-        # model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+        model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
         self.embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-        # self.pipeline = transformers.pipeline(
-        #     "text-generation",
-        #     model=model_id,
-        #     model_kwargs={"torch_dtype": torch.bfloat16},
-        #     token = os.getenv('HF_API_KEY'),
-        #     device_map="auto",
-        # )
-        # self.pipeline.model.load_adapter(peft_model_id = "technicolor/llama3.1_8b_outline_generation", adapter_name="outline")
-        # self.pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_abstract_generation", adapter_name="abstract")
-        # self.pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_conclusion_generation", adapter_name="conclusion")
+        self.pipeline = transformers.pipeline(
+            "text-generation",
+            model=model_id,
+            model_kwargs={"torch_dtype": torch.bfloat16},
+            token = os.getenv('HF_API_KEY'),
+            device_map="auto",
+        )
+        self.pipeline.model.load_adapter(peft_model_id = "technicolor/llama3.1_8b_outline_generation", adapter_name="outline")
+        self.pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_abstract_generation", adapter_name="abstract")
+        self.pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_conclusion_generation", adapter_name="conclusion")
 
         os.makedirs(self.txt_path, exist_ok=True)
         os.makedirs(f'{self.txt_path}/{self.survey_id}', exist_ok=True)
@@ -346,7 +341,7 @@ class ASG_system:
         df = pd.read_csv(f'{self.tsv_path}/{self.survey_id}.tsv', sep='\t', index_col=0, encoding='utf-8')
         df_selected = df
 
-        df_selected, _ = clustering(df_selected, [3,4,5], self.survey_id, self.info_path, self.tsv_path)
+        df_selected, _ = clustering(df_selected, 3, self.survey_id, self.info_path, self.tsv_path)
         self.df_selected = df_selected
 
         df_tmp = df_selected.reset_index()
@@ -369,10 +364,9 @@ class ASG_system:
     def outline_generation(self) -> None:
         print(self.df_selected)
         print(self.cluster_names)
-        outline_generator = OutlineGenerator(self.df_selected, self.cluster_names)
+        outline_generator = OutlineGenerator(self.pipeline, self.df_selected, self.cluster_names)
         outline_generator.get_cluster_info()
         messages, outline = outline_generator.generate_outline_qwen(self.survey_title)
-
         outline_json = {'messages':messages, 'outline': outline}
         output_path = f'{self.info_path}/{self.survey_id}/outline.json'
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -381,14 +375,14 @@ class ASG_system:
         
 
     def section_generation(self) -> None:
-        generateSurvey_qwen_new(self.survey_id, self.survey_title, self.collection_names_clustered, self.pipeline, self.citation_data, './txt')
+        generateSurvey_qwen_new(self.survey_id, self.survey_title, self.collection_names_clustered, self.pipeline, self.citation_data, './txt','./info')
 
     def citation_generation(self) -> None:
         """
         Generate citation Markdown and PDF files from JSON and store them in the specified result path.
         """
 
-        json_filepath = os.path.join(self.txt_path, self.survey_id, "generated_result.json")
+        json_filepath = os.path.join(self.info_path, self.survey_id, "generated_result.json")
 
         markdown_dir = f'{self.result_path}/{self.survey_id}'
         markdown_filename = f'survey_{self.survey_id}.md'
@@ -401,7 +395,7 @@ class ASG_system:
             raise ValueError("Markdown content is empty. Cannot generate citation files.")
 
         try:
-            with open(markdown_filepath, 'w', encoding='utf-8') as markdown_file:
+            with open(markdown_filepath, 'w', encoding='utf-8', encoding="utf-8") as markdown_file:
                 markdown_file.write(markdown_content)
             print(f"Markdown content saved to: {markdown_filepath}")
         except Exception as e:
@@ -417,50 +411,6 @@ class ASG_system:
             raise RuntimeError(f"Failed to generate PDF file: {e}")
         print(f"Files generated successfully: \nMarkdown: {markdown_filepath}\nPDF: {pdf_filepath}")
 
-    def description_generation(self) -> None:
-        query= self.cluster_standard
-        query_list = generate_sentence_patterns(query)
-        for name in self.collection_names:
-            context, citation_data = query_embeddings_new_new(name, query_list)
-            self.citation_data.extend(citation_data)
-
-            description = generate(context, query, name)
-            self.description_list.append(description)
-
-        citation_path = f'{self.info_path}/{self.survey_id}/citation_data.json'
-        os.makedirs(os.path.dirname(citation_path), exist_ok=True)
-        with open(citation_path, 'w', encoding="utf-8") as outfile:
-            json.dump(self.citation_data, outfile, indent=4, ensure_ascii=False)
-        
-        file_path = f'{self.tsv_path}/{self.survey_id}.tsv'
-
-        csv.field_size_limit(sys.maxsize)
-        with open(file_path, 'r', newline='', encoding='utf-8') as infile:
-            reader = csv.reader(infile, delimiter='\t')
-            rows = list(reader)
-
-        # df = pd.read_csv(file_path, delimiter='\t', encoding='utf-8')
-        # # 如果需要将数据转换为列表
-        # rows = df.values.tolist()
-        
-        if rows:
-            headers = rows[0]
-            headers.append('retrieval_result')
-
-            updated_rows = [headers]
-            for row, description in zip(rows[1:], self.description_list):
-                row.append(description)
-                updated_rows.append(row)
-
-            with open(file_path, 'w', newline='', encoding='utf-8') as outfile:
-                writer = csv.writer(outfile, delimiter='\t')
-                writer.writerows(updated_rows)
-
-            print('Updated file has been saved to', file_path)
-        else:
-            print('Input file is empty.')
-
-
     def get_markdown_content(self, json_filepath: str) -> str:
         """
         Read a JSON file and generate Markdown content based on its data.
@@ -469,7 +419,7 @@ class ASG_system:
         :return: A string containing the generated Markdown content.
         """
         try:
-            with open(json_filepath, 'r', encoding='utf-8') as json_file:
+            with open(json_filepath, 'r', encoding='utf-8', encoding="utf-8") as json_file:
                 survey_data = json.load(json_file)
         except Exception as e:
             raise RuntimeError(f"Failed to read JSON file: {e}")
@@ -486,7 +436,7 @@ class ASG_system:
 
 if __name__ == "__main__":
     root_path = "."
-    pdf_path = "./sample_pdfs"
+    pdf_path = "./pdfs/test"
     survey_title = "Automating Literature Review Generation with LLM"
     cluster_standard = "method"
     asg_system = ASG_system(root_path, 'test', pdf_path, survey_title, cluster_standard)

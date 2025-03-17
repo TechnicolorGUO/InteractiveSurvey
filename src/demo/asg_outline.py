@@ -1,6 +1,5 @@
 import transformers
 import torch
-import pandas as pd
 import os
 import json
 import re
@@ -11,7 +10,6 @@ from .asg_conclusion import ConclusionGenerator
 from .asg_retriever import *
 import pandas as df
 from .references import generate_references
-from .survey_generator_api import introduction_with_citations 
 
 
 class OutlineGenerator():

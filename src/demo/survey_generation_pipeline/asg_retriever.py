@@ -59,7 +59,7 @@ class Retriever:
         os.makedirs(os.path.dirname(logpath), exist_ok=True)
         logs = []
         try:  
-            with open (logpath, 'r') as chunklog:
+            with open (logpath, 'r', encoding="utf-8") as chunklog:
                 logs = json.load(chunklog)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             logs = [] # old_log does not exist or empty
@@ -70,7 +70,7 @@ class Retriever:
         logs.extend(added_log)
 
         # write back
-        with open (logpath, "w") as chunklog:
+        with open (logpath, "w", encoding="utf-8") as chunklog:
             json.dump(logs, chunklog, indent=4)
         print(f"Logged document information to '{logpath}'.")
             
@@ -111,7 +111,7 @@ class Retriever:
         logpath = os.path.join(self.cur_dir, "logs", f"{collection_name}.json")
         # logpath = "{:0}/assets/log/{:1}.json".format(self.cur_dir, collection_name)
         try:  
-            with open (logpath, 'r') as chunklog:
+            with open (logpath, 'r', encoding="utf-8") as chunklog:
                 logs = json.load(chunklog)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             logs = [] # old_log does not exist or empty, then no need to update
@@ -124,7 +124,7 @@ class Retriever:
                         break
 
         # write back
-        with open (logpath, "w") as chunklog:
+        with open (logpath, "w", encoding="utf-8") as chunklog:
             json.dump(logs, chunklog, indent=4)
         print(f"Updated log file at '{logpath}'.")
 

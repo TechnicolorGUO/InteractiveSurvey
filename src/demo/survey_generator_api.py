@@ -1,19 +1,8 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-from langchain.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from openai import OpenAI
-import transformers
 import ast
-import uuid
 import re
 import os
-import json
-import chromadb
-import time
-import openai
-import dotenv
-import json
-import base64
 import concurrent.futures
 import numpy as np
 from numpy.linalg import norm

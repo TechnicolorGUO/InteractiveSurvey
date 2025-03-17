@@ -3,7 +3,6 @@ import sys
 
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import os
@@ -11,18 +10,12 @@ import json
 import requests
 import time
 import pandas as pd
-import numpy as np
 import shutil
 import traceback
 from io import BytesIO
 
-from demo.ref_paper_desp import ref_desp
 import hashlib
-import pdb
 import re
-import pke
-import networkx as nx
-from collections import defaultdict
 import os
 import csv
 
@@ -30,28 +23,33 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
-from django.utils.text import slugify
-from django.middleware.csrf import get_token
 
-from .asg_loader import DocumentLoading
 # from .parse import DocumentLoading
-from .asg_retriever import legal_pdf, process_pdf, query_embeddings,query_embeddings_new, query_embeddings_new_new, query_multiple_collections
+from .asg_retriever import legal_pdf, process_pdf, query_embeddings_new_new
 from .asg_generator import generate,generate_sentence_patterns
 from .asg_outline import OutlineGenerator,generateOutlineHTML_qwen, generateSurvey_qwen_new
-from .asg_clustername import generate_cluster_name_qwen_sep, refine_cluster_name, generate_cluster_name_new
-from .postprocess import reindex_citations, generate_references_section
+from .asg_clustername import generate_cluster_name_new
+from .postprocess import generate_references_section
 from .asg_query import generate_query_qwen
-from .asg_add_flowchart import insert_ref_images
+from .asg_add_flowchart import insert_ref_images, detect_flowcharts
 # from .survey_generator_api import ensure_all_papers_cited
 import glob
-import nltk
 
 from langchain_huggingface import HuggingFaceEmbeddings
-import transformers
-import torch
 from dotenv import load_dotenv
 
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv()
+# # 打印所有环境变量（可选，调试时使用）
+# print("所有环境变量:", os.environ)
+
+# # 获取特定环境变量
+# openai_api_key = os.getenv("OPENAI_API_KEY")
+# openai_api_base = os.getenv("OPENAI_API_BASE")
+
+# # 打印获取到的值
+# print(f"OPENAI_API_KEY: {openai_api_key}")
+# print(f"OPENAI_API_BASE: {openai_api_base}")
 
 import os
 from pathlib import Path
@@ -122,8 +120,6 @@ Global_cluster_num = 4
 
 embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-
-from demo.taskDes import absGen, introGen,introGen_supervised, methodologyGen, conclusionGen
 from demo.category_and_tsne import clustering
 
 
@@ -177,30 +173,6 @@ def generate_uid():
 
 def index(request):
     return render(request, 'demo/index.html')
-
-class PosRank(pke.unsupervised.PositionRank):
-    def __init__(self):
-        """Redefining initializer for PositionRank."""
-        super(PosRank, self).__init__()
-        self.positions = defaultdict(float)
-        """Container the sums of word's inverse positions."""
-    def candidate_selection(self,grammar=None,maximum_word_number=3,minimum_word_number=2):
-        if grammar is None:
-            grammar = "NP:{<ADJ>*<NOUN|PROPN>+}"
-
-        # select sequence of adjectives and nouns
-        self.grammar_selection(grammar=grammar)
-
-        # filter candidates greater than 3 words
-        for k in list(self.candidates):
-            v = self.candidates[k]
-            #pdb.set_trace()
-            #if len(k) < 3:
-            #    del self.candidates[k]
-            if len(v.lexical_form) > maximum_word_number or len(v.lexical_form) < minimum_word_number:
-                #if len(v.lexical_form) < minimum_word_number:
-                #    pdb.set_trace()
-                del self.candidates[k]
 
 def delete_files(request):
     if request.method == 'POST':
@@ -414,6 +386,17 @@ def upload_refs(request):
         # print(list(file_dict.keys()))
         RECOMMENDED_PDF_DIR = os.path.join("src", "static", "data", "pdf", "recommend_pdfs")
         file_dict = request.FILES.copy()  # 复制 request.FILES，避免直接修改 QueryDict
+
+        md_file_path = os.path.join('src', 'static', 'data', 'info', 'test', 'survey_test_processed.md')
+        with open (md_file_path, 'r', encoding="utf-8") as f:
+            markdown_content = f.read()
+        pdf = MarkdownPdf()
+        pdf.meta["title"] = "Survey Results"  # 设置 PDF 的元数据
+        pdf.add_section(Section(markdown_content, toc=False))  # 添加 Markdown 内容，不生成目录
+        pdf.save("test.pdf")  # 将 PDF 保存到文件
+
+
+
         if os.path.exists(RECOMMENDED_PDF_DIR):
             for pdf_name in os.listdir(RECOMMENDED_PDF_DIR):
                 if pdf_name.endswith(".pdf"):  # 只处理 PDF 文件
@@ -524,7 +507,7 @@ def upload_refs(request):
 
         # Iterate over each JSON file
         for file_path in filtered_json_files:
-            with open(file_path, 'r') as file:
+            with open(file_path, 'r', encoding= "utf-8") as file:
                 data = json.load(file)
 
                 # Extract necessary information
@@ -571,7 +554,7 @@ def upload_refs(request):
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
         # Save the title and abstract pairs to a JSON file
-        with open(output_path, 'w') as outfile:
+        with open(output_path, 'w', encoding="utf-8") as outfile:
             json.dump(title_abstract_dict, outfile, indent=4, ensure_ascii=False)
 
         print(f'Title-abstract pairs have been saved to {output_path}')
@@ -764,7 +747,7 @@ def download_pdfs(request):
                     if response.status_code == 200:
                         pdf_filename = os.path.join(base_dir, str(pdf_titles[i])+".pdf")
                         i+=1
-                        with open(pdf_filename, "wb") as pdf_file:
+                        with open(pdf_filename, "wb", encoding="utf-8") as pdf_file:
                             for chunk in response.iter_content(chunk_size=1024):
                                 pdf_file.write(chunk)
                         downloaded_files.append(pdf_filename)
@@ -859,13 +842,11 @@ def automatic_taxonomy(request):
     # Save citation data to file for debugging or reference
     citation_path = f'./src/static/data/info/{Global_survey_id}/citation_data.json'
     os.makedirs(os.path.dirname(citation_path), exist_ok=True)
-    with open(citation_path, 'w') as outfile:
+    with open(citation_path, 'w', encoding="utf-8") as outfile:
         json.dump(Global_citation_data, outfile, indent=4, ensure_ascii=False)
 
     # 定义文件名
     file_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
-
-    csv.field_size_limit(sys.maxsize)
     # 读取现有文件并追加新列
     with open(file_path, 'r', newline='', encoding='utf-8') as infile:
         reader = csv.reader(infile, delimiter='\t')
@@ -967,7 +948,7 @@ def automatic_taxonomy(request):
         cluster_info[key] = temp
         Global_collection_names_clustered.append(temp)
     cluster_info_path = f'./src/static/data/info/{Global_survey_id}/cluster_info.json'
-    with open(cluster_info_path, 'w') as outfile:
+    with open(cluster_info_path, 'w', encoding="utf-8") as outfile:
         json.dump(cluster_info, outfile, indent=4, ensure_ascii=False)
 
     
@@ -980,7 +961,7 @@ def automatic_taxonomy(request):
     outline_json = {'messages':messages, 'outline': outline}
     output_path = TXT_PATH + Global_survey_id + '/outline.json'
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as outfile:
+    with open(output_path, 'w', encoding="utf-8") as outfile:
         json.dump(outline_json, outfile, indent=4, ensure_ascii=False)
 
     return HttpResponse(cate_list)
@@ -1480,6 +1461,7 @@ def finalize_survey_paper(paper_text,
     references_section, ref_list = generate_references_section(citation_mapping, collection_pdf_mapping)
     print(ref_list)
     #5.5
+    detect_flowcharts(Global_survey_id)
     normalized_text = insert_ref_images(f'src/static/data/info/{Global_survey_id}/flowchart_results.json', ref_list, normalized_text)
 
     # 6) 合并正文和 References
