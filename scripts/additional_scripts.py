@@ -24,7 +24,7 @@ new_config = {
 }
 
 if os.path.exists(file_path):
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         try:
             data = json.load(file) 
         except json.JSONDecodeError:
@@ -34,7 +34,7 @@ else:
 
 data.update(new_config)
 
-with open(file_path, "w") as file:
+with open(file_path, "w", encoding="utf-8") as file:
     json.dump(data, file, indent=4)
 
 print(f"File '{file_path}' has been updated.")
