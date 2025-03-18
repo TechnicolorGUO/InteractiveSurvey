@@ -748,7 +748,7 @@ def download_pdfs(request):
                     if response.status_code == 200:
                         pdf_filename = os.path.join(base_dir, str(pdf_titles[i])+".pdf")
                         i+=1
-                        with open(pdf_filename, "wb", encoding="utf-8") as pdf_file:
+                        with open(pdf_filename, "wb") as pdf_file:
                             for chunk in response.iter_content(chunk_size=1024):
                                 pdf_file.write(chunk)
                         downloaded_files.append(pdf_filename)
@@ -1221,7 +1221,15 @@ def generate_pdf(request):
         # markdown_content = ensure_all_papers_cited(markdown_content, Global_citation_data)
         # print(markdown_content)
         markdown_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
-
+        png_path = os.path.join("src", "static", "data", "info", Global_survey_id, "outline.png")
+        try:
+            markdown_content = insert_outline_image(
+                png_path=png_path,
+                md_content=markdown_content,
+                survey_title =Global_survey_title
+            )
+        except Exception as e:
+            print(f"Error inserting outline image: {e}. Continuing with next step.")
         # 设置 Markdown 文件的保存路径1
         markdown_dir = f'./src/static/data/info/{survey_id}/'
         markdown_filename = f'survey_{survey_id}_processed.md'
@@ -1239,16 +1247,7 @@ def generate_pdf(request):
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
 
-        png_path = os.path.join("src", "static", "data", "info", Global_survey_id, "outline.png")
-        md_path = os.path.join("src", "static", "data", "info", Global_survey_id, f"survey_{Global_survey_id}_processed.md")
-        try:
-            markdown_content = insert_outline_image(
-                png_path=png_path,
-                md_content=markdown_content,
-                survey_title =Global_survey_title
-            )
-        except Exception as e:
-            print(f"Error inserting outline image: {e}. Continuing with next step.")
+
 
         # 配置 PDF 文件的保存路径
         pdf_filename = f'survey_{survey_id}.pdf'

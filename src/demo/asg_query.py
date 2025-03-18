@@ -191,6 +191,7 @@ def generate_query_qwen(topic):
     4. **For compound words with hyphens (`-`), replace `-` with a space, e.g., `"in-context"` → `"in context"`.**
     5. **Construct the arXiv search query in the same format as the examples above.**
     6. **Return only the final query. Do not include explanations or additional text.**
+    All the terms in query should not exceed 2 words!
     """
 
     # Initialize the OpenAI API client

@@ -176,8 +176,9 @@ def generate_graphviz_png(json_path, output_png_path, md_path=None, title="Docum
 
 def insert_outline_image(png_path, md_content, survey_title):
     """
-    在给定的 Markdown 内容字符串中查找 "2 Introduction" 及其下面的第一个段落结尾，
-    然后在该位置插入 outline 图片的 HTML 代码块。
+    在给定的 Markdown 内容字符串中查找 "2 Introduction" 这一行，
+    然后在该位置之前插入 outline 图片的 HTML 代码块，确保渲染时
+    HTML 块与后续 Markdown 内容间有足够空行分隔开。
 
     参数：
       png_path: 要插入的 PNG 图片路径，将作为 img 的 src 属性值。
@@ -187,7 +188,7 @@ def insert_outline_image(png_path, md_content, survey_title):
     插入的 HTML 格式如下：
 
       <div style="text-align:center">
-          <img src="{png_path}" alt="Outline" style="width:75%;"/>
+          <img src="{png_path}" alt="Outline" style="width:100%;"/>
       </div>
       <div style="text-align:center">
           Fig 1. The outline of the {survey_title}
@@ -198,6 +199,7 @@ def insert_outline_image(png_path, md_content, survey_title):
 
     # 将 Markdown 内容字符串分割成行（保留换行符）
     lines = md_content.splitlines(keepends=True)
+    print(lines)
 
     # 查找包含 "2 Introduction" 的行的索引
     intro_index = None
@@ -210,33 +212,25 @@ def insert_outline_image(png_path, md_content, survey_title):
         print("没有找到 '2 Introduction' 这一行！")
         return md_content
 
-    # 从 "2 Introduction" 之后寻找第一个空行作为段落结束标志
-    paragraph_end_index = None
-    for i in range(intro_index + 1, len(lines)):
-        if lines[i].strip() == "":
-            paragraph_end_index = i
-            break
-    if paragraph_end_index is None:
-        # 如果没有找到空行，则在内容末尾插入
-        paragraph_end_index = len(lines)
-
     # 确保路径中的反斜杠被替换成正斜杠
     png_path_fixed = png_path.replace("\\", "/")
     
-    # 构造需要插入的 HTML 代码块
+    # 构造需要插入的 HTML 代码块，在前后增加空行
     html_snippet = (
+        "\n\n"  # 添加换行确保与上文/下文分隔
         f'<div style="text-align:center">\n'
         f'    <img src="{png_path_fixed}" alt="Outline" style="width:100%;"/>\n'
         f'</div>\n'
         f'<div style="text-align:center">\n'
         f'    Fig 1. The outline of the {survey_title}\n'
         f'</div>\n'
+        "\n"  # 再添加一个空行确保与下方内容分隔
     )
     
-    print(f"将在第 {paragraph_end_index} 行插入如下 HTML 代码块：\n{html_snippet}")
+    print(f"将在第 {intro_index} 行插入如下 HTML 代码块（插入在 '2 Introduction' 之前）：\n{html_snippet}")
     
-    # 在找到的空行前插入 html_snippet
-    lines.insert(paragraph_end_index, html_snippet)
+    # 在找到的 "2 Introduction" 这一行之前插入 html_snippet
+    lines.insert(intro_index, html_snippet)
 
     # 合并所有行，构造更新后的 Markdown 内容
     updated_md = "".join(lines)
@@ -245,18 +239,18 @@ def insert_outline_image(png_path, md_content, survey_title):
     return updated_md
 
 # 使用示例：
-if __name__ == "__main__":
-    png_path = 'src\static\data\info\test\survey_test_processed.md'
-    md_path  = 'src/static/data/info/test/survey_test_processed.md'
-    survey_title = "My Survey Title"
-    updated_md = insert_outline_image(png_path, md_path, survey_title)
+# if __name__ == "__main__":
+#     png_path = 'src/static/data/info/test_4/outline.png'
+#     md_content = ''
+#     survey_title = "My Survey Title"
+#     updated_md = insert_outline_image(png_path, md_content, survey_title)
 # --------------------------
 # 使用示例
 # --------------------------
-# if __name__ == "__main__":
-#     json_file_path = "src/static/data/txt/test/outline.json"  # 修改为你的 JSON 文件路径
-#     output_png_file = "graphviz_outline"                        # 输出 PNG 文件路径（不需要后缀）
-#     md_file_path = "src/static/data/info/test/survey_test_processed.md"  # 修改为你的 Markdown 文件路径（含引用）
-#     mindmap_title = "My Mindmap Title"                          # 设置 mindmap 的标题
+if __name__ == "__main__":
+    json_file_path = "src/static/data/txt/demo/outline.json"  # 修改为你的 JSON 文件路径
+    output_png_file = "graphviz_outline"                        # 输出 PNG 文件路径（不需要后缀）
+    md_file_path = "src/static/data/info/demo/survey_demo_processed.md"  # 修改为你的 Markdown 文件路径（含引用）
+    mindmap_title = "My Mindmap Title"                          # 设置 mindmap 的标题
 
-#     generate_graphviz_png(json_file_path, output_png_file, md_file_path, title=mindmap_title, max_root_chars=20)
+    generate_graphviz_png(json_file_path, output_png_file, md_file_path, title=mindmap_title, max_root_chars=20)
