@@ -2,6 +2,7 @@ import json
 import re
 import textwrap
 from graphviz import Digraph
+import os
 
 def wrap_text(text, max_chars):
     """
@@ -107,10 +108,14 @@ def generate_graphviz_png(json_path, output_png_path, md_path=None, title="Docum
     items = pattern.findall(outline_str)
     items = [(int(level), title) for level, title in items]
 
-    # 过滤掉不需要的条目，例如 "1 Abstract", "2 Introduction", "6 Future Directions", "7 Conclusion"
-    undesired_titles = {"1 Abstract", "2 Introduction", "6 Future Directions", "7 Conclusion"}
-    filtered_items = [(lvl, title) for lvl, title in items if not (lvl == 1 and title in undesired_titles)]
+    # 不需要的标题关键词
+    undesired_keywords = {"Abstract", "Introduction", "Future Directions", "Conclusion"}
 
+    # 过滤掉不需要的条目
+    filtered_items = [
+        (lvl, title) for lvl, title in items
+        if not re.match(r"^\d+\s+(.+)", title) or re.match(r"^\d+\s+(.+)", title).group(1) not in undesired_keywords
+    ]
     # 利用栈构造树状结构，每个节点为字典 {"title": 标题, "children": []}
     tree = []
     stack = []
@@ -238,6 +243,7 @@ def insert_outline_image(png_path, md_content, survey_title):
     print("已在 Markdown 内容中插入 outline 图片。")
     return updated_md
 
+
 # 使用示例：
 # if __name__ == "__main__":
 #     png_path = 'src/static/data/info/test_4/outline.png'
@@ -248,9 +254,16 @@ def insert_outline_image(png_path, md_content, survey_title):
 # 使用示例
 # --------------------------
 if __name__ == "__main__":
-    json_file_path = "src/static/data/txt/demo/outline.json"  # 修改为你的 JSON 文件路径
-    output_png_file = "graphviz_outline"                        # 输出 PNG 文件路径（不需要后缀）
-    md_file_path = "src/static/data/info/demo/survey_demo_processed.md"  # 修改为你的 Markdown 文件路径（含引用）
-    mindmap_title = "My Mindmap Title"                          # 设置 mindmap 的标题
+    json_path = os.path.join("src", "static", "data", "txt", 'test', "outline.json")
+    output_png_path = os.path.join("src", "static", "data", "info", 'test', "outline")
+    md_path = os.path.join("src", "static", "data", "info", 'test', f"survey_{'test'}_processed.md")
+    flowchart_results_path = os.path.join("src", "static", "data", "info", 'test', "flowchart_results.json")
+    png_path = generate_graphviz_png(
+            json_path=json_path,
+            output_png_path=output_png_path,
+            md_path=md_path,
+            title='test',
+            max_root_chars=30
+        )
 
-    generate_graphviz_png(json_file_path, output_png_file, md_file_path, title=mindmap_title, max_root_chars=20)
+    # generate_graphviz_png(json_file_path, output_png_file, md_file_path, title=mindmap_title, max_root_chars=20)

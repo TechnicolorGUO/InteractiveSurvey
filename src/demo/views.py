@@ -1221,15 +1221,6 @@ def generate_pdf(request):
         # markdown_content = ensure_all_papers_cited(markdown_content, Global_citation_data)
         # print(markdown_content)
         markdown_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
-        png_path = os.path.join("src", "static", "data", "info", Global_survey_id, "outline.png")
-        try:
-            markdown_content = insert_outline_image(
-                png_path=png_path,
-                md_content=markdown_content,
-                survey_title =Global_survey_title
-            )
-        except Exception as e:
-            print(f"Error inserting outline image: {e}. Continuing with next step.")
         # 设置 Markdown 文件的保存路径1
         markdown_dir = f'./src/static/data/info/{survey_id}/'
         markdown_filename = f'survey_{survey_id}_processed.md'
@@ -1491,6 +1482,14 @@ def finalize_survey_paper(paper_text,
         normalized_text = insert_ref_images(flowchart_results_path, ref_list, normalized_text)
     except Exception as e:
         print(f"Error inserting ref image: {e}. Continuing with next step.")
+    try:
+        normalized_text = insert_outline_image(
+            png_path=png_path,
+            md_content=normalized_text,
+            survey_title =Global_survey_title
+        )
+    except Exception as e:
+        print(f"Error inserting outline image: {e}. Continuing with next step.")
 
     # 6) 合并正文和 References
     final_paper = normalized_text.strip() + "\n\n" + references_section
