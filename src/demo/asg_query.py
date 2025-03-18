@@ -142,7 +142,7 @@ def generate_query_qwen(topic):
         (abs:"<Entity1>" OR abs:"<Entity2>" OR abs:"<Entity3>" OR abs:"<Entity4>" OR abs:"<Entity5>") AND 
         (abs:"<Concept1>" OR abs:"<Concept2>" OR ... OR abs:"<Concept12>")
         ```
-    - **Terms are extracted from the topic and are grouped together using `AND` in the first part.**
+    - **Terms are 2 or 3 keywords or phrases extracted from the topic that you think **must** occur in the abstract of the searching results and are grouped together using `AND` in the first part.** (most important)
     - **Entities are grouped together using `OR` in the second part.**
     - **Concepts are grouped together using `OR` in the third part.**
     - **The two groups are combined using `AND`.**
@@ -184,6 +184,7 @@ def generate_query_qwen(topic):
     ---
 
     ### **Now Generate the Query for This Topic:**
+    **Topic:** {topic}  
     Using the provided **Entity List** and **Concept List**, apply the following steps:
     1. **Ensure Entity List contains at least 5 items.** If fewer, supplement additional relevant terms.
     2. **Ensure Concept List contains 12-15 items.** If fewer, supplement additional relevant terms.
