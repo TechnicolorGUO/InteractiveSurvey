@@ -254,44 +254,61 @@ class OutlineGenerator():
         clean_text = re.sub(r'\s+', ' ', text).strip()
         return messages, clean_text
 
-    
 def parseOutline(survey_id):
     file_path = f'./src/static/data/txt/{survey_id}/outline.json'
-    with open(file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-  
-    response = data['outline']
-    # print(response)
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    except Exception as e:
+        print(f"Error loading JSON file {file_path}: {e}")
+        return []
 
+    response = data.get('outline', '')
+    if not response:
+        print("No outline content found in JSON.")
+        return []
 
-    # Extract content between the first '[' and the last ']'
+    # 提取文本中第一个 '[' 与最后一个 ']' 之间的内容
     def extract_first_last(text):
         first_match = re.search(r'\[', text)
-        last_match = re.search(r'\](?!.*\])', text)  # Negative lookahead to find the last ']'
+        last_match = re.search(r'\](?!.*\])', text)  # 使用负向前瞻查找最后一个 ']'
         if first_match and last_match:
-            return '[' + text[first_match.start()+1:last_match.start()] + ']'
+            return '[' + text[first_match.start() + 1:last_match.start()] + ']'
         return None
 
-    # prefix_extracted = extract_first_last(prefix)
     response_extracted = extract_first_last(response)
-    # print(response_extracted)
+    if not response_extracted:
+        print("Failed to extract a valid list string from the outline content.")
+        return []
 
-    # if prefix_extracted:
-    #     prefix_list = ast.literal_eval(prefix_extracted)
-    # else:
-    #     prefix_list = None
+    # 检查提取结果是否为“列表的列表”格式（应该以 "[[" 开头）
+    fixed_str = response_extracted.strip()
+    if not fixed_str.startswith("[["):
+        # 如果不是，则去掉原有的首尾括号，再重新包装：[[ ... ]]
+        # 注意：这种方式假定内部结构是以逗号分隔的多个列表，而不是单个列表。
+        fixed_str = "[[" + fixed_str[1:-1] + "]]"
+        # 或者根据你的实际情况，也可简单包装外层括号：
+        # fixed_str = "[" + fixed_str + "]"
 
-    if response_extracted:
-        outline_list = ast.literal_eval(response_extracted)
-    else:
-        outline_list = None
+    try:
+        outline_list = ast.literal_eval(fixed_str)
+    except Exception as e:
+        print(f"Error converting extracted outline to a list.\nExtracted text: {fixed_str}\nError: {e}")
+        return []
+
+    # 如果结果不是列表，则转换成列表
+    if not isinstance(outline_list, list):
+        outline_list = list(outline_list)
+
+    # 如果解析结果不是列表的列表，而是单个列表（例如 [a, b, c]），则将其包装成一个列表
+    if outline_list and not all(isinstance(item, list) for item in outline_list):
+        outline_list = [outline_list]
 
     result = []
-    # for item in prefix_list:
-    #     outline_list.append(item)
     for item in outline_list:
         result.append(item)
     return result
+
 
 def generateOutlineHTML_qwen(survey_id):
     outline_list = parseOutline(survey_id)

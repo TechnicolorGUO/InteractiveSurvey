@@ -11,8 +11,8 @@ from torchvision import models
 from PIL import Image
 
 # 常量定义
-BASE_DIR = "src/static/data/md"  # 根目录
-INFO_DIR = "src/static/data/info"  # 存放 JSON 结果的目录
+BASE_DIR = os.path.normpath("src/static/data/md")  # 根目录
+INFO_DIR = os.path.normpath("src/static/data/info")  # 存放 JSON 结果的目录
 
 # 加载 PyTorch EfficientNet 训练好的 3 类分类模型
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -130,7 +130,7 @@ def insert_ref_images(json_path, ref_names, text):
     new_lines = []
     # 匹配类似 [1]、[2] 的引用标记
     ref_pattern = re.compile(r'\[(\d+)\]')
-
+    img_index = 2
     for line in lines:
         new_lines.append(line)
         matches = ref_pattern.findall(line)
@@ -163,14 +163,15 @@ def insert_ref_images(json_path, ref_names, text):
 
                     html_block = (
                         f"<div style=\"text-align:center\">\n"
-                        f"    <img src=\"{normalized_jpg_path_url}\" alt=\"the chart of {ref_name}\" style=\"width:50%;\"/>\n"
+                        f"    <img src=\"{normalized_jpg_path_url}\" alt=\"the chart of {ref_name}\" style=\"width:75%;\"/>\n"
                         f"</div>\n"
                         f"<div style=\"text-align:center;font-size:smaller;\">\n"
-                        f"    Fig {ref_num}: The chart of {ref_name}\n"
+                        f"    Fig {img_index}: The chart of {ref_name}\n"
                         f"</div>"
                     )
                     new_lines.append(html_block)
                     new_lines.append("")  # 增加一个空行分隔
+                    img_index += 1
 
     return "\n".join(new_lines)
 

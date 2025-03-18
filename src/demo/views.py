@@ -32,6 +32,7 @@ from .asg_clustername import generate_cluster_name_new
 from .postprocess import generate_references_section
 from .asg_query import generate_query_qwen
 from .asg_add_flowchart import insert_ref_images, detect_flowcharts
+from .asg_mindmap import generate_graphviz_png, insert_outline_image
 # from .survey_generator_api import ensure_all_papers_cited
 import glob
 
@@ -1238,6 +1239,17 @@ def generate_pdf(request):
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
 
+        png_path = os.path.join("src", "static", "data", "info", Global_survey_id, "outline.png")
+        md_path = os.path.join("src", "static", "data", "info", Global_survey_id, f"survey_{Global_survey_id}_processed.md")
+        try:
+            markdown_content = insert_outline_image(
+                png_path=png_path,
+                md_content=markdown_content,
+                survey_title =Global_survey_title
+            )
+        except Exception as e:
+            print(f"Error inserting outline image: {e}. Continuing with next step.")
+
         # 配置 PDF 文件的保存路径
         pdf_filename = f'survey_{survey_id}.pdf'
         pdf_dir = './src/static/data/results'
@@ -1444,7 +1456,7 @@ def fix_citation_punctuation_md(text):
 def finalize_survey_paper(paper_text, 
                           Global_collection_names, 
                           Global_file_names):
-    global Global_survey_id
+    global Global_survey_id, Global_survey_title
     # 1) 删除所有不想要的旧引用（包括 [数字]、[Sewon, 2021] 等）
     paper_text = remove_invalid_citations(paper_text, Global_collection_names)
 
@@ -1461,8 +1473,25 @@ def finalize_survey_paper(paper_text,
     references_section, ref_list = generate_references_section(citation_mapping, collection_pdf_mapping)
     print(ref_list)
     #5.5
+    json_path = os.path.join("src", "static", "data", "txt", Global_survey_id, "outline.json")
+    output_png_path = os.path.join("src", "static", "data", "info", Global_survey_id, "outline")
+    md_path = os.path.join("src", "static", "data", "info", Global_survey_id, f"survey_{Global_survey_id}_processed.md")
+    flowchart_results_path = os.path.join("src", "static", "data", "info", Global_survey_id, "flowchart_results.json")
     detect_flowcharts(Global_survey_id)
-    normalized_text = insert_ref_images(f'src/static/data/info/{Global_survey_id}/flowchart_results.json', ref_list, normalized_text)
+    try:
+        png_path = generate_graphviz_png(
+            json_path=json_path,
+            output_png_path=output_png_path,
+            md_path=md_path,
+            title=Global_survey_title,
+            max_root_chars=30
+        )
+    except:
+        png_path = None
+    try:
+        normalized_text = insert_ref_images(flowchart_results_path, ref_list, normalized_text)
+    except Exception as e:
+        print(f"Error inserting ref image: {e}. Continuing with next step.")
 
     # 6) 合并正文和 References
     final_paper = normalized_text.strip() + "\n\n" + references_section
