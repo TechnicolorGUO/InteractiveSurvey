@@ -254,10 +254,10 @@ def insert_outline_image(png_path, md_content, survey_title):
 # 使用示例
 # --------------------------
 if __name__ == "__main__":
-    json_path = os.path.join("src", "static", "data", "txt", 'test', "outline.json")
-    output_png_path = os.path.join("src", "static", "data", "info", 'test', "outline")
-    md_path = os.path.join("src", "static", "data", "info", 'test', f"survey_{'test'}_processed.md")
-    flowchart_results_path = os.path.join("src", "static", "data", "info", 'test', "flowchart_results.json")
+    json_path = os.path.join("src", "static", "data", "txt", 'test_2', "outline.json")
+    output_png_path = os.path.join("src", "static", "data", "info", 'test_2', "outline")
+    md_path = os.path.join("src", "static", "data", "info", 'test_2', f"survey_{'test_2'}_processed.md")
+    flowchart_results_path = os.path.join("src", "static", "data", "info", 'test_2', "flowchart_results.json")
     png_path = generate_graphviz_png(
             json_path=json_path,
             output_png_path=output_png_path,

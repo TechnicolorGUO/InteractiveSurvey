@@ -1468,16 +1468,16 @@ def finalize_survey_paper(paper_text,
     md_path = os.path.join("src", "static", "data", "info", Global_survey_id, f"survey_{Global_survey_id}_processed.md")
     flowchart_results_path = os.path.join("src", "static", "data", "info", Global_survey_id, "flowchart_results.json")
     detect_flowcharts(Global_survey_id)
-    try:
-        png_path = generate_graphviz_png(
-            json_path=json_path,
-            output_png_path=output_png_path,
-            md_path=md_path,
-            title=Global_survey_title,
-            max_root_chars=30
-        )
-    except:
-        png_path = None
+# try:
+    png_path = generate_graphviz_png(
+        json_path=json_path,
+        output_png_path=output_png_path,
+        md_path=md_path,
+        title=Global_survey_title,
+        max_root_chars=30
+    )
+# except:
+    # png_path = None
     try:
         normalized_text = insert_ref_images(flowchart_results_path, ref_list, normalized_text)
     except Exception as e:
