@@ -213,6 +213,8 @@ class OutlineGenerator():
         The first element in the sub-list refers to the hierachy of the section name (from 1 to 3). Sections like Introduction and Conclusion should have the highest level (1)\
         The second element in the sub-list refers to the section name.
         You are required to finish the second and third level subsections name under [1, '3 <Cluster 0's name>'], [1, '4 <Cluster 1's name>'] and [1, '5 <Cluster 2's name>']
+        You must not generate third level susections over *3* for each second level subsection, for example, [3, '3.1.4 xxx'], [3, '3.1.5 xxx'] are not allowed. 
+        *Try to conclude the main findings of each cluster in the second and third level subsections, use highly abstract terms and phrases to describe*
         '''
         # user_prompt = {"survey_title":survey_title, "claims":cluster_with_claims}
         cluster_sections = "\n".join([f"[1, '{i+3} {cluster_names[i]}'], [level 2 and 3 sections to finish...]" for i in range(cluster_num)])
@@ -220,7 +222,8 @@ class OutlineGenerator():
         user_prompt = f'''Finish the outline of the survey paper given the title: {survey_title}, and lists of sentences describing each cluster of the references used by this survey:\n{cluster_with_claims}
         The first level sections' hierarchy is given: [[1, '1 Abstract'], [1, '2 Introduction'], {cluster_sections}, [1, '{cluster_num+3} Future Directions'], [1, '{cluster_num+4} Conclusion']].
         You are required to finish the second and third level subsections under each cluster section with [2, 'a.b xxx'] and [3, 'a.b.c xxx'].
-        Notice that do not use the reference title directly as the level 3 subsection title, use comprehensive phrases to summarize the cluster with different aspects.
+        You must not generate third level susections over *3* for each second level subsection, for example, [3, '3.1.4 xxx'], [3, '3.1.5 xxx'] are not allowed.
+        *Try to conclude the main findings of each cluster in the second and third level subsections, use highly abstract terms and phrases to describe*
         '''
 
         messages = [
