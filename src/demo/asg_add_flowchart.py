@@ -163,10 +163,10 @@ def insert_ref_images(json_path, ref_names, text):
 
                     html_block = (
                         f"<div style=\"text-align:center\">\n"
-                        f"    <img src=\"{normalized_jpg_path_url}\" alt=\"the chart of {ref_name}\" style=\"width:75%;\"/>\n"
+                        f"    <img src=\"{normalized_jpg_path_url}\" alt=\"the chart of {ref_name}\" style=\"width:60%;\"/>\n"
                         f"</div>\n"
                         f"<div style=\"text-align:center;font-size:smaller;\">\n"
-                        f"    Fig {img_index}: The chart of {ref_name}\n"
+                        f"    Fig {img_index}: Chart from \'{ref_name}\'\n"
                         f"</div>"
                     )
                     new_lines.append(html_block)
