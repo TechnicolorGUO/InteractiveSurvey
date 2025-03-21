@@ -24,7 +24,7 @@ class DocumentLoading:
         if os.path.exists(md_file_path):
             print(f"Markdown file for {pdf_file} already exists at {md_file_path}. Skipping conversion.", flush=True)
             return
-
+            
         # 执行转换命令
         command = ["magic-pdf", "-p", pdf_file, "-o", output_dir, "-m", method]
         try:

@@ -403,9 +403,10 @@ def upload_refs(request):
                 if pdf_name.endswith(".pdf"):  # 只处理 PDF 文件
                     pdf_path = os.path.join(RECOMMENDED_PDF_DIR, pdf_name)
 
-                    # 读取文件内容到内存
+                    pdf_content = BytesIO()
                     with open(pdf_path, 'rb') as f:
-                        pdf_content = BytesIO(f.read())
+                        shutil.copyfileobj(f, pdf_content)  # 逐块复制
+                    pdf_content.seek(0)  # 重置指针
 
                     # 模拟 Django 上传文件对象
                     uploaded_pdf = InMemoryUploadedFile(
@@ -455,9 +456,12 @@ def upload_refs(request):
                 # 规范化文件名，去除不合法字符，使用空格替换
                 sanitized_filename = sanitize_filename_py(os.path.splitext(file.name)[0])
                 file_extension = os.path.splitext(file.name)[1].lower()  # 统一扩展名为小写
+                #跳过重复文件
+                if sanitized_filename in filenames:
+                    continue
+                # 构建文件存储路径
                 sanitized_filename = f"{sanitized_filename}{file_extension}"  # 加上扩展名
 
-                # 构建文件存储路径
                 # Replace spaces with underscores or another safe character if needed in paths
                 # Here, spaces are kept as per requirement
                 file_path = os.path.join('src', 'static', 'data', 'pdf', Global_survey_id, sanitized_filename)
@@ -563,25 +567,23 @@ def upload_refs(request):
         if ref_paper_num>0:
                 
             ## change col name
-            try:
-                # required columns
-                # input_pd["ref_title"] = input_pd["reference paper title"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid title')
-                # input_pd['ref_title'] = ['_'.join(filename.split("_")[:-1]) for filename in filenames]
-                input_pd['ref_title'] = [filename for filename in filenames]
-                # print(input_pd['ref_title'])
-                # print('++++++++++++++++++++++++++++++++++++++++++++++')
-                input_pd["ref_context"] = [""]*ref_paper_num
-                input_pd["ref_entry"] = input_pd["reference paper citation information (can be collected from Google scholar/DBLP)"]
-                input_pd["abstract"] = input_pd["reference paper abstract (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid abstract')
-                input_pd["intro"] = input_pd["reference paper introduction (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid introduction')
+            # required columns
+            # input_pd["ref_title"] = input_pd["reference paper title"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid title')
+            # input_pd['ref_title'] = ['_'.join(filename.split("_")[:-1]) for filename in filenames]
+            print('The filenames are:', filenames)
+            print('The json files are:', filtered_json_files)
+            input_pd['ref_title'] = [filename for filename in filenames]
+            # print(input_pd['ref_title'])
+            # print('++++++++++++++++++++++++++++++++++++++++++++++')
+            input_pd["ref_context"] = [""]*ref_paper_num
+            input_pd["ref_entry"] = input_pd["reference paper citation information (can be collected from Google scholar/DBLP)"]
+            input_pd["abstract"] = input_pd["reference paper abstract (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid abstract')
+            input_pd["intro"] = input_pd["reference paper introduction (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid introduction')
 
-                # optional columns
-                # input_pd["ref_link"] = input_pd["reference paper doi link (optional)"].apply(lambda x: x if len(str(x))>0 else '')
-                input_pd["label"] = input_pd["reference paper category label (optional)"].apply(lambda x: str(x) if len(str(x))>0 else '')
-                #input_pd["label"] = input_pd["reference paper category id (optional)"].apply(lambda x: str(x) if len(str(x))>0 else '')
-            except:
-                print("Cannot convert the column name")
-                is_valid_submission = False
+            # optional columns
+            # input_pd["ref_link"] = input_pd["reference paper doi link (optional)"].apply(lambda x: x if len(str(x))>0 else '')
+            input_pd["label"] = input_pd["reference paper category label (optional)"].apply(lambda x: str(x) if len(str(x))>0 else '')
+            #input_pd["label"] = input_pd["reference paper category id (optional)"].apply(lambda x: str(x) if len(str(x))>0 else '')
 
             ## get cluster_num, check has_label_id
             # stat_input_pd_labels = input_pd["label"].value_counts()
@@ -725,40 +727,51 @@ def generate_arxiv_query(request):
 
 @csrf_exempt
 def download_pdfs(request):
+    def clean_filename(filename):
+        """
+        移除文件名中的非法字符，确保兼容 Windows 和 Linux。
+        """
+        filename = filename.strip()  # 去掉首尾空格和换行符
+        filename = re.sub(r'[\\/*?:"<>|\n\r]', '', filename)  # 移除非法字符
+        return filename
     if request.method == "POST":
         try:
             # 解析 JSON 数据
             data = json.loads(request.body)
             pdf_links = data.get("pdf_links", [])
-            pdf_titles = data.get("pdf_titles", [])
+            pdf_titles = data.get("pdf_titles", [])  # PDF 标题列表
             print(pdf_links)
 
             if not pdf_links:
                 return JsonResponse({"message": "No PDFs to download."}, status=400)
 
-            # 构建目标文件夹路径
+            # 构建目标文件夹路径（适配 Windows 和 Linux）
             base_dir = os.path.join(os.getcwd(), "src", "static", "data", "pdf", "recommend_pdfs")
-            os.makedirs(base_dir, exist_ok=True)  # 确保目录存在
+            os.makedirs(base_dir, exist_ok=True)  # 确保文件夹存在
 
             downloaded_files = []
-            i=0
-            for pdf_url in pdf_links:
+            for i, pdf_url in enumerate(pdf_links):
                 try:
                     response = requests.get(pdf_url, stream=True)
                     if response.status_code == 200:
-                        pdf_filename = os.path.join(base_dir, str(pdf_titles[i])+".pdf")
-                        i+=1
+                        # 处理文件名，确保合法
+                        sanitized_title = clean_filename(pdf_titles[i]) if i < len(pdf_titles) else f"file_{i}"
+                        pdf_filename = os.path.join(base_dir, f"{sanitized_title}.pdf")
+
+                        # 下载 PDF
                         with open(pdf_filename, "wb") as pdf_file:
                             for chunk in response.iter_content(chunk_size=1024):
                                 pdf_file.write(chunk)
+
                         downloaded_files.append(pdf_filename)
-                        print("Success")
+                        print(f"Success: {pdf_filename}")
                     else:
                         print(f"Failed to download {pdf_url}")
+
                 except Exception as e:
                     print(f"Error downloading {pdf_url}: {e}")
-            
-            print("Download finish")
+
+            print("Download finished")
             return JsonResponse({"message": f"Downloaded {len(downloaded_files)} PDFs successfully!", "files": downloaded_files})
 
         except json.JSONDecodeError:
@@ -815,9 +828,13 @@ def get_topic(request):
 @csrf_exempt
 def automatic_taxonomy(request):
     global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label, Global_collection_names_clustered, Global_cluster_num
-    ref_dict = dict(request.POST)
-    ref_list = ref_dict['refs']
-    query = ref_dict['taxonomy_standard'][0]
+    refs_json = request.POST.get("refs")
+    ref_list = json.loads(refs_json)
+    ref_list = [int(item) for item in ref_list]
+    print(ref_list)
+    # query = ref_dict['taxonomy_standard'][0]
+    query = request.POST.get("taxonomy_standard")
+    # print(ref_dict)
 
     #3.10 Disable the cluster_num selection
     # Global_cluster_num = int(ref_dict['Global_cluster_num'][0])
@@ -1472,7 +1489,7 @@ def finalize_survey_paper(paper_text,
     png_path = generate_graphviz_png(
         json_path=json_path,
         output_png_path=output_png_path,
-        md_path=md_path,
+        md_content=normalized_text,
         title=Global_survey_title,
         max_root_chars=30
     )

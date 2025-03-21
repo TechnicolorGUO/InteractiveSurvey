@@ -442,7 +442,7 @@ FONTS & ICONS
 				<div id="select_refs">
 				<div class="row">
 					<div class="col-md-8" style="height: 60px">
-						<h2 align="left"><span class="fas fa-tags"></span> Please Input the Topic for Summarization: </h2>
+						<h2 align="left"><span class="fas fa-tags"></span> Please Input the Survey Topic for Summarization: </h2>
 					</div>
 					<!-- <div class="col-md-4" style="height: 60px">
 						<button type="button" class="btn btn-danger" id="delete_button" name="delete_button" style="margin-top: 10px; margin-left: 50px; background-color: #dc3545; border-color: #dc3545;" onclick="deleteFiles()">
@@ -458,12 +458,10 @@ FONTS & ICONS
 						<form action="" method="post" id="topic_input" enctype="multipart/form-data">
 							{% csrf_token %}
 							<!-- Survey ID Dropdown -->
-							<label for="survey-id">Select or Create Survey ID:</label>
+							<!-- <label for="survey-id">Select or Create Survey ID:</label>
 							<select id="survey-id" name="survey_id" class="form-control" onchange="handleSurveySelection()">
-								<!-- 选项由 Ajax 加载，加载完毕后会追加已有 ID -->
-								<!-- 此处预置新建选项，避免下拉框为空 -->
 								<option value="new">Create New Survey ID</option>
-							</select>
+							</select> -->
 			  
 							<!-- Custom Survey ID Input, 默认隐藏，只有选择 "new" 时显示 -->
 							<div id="custom-survey-id-container" style="display: none; margin-top: 10px;">
@@ -631,7 +629,7 @@ FONTS & ICONS
 					const query = backendData.query; // The generated query from backend
 
 					// Step 2: Use the generated query to fetch data from Arxiv API
-					const arxivResponse = await fetch(`https://export.arxiv.org/api/query?search_query=${encodeURIComponent(query)}&start=0&max_results=50&sortBy=submittedDate`);
+					const arxivResponse = await fetch(`https://export.arxiv.org/api/query?search_query=${encodeURIComponent(query)}&start=0&max_results=50&sortBy=relevance`);
 					if (!arxivResponse.ok) {
 						throw new Error('Failed to fetch data from Arxiv API.');
 					}
@@ -1108,7 +1106,7 @@ FONTS & ICONS
 				<input type="hidden" name="refs" value="${ref_id}" class="pdf-hidden-input">
 			</div>
 		`;
-			document.getElementById("ref_list").innerHTML += pdfHtml;
+			$("#ref_list").append(pdfHtml);
 			}
 			$("#refs").attr("style","display:inline;");
 			$("#select_refs").attr("style","display:none;");
@@ -1188,14 +1186,26 @@ FONTS & ICONS
 	function display_taxonomy(){
     // 获取用户选择的 Global_cluster_num
     const clusterNum = document.getElementById("cluster_num_select").value;
+    const taxonomyStandard = $('#taxonomy_standard').val();
+    let refs = [];
+    $('#ref_list .pdf-hidden-input').each(function() {
+        refs.push($(this).val());
+    });
 
     // 在表单数据中添加 clusterNum
-    const formData = $('#ref_form').serialize() + "&Global_cluster_num=" + clusterNum;
+    // 使用 FormData 构建 POST 数据
+    const formData = new FormData();
+    // 这里将所有 refs 合并为一个 JSON 字符串传输，传输时只占用一个字段
+    formData.append("refs", JSON.stringify(refs));
+    formData.append("taxonomy_standard", taxonomyStandard);
+    formData.append("Global_cluster_num", clusterNum);
 
     $.ajax({
         type: "POST",
         dataType: "json",
         url: "/automatic_taxonomy",
+		processData: false,  // 禁止 jQuery 序列化数据
+        contentType: false,  // 禁止 jQuery 设置 Content-Type 头
         data: formData,  // 发送包含 Global_cluster_num 的数据
         success: function(result) {
             alert("Success!");

@@ -201,7 +201,7 @@ class OutlineGenerator():
         cluster_names = []
         for i in range(cluster_num):  # 改为 cluster_num
             cluster = self.cluster[i]
-            cluster_with_claims += f'Cluster {i}: {cluster["name"]}\nDescriptions for entities in this cluster:\n{claims[i]}\n\n'
+            cluster_with_claims += f'Cluster {i}: {cluster["name"]}\nDescriptions for reference papers in this cluster:\n{claims[i]}\n\n'
             cluster_names.append(cluster["name"])
         # system_prompt = f'''
         #     You are a helpful assistant who is helping a researcher to generate an outline for a survey paper.
@@ -215,6 +215,7 @@ class OutlineGenerator():
         You are required to finish the second and third level subsections name under [1, '3 <Cluster 0's name>'], [1, '4 <Cluster 1's name>'] and [1, '5 <Cluster 2's name>']
         You must not generate third level susections over *3* for each second level subsection, for example, [3, '3.1.4 xxx'], [3, '3.1.5 xxx'] are not allowed. 
         *Try to conclude the main findings of each cluster in the second and third level subsections, use highly abstract terms and phrases to describe*
+        *Do not include colons, e.g. AutoSurvey: Large Language Models Can Automatically Write Surveys should be written in Large Language Models in Writing Surveys*
         '''
         # user_prompt = {"survey_title":survey_title, "claims":cluster_with_claims}
         cluster_sections = "\n".join([f"[1, '{i+3} {cluster_names[i]}'], [level 2 and 3 sections to finish...]" for i in range(cluster_num)])
@@ -224,6 +225,7 @@ class OutlineGenerator():
         You are required to finish the second and third level subsections under each cluster section with [2, 'a.b xxx'] and [3, 'a.b.c xxx'].
         You must not generate third level susections over *3* for each second level subsection, for example, [3, '3.1.4 xxx'], [3, '3.1.5 xxx'] are not allowed.
         *Try to conclude the main findings of each cluster in the second and third level subsections, use highly abstract terms and phrases to describe*
+        *Do not include colons, e.g. AutoSurvey: Large Language Models Can Automatically Write Surveys should be written in Large Language Models in Writing Surveys*
         '''
 
         messages = [
