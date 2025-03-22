@@ -272,12 +272,9 @@ def download_arxiv_papers_new(topic, max_results=50, min_results=10):
                 new_count += 1
             if len(total_papers) >= max_results:
                 break
-                
-        if new_count == 0:
-            # No new non-duplicate results were found; break to avoid an infinite loop.
-            break
         
         attempts += 1
+        strict_query = generic_query  # Update the query for the next iteration.
 
     total_paper_list = list(total_papers.values())[:max_results]
     
