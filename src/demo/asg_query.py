@@ -303,7 +303,7 @@ def generate_generic_query_qwen(original_query, topic):
     
     response = client.chat.completions.create(
         model=os.environ.get("MODEL"),
-        max_tokens=128,
+        max_tokens=512,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
@@ -316,7 +316,7 @@ def generate_generic_query_qwen(original_query, topic):
             output_query += chunk.choices[0].delta.content
             
     # Use regex to extract the new simplified query in the exact required format
-    match = re.search(r'\(abs:".*?"\s+AND\s+abs:".*?"\)', output_query, re.DOTALL)
+    match = re.search(r'\(.*\)', output_query, re.DOTALL)
     if match:
         extracted_query = match.group(0)
     else:
