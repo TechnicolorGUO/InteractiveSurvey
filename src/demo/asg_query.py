@@ -43,7 +43,7 @@ Please generate a comprehensive survey abstract for this topic. Include discussi
         if chunk.choices[0].delta.content:
             abstract_text += chunk.choices[0].delta.content
     abstract_text = abstract_text.strip()
-    print("The abstract is:", abstract_text)
+    # print("The abstract is:", abstract_text)
 
     return abstract_text
 
@@ -105,7 +105,7 @@ def generate_entity_lists_qwen(topic, abstract_text):
         if chunk.choices[0].delta.content:
             entity_list += chunk.choices[0].delta.content
     entity_list = entity_list.strip()
-    print("The entity lists are:", entity_list)
+    # print("The entity lists are:", entity_list)
 
     return entity_list
 

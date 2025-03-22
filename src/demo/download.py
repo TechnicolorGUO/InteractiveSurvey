@@ -162,7 +162,7 @@ def download_pdf(url, folder, filename):
     
     response = requests.get(url, stream=True)
     if response.status_code == 200:
-        with open(file_path, 'wb', encoding="utf-8") as file:
+        with open(file_path, 'wb') as file:
             for chunk in response.iter_content(chunk_size=1024):
                 file.write(chunk)
     else:
