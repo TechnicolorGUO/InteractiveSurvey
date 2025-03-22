@@ -239,9 +239,10 @@ def generate_generic_query_qwen(original_query, topic):
     Transforms an overly strict arXiv query into a simplified, more generic version.
     
     The new query must be in the format:
-        (abs:"<GenericTerm1>" AND abs:"<GenericTerm2>")
+        (abs:"<GenericTerm1>" AND abs:"<GenericTerm2>") OR (abs:"<GenericTerm3>" AND abs:"<GenericTerm4>")
         
-    Here, <GenericTerm1> and <GenericTerm2> represent two generic and common keywords
+    Here, <GenericTerm1> and <GenericTerm2> represent two generic and common keywords,
+    while <GenericTerm3> and <GenericTerm4> are synonyms or closely related terms to the first two.
     related to the given topic. If the terms in the original query are too strict,
     replace them with broader terms that improve matching against arXiv articles.
     
@@ -264,8 +265,9 @@ def generate_generic_query_qwen(original_query, topic):
     
     2. Requirements:
        - Create a new query that only has the structure:
-         (abs:"<GenericTerm1>" AND abs:"<GenericTerm2>")
+         (abs:"<GenericTerm1>" AND abs:"<GenericTerm2>") OR (abs:"<GenericTerm3>" AND abs:"<GenericTerm4>")
        - Replace <GenericTerm1> and <GenericTerm2> with two generic and common keywords for the topic.
+       - Replace <GenericTerm3> and <GenericTerm4> with the synonyms or closely related terms to the <GenericTerm1> and <GenericTerm2>.
        - If the terms from the original query are too narrow, modify them to more broadly represent the given topic.
        - All keywords must be in lowercase and in their base form.
        - Each term should be one or two words.

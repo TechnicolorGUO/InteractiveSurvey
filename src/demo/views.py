@@ -388,7 +388,7 @@ def upload_refs(request):
         RECOMMENDED_PDF_DIR = os.path.join("src", "static", "data", "pdf", "recommend_pdfs")
         file_dict = request.FILES.copy()  # 复制 request.FILES，避免直接修改 QueryDict
 
-        md_file_path = os.path.join('src', 'static', 'data', 'info', 'test', 'survey_test_processed.md')
+        md_file_path = os.path.join('src', 'static', 'data', 'info', 'undefined', 'survey_undefined_processed.md')
         with open (md_file_path, 'r', encoding="utf-8") as f:
             markdown_content = f.read()
         pdf = MarkdownPdf()
