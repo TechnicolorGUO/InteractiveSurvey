@@ -1,22 +1,13 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-from langchain.prompts import PromptTemplate
+import time
 from langchain_huggingface import HuggingFaceEmbeddings
 from openai import OpenAI
-import transformers
 import ast
-import uuid
 import re
 import os
-import json
-import chromadb
-import time
-import openai
-import dotenv
-import json
-import base64
 import concurrent.futures
 import numpy as np
 from numpy.linalg import norm
+import openai
 from asg_retriever import Retriever
 
 def getQwenClient(): 
@@ -32,21 +23,45 @@ def getQwenClient():
     )
     return client
 
-def generateResponse(client, prompt):
-    chat_response = client.chat.completions.create(
-        model=os.environ.get("MODEL"),
-        max_tokens=768,
-        temperature=0.5,
-        stop="<|im_end|>",
-        stream=True,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    # Stream the response to console
-    text = ""
-    for chunk in chat_response:
-        if chunk.choices[0].delta.content:
-            text += chunk.choices[0].delta.content
-    return text
+def generateResponse(client, prompt, max_retries=10, backoff_factor=1):
+    """
+    使用带有指数退避策略的重试机制来处理 OpenAI API 请求的速率限制问题。
+    当遇到 RateLimitError 时，会等待一段时间后重试，最多重试 max_retries 次。
+
+    参数:
+      - client: OpenAI API 客户端对象
+      - prompt: 发送给 API 的文本提示
+      - max_retries: 最大重试次数（默认 5 次）
+      - backoff_factor: 指数退避因子，等待时间 = backoff_factor * (2 ** attempt)
+    
+    返回:
+      - API 返回的文本响应
+    """
+    for attempt in range(max_retries):
+        try:
+            chat_response = client.chat.completions.create(
+                model=os.environ.get("MODEL"),
+                max_tokens=768,
+                temperature=0.5,
+                stop="<|im_end|>",
+                stream=True,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            # 处理流式响应
+            text = ""
+            for chunk in chat_response:
+                if chunk.choices[0].delta.content:
+                    text += chunk.choices[0].delta.content
+            return text.strip()
+        except openai.RateLimitError as e:
+            wait_time = backoff_factor * (2 ** attempt)
+            print(f"RateLimitError encountered: waiting {wait_time} seconds before retrying... (attempt {attempt+1}/{max_retries})")
+            time.sleep(wait_time)
+        except Exception as ex:
+            # 遇到其他异常时直接抛出
+            raise ex
+    # 如果重试次数用尽，仍然失败，则抛出异常
+    raise Exception("Max retries reached: Unable to get response from OpenAI API due to rate limiting.")
 
 def generateResponseIntroduction(client, prompt):
     chat_response = client.chat.completions.create(
@@ -723,7 +738,6 @@ def generate_survey_paper_new(title, outline, context_list, client):
     full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
     return full_survey_content
 
-# wza
 # wza
 def generate_survey_paper_new(title, outline, context_list, client, citation_data_list):
     parsed_outline = ast.literal_eval(outline)

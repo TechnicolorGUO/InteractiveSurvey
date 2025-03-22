@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import openai
 import re  # Import the regular expressions module
 from openai import OpenAI
 import ast

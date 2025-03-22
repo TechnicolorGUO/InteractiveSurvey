@@ -346,7 +346,7 @@ class ASG_system:
         df = pd.read_csv(f'{self.tsv_path}/{self.survey_id}.tsv', sep='\t', index_col=0, encoding='utf-8')
         df_selected = df
 
-        df_selected, _ = clustering(df_selected, [3,4,5], self.survey_id, self.info_path, self.tsv_path)
+        df_selected, _, best_n_topics = clustering(df_selected, [3,4,5], self.survey_id, self.info_path, self.tsv_path)
         self.df_selected = df_selected
 
         df_tmp = df_selected.reset_index()

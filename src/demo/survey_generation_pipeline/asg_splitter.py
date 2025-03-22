@@ -1,9 +1,6 @@
 from asg_loader import DocumentLoading
-from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-import re
-import spacy
-import time
 
 
 class TextSplitting:

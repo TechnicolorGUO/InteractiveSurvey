@@ -4,9 +4,9 @@ import os
 import os
 
 root_path = "."
-cluster_standard = "method"
-pdf_dir = "/home/guest01/develope/web/Auto_Survey_Generator_pdf/arxiv_downloads"
-exclude_dir = "/home/guest01/develope/web/Auto_Survey_Generator_pdf/src/demo/survey_generation_pipeline/result"
+cluster_standard = "research method"
+pdf_dir = "/home/guest01/develope/web/Auto_Survey_Generator_pdf/arxiv_downloads_new_new_new"
+exclude_dir = "/home/guest01/develope/web/Auto_Survey_Generator_pdf/src/demo/survey_generation_pipeline/result_3_22"
 
 # 获取需要排除的文件夹名称（result 目录下的文件夹，假设它们不含 `_`）
 exclude_folders = set(

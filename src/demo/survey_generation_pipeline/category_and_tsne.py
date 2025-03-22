@@ -1,48 +1,12 @@
-import gensim
-import pandas as pd
-from gensim.models.doc2vec import TaggedDocument, Doc2Vec
-from gensim import corpora, models, similarities
-from gensim.parsing.preprocessing import strip_punctuation, remove_stopwords
-from nltk.stem.lancaster import LancasterStemmer
-lancaster_stemmer = LancasterStemmer()
-from nltk.stem import WordNetLemmatizer
-wordnet_lemmatizer = WordNetLemmatizer()
-from summa import keywords
-TaggededDocument = gensim.models.doc2vec.TaggedDocument
 from sklearn.metrics import silhouette_score
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.cluster import SpectralClustering
-from operator import itemgetter
-import traceback
-
-
-import nltk
-from nltk.tokenize import word_tokenize,sent_tokenize
-
 
 import numpy as np
 import matplotlib.pyplot as plt
-from time import time
-from sklearn import datasets, manifold
 import seaborn as sns
 import matplotlib.pyplot as plt
-import matplotlib.patheffects as PathEffects
-import matplotlib
 from sklearn.manifold import TSNE
-
-
-import nltk
-from fuzzywuzzy import fuzz
-
-from summa.summarizer import summarize
-from transformers import AutoTokenizer, AutoModel
-import pandas as pd
-import spacy
-from rank_bm25 import BM25Okapi
-import torch
 from sklearn.cluster import AgglomerativeClustering
 import json
-nlp = spacy.load("en_core_sci_sm")
 
 IMG_PATH = './src/static/img/'
 
@@ -54,14 +18,12 @@ device = 0
 from sentence_transformers import SentenceTransformer
 from umap import UMAP
 from sklearn.decomposition import PCA
-from hdbscan import HDBSCAN
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.feature_extraction.text import CountVectorizer
 from bertopic.vectorizers import ClassTfidfTransformer
-from bertopic.representation import KeyBERTInspired, MaximalMarginalRelevance, OpenAI, PartOfSpeech
+from bertopic.representation import KeyBERTInspired
 from bertopic import BERTopic
 
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
@@ -78,7 +40,7 @@ class ClusteringWithTopic:
     def __init__(self, df, n_topics=3):
         embedding_model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
         # umap_model = DimensionalityReduction()
-        umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine')
+        umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine', init = 'pca')
         hdbscan_model = AgglomerativeClustering(n_clusters=n_topics)
         vectorizer_model = CountVectorizer(stop_words="english", min_df=1, ngram_range=(1, 2))
         ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=False)# True
@@ -120,7 +82,7 @@ class ClusteringWithTopic:
         self.n_topics_list = n_topics_list
 
         self.embedding_model = embedding_model
-        self.umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine')
+        self.umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine',init ='pca')
         self.vectorizer_model = CountVectorizer(stop_words="english", min_df=1, ngram_range=(1, 2))
         self.ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=False)
         self.keybert_model = KeyBERTInspired()
@@ -169,7 +131,7 @@ class ClusteringWithTopic:
                 self.best_topic_model = topic_model
         
         print(f"Best n_topics={self.best_n_topics}, Best silhouette_score={self.best_score}")
-        return self.best_labels, self.best_topic_model
+        return self.best_labels, self.best_topic_model, self.best_n_topics
 
 def clustering(df, n_cluster, survey_id):
     text = df['retrieval_result'].astype(str)
@@ -214,7 +176,7 @@ def clustering(df, n_cluster, survey_id):
 def clustering(df, n_topics_list, survey_id, info_path='./src/static/data/info', tsv_path='./src/static/data/tsv'):
     text = df['retrieval_result'].astype(str)
     clustering = ClusteringWithTopic(text, n_topics_list)
-    df['label'], topic_model = clustering.fit_and_get_labels()
+    df['label'], topic_model, best_n_topics = clustering.fit_and_get_labels()
 
     print("The clustering result is: ")
     for col in df.columns:
@@ -222,12 +184,12 @@ def clustering(df, n_topics_list, survey_id, info_path='./src/static/data/info',
 
     # 保存 topic model 信息
     topic_json = topic_model.get_topic_info().to_json()
-    with open(f'{info_path}/{survey_id}/topic.json', 'w', encoding="utf-8") as file:
+    with open(f'./src/static/data/info/{survey_id}/topic.json', 'w', encoding="utf-8") as file:
         file.write(topic_json)
 
     # 创建描述信息
     description_dict = dict(zip(df['ref_title'], df['retrieval_result']))
-    with open(f'{info_path}/{survey_id}/description.json', 'w', encoding="utf-8") as file:
+    with open(f'./src/static/data/info/{survey_id}/description.json', 'w', encoding="utf-8") as file:
         json.dump(description_dict, file, ensure_ascii=False, indent=4)
 
     # t-SNE 降维可视化
@@ -244,7 +206,7 @@ def clustering(df, n_topics_list, survey_id, info_path='./src/static/data/info',
     # plt.close()
     output_tsv_filename = f"{tsv_path}/{survey_id}.tsv"
     df.to_csv(output_tsv_filename, sep='\t')
-    return df, colors
+    return df, colors, best_n_topics
 
 def scatter(x, colors):
     sns.set_style('whitegrid')

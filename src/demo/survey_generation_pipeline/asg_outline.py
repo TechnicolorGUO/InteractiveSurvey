@@ -1,6 +1,5 @@
 import transformers
 import torch
-import pandas as pd
 import os
 import json
 import re
@@ -11,7 +10,6 @@ from asg_conclusion import ConclusionGenerator
 from asg_retriever import *
 import pandas as df
 from references import generate_references
-from survey_generator_api import introduction_with_citations 
 
 
 class OutlineGenerator():
@@ -203,7 +201,7 @@ class OutlineGenerator():
         cluster_names = []
         for i in range(cluster_num):  # 改为 cluster_num
             cluster = self.cluster[i]
-            cluster_with_claims += f'Cluster {i}: {cluster["name"]}\nDescriptions for entities in this cluster:\n{claims[i]}\n\n'
+            cluster_with_claims += f'Cluster {i}: {cluster["name"]}\nDescriptions for reference papers in this cluster:\n{claims[i]}\n\n'
             cluster_names.append(cluster["name"])
         # system_prompt = f'''
         #     You are a helpful assistant who is helping a researcher to generate an outline for a survey paper.
@@ -215,6 +213,9 @@ class OutlineGenerator():
         The first element in the sub-list refers to the hierachy of the section name (from 1 to 3). Sections like Introduction and Conclusion should have the highest level (1)\
         The second element in the sub-list refers to the section name.
         You are required to finish the second and third level subsections name under [1, '3 <Cluster 0's name>'], [1, '4 <Cluster 1's name>'] and [1, '5 <Cluster 2's name>']
+        You must not generate third level susections over *3* for each second level subsection, for example, [3, '3.1.4 xxx'], [3, '3.1.5 xxx'] are not allowed. 
+        *Try to conclude the main findings of each cluster in the second and third level subsections, use highly abstract terms and phrases to describe*
+        *Do not include colons, e.g. AutoSurvey: Large Language Models Can Automatically Write Surveys should be written in Large Language Models in Writing Surveys*
         '''
         # user_prompt = {"survey_title":survey_title, "claims":cluster_with_claims}
         cluster_sections = "\n".join([f"[1, '{i+3} {cluster_names[i]}'], [level 2 and 3 sections to finish...]" for i in range(cluster_num)])
@@ -222,7 +223,9 @@ class OutlineGenerator():
         user_prompt = f'''Finish the outline of the survey paper given the title: {survey_title}, and lists of sentences describing each cluster of the references used by this survey:\n{cluster_with_claims}
         The first level sections' hierarchy is given: [[1, '1 Abstract'], [1, '2 Introduction'], {cluster_sections}, [1, '{cluster_num+3} Future Directions'], [1, '{cluster_num+4} Conclusion']].
         You are required to finish the second and third level subsections under each cluster section with [2, 'a.b xxx'] and [3, 'a.b.c xxx'].
-        Notice that do not use the reference title directly as the level 3 subsection title, use comprehensive phrases to summarize the cluster with different aspects.
+        You must not generate third level susections over *3* for each second level subsection, for example, [3, '3.1.4 xxx'], [3, '3.1.5 xxx'] are not allowed.
+        *Try to conclude the main findings of each cluster in the second and third level subsections, use highly abstract terms and phrases to describe*
+        *Do not include colons, e.g. AutoSurvey: Large Language Models Can Automatically Write Surveys should be written in Large Language Models in Writing Surveys*
         '''
 
         messages = [
@@ -256,47 +259,64 @@ class OutlineGenerator():
         clean_text = re.sub(r'\s+', ' ', text).strip()
         return messages, clean_text
 
-    
 def parseOutline(survey_id, info_path = './src/static/data/txt'):
     file_path = f'{info_path}/{survey_id}/outline.json'
-    with open(file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-  
-    response = data['outline']
-    # print(response)
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    except Exception as e:
+        print(f"Error loading JSON file {file_path}: {e}")
+        return []
 
+    response = data.get('outline', '')
+    if not response:
+        print("No outline content found in JSON.")
+        return []
 
-    # Extract content between the first '[' and the last ']'
+    # 提取文本中第一个 '[' 与最后一个 ']' 之间的内容
     def extract_first_last(text):
         first_match = re.search(r'\[', text)
-        last_match = re.search(r'\](?!.*\])', text)  # Negative lookahead to find the last ']'
+        last_match = re.search(r'\](?!.*\])', text)  # 使用负向前瞻查找最后一个 ']'
         if first_match and last_match:
-            return '[' + text[first_match.start()+1:last_match.start()] + ']'
+            return '[' + text[first_match.start() + 1:last_match.start()] + ']'
         return None
 
-    # prefix_extracted = extract_first_last(prefix)
     response_extracted = extract_first_last(response)
-    # print(response_extracted)
+    if not response_extracted:
+        print("Failed to extract a valid list string from the outline content.")
+        return []
 
-    # if prefix_extracted:
-    #     prefix_list = ast.literal_eval(prefix_extracted)
-    # else:
-    #     prefix_list = None
+    # 检查提取结果是否为“列表的列表”格式（应该以 "[[" 开头）
+    fixed_str = response_extracted.strip()
+    if not fixed_str.startswith("[["):
+        # 如果不是，则去掉原有的首尾括号，再重新包装：[[ ... ]]
+        # 注意：这种方式假定内部结构是以逗号分隔的多个列表，而不是单个列表。
+        fixed_str = "[[" + fixed_str[1:-1] + "]]"
+        # 或者根据你的实际情况，也可简单包装外层括号：
+        # fixed_str = "[" + fixed_str + "]"
 
-    if response_extracted:
-        outline_list = ast.literal_eval(response_extracted)
-    else:
-        outline_list = None
+    try:
+        outline_list = ast.literal_eval(fixed_str)
+    except Exception as e:
+        print(f"Error converting extracted outline to a list.\nExtracted text: {fixed_str}\nError: {e}")
+        return []
+
+    # 如果结果不是列表，则转换成列表
+    if not isinstance(outline_list, list):
+        outline_list = list(outline_list)
+
+    # 如果解析结果不是列表的列表，而是单个列表（例如 [a, b, c]），则将其包装成一个列表
+    if outline_list and not all(isinstance(item, list) for item in outline_list):
+        outline_list = [outline_list]
 
     result = []
-    # for item in prefix_list:
-    #     outline_list.append(item)
     for item in outline_list:
         result.append(item)
     return result
 
+
 def generateOutlineHTML_qwen(survey_id):
-    outline_list = parseOutline(survey_id, txt_path='./txt')
+    outline_list = parseOutline(survey_id)
     html = '''
     <div class="container-fluid w-50 d-flex flex-column justify-content-center align-items-center">
 
@@ -880,13 +900,13 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
     # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
     #New version: 12/03
     future_directions = generate_future_work(generated_survey_paper, client)
-    references = generate_references_dir('./src/static/data/txt/'+survey_id)
+    # references = generate_references_dir('./src/static/data/txt/'+survey_id)
     temp["abstract"] = abstract
     temp["introduction"] = generated_introduction
     temp["content"] = generated_survey_paper
     temp["conclusion"] = conclusion
     temp["future_directions"] = future_directions
-    temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
+    # temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
     temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
     temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
     temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
@@ -926,7 +946,7 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client, citation_data_list)
 
     generated_introduction = generate_introduction_alternate(title, generated_survey_paper, client)
-    generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
+    # generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
     # print("\nGenerated Introduction:\n", generated_introduction)
     # abs_generator = AbstractGenerator(pipeline)
     # abstract = abs_generator.generate(title, generated_introduction)
@@ -939,13 +959,13 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     # future_directions =  generate_future_directions_qwen(client, title, generated_introduction).replace("Future Directions:","")
     #New version: 12/03
     future_directions = generate_future_work(generated_survey_paper, client)
-    references = generate_references_dir(txt_path+'/'+survey_id)
+    # references = generate_references_dir('./src/static/data/txt/'+survey_id)
     temp["abstract"] = abstract
     temp["introduction"] = generated_introduction
     temp["content"] = generated_survey_paper
     temp["conclusion"] = conclusion
     temp["future_directions"] = future_directions
-    temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
+    # temp["references"] = "\n\n".join([f"{ref}" for i, ref in enumerate(references)])
     temp["content"] = insert_section(temp["content"], "Abstract", temp["abstract"])
     temp["content"] = insert_section(temp["content"], "Conclusion", temp["conclusion"])
     temp["content"] = insert_section(temp["content"], "Future Directions", temp["future_directions"])
