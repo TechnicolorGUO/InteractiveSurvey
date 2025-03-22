@@ -280,7 +280,7 @@ def generate_generic_query_qwen(original_query, topic):
     
     The original query may be too strict and fails to match a broad range of arXiv articles.
     Please generate a new query in the format:
-        (abs:"<GenericTerm1>" AND abs:"<GenericTerm2>")
+        (abs:"<GenericTerm1>" AND abs:"<GenericTerm2>") OR (abs:"<GenericTerm3>" AND abs:"<GenericTerm4>")
     Replace <GenericTerm1> and <GenericTerm2> with more generic and commonly used terms that represent the topic.
     Output only the final query.
     """
