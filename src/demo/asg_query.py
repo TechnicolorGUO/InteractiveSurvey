@@ -234,4 +234,91 @@ def generate_query_qwen(topic):
     print('The response is :', updated_query)
     return updated_query.strip()
 
-
+def generate_generic_query_qwen(original_query, topic):
+    """
+    Transforms an overly strict arXiv query into a simplified, more generic version.
+    
+    The new query must be in the format:
+        (abs:"<GenericTerm1>" AND abs:"<GenericTerm2>")
+        
+    Here, <GenericTerm1> and <GenericTerm2> represent two generic and common keywords
+    related to the given topic. If the terms in the original query are too strict,
+    replace them with broader terms that improve matching against arXiv articles.
+    
+    Parameters:
+        original_query (str): The output query from generate_query_qwen() which is too strict.
+        topic (str): The research topic.
+    
+    Returns:
+        str: The simplified arXiv query.
+    """
+    
+    system_prompt = """
+    You are a research assistant specializing in constructing effective and broad arXiv search queries.
+    Your job is to transform an overly strict query into a simplified, generic one.
+    
+    Instructions:
+    1. Input:
+       - A strict query that might be too specific.
+       - A topic which the query intends to capture.
+    
+    2. Requirements:
+       - Create a new query that only has the structure:
+         (abs:"<GenericTerm1>" AND abs:"<GenericTerm2>")
+       - Replace <GenericTerm1> and <GenericTerm2> with two generic and common keywords for the topic.
+       - If the terms from the original query are too narrow, modify them to more broadly represent the given topic.
+       - All keywords must be in lowercase and in their base form.
+       - Each term should be one or two words.
+    
+    3. Output:
+       - Return only the final query in the exact format with no extra explanations.
+    """
+    
+    user_prompt = f"""
+    Original Query: {original_query}
+    Topic: {topic}
+    
+    The original query may be too strict and fails to match a broad range of arXiv articles.
+    Please generate a new query in the format:
+        (abs:"<GenericTerm1>" AND abs:"<GenericTerm2>")
+    Replace <GenericTerm1> and <GenericTerm2> with more generic and commonly used terms that represent the topic.
+    Output only the final query.
+    """
+    
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    openai_api_base = os.getenv("OPENAI_API_BASE")
+    
+    # Initialize the OpenAI API client (assuming a similar interface as before)
+    client = OpenAI(
+        api_key=openai_api_key,
+        base_url=openai_api_base,
+    )
+    
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
+    
+    response = client.chat.completions.create(
+        model=os.environ.get("MODEL"),
+        max_tokens=128,
+        temperature=0.5,
+        stop="<|im_end|>",
+        stream=True,
+        messages=messages
+    )
+    
+    output_query = ""
+    for chunk in response:
+        if chunk.choices[0].delta.content:
+            output_query += chunk.choices[0].delta.content
+            
+    # Use regex to extract the new simplified query in the exact required format
+    match = re.search(r'\(abs:".*?"\s+AND\s+abs:".*?"\)', output_query, re.DOTALL)
+    if match:
+        extracted_query = match.group(0)
+    else:
+        extracted_query = output_query.strip()
+    
+    print('The response is :', extracted_query)
+    return extracted_query.strip()
