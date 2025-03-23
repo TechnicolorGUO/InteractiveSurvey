@@ -120,7 +120,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PARENT_FOLDER = "arxiv_downloads_new"
+PARENT_FOLDER = "arxiv_downloads_new_new_new"
 os.makedirs(PARENT_FOLDER, exist_ok=True)
 
 def sanitize_filename(filename):
@@ -349,9 +349,9 @@ if __name__ == '__main__':
     # 下载第一个列表的论文
     for topic in first_topics:
         print(f"\nProcessing topic (first list): {topic}")
-        download_arxiv_papers_new(topic, max_results=50, min_results=10)
+        download_arxiv_papers_new(topic, max_results=50, min_results=20)
     
     # 下载第二个列表的论文
     for topic in second_topics:
         print(f"\nProcessing topic (second list): {topic}")
-        download_arxiv_papers_new(topic, max_results=50, min_results=10)
+        download_arxiv_papers_new(topic, max_results=50, min_results=20)

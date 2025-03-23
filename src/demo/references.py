@@ -5,9 +5,8 @@ from openai import OpenAI
 
 
 def getQwenClient(): 
-    openai_api_key = "qwen2.5-72b-instruct-8eeac2dad9cc4155af49b58c6bca953f"
-    
-    openai_api_base = "https://its-tyk1.polyu.edu.hk:8080/llm/qwen2.5-72b-instruct"
+    openai_api_key = os.environ.get("OPENAI_API_KEY")
+    openai_api_base = os.environ.get("OPENAI_API_BASE")
     
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
