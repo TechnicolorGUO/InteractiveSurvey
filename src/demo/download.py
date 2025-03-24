@@ -110,10 +110,11 @@ arxiv_topics = { # 40/80 topics available in total
 import os
 import requests
 import xml.etree.ElementTree as ET
+import urllib.parse
 from tqdm import tqdm
 import time
 import re
-import urllib.parse
+
 import requests
 from asg_query import generate_generic_query_qwen, generate_query_qwen
 from dotenv import load_dotenv

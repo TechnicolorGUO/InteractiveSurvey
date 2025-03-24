@@ -598,7 +598,7 @@ FONTS & ICONS
 			let pdfTitles = [];
 			// Function to fetch recommendations from Arxiv API
 			async function fetchRecommendations() {
-				pdfLinks = []
+				pdfLinks = [];
 				const topic = document.getElementById("topic_input_box").value.trim();
 				if (!topic) {
 					alert("Please enter a topic!");
@@ -606,14 +606,14 @@ FONTS & ICONS
 				}
 
 				// Clear previous results
-				
-				const recommendationContainer = document.getElementById("recommendation-container")
-				recommendationContainer.style.display = "block"
+				const recommendationContainer = document.getElementById("recommendation-container");
+				recommendationContainer.style.display = "block";
+
 				const recommendationList = document.getElementById("recommendation-list");
 				recommendationList.innerHTML = `<p>Loading recommendations...</p>`;
 
 				try {
-					// Step 1: Send topic to backend to generate query
+					// Step 1: Send topic to backend
 					const backendResponse = await fetch('/generate_arxiv_query/', {
 						method: 'POST',
 						headers: {
@@ -623,92 +623,80 @@ FONTS & ICONS
 					});
 
 					if (!backendResponse.ok) {
-						throw new Error('Failed to generate query from backend.');
+						// 如果后端返回 error，会抛出异常
+						const errorData = await backendResponse.json();
+						throw new Error(errorData.error || 'Failed to fetch from backend.');
 					}
 
+					// 后端现在直接返回 { "urls": [...], ... }
 					const backendData = await backendResponse.json();
-					const query = backendData.query; // The generated query from backend
+					const urls = backendData.urls;
 
-					// Step 2: Use the generated query to fetch data from Arxiv API
-					const arxivResponse = await fetch(`https://export.arxiv.org/api/query?search_query=${encodeURIComponent(query)}&start=0&max_results=50&sortBy=relevance`);
-					if (!arxivResponse.ok) {
-						throw new Error('Failed to fetch data from Arxiv API.');
-					}
-
-					const data = await arxivResponse.text();
-
-					// Step 3: Parse the Arxiv XML response
-					const parser = new DOMParser();
-					const xml = parser.parseFromString(data, "text/xml");
-					const entries = xml.getElementsByTagName("entry");
-
-					// Clear loading message
+					// 清空 loading
 					recommendationList.innerHTML = "";
 
-					// Loop through entries and create recommendation items
-					for (let i = 0; i < entries.length; i++) {
-						const title = entries[i].getElementsByTagName("title")[0].textContent;
-						const summary = entries[i].getElementsByTagName("summary")[0].textContent;
-						const link = entries[i].getElementsByTagName("id")[0].textContent;
-						// Extract the Arxiv ID from the link
-						const arxivId = link.split('/').pop();
+					// 后端返回类似: { papers: [...], count: 12 }
+					const papers = backendData.papers || [];
+
+					if (papers.length === 0) {
+						recommendationList.innerHTML = `<p>No recommendations found for "${topic}".</p>`;
+						return;
+					}
+
+					// 将后端返回的各 paper 渲染到页面
+					for (let i = 0; i < papers.length; i++) {
+						const { title, summary, pdf_link, arxiv_id } = papers[i];
+
 						const recommendationItem = document.createElement("div");
-						const pdfURL = `https://arxiv.org/pdf/${arxivId}.pdf`;
 						recommendationItem.className = "recommendation-item";
 
 						recommendationItem.innerHTML = `
 							<h4>${title}</h4>
-							<p>${summary.substring(0, 150)}...</p>
-							<a href="#" onclick="downloadPDF('${arxivId}')">Download PDF</a>
+							<p>${(summary || '').substring(0, 150)}...</p>
+							<a href="#" onclick="downloadPDF('${arxiv_id}')">Download PDF</a>
 						`;
 
 						recommendationList.appendChild(recommendationItem);
-						pdfLinks.push(pdfURL)
-						pdfTitles.push(title)
-					}
 
-					// If no entries found
-					if (entries.length === 0) {
-						recommendationList.innerHTML = `<p>No recommendations found for the topic "${topic}".</p>`;
+						// 同时将链接推入 pdfLinks
+						pdfLinks.push(pdf_link);
+						pdfTitles.push(title);
 					}
 				} catch (error) {
 					console.error("Error fetching recommendations:", error);
 					recommendationList.innerHTML = `<p>Error fetching recommendations. Please try again later.</p>`;
 				}
 			}
-			function downloadPDF(arxivId) {
-			const pdfURL = `https://arxiv.org/pdf/${arxivId}.pdf`;
-			window.open(pdfURL, '_blank'); // 在新标签页中打开 PDF 文件
-		}
 
-        async function sendPDFLinksToServer() {
-            if (pdfLinks.length === 0) {
-                alert("No PDFs to download.");
-                return;
-            }
+			function downloadPDFUrl(pdfURL) {
+				window.open(pdfURL, '_blank');
+			}
 
-            // 显示加载遮罩层
-            document.getElementById("loading-overlay").style.display = "flex";
+			// 保持 sendPDFLinksToServer 不变，假设它要上传 pdfLinks 和 pdfTitles
+			async function sendPDFLinksToServer() {
+				if (pdfLinks.length === 0) {
+					alert("No PDFs to download.");
+					return;
+				}
+				document.getElementById("loading-overlay").style.display = "flex";
 
-            try {
-                const response = await fetch('/download_pdfs/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ pdf_links: pdfLinks, pdf_titles: pdfTitles }),
-                });
-
-                const result = await response.json();
-                alert(result.message);
-            } catch (error) {
-                console.error("Error sending PDF links to server:", error);
-                alert("Failed to send PDF links to server.");
-            } finally {
-                // 无论成功或失败，都隐藏遮罩层，恢复页面交互
-                document.getElementById("loading-overlay").style.display = "none";
-            }
-        }
+				try {
+					const response = await fetch('/download_pdfs/', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ pdf_links: pdfLinks, pdf_titles: pdfTitles }),
+					});
+					const result = await response.json();
+					alert(result.message);
+				} catch (error) {
+					console.error("Error sending PDF links to server:", error);
+					alert("Failed to send PDF links to server.");
+				} finally {
+					document.getElementById("loading-overlay").style.display = "none";
+				}
+			}
 		</script>
 
 	<!-- ===========================

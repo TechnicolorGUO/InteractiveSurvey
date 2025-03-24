@@ -18,6 +18,8 @@ import hashlib
 import re
 import os
 import csv
+import xml.etree.ElementTree as ET
+import urllib.parse
 
 from django.http import JsonResponse
 from django.http import HttpResponse
@@ -30,7 +32,7 @@ from .asg_generator import generate,generate_sentence_patterns
 from .asg_outline import OutlineGenerator,generateOutlineHTML_qwen, generateSurvey_qwen_new
 from .asg_clustername import generate_cluster_name_new
 from .postprocess import generate_references_section
-from .asg_query import generate_query_qwen
+from .asg_query import generate_generic_query_qwen, generate_query_qwen
 from .asg_add_flowchart import insert_ref_images, detect_flowcharts
 from .asg_mindmap import generate_graphviz_png, insert_outline_image
 # from .survey_generator_api import ensure_all_papers_cited
@@ -369,10 +371,14 @@ def get_surveys(request):
 
 @csrf_exempt
 def upload_refs(request):
+    
     start_time = time.time()
+    RECOMMENDED_PDF_DIR = os.path.join("src", "static", "data", "pdf", "recommend_pdfs")
     if request.method == 'POST':
         if not request.FILES:
-            return JsonResponse({'error': 'No file part'}, status=400)
+            if not os.path.exists(RECOMMENDED_PDF_DIR):
+                return JsonResponse({'error': 'No file part'}, status=400)
+    
 
         is_valid_submission = True
         has_label_id = False
@@ -382,22 +388,20 @@ def upload_refs(request):
         collection_names = []
         filesizes = []
         file_dict = request.FILES
-        file_name = list(file_dict.keys())[0]
+        # file_name = list(file_dict.keys())[0]
         # print(file_dict)
         # print(list(file_dict.keys()))
-        RECOMMENDED_PDF_DIR = os.path.join("src", "static", "data", "pdf", "recommend_pdfs")
+
+
+        global Global_survey_id
+        global Global_test_flag
+        global Global_collection_names
+        global Global_survey_title
+        global Global_file_names
+
+        Global_survey_title = request.POST.get('topic', False)
+        process_pdf_mode = request.POST.get('mode', False)
         file_dict = request.FILES.copy()  # 复制 request.FILES，避免直接修改 QueryDict
-
-        md_file_path = os.path.join('src', 'static', 'data', 'info', 'undefined', 'survey_undefined_processed.md')
-        with open (md_file_path, 'r', encoding="utf-8") as f:
-            markdown_content = f.read()
-        pdf = MarkdownPdf()
-        pdf.meta["title"] = "Survey Results"  # 设置 PDF 的元数据
-        pdf.add_section(Section(markdown_content, toc=False))  # 添加 Markdown 内容，不生成目录
-        pdf.save("test.pdf")  # 将 PDF 保存到文件
-
-
-
         if os.path.exists(RECOMMENDED_PDF_DIR):
             for pdf_name in os.listdir(RECOMMENDED_PDF_DIR):
                 if pdf_name.endswith(".pdf"):  # 只处理 PDF 文件
@@ -423,16 +427,6 @@ def upload_refs(request):
 
             # 4️⃣ 删除 `recommend_pdfs/` 目录，避免重复上传
             shutil.rmtree(RECOMMENDED_PDF_DIR)
-
-        global Global_survey_id
-        global Global_test_flag
-        global Global_collection_names
-        global Global_survey_title
-        global Global_file_names
-
-        Global_survey_title = request.POST.get('topic', False)
-        process_pdf_mode = request.POST.get('mode', False)
-
         # 根据用户选择设置 Global_survey_id
         survey_id_choice = request.POST.get('survey_id')
         if survey_id_choice == "new":
@@ -709,16 +703,141 @@ def upload_refs(request):
 
 @csrf_exempt
 def generate_arxiv_query(request):
+    """
+    逻辑：
+      1) 使用严格查询 strict_query 搜索，若结果 >= min_results，返回 strict_query。
+      2) 否则，进入循环（最多 5 次），每次：
+         a) 用 generate_generic_query_qwen() 生成更宽松的查询 generic_query
+         b) search_arxiv_with_query(generic_query)
+         c) 合并去重后若总数 >= min_results，则返回该 generic_query
+         d) 否则继续下一次循环，直到次数耗尽
+      3) 若循环结束后依然不足 min_results，则返回错误。
+    """
+    def search_arxiv_with_query(query, max_results=50):
+        """
+        Query the arXiv API with a given query string.
+        
+        Parameters:
+            query (str): The query string (URL-unencoded).
+            max_results (int): Maximum number of results to request.
+        
+        Returns:
+            list of dict: A list of dictionaries containing paper metadata.
+                Each dict may include:
+                    - "title": Title of the paper
+                    - "summary": Abstract/summary
+                    - "pdf_link": Direct link to PDF (constructed from the arXiv ID)
+                    - "arxiv_id": The arXiv ID (e.g., "1234.5678")
+        """
+        encoded_query = urllib.parse.quote_plus(query)
+        url = f"https://export.arxiv.org/api/query?search_query={encoded_query}&start=0&max_results={max_results}&sortBy=submittedDate"
+        
+        response = requests.get(url)
+        if response.status_code != 200:
+            print(f"Error fetching data with query: {query} | status code: {response.status_code}")
+            return []
+        
+        try:
+            root = ET.fromstring(response.text)
+        except Exception as e:
+            print("Error parsing XML:", e)
+            return []
+        
+        ns = "{http://www.w3.org/2005/Atom}"
+        entries = root.findall(f"{ns}entry")
+        papers = []
+        for entry in entries:
+            # 1) 标题
+            title_elem = entry.find(f"{ns}title")
+            title = title_elem.text.strip() if title_elem is not None else ""
+
+            # 2) 摘要
+            summary_elem = entry.find(f"{ns}summary")
+            summary_text = summary_elem.text.strip() if summary_elem is not None else ""
+
+            # 3) arXiv 原始链接 (形如 https://arxiv.org/abs/xxx.yyy)
+            link_elem = entry.find(f"{ns}id")
+            link_text = link_elem.text.strip() if link_elem is not None else ""
+
+            # 4) 从链接里提取 arXiv ID
+            #    例如 link = "http://arxiv.org/abs/1234.5678" -> arxiv_id = "1234.5678"
+            arxiv_id = link_text.split('/')[-1]
+
+            # 5) 构造 PDF 下载链接
+            pdf_link = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
+
+            # 添加到列表
+            papers.append({
+                "title": title,
+                "summary": summary_text,
+                "pdf_link": pdf_link,
+                "arxiv_id": arxiv_id
+            })
+        
+        return papers
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            topic = data.get('topic', '')
-
+            topic = data.get('topic', '').strip()
             if not topic:
                 return JsonResponse({'error': 'Topic is required.'}, status=400)
 
-            query = generate_query_qwen(topic)
-            return JsonResponse({'query': query}, status=200)
+            max_results = 50
+            min_results = 10  # 你可根据需要自行修改
+
+            # === 1) 首先使用严格查询 ===
+            strict_query = generate_query_qwen(topic)
+            papers_strict = search_arxiv_with_query(strict_query, max_results=max_results)
+
+            # 用 dict 以论文标题去重（如果你的 paper 结构用别的字段唯一标识，也可相应调整）
+            total_papers = {paper["title"]: paper for paper in papers_strict}
+
+            if len(total_papers) >= min_results:
+                # 原本是:
+                # return JsonResponse({'query': strict_query}, status=200)
+
+                # 改成返回所有paper对应的URL
+                papers_list = list(total_papers.values())  # dict -> list
+
+                return JsonResponse({
+                    "papers": papers_list,  # 例如 [{"title": "...", "summary": "...", "pdf_link": "...", "arxiv_id": "..."}]
+                    "count": len(papers_list),
+                }, status=200)
+
+            # === 2) 如果结果不够，开始最多 5 次尝试，用宽松查询不断合并结果 ===
+            attempts = 0
+            MAX_ATTEMPTS = 5
+            current_query = strict_query  # 方便追踪当前 query
+
+            while len(total_papers) < min_results and attempts < MAX_ATTEMPTS:
+                # 生成更宽松的查询
+                generic_query = generate_generic_query_qwen(current_query, topic)
+                papers_generic = search_arxiv_with_query(generic_query, max_results=max_results)
+
+                # 合并新结果
+                new_count = 0
+                for paper in papers_generic:
+                    if paper["title"] not in total_papers:
+                        total_papers[paper["title"]] = paper
+                        new_count += 1
+
+                attempts += 1
+                current_query = generic_query  # 将本轮的宽松查询作为“新的严格查询”
+
+                if len(total_papers) >= min_results:
+                    # 一旦达到 min_results，就返回此时的查询
+                    papers_list = list(total_papers.values())  # dict -> list
+
+                    return JsonResponse({
+                        "papers": papers_list,  # 例如 [{"title": "...", "summary": "...", "pdf_link": "...", "arxiv_id": "..."}]
+                        "count": len(papers_list),
+                    }, status=200)
+
+            # === 3) 若 5 次尝试后依然不够，则返回错误 ===
+            return JsonResponse({
+                'error': f'Not enough references found even after {attempts} attempts.',
+                'count': len(total_papers),
+            }, status=400)
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
