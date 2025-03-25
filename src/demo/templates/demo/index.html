@@ -887,23 +887,42 @@ FONTS & ICONS
 		const finalDownloadBtn = document.getElementById('finalDownloadBtn');
 	
 		downloadBtn.addEventListener('click', () => {
-			// TODO: 这里可调用后端接口生成 “带 references 的 PDF” 等操作
-			// 比如通过 fetch 或 Ajax 向后端发送请求
-			
-			// 解禁第二个按钮
 			finalDownloadBtn.disabled = false;
 			alert(' You can now download the PDF in LaTeX version.');
 		});
 	
-		// 第二个按钮点击之后，调用后端的 generate_pdf_from_tex 接口
 		finalDownloadBtn.addEventListener('click', () => {
-			// 示例：假设后端路由是 /generate_pdf_from_tex?survey_id=123
-			// 这里简单使用 window.location.href 来下载 PDF
-			const surveyId = '123'; // 真实场景可通过前端字段获取
-			
-			// 以 GET 参数方式传递 survey_id
-			window.location.href = '/generate_pdf_from_tex?survey_id=' + surveyId;
+			downloadPDF_latex();
 		});
+	    // New function to download PDF (LaTeX version)
+	function downloadPDF_latex() {
+      var xhr = new XMLHttpRequest();
+      // Adjust your endpoint as needed, e.g. "/generate_pdf_latex/"
+      xhr.open("POST", "/generate_pdf_latex/", true);
+      xhr.responseType = "blob";
+
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          var blob = new Blob([xhr.response], { type: "application/pdf" });
+          var link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          // Custom file name for your LaTeX-based PDF
+          link.download = "A Survey of " + topic + " (LaTeX).pdf";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          alert("LaTeX PDF downloaded successfully!");
+        } else {
+          alert("Failed to generate LaTeX PDF. Server responded with status: " + xhr.status);
+        }
+      };
+
+      xhr.onerror = function () {
+        alert("An error occurred while processing the LaTeX PDF request.");
+      };
+
+      xhr.send(form);
+    }
 	</script>
 
 	<div class="col-md-12" style="display: none" id="references"></div>
@@ -1686,18 +1705,7 @@ function select_sections() {
             tinymce.remove('#richTextEditor'); // 移除编辑器实例
             $("#editBtn").show();
             $("#saveBtn").hide();
-          });
-        
-
-			// 显示 References 标题
-			// var referencesTitleMarkdown = "## References";
-			// var referencesTitleHTML = marked.parse(referencesTitleMarkdown);
-			// document.getElementById("survey_content").innerHTML += referencesTitleHTML;
-
-			// 显示 References 的内容
-			// var referencesMarkdown = surveyData.references || "No references available.";
-			// var referencesHTML = marked.parse(referencesMarkdown);
-			// document.getElementById("survey_content").innerHTML += referencesHTML;
+          });     
 
 			function downloadPDF() {
 				var surveyContentHTML = document.getElementById("survey_content").innerHTML;
@@ -1738,34 +1746,6 @@ function select_sections() {
 			$('#downloadBtn').on('click', function(){
 				downloadPDF();
 });
-
-            // // 点击按钮生成 Markdown 文件并下载
-            // $('#downloadBtn').on('click', function() {
-            //     // 获取当前页面的 HTML
-            //     var surveyContentHTML = document.getElementById("survey_content").innerHTML;
-
-            //     // 使用 Turndown 将 HTML 转换为 Markdown
-            //     var turndownService = new TurndownService();
-            //     var markdownContent = turndownService.turndown(surveyContentHTML);
-
-            //     // 创建一个 Blob 对象来存储 Markdown 内容
-            //     var blob = new Blob([markdownContent], { type: 'text/markdown' });
-
-            //     // 创建下载链接
-            //     var link = document.createElement('a');
-            //     link.href = window.URL.createObjectURL(blob);
-            //     link.download = 'survey.md';
-
-            //     // 模拟点击下载
-            //     link.click();
-            // });
-
-			// 显示 References 的内容
-			// var referencesMarkdown = surveyData.references || "No references available.";
-			// var referencesHTML = marked.parse(referencesMarkdown);
-			// document.getElementById("survey_content").innerHTML += referencesHTML;
-            // 显示 Survey 区域
-
           },
           error: function() {
             alert("Failed to load survey content.");
