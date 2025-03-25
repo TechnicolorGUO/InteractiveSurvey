@@ -35,6 +35,7 @@ from .postprocess import generate_references_section
 from .asg_query import generate_generic_query_qwen, generate_query_qwen
 from .asg_add_flowchart import insert_ref_images, detect_flowcharts
 from .asg_mindmap import generate_graphviz_png, insert_outline_image
+from .asg_latex import tex_to_pdf, insert_figures, md_to_tex
 # from .survey_generator_api import ensure_all_papers_cited
 import glob
 
@@ -1405,6 +1406,86 @@ def generate_pdf(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+@csrf_exempt
+def generate_pdf_from_tex(request):
+    """
+    处理 POST 请求，将指定的 Markdown 转为 TeX 并对 TeX 做进一步修改（如更新标题、插图等），
+    最终编译生成 PDF 并返回给前端下载。
+    """
+    global Global_survey_id
+    if request.method == 'POST':
+        survey_id = request.POST.get('survey_id', '')
+        if not survey_id:
+            return JsonResponse({'error': 'survey_id is required'}, status=400)
+
+        # 需要处理的 Markdown 文件、TeX 文件、PDF 输出等路径
+        # 你可以根据自己项目实际需求做路径的拼接
+        base_dir = f'./src/static/data/info/{Global_survey_id}'
+        md_path = os.path.join(base_dir, f'survey_{survey_id}_processed.md')
+        tex_path = os.path.join(base_dir, 'template.tex')  # 复制过来的模板文件最终改名后的路径
+        sty_path = os.path.join(base_dir, 'acl.sty')       # 同步复制 sty 文件
+        pdf_dir = './src/static/data/results'              # 最终 PDF 输出目录
+        
+        # 检查并创建 base_dir
+        os.makedirs(base_dir, exist_ok=True)
+        print(f"Directory '{base_dir}' checked or created.")
+
+        # 复制模板文件 (template.tex 和 acl.sty) 到 base_dir 下
+        origin_template = 'src/demo/latex_template/template.tex'
+        origin_acl_sty = 'src/demo/latex_template/acl.sty'
+        shutil.copy(origin_template, tex_path)
+        shutil.copy(origin_acl_sty, sty_path)
+        print("模板文件和 sty 文件已复制到目标目录。")
+
+        # 若 results 目录不存在，创建它
+        os.makedirs(pdf_dir, exist_ok=True)
+        # --------------------------------------
+        # 1. 将 Markdown 转成 TeX
+        # ---------------------------------------
+        md_to_tex(md_path, tex_path)
+        print(f"已将 {md_path} 转换为 TeX: {tex_path}")
+
+        # ---------------------------------------
+        # 2. 更新 TeX 中的 \title{...}
+        # ---------------------------------------
+        # ---------------------------------------
+        # 3. 在 TeX 中插入图片 (outline, flowchart 等)
+        # ---------------------------------------
+        insert_figures(
+            png_path=f'src/static/data/info/{Global_survey_id}/outline.png',
+            tex_path= tex_path, 
+            json_path=f'src/static/data/info/{Global_survey_id}/flowchart_results.json',
+            ref_names= Global_ref_list,
+            survey_title=Global_survey_title,
+            new_tex_path=f'src/static/data/info/{Global_survey_id}/template_with_figure.tex'
+        )
+        # ---------------------------------------
+        # 4. 调用 tex_to_pdf 编译生成 PDF
+        # ---------------------------------------
+        pdf_path = tex_to_pdf(
+            tex_path,
+            output_dir=os.path.dirname(tex_path),
+            compiler="pdflatex"
+        )
+        # 将编译好的 PDF 移动或复制到 pdf_dir 下
+        final_pdf_path = os.path.join(pdf_dir, f'survey_{survey_id}.pdf')
+        shutil.move(pdf_path, final_pdf_path)
+        print(f"PDF 已输出到: {final_pdf_path}")
+        # ---------------------------------------
+        # 5. 将结果 PDF 返回给前端
+        # ---------------------------------------
+        try:
+            with open(final_pdf_path, 'rb') as pdf_file:
+                response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+                filename = os.path.basename(final_pdf_path)
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+        except Exception as e:
+            return JsonResponse({'error': f'读取 PDF 文件失败: {e}'}, status=500)
+
+    # 若不是 POST 请求，返回 400
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 def get_refs(topic):
     '''
     Get the references from given topic
@@ -1582,7 +1663,7 @@ def fix_citation_punctuation_md(text):
 def finalize_survey_paper(paper_text, 
                           Global_collection_names, 
                           Global_file_names):
-    global Global_survey_id, Global_survey_title
+    global Global_survey_id, Global_survey_title, Global_ref_list
     # 1) 删除所有不想要的旧引用（包括 [数字]、[Sewon, 2021] 等）
     paper_text = remove_invalid_citations(paper_text, Global_collection_names)
 
@@ -1597,6 +1678,7 @@ def finalize_survey_paper(paper_text,
     
     # 5) 生成 References
     references_section, ref_list = generate_references_section(citation_mapping, collection_pdf_mapping)
+    Global_ref_list = ref_list
     print(ref_list)
     #5.5
     json_path = os.path.join("src", "static", "data", "txt", Global_survey_id, "outline.json")

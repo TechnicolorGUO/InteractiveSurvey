@@ -223,7 +223,60 @@ def insert_outline_image(png_path, md_content, survey_title):
     print("已在 Markdown 内容中插入 outline 图片。")
     return updated_md
 
+def insert_outline_figure(png_path, tex_content, survey_title):
+    """
+    在给定的 TeX 文件内容字符串中查找 "2 Introduction" 这一行，
+    然后在其之前插入一个跨页(双栏)的 figure* 环境，包括整页显示的图片。
+    它将生成类似如下 LaTeX 片段：
+    
+    \begin{figure*}[htbp]
+      \centering
+      \includegraphics[width=\textwidth]{path/to/xxx.png}
+      \caption{Fig 1. The outline of the XXX}
+    \end{figure*}
 
+    参数：
+      png_path: 要插入的 PNG 图片路径
+      tex_content: TeX 文件内容字符串
+      survey_title: 用于生成图片 caption 的文献/问卷标题
+
+    返回:
+      更新后的 TeX 文本字符串
+    """
+
+    # 将 TeX 内容逐行分割（保留换行符）
+    lines = tex_content.splitlines(keepends=True)
+
+    # 查找包含 "2 Introduction" 的行索引
+    intro_index = None
+    for i, line in enumerate(lines):
+        if 'Introduction' in line:
+            intro_index = i
+            break
+
+    # 如果找不到，就直接返回原文
+    if intro_index is None:
+        print("没有找到 'Introduction' 这一行，未执行插入。")
+        return tex_content
+
+    # 构造 TeX 的 figure* 代码块
+    # 为确保整页，可用 [p] 或者 [htbp]，具体可根据排版需要调整
+    # 也可替换成普通 \begin{figure} ... \end{figure}，如果不需要跨双栏
+    figure_block = (
+        "\n"  # 加一个空行，确保与上文分隔
+        "\\begin{figure*}[htbp]\n"
+        "  \\centering\n"
+        f"  \\includegraphics[width=\\textwidth]{{{png_path}}}\n"
+        f"  \\caption{{The outline of our survey: {survey_title}}}\n"
+        "\\end{figure*}\n\n"  # 再留一个空行分隔
+    )
+
+    # 在找到的 "2 Introduction" 所在行之前插入 figure 环境
+    lines.insert(intro_index, figure_block)
+
+    # 重新拼接所有行
+    updated_tex = "".join(lines)
+    return updated_tex
 # 使用示例：
 # if __name__ == "__main__":
 #     png_path = 'src/static/data/info/test_4/outline.png'

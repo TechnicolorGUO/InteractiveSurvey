@@ -175,6 +175,115 @@ def insert_ref_images(json_path, ref_names, text):
 
     return "\n".join(new_lines)
 
+def insert_tex_images(json_path, ref_names, text):
+    """
+    将 Markdown 文本中出现的数字引用（例如 [1], \[1], \[1\]）替换为 LaTeX figure 环境。
+    仅在每个引用编号第一次出现时插入对应图片，后续出现同编号不再重复插入。
+
+    参数:
+        json_path: JSON 文件路径，其内容格式例如：
+            {
+              "Accelerating federated learning with data and model parallelism in edge computing":
+                "src/static/data/md/test/Accelerating federated learning with data and model parallelism in edge computing/auto/images/xxx.jpg",
+              ...
+            }
+        ref_names: 引用名称列表。其中第 1 个元素对应 [1]，第 2 个对应 [2]，以此类推。
+        text: 包含类似 [1]、\[1]、\[1\] 等形式的 Markdown 文本。
+
+    返回:
+        修改后的文本字符串。在每个引用标记首次出现行的下方插入对应的 LaTeX figure 环境：
+
+        \begin{figure}[htbp]
+          \centering
+          \includegraphics[width=0.6\textwidth]{image_path}
+          \caption{Fig 2: Chart from 'ref_name'}
+        \end{figure}
+
+    说明：
+      1. JSON 中存储的路径可能含正反斜杠。
+      2. 我们按系统拼接路径，再统一转为正斜杠并进行 URL 编码。
+      3. figure 的计数从 1 开始（可根据需求调整）。
+      4. 若某引用编号未在 JSON 中匹配到图片，则不插入 figure。
+    """
+
+    # 读取 JSON
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            img_mapping = json.load(f)
+    except Exception as e:
+        raise Exception(f"加载 JSON 文件出错: {e}")
+
+    # 用于记录某个编号是否已插入过
+    inserted_refs = {}
+
+    # 按行处理文本
+    lines = text.splitlines()
+    new_lines = []
+
+    # --------------------------
+    # 匹配 [1], \[1], \[1\] 等数字引用
+    # --------------------------
+    # 含义:
+    #   (?:\\)?    -> 可选的反斜杠 0或1次
+    #   \[         -> 文字 '[' (在正则中需转义)
+    #   (\d+)      -> 捕获一个或多个数字
+    #   (?:\\)?    -> 可选的反斜杠 0或1次
+    #   \]         -> 文字 ']' (需转义)
+    # 整体匹配可能出现以下形式:
+    #   [1], \[1], \[1\], [12], \[12] 等
+    ref_pattern = re.compile(r'(?:\\)?\[(\d+)(?:\\)?\]')
+
+    # figure 计数
+    figure_index = 1
+
+    for line in lines:
+        new_lines.append(line)  # 先把此行内容写入新文本
+
+        # 查找本行中所有符合模式的引用
+        matches = ref_pattern.findall(line)
+        for ref_num_str in matches:
+            try:
+                ref_num = int(ref_num_str)
+            except ValueError:
+                continue
+
+            # 若该引用编号尚未插入过图片，则执行插入
+            if ref_num not in inserted_refs:
+                inserted_refs[ref_num] = True
+
+                # 判断这个编号是否在 ref_names 范围内
+                if 1 <= ref_num <= len(ref_names):
+                    ref_name = ref_names[ref_num - 1]
+                    jpg_path = img_mapping.get(ref_name, "")
+                else:
+                    ref_name = f"ref_{ref_num}"
+                    jpg_path = ""
+
+                if jpg_path:
+                    # 规范化路径
+                    parts = re.split(r'[\\/]+', jpg_path)
+                    normalized_jpg_path = os.path.join(*parts)
+                    normalized_jpg_path = normalized_jpg_path.replace(os.sep, '/')
+                    # URL 编码（保留 '/')
+                    # normalized_jpg_path_url = quote(normalized_jpg_path, safe="/")
+                    normalized_jpg_path_url = normalized_jpg_path
+
+                    # 构建 LaTeX figure 块
+                    tex_block = (
+                        r"\begin{figure}[htbp]" "\n"
+                        r"  \centering" "\n"
+                        f"  \\includegraphics[width=0.5\\textwidth]{{{normalized_jpg_path_url}}}\n"
+                        f"  \\caption{{Chart from \\textit{ref_name}}}\n"
+                        r"\end{figure}"
+                    )
+
+                    # 插到新文本中，再加个空行分隔
+                    new_lines.append(tex_block)
+                    new_lines.append("")
+                    figure_index += 1
+
+    return "\n".join(new_lines)
+
 
 # 示例用法
 if __name__ == "__main__":

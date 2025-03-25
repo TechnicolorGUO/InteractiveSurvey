@@ -864,6 +864,10 @@ FONTS & ICONS
 					Download as PDF (with references)
 				</button>
 				<br><br>
+				<button id="finalDownloadBtn" type="button" disabled>
+					Download as PDF (LaTeX)
+				</button>
+				<br><br>
 				<button id="editBtn" type="button" class="btn btn-info" title="Edit Content"
 				style="float: right;">
 					Edit the content
@@ -877,6 +881,30 @@ FONTS & ICONS
 		<div class="container pre-scrollable col-md-12" style="max-height: 700px" id="survey_content">
 		</div>
 	</div>
+	<script>
+		// 第一个按钮一旦被点击，就解禁第二个按钮
+		const downloadBtn = document.getElementById('downloadBtn');
+		const finalDownloadBtn = document.getElementById('finalDownloadBtn');
+	
+		downloadBtn.addEventListener('click', () => {
+			// TODO: 这里可调用后端接口生成 “带 references 的 PDF” 等操作
+			// 比如通过 fetch 或 Ajax 向后端发送请求
+			
+			// 解禁第二个按钮
+			finalDownloadBtn.disabled = false;
+			alert(' You can now download the PDF in LaTeX version.');
+		});
+	
+		// 第二个按钮点击之后，调用后端的 generate_pdf_from_tex 接口
+		finalDownloadBtn.addEventListener('click', () => {
+			// 示例：假设后端路由是 /generate_pdf_from_tex?survey_id=123
+			// 这里简单使用 window.location.href 来下载 PDF
+			const surveyId = '123'; // 真实场景可通过前端字段获取
+			
+			// 以 GET 参数方式传递 survey_id
+			window.location.href = '/generate_pdf_from_tex?survey_id=' + surveyId;
+		});
+	</script>
 
 	<div class="col-md-12" style="display: none" id="references"></div>
 
