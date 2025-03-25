@@ -9,6 +9,7 @@ urlpatterns = [
     path('get_survey_id/', views.get_survey_id, name='get_survey_id'),
     path('get_surveys/', views.get_surveys, name='get_surveys'),
     path('generate_pdf/', views.generate_pdf, name='generate_pdf'),
+    path('generate_pdf_from_tex/', views.generate_pdf_from_tex, name='generate_pdf_from_tex'),
     path('save_outline/', views.save_outline, name='save_outline'),
     path("download_pdfs/", views.download_pdfs, name="download_pdfs"),
     path('save_updated_cluster_info', views.save_updated_cluster_info, name='save_updated_cluster_info'),

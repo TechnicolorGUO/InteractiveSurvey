@@ -4,8 +4,8 @@ import os
 
 from openai import OpenAI
 import dotenv
-from asg_add_flowchart import insert_tex_images
-from asg_mindmap import insert_outline_figure
+from .asg_add_flowchart import insert_tex_images
+from .asg_mindmap import insert_outline_figure
 
 
 def _remove_div_blocks(lines):
