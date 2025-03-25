@@ -1414,9 +1414,6 @@ def generate_pdf_from_tex(request):
     """
     global Global_survey_id
     if request.method == 'POST':
-        survey_id = request.POST.get('survey_id', '')
-        if not survey_id:
-            return JsonResponse({'error': 'survey_id is required'}, status=400)
 
         # 需要处理的 Markdown 文件、TeX 文件、PDF 输出等路径
         # 你可以根据自己项目实际需求做路径的拼接
