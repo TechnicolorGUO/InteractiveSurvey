@@ -922,13 +922,6 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     client = getQwenClient()
     context_list = generate_context_list(outline, collection_list)
 
-    # print("!!!!!!!!")
-    # print(context_list)
-    # print("2025")  
-    
-    # 不再重复查询citation数据，而是直接使用传入的citation_data_list
-    # citation_data_list来自get_survey_id传入的Global_citation_data
-
     temp = {
         "survey_id": survey_id,
         "outline": outline, 
@@ -984,8 +977,7 @@ def generate_references_dir(dir):
             file_path = os.path.join(dir, file)
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                # print("The data is: ")
-                # print(data)
+
                 papers_info.append({
                     "file_path": file_path,
                     "title": data.get("title", "Unknown Title"),
@@ -1034,6 +1026,4 @@ if __name__ == '__main__':
     Global_pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_conclusion_generation", adapter_name="conclusion")
     Global_pipeline.model.load_adapter(peft_model_id ="technicolor/llama3.1_8b_abstract_generation", adapter_name="abstract")
 
-
-    # generateOutlineHTML('test')
     generateSurvey("test", "Predictive modeling of imbalanced data", collection_list, Global_pipeline)

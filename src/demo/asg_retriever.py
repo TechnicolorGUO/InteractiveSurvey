@@ -11,7 +11,7 @@ import concurrent.futures
 
 class Retriever:
     client = None
-    cur_dir = os.getcwd()  # current directory
+    cur_dir = os.getcwd()
     chromadb_path = os.path.join(cur_dir, "chromadb")
 
     def __init__ (self):
@@ -60,7 +60,7 @@ class Retriever:
             with open (logpath, 'r', encoding="utf-8") as chunklog:
                 logs = json.load(chunklog)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
-            logs = [] # old_log does not exist or empty
+            logs = []
        
         added_log= [{"chunk_id": ids[i], "metadata": metadata_list[i], "page_content": documents_list[i]} \
                        for i in range(num)]
@@ -71,16 +71,6 @@ class Retriever:
         with open (logpath, "w", encoding="utf-8") as chunklog:
             json.dump(logs, chunklog, indent=4)
         print(f"Logged document information to '{logpath}'.")
-            
-    # def query_chroma (self, collection_name: str, query_embeddings: list[list[float]]) -> dict:
-    #     # return n closest results (chunks and metadatas) in order
-    #     collection = self.get_collection_chroma(collection_name)
-    #     result = collection.query(
-    #         query_embeddings=query_embeddings,
-    #         n_results=5,
-    #     )
-    #     print(f"Query executed on collection '{collection_name}'.")
-    #     return result
     
     def query_chroma(self, collection_name: str, query_embeddings: list[list[float]], n_results: int = 5) -> dict:
         # return n closest results (chunks and metadatas) in order
@@ -89,7 +79,6 @@ class Retriever:
             query_embeddings=query_embeddings,
             n_results=n_results,
         )
-        # print(f"Query executed on collection '{collection_name}'.")
         return result
 
     def update_chroma (self, collection_name: str, id_list: list[str], embeddings_list: list[list[float]], documents_list: list[str], metadata_list: list[dict]):
@@ -107,7 +96,6 @@ class Retriever:
         logs = []
 
         logpath = os.path.join(self.cur_dir, "logs", f"{collection_name}.json")
-        # logpath = "{:0}/assets/log/{:1}.json".format(self.cur_dir, collection_name)
         try:  
             with open (logpath, 'r', encoding="utf-8") as chunklog:
                 logs = json.load(chunklog)
@@ -121,7 +109,6 @@ class Retriever:
                         log["page_content"] = update_list[i]["page_content"]
                         break
 
-        # write back
         with open (logpath, "w", encoding="utf-8") as chunklog:
             json.dump(logs, chunklog, indent=4)
         print(f"Updated log file at '{logpath}'.")
@@ -132,7 +119,6 @@ class Retriever:
         print(f"Deleted entries with ids: {id_list} from collection '{collection_name}'.")
 
     def delete_collection_chroma(self, collection_name: str):
-        # delete the collection itself and all entries in the collection 
         print(f"The collection {collection_name} will be deleted forever!")    
         self.client.delete_collection(collection_name)
         try:
@@ -144,9 +130,8 @@ class Retriever:
 
     def list_collections_chroma(self):
         collections = self.client.list_collections()
-        # print(f"Existing collections: {[col.name for col in collections]}")
 
-# New function to generate a legal collection name from a PDF filename
+# Generate a legal collection name from a PDF filename
 def legal_pdf(filename: str) -> str:
     pdf_index = filename.lower().rfind('.pdf')
     if pdf_index != -1:
@@ -172,8 +157,6 @@ def legal_pdf(filename: str) -> str:
 
 def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings, mode: str):
     # Load and split the PDF
-    # splitters = TextSplitting().mineru_recursive_splitter(file_path)
-
     split_start_time = time.time()
     splitters = TextSplitting().mineru_recursive_splitter(file_path, survey_id, mode)
 
@@ -202,11 +185,6 @@ def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings,
     invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*','_']
     for char in invalid_chars:
         title_new = title_new.replace(char, ' ')
-    print("============================")
-    print(title_new)
-
-    # New logic to create collection_name
-    # filename = os.path.basename(file_path)
     collection_name = legal_pdf(title_new)
 
     retriever = Retriever()
@@ -295,16 +273,13 @@ def query_embeddings_new_new(collection_name: str, query_list: list):
             try:
                 query_result = future.result()
             except Exception as e:
-                # 如果某个查询出现异常，可选择打印或记录
                 print(f"Query '{query_text}' failed with exception: {e}")
                 continue
 
-            # 验证 query_result 的结构和内容
             if "documents" not in query_result or "distances" not in query_result:
                 continue
             if not query_result["documents"] or not query_result["distances"]:
                 continue
-            # documents和distances是嵌套列表，通常是 [[doc1, doc2...]] 的形式
             docs_list = query_result["documents"][0] if query_result["documents"] else []
             dist_list = query_result["distances"][0] if query_result["distances"] else []
 
