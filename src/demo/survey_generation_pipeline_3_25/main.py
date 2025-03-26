@@ -245,6 +245,7 @@ def download_arxiv_papers_new(topic, max_results=50, min_results=20, folder_name
 def download_pdf(url, folder, filename):
     """下载 PDF 并保存到指定文件夹"""
     file_path = os.path.join(folder, filename)
+    os.makedirs(folder, exist_ok=True)
     
     response = requests.get(url, stream=True)
     if response.status_code == 200:
@@ -268,7 +269,7 @@ class ASG_system:
         self.tsv_path = os.path.join(root_path, "tsv")
         self.md_path = os.path.join(root_path, "md")
         self.info_path = os.path.join(root_path, "info")
-        self.result_path = os.path.join(root_path, "result_time")
+        self.result_path = os.path.join(root_path, "result_3_25")
 
         self.survey_id = survey_id
         self.survey_title = survey_title
@@ -572,15 +573,29 @@ class ASG_system:
         print(f"Files generated successfully: \nMarkdown: {markdown_filepath}\nPDF: {pdf_filepath}")
 
     def description_generation(self) -> None:
+        user_input = self.cluster_standard
         query= self.cluster_standard
         query_list = generate_sentence_patterns(query)
+        retrieval_info = {
+            "user_input": user_input,
+            "query_list": query_list,
+            "results": []
+        }
         for name in self.collection_names:
             context, citation_data = query_embeddings_new_new(name, query_list)
             self.citation_data.extend(citation_data)
-
             description = generate(context, query, name)
             self.description_list.append(description)
-
+            retrieval_info["results"].append({
+                "collection_name": name,
+                "retrieved_chunks": context,
+                "description": description
+            })
+        # retrieval_json_path = os.path.join(self.info_path, self.survey_id, "retrieval_info.json")
+        retrieval_json_path = os.path.join(".", "retrieval_info.json")
+        with open(retrieval_json_path, 'w', encoding="utf-8") as f:
+            json.dump(retrieval_info, f, indent=4, ensure_ascii=False)
+          
         citation_path = f'{self.info_path}/{self.survey_id}/citation_data.json'
         os.makedirs(os.path.dirname(citation_path), exist_ok=True)
         with open(citation_path, 'w', encoding="utf-8") as outfile:

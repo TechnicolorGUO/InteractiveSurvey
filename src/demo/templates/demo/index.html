@@ -864,7 +864,8 @@ FONTS & ICONS
 					Download as PDF (with references)
 				</button>
 				<br><br>
-				<button id="finalDownloadBtn" type="button" disabled>
+				<button id="finalDownloadBtn" type="button" class="btn btn-info" title="Download as LaTeX" 
+				style="float: right;" disabled>
 					Download as PDF (LaTeX)
 				</button>
 				<br><br>
@@ -888,41 +889,7 @@ FONTS & ICONS
 	
 		downloadBtn.addEventListener('click', () => {
 			finalDownloadBtn.disabled = false;
-			alert(' You can now download the PDF in LaTeX version.');
 		});
-	
-		finalDownloadBtn.addEventListener('click', () => {
-			downloadPDF_latex();
-		});
-	    // New function to download PDF (LaTeX version)
-	function downloadPDF_latex() {
-      var xhr = new XMLHttpRequest();
-      // Adjust your endpoint as needed, e.g. "/generate_pdf_latex/"
-      xhr.open("POST", "/generate_pdf_latex/", true);
-      xhr.responseType = "blob";
-
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          var blob = new Blob([xhr.response], { type: "application/pdf" });
-          var link = document.createElement("a");
-          link.href = window.URL.createObjectURL(blob);
-          // Custom file name for your LaTeX-based PDF
-          link.download = "A Survey of " + topic + " (LaTeX).pdf";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          alert("LaTeX PDF downloaded successfully!");
-        } else {
-          alert("Failed to generate LaTeX PDF. Server responded with status: " + xhr.status);
-        }
-      };
-
-      xhr.onerror = function () {
-        alert("An error occurred while processing the LaTeX PDF request.");
-      };
-
-      xhr.send(form);
-    }
 	</script>
 
 	<div class="col-md-12" style="display: none" id="references"></div>
@@ -1729,7 +1696,7 @@ function select_sections() {
 						document.body.appendChild(link);
 						link.click();
 						document.body.removeChild(link);
-						alert('PDF downloaded successfully!');
+						alert('PDF downloaded successfully!, Now you can download LaTeX version');
 					} else {
 						alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
 					}
@@ -1745,6 +1712,39 @@ function select_sections() {
 			// 绑定下载按钮的点击事件
 			$('#downloadBtn').on('click', function(){
 				downloadPDF();
+});
+			function downloadPDF_latex() {
+
+				var form = new FormData();
+				var xhr = new XMLHttpRequest();
+				xhr.open('POST', '/generate_pdf_from_tex/', true);
+				xhr.responseType = 'blob';
+
+				xhr.onload = function () {
+					if (xhr.status === 200) {
+						var blob = new Blob([xhr.response], { type: 'application/pdf' });
+						var link = document.createElement('a');
+						link.href = window.URL.createObjectURL(blob);
+						link.download = 'A Survey of ' + topic + '.pdf';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+						alert('PDF downloaded successfully!');
+					} else {
+						alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
+					}
+				};
+
+				xhr.onerror = function () {
+					alert('An error occurred while processing the request.');
+				};
+
+				xhr.send(form);
+			}
+
+			// 绑定下载按钮的点击事件
+			$('#finalDownloadBtn').on('click', function(){
+				downloadPDF_latex();
 });
           },
           error: function() {

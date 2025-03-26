@@ -1,3 +1,4 @@
+import json
 import time
 from main import ASG_system
 import os
@@ -116,21 +117,29 @@ arxiv_topics = { # 40/80 topics available in total
 # 获取需要排除的文件夹名称（result 目录下的文件夹，假设它们不含 `_`）
 if not os.path.exists(exclude_dir):
     os.makedirs(exclude_dir)
+
+
+# 获取需要排除的文件夹列表
 exclude_folders = set(
     folder for folder in os.listdir(exclude_dir) 
     if os.path.isdir(os.path.join(exclude_dir, folder))
 )
 
+# 获取所有 survey 标题
 survey_titles = [
     arxiv_topics[topic][i] 
     for topic in arxiv_topics
     for i in range(len(arxiv_topics[topic]))
 ]
 
+# 生成 PDF 路径，并排除 exclude_folders 中的文件夹
 pdf_paths = [
     os.path.join(pdf_dir, survey_title)
     for survey_title in survey_titles
+    if survey_title not in exclude_folders  # 排除逻辑
 ]
+
+survey_titles = survey_titles[len(survey_titles)-len(pdf_paths):]
 
 # 打印结果以检查
 print("Survey Titles:", len(survey_titles))
@@ -170,10 +179,9 @@ for i in range(len(pdf_paths)):
     runtime_json["Total"] = download_time_end - download_time_start + parsing_time_end - parsing_time_start + clustering_time_end - clustering_time_start + outline_time_end - outline_time_start + section_time_end - section_time_start
 
     print(runtime_json)
-    os.makedirs("/home/guest01/develope/web/Auto_Survey_Generator_pdf/src/demo/survey_generation_pipeline_3_25/result_3_25/" + survey_titles[i] + "_runtime.json", exist_ok=True)
+
     with open("/home/guest01/develope/web/Auto_Survey_Generator_pdf/src/demo/survey_generation_pipeline_3_25/result_3_25/" + survey_titles[i] + "_runtime.json", "w") as f:
-        f.write(str(runtime_json))
-    asg_system = None
+        json.dump(runtime_json, f, indent=4)  # `indent=4` 让 JSON 更易读
 
 
 

@@ -35,7 +35,7 @@ from .postprocess import generate_references_section
 from .asg_query import generate_generic_query_qwen, generate_query_qwen
 from .asg_add_flowchart import insert_ref_images, detect_flowcharts
 from .asg_mindmap import generate_graphviz_png, insert_outline_image
-from .asg_latex import tex_to_pdf, insert_figures, md_to_tex
+from .asg_latex import tex_to_pdf, insert_figures, md_to_tex, preprocess_md
 # from .survey_generator_api import ensure_all_papers_cited
 import glob
 
@@ -964,7 +964,7 @@ def automatic_taxonomy(request):
 
 
     query_list = generate_sentence_patterns(query)
-    print(query_list)
+    # print(query_list)
 
     for name in Global_collection_names:
         # old
@@ -1412,14 +1412,16 @@ def generate_pdf_from_tex(request):
     处理 POST 请求，将指定的 Markdown 转为 TeX 并对 TeX 做进一步修改（如更新标题、插图等），
     最终编译生成 PDF 并返回给前端下载。
     """
-    global Global_survey_id
+    global Global_survey_id, Global_survey_title
     if request.method == 'POST':
 
         # 需要处理的 Markdown 文件、TeX 文件、PDF 输出等路径
         # 你可以根据自己项目实际需求做路径的拼接
         base_dir = f'./src/static/data/info/{Global_survey_id}'
-        md_path = os.path.join(base_dir, f'survey_{survey_id}_processed.md')
+        md_path = os.path.join(base_dir, f'survey_{Global_survey_id}_processed.md')
+        new_md_path = os.path.join(base_dir, f'survey_{Global_survey_id}_preprocessed.md')
         tex_path = os.path.join(base_dir, 'template.tex')  # 复制过来的模板文件最终改名后的路径
+        new_tex_path = os.path.join(base_dir, 'template_with_figure.tex')
         sty_path = os.path.join(base_dir, 'acl.sty')       # 同步复制 sty 文件
         pdf_dir = './src/static/data/results'              # 最终 PDF 输出目录
         
@@ -1439,8 +1441,9 @@ def generate_pdf_from_tex(request):
         # --------------------------------------
         # 1. 将 Markdown 转成 TeX
         # ---------------------------------------
-        md_to_tex(md_path, tex_path)
-        print(f"已将 {md_path} 转换为 TeX: {tex_path}")
+        preprocess_md(md_path, new_md_path)
+        md_to_tex(new_md_path, tex_path, Global_survey_title)
+        print(f"已将 {new_md_path} 转换为 TeX: {tex_path}")
 
         # ---------------------------------------
         # 2. 更新 TeX 中的 \title{...}
@@ -1454,19 +1457,20 @@ def generate_pdf_from_tex(request):
             json_path=f'src/static/data/info/{Global_survey_id}/flowchart_results.json',
             ref_names= Global_ref_list,
             survey_title=Global_survey_title,
-            new_tex_path=f'src/static/data/info/{Global_survey_id}/template_with_figure.tex'
+            new_tex_path=new_tex_path
         )
         # ---------------------------------------
         # 4. 调用 tex_to_pdf 编译生成 PDF
         # ---------------------------------------
-        pdf_path = tex_to_pdf(
-            tex_path,
-            output_dir=os.path.dirname(tex_path),
+        tex_to_pdf(
+            new_tex_path,
+            output_dir=os.path.dirname(new_tex_path),
             compiler="pdflatex"
         )
+        pdf_path = os.path.join(os.path.dirname(new_tex_path), 'template_with_figure.pdf' )
         # 将编译好的 PDF 移动或复制到 pdf_dir 下
-        final_pdf_path = os.path.join(pdf_dir, f'survey_{survey_id}.pdf')
-        shutil.move(pdf_path, final_pdf_path)
+        final_pdf_path = os.path.join(pdf_dir, f'survey_{Global_survey_id}_latex.pdf')
+        shutil.copy2(pdf_path, final_pdf_path)
         print(f"PDF 已输出到: {final_pdf_path}")
         # ---------------------------------------
         # 5. 将结果 PDF 返回给前端

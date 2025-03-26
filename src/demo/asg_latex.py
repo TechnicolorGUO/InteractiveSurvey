@@ -186,12 +186,13 @@ def search_sections(md_path: str):
 
             sections.append((heading_level, heading_text, content_string))
             i = new_idx
+            print(heading_level, heading_text)
         else:
             # 否则跳到下一行
             i += 1
         
         # [可选调试输出] 打印当前标题层级及其文本
-        print(heading_level, heading_text)
+        
 
     return sections[1:]
     
@@ -338,7 +339,7 @@ def md_to_tex_section(section):
         "Maintain inline formatting like bold, italics, and code blocks when possible. "
         "Simply format horizontally aligned text, lists, tables, etc. into valid LaTeX."
         "Use [LaTeX] ... [/LaTeX] to wrap the final content without the \\section\{\}."
-        "If the content is mathematically descriptive, please insert exactly one LaTeX math equation ($...$)to describe it."
+        "If the content is mathematically descriptive, please insert exactly one LaTeX math equation with explaination ($...$)to describe it."
         "Do not include any other irrelevant information."
         "Remember to clean the refs such as \[1], \[2], \[3] inside the text to strip the backslashes to [1], [2], [3]. No any extra backslashes."
     )
@@ -453,11 +454,11 @@ def md_to_tex_section_without_jpg(section):
         system_prompt = (
             "You are a helpful assistant that converts Markdown text to rigorous LaTeX. "
             "Maintain inline formatting like bold, italics, and code blocks when possible. "
-            "Images or HTML blocks should be left as-is (if any). "
-            "Simply format horizontally aligned text, lists, tables, etc. into valid LaTeX. "
-            "Use [LaTeX] ... [/LaTeX] to wrap the final content without the \\section\{\}. "
-            "Do not include any other irrelevant information, return plain answer. "
-            "Remember to transfer the refs such as [1], [2], or [3] to plain text in latex \[1\], \[2\] inside the text."
+            "Simply format horizontally aligned text, lists, tables, etc. into valid LaTeX."
+            "Use [LaTeX] ... [/LaTeX] to wrap the final content without the \\section\{\}."
+            "If the content is mathematically descriptive, please insert exactly one LaTeX math equation with explaination ($...$)to describe it."
+            "Do not include any other irrelevant information."
+            "Remember to clean the refs such as \[1], \[2], \[3] inside the text to strip the backslashes to [1], [2], [3]. No any extra backslashes."
         )
 
         user_prompt = (
