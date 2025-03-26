@@ -1,35 +1,13 @@
 import os
 import json
-from openai import OpenAI
 from dotenv import load_dotenv
+from openai import OpenAI
 
 load_dotenv()
 
-def getQwenClient(): 
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    openai_api_base = os.getenv("OPENAI_API_BASE")
-    client = OpenAI(
-        # defaults to os.environ.get("OPENAI_API_KEY")
-        api_key = openai_api_key,
-        base_url = openai_api_base,
-    )
-    return client
-def generateResponse(client, prompt):
-    chat_response = client.chat.completions.create(
-        model=os.environ.get("MODEL"),
-        max_tokens=128,
-        temperature=0.5,
-        stop="<|im_end|>",
-        stream=True,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    # Stream the response to console
-    text = ""
-    for chunk in chat_response:
-        if chunk.choices[0].delta.content:
-            text += chunk.choices[0].delta.content
-    return text
-
+# --------------------------------------------------------------------------------
+# PROMPTS & CLIENT UTILS
+# --------------------------------------------------------------------------------
 COVERAGE_PROMPT = '''
 Here is an academic survey about the topic "[TOPIC]":
 ---
@@ -90,6 +68,30 @@ Score 5 Description: The survey is exceptionally focused and entirely on topic.
 Return the score without any other information:
 '''
 
+def getQwenClient(): 
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    openai_api_base = os.getenv("OPENAI_API_BASE")
+    client = OpenAI(
+        api_key=openai_api_key,
+        base_url=openai_api_base,
+    )
+    return client
+
+def generateResponse(client, prompt):
+    chat_response = client.chat.completions.create(
+        model=os.environ.get("MODEL"),
+        max_tokens=128,
+        temperature=0.5,
+        stop="<|im_end|>",
+        stream=True,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    text = ""
+    for chunk in chat_response:
+        if chunk.choices[0].delta.content:
+            text += chunk.choices[0].delta.content
+    return text
+
 def evaluate_survey(topic, survey_content, client, prompt_template):
     prompt = prompt_template.replace("[TOPIC]", topic).replace("[SURVEY]", survey_content)
     response = generateResponse(client, prompt)
@@ -104,58 +106,70 @@ def evaluate_structure(topic, survey_content, client):
 def evaluate_relevance(topic, survey_content, client):
     return evaluate_survey(topic, survey_content, client, RELEVANCE_PROMPT)
 
+# --------------------------------------------------------------------------------
+# MAIN LOGIC
+# --------------------------------------------------------------------------------
 if __name__ == "__main__":
     client = getQwenClient()
-    result_dir = "./result_3_22"  # 当前 evaluation.py 同级目录下的 result 文件夹
 
-    evaluation_results = {}  # 存储所有 topic 的评分结果
+    category_folders = [
+        "Computer Science",
+        "Mathematics",
+        "Physics",
+        "Statistics",
+        "Electrical Engineering and Systems Science",
+        "Quantitative Biology",
+        "Quantitative Finance",
+        "Economics"
+    ]
 
-    # 遍历 result 文件夹中的所有子文件夹
-    for topic_dir in os.listdir(result_dir):
-        topic_path = os.path.join(result_dir, topic_dir)
-        if os.path.isdir(topic_path):
-            topic = topic_dir  # 子文件夹名称作为 topic，例如 "LLM for In-Context Learning"
-            # md 文件命名规则为 survey_{topic}.md
-            md_filename = f"survey_{topic}.md"
-            md_file = os.path.join(topic_path, md_filename)
-            if os.path.exists(md_file):
-                with open(md_file, "r", encoding="utf-8") as f:
+    evaluation_results = {}
+
+    for category in category_folders:
+        if not os.path.isdir(category):
+            # If the folder doesn't exist, skip
+            print(f"Skipping: '{category}' - directory not found.")
+            continue
+
+        # Initialize a dict for this category in the results
+        evaluation_results[category] = {}
+
+        # For each .md file found in this category folder
+        for filename in os.listdir(category):
+            # We only want .md files that follow the naming pattern "survey_{topic}.md"
+            if filename.lower().endswith(".md") and filename.startswith("survey_"):
+                # Extract the topic from the filename
+                # e.g., "survey_LLM for In-Context Learning.md" -> "LLM for In-Context Learning"
+                topic = filename[len("survey_") : -len(".md")]
+
+                md_file_path = os.path.join(category, filename)
+                if not os.path.isfile(md_file_path):
+                    continue
+
+                # Read the content of the survey file
+                with open(md_file_path, "r", encoding="utf-8") as f:
                     survey_content = f.read()
+
+                # Evaluate
                 try:
                     coverage_score = evaluate_coverage(topic, survey_content, client)
                     structure_score = evaluate_structure(topic, survey_content, client)
                     relevance_score = evaluate_relevance(topic, survey_content, client)
-                    evaluation_results[topic] = {
+
+                    # Store in nested dictionary: results[category][topic] = ...
+                    evaluation_results[category][topic] = {
                         "coverage": coverage_score,
                         "structure": structure_score,
                         "relevance": relevance_score
                     }
-                    print(f"Processed topic: {topic}")
-                except Exception as e:
-                    print(f"Error processing topic '{topic}': {e}")
-            else:
-                print(f"MD file not found for topic: {topic} at path: {md_file}")
 
-    # 将所有评分结果存储到 evaluation_results.json 中
+                    print(f"Evaluated: {category} / {topic}")
+                except Exception as e:
+                    print(f"Error evaluating '{category} / {topic}': {e}")
+
+    # Write everything to a single JSON file
     output_file = "evaluation_results.json"
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(evaluation_results, f, indent=4, ensure_ascii=False)
 
-    print(f"Results saved to {output_file}")
-
-# if __name__ == "__main__":
-#     client = getQwenClient()
-    
-#     topic = "LLM for In-Context Learning"
-#     md_file = "./result/LLM for In-Context Learning/survey_LLM for In-Context Learning.md"
-    
-#     with open(md_file, "r", encoding="utf-8") as f:
-#         survey_content = f.read()
-    
-#     coverage_score = evaluate_coverage(topic, survey_content, client)
-#     structure_score = evaluate_structure(topic, survey_content, client)
-#     relevance_score = evaluate_relevance(topic, survey_content, client)
-    
-#     print(f"Coverage Score: {coverage_score}")
-#     print(f"Structure Score: {structure_score}")
-#     print(f"Relevance Score: {relevance_score}")
+    print(f"Evaluation completed. Results saved to: {output_file}")
