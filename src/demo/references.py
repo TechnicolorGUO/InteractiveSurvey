@@ -1,8 +1,6 @@
 import os
 import re
 from openai import OpenAI
-# from .asg_retriever import Retriever
-
 
 def getQwenClient(): 
     openai_api_key = os.environ.get("OPENAI_API_KEY")
@@ -73,9 +71,6 @@ Title: {title}
 Reference:'''
     
     response = generateResponse(client, prompt)
-    # print("Generated Response:", response)
-
-    # Extract references from response
     references = []
     pattern = r'Reference:(.*?)(?=\n\n|$)'
     matches = re.findall(pattern, response, re.S)
@@ -86,25 +81,3 @@ Reference:'''
             references.append(reference)
 
     return references
-
-# Example usage
-if __name__ == '__main__':
-    client = getQwenClient()
-    papers_info = [
-        {'authors': 'Jie Ren 1 , Han Xu 1 , Yiding Liu 2 , Yingqian Cui 1 , Shuaiqiang Wang 2 Dawei Yin 2 , Jiliang Tang 1 1 Michigan State University, Baidu Inc. {renjie3, xuhan1, cuiyingq, tangjili}@msu.edu liuyiding.tanh@gmail.com, shqiang.wang@gmail.com, yindawei@acm.org', 'title': 'A Robust Semantics-based Watermark for Large Language Models against Paraphrasing'},
-        {'authors': 'Alice Cooper, Bob Dylan', 'title': 'Exploring Quantum Computing'},
-        {'authors': 'Charlie Evans, Diana Foster, Ethan Green, Fiona Harris, George King', 'title': 'An Introduction to Bioinformatics'}
-    ]
-
-    # papers_info = [
-    #     {'authors': 'Alice Cooper, Bob Dylan', 'title': 'Exploring Quantum Computing'},
-    #     {'authors': 'Charlie Evans, Diana Foster, Ethan Green, Fiona Harris, George King', 'title': 'An Introduction to Bioinformatics'},
-    #     {'authors': 'Sewon Min, Mikel Artetxe, Shruti Bhosale, Naman Goyal, Todor Mihaylov, Myle Ott, Sam Shleifer, Xi Victoria Lin, Jingfei Du, Srinivasan Iyer, Ramakanth Pasunuru, Giri Anantharaman, Xian Li, Shuohui Chen, Halil Akin, Mandeep Baines, Louis Martin, Xing Zhou, Punit Singh Koura, Brian OHoro, Jeff Wang, Luke Zettlemoyer, Mona Diab, Zornitsa Kozareva, Ves Stoyanov', 'title': 'Efficient large scale language modeling with mixtures of experts'}
-    # ]
-    # references = generate_references(papers_info, client)
-    # print(references)
-    # print("\n\n\n\n\n")
-
-    # print("Generated References:\n")
-    # for ref in references:
-    #     print(ref)
