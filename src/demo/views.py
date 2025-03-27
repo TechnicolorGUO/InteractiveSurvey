@@ -1465,7 +1465,7 @@ def generate_pdf_from_tex(request):
         tex_to_pdf(
             new_tex_path,
             output_dir=os.path.dirname(new_tex_path),
-            compiler="pdflatex"
+            compiler="xelatex"
         )
         pdf_path = os.path.join(os.path.dirname(new_tex_path), 'template_with_figure.pdf' )
         # 将编译好的 PDF 移动或复制到 pdf_dir 下

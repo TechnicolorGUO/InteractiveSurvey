@@ -451,14 +451,49 @@ def md_to_tex_section_without_jpg(section):
         # tex_body = ""
     else:
         # 3) 需要调用 LLM 的情况
+        # system_prompt = (
+        #     "You are a helpful assistant that converts Markdown text to rigorous LaTeX. "
+        #     "Maintain inline formatting like bold, italics, and code blocks when possible. "
+        #     "Simply format horizontally aligned text, lists, tables, etc. into valid LaTeX."
+        #     "Use [LaTeX] ... [/LaTeX] to wrap the final content without the \\section\{\}."
+        #     "If the content is mathematically descriptive, please insert exactly one LaTeX math equation with explaination (\\[...\\])to describe it."
+        #     "You are forced to use \\begin{dmath} and \\end{dmath} to replace the origin square brackets and wrap the equation"
+        #     "Do not include any other irrelevant information."
+        #     "Remember to clean the refs such as \[1], \[2], \[3] inside the text to strip the backslashes to [1], [2], [3]. No any extra backslashes."
+        # )
         system_prompt = (
             "You are a helpful assistant that converts Markdown text to rigorous LaTeX. "
             "Maintain inline formatting like bold, italics, and code blocks when possible. "
-            "Simply format horizontally aligned text, lists, tables, etc. into valid LaTeX."
-            "Use [LaTeX] ... [/LaTeX] to wrap the final content without the \\section\{\}."
-            "If the content is mathematically descriptive, please insert exactly one LaTeX math equation with explaination ($...$)to describe it."
-            "Do not include any other irrelevant information."
-            "Remember to clean the refs such as \[1], \[2], \[3] inside the text to strip the backslashes to [1], [2], [3]. No any extra backslashes."
+            "Format horizontally aligned text, lists, and tables into valid LaTeX.\n\n"
+
+            "Use [LaTeX] ... [/LaTeX] to wrap the final content without the \\section{}.\n\n"
+            "If the content is mathematically descriptive, please insert exactly one LaTeX math equation to describe it."
+            "For mathematical content, strictly follow the **standard equation format** below:\n\n"
+
+            "1. **Wrap equations inside `equation`**:\n"
+            "   ```latex\n"
+            "   \\begin{equation}\n"
+            "       \\resizebox{0.95\\columnwidth}{!}{$\n"
+            "       ...  % (Insert the equation here)\n"
+            "       $}\n"
+            "   \\end{equation}\n"
+            "   ```\n"
+            "   - **All equations must be enclosed in `\\resizebox{0.95\\columnwidth}{!}{...}`**.\n"
+            "   - **Ensure the equation fits within `\\columnwidth`** in two-column layouts.\n\n"
+
+            "2. **For descriptions, simply use plain text with double backslashes, for example:\n"
+            "$f_i(x)$ is the local objective function of node $i$.\\"
+            "$\mathcal{N}_i$ is the set of in-neighbors of node $i$.\\"
+
+            "3. **Ensure proper formatting**:\n"
+            "   - **DO NOT use `align`, `multline`, or `split`**—only `equation` with `resizebox`.\n"
+            "   - **DO NOT allow formulas to exceed column width**.\n"
+            "   - **DO NOT allow any other latex syntax such as" 
+            "    \\documentclass{article} \\usepackage{amsmath} \\usepackage{graphicx} \\begin{document}** use the plain content with formula.\n"
+
+            "   - **Maintain the original refs and ensure that references like [1], [2], [3], do not contain unnecessary backslashes**.\n\n"
+
+            "All generated LaTeX content **must strictly adhere to this structure**."
         )
 
         user_prompt = (
@@ -632,21 +667,29 @@ def md_to_tex(md_path, tex_path, title):
         section_index += 1
     # tex_to_pdf(tex_path, output_dir=os.path.dirname(tex_path), compiler="pdflatex")
 
-def tex_to_pdf (tex_path, output_dir=None, compiler="pdflatex"):
+def tex_to_pdf(tex_path, output_dir=None, compiler="xelatex"):
     """
     将 LaTeX 文件编译为 PDF 文件。
 
     参数:
         tex_path (str): 输入的 LaTeX 文件路径。
         output_dir (str): 输出的 PDF 文件目录。
-        compiler (str): 编译器，默认为 "pdflatex"。
+        compiler (str): 编译器，默认为 "xelatex"。
     """
     if output_dir is None:
         output_dir = os.path.dirname(tex_path)
     tex_name = os.path.basename(tex_path)
     tex_name_no_ext = os.path.splitext(tex_name)[0]
     pdf_path = os.path.join(output_dir, f"{tex_name_no_ext}.pdf")
-    subprocess.run([compiler, "-output-directory", output_dir, tex_path])
+    
+    subprocess.run([
+        compiler,
+        "-interaction=nonstopmode",
+        "-output-directory",
+        output_dir,
+        tex_path
+    ])
+    
     print(f"PDF 文件已生成: {pdf_path}")
 
 def insert_figures(png_path, tex_path, json_path, ref_names, survey_title, new_tex_path):
@@ -694,14 +737,15 @@ def postprocess(tex_path, new_title):
       1) 在第一处 \author 行的上一行插入 \title{new_title}。
       2) 将所有形如 "\[1\]"、"\[1]"、以及 "\[12\]" 等引用标记，
          以及 "[1\]" 之类的混合形式，全都去掉反斜杠，统一替换为 [1]、[12]。
+      3) 将所有由 \[ \] 包裹的数学公式都替换为 \begin{dmath} \end{dmath}。
     最后将结果覆盖写回原始文件，并返回 tex_path。
     """
-
+    new_title = 'A Survey of' + new_title
     # 1) 读取文件行
     with open(tex_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
-    # 2) 找到包含 "\author" 的行，在其上一行插入 title
+    # 2) 找到包含 "\author" 的行，在其上一行插入 \title{...}
     inserted = False
     for i, line in enumerate(lines):
         # 如果这一行以 \author 开头，或包含 \author{...} 等
@@ -714,25 +758,33 @@ def postprocess(tex_path, new_title):
     if not inserted:
         # 若整份文件都没有 \author{...}，可以选择直接在文档末尾插入，或在开头插入，视需求而定
         print(f"[警告] 未找到 '\\author' 行，未能插入 '\\title{{{new_title}}}'。")
-        # 下面演示直接在行尾插入（可按自己需求改放开头等）
+        # 下面演示直接在文档末尾插入（可按自己需求改放开头等）
         lines.append(f'\\title{{{new_title}}}\n')
 
-    # 3) 将所有形如 "\[1\]"、"\[12]"、"[12\]" 等都换成 "[1]"、"[12]" 等
-    #    核心正则：'(?:\\)?\[(\d+)(?:\\)?\]'
-    #      (?:\\)? —— 可选的一个反斜杠
-    #      \[      —— 匹配方括号的开头 '['
-    #      (\d+)   —— 匹配并捕获1—多位数字
-    #      (?:\\)? —— 可选的一个反斜杠
-    #      \]      —— 匹配方括号的结尾 ']'
+    # 将行列表合并为一个整体字符串，便于进行正则替换
     text_joined = ''.join(lines)
+
+    # 3) 将形如 "\[1\]"、"\[12]"、"[12\]" 等都换成 "[1]"、"[12]" 等
+    #    核心正则：'(?:\\)?\[(\d+)(?:\\)?\]'
+    #      (?:\\)? ---- 可选的一个反斜杠
+    #      \[      ---- 匹配方括号的开头 '['
+    #      (\d+)   ---- 匹配并捕获1--多位数字
+    #      (?:\\)? ---- 可选的一个反斜杠
+    #      \]      ---- 匹配方括号的结尾 ']'
     ref_pattern = re.compile(r'(?:\\)?\[(\d+)(?:\\)?\]')
     text_processed = ref_pattern.sub(r'[\1]', text_joined)
 
-    # 4) 写回原文件
+    # 4) 将所有由 \[ \] 包裹的数学公式替换为 \begin{dmath} \end{dmath}
+    #    正则示例: 匹配 \[ ... \] 中间任意内容 (非贪婪)
+    #    使用 DOTALL 选项让 '.' 匹配换行
+    # eq_pattern = re.compile(r'\\\[(.*?)\\\]', re.DOTALL)
+    # text_processed = eq_pattern.sub(r'\\begin{dmath}\1\\end{dmath}', text_processed)
+
+    # 5) 写回原文件
     with open(tex_path, 'w', encoding='utf-8') as f:
         f.write(text_processed)
 
-    print(f"[完成] 已在 '{tex_path}' 中插入/追加 \\title{{{new_title}}} 并完成引用标记转换。")
+    print(f"[完成] 已在 '{tex_path}' 中插入/追加 \\title{{{new_title}}}，替换引用标记并将公式转为 dmath 格式。")
     return tex_path
 
 def md_to_tex_to_pdf(md_path, tex_path, pdf_path, png_path, json_path, ref_names, survey_title):
@@ -751,13 +803,14 @@ def md_to_tex_to_pdf(md_path, tex_path, pdf_path, png_path, json_path, ref_names
 if __name__ == "__main__":
     # 读取环境变量 
     dotenv.load_dotenv()
-    md_path = preprocess_md("src/demo/latex_template/test copy.md", "src/demo/latex_template/test_preprocessed.md")
-    tex_path = "src/demo/latex_template/template.tex"
-    md_to_tex(md_path, tex_path, title="A Comprehensive Review of Recommender Systems Transitioning from Theory to Practice")
-    insert_figures('src/static/data/info/undefined/outline.png', 
-                   'src/demo/latex_template/template.tex', 
-                   'src/static/data/info/undefined/flowchart_results.json', 
-                   ['A comprehensive review of recommender systems transitioning from theory to practice', 'A large language model enhanced conversational recommender system'],
-                   'Survey Title',
-                   'src/demo/latex_template/template_with_figures.tex')
-    # tex_to_pdf(tex_path, output_dir=os.path.dirname(tex_path), compiler="pdflatex")
+    # md_path = preprocess_md("src/demo/latex_template/test copy.md", "src/demo/latex_template/test_preprocessed.md")
+    md_path = 'src/static/data/info/undefined/survey_undefined_preprocessed.md'
+    tex_path = "src/static/data/info/undefined/template.tex"
+    md_to_tex(md_path, tex_path, title="A Comprehensive Review of ADMM On Consensus Distributed Optimization")
+    # insert_figures('src/static/data/info/undefined/outline.png', 
+    #                'src/demo/latex_template/template.tex', 
+    #                'src/static/data/info/undefined/flowchart_results.json', 
+    #                ['A comprehensive review of recommender systems transitioning from theory to practice', 'A large language model enhanced conversational recommender system'],
+    #                'Survey Title',
+    #                'src/demo/latex_template/template_with_figures.tex')
+    tex_to_pdf(tex_path, output_dir=os.path.dirname(tex_path), compiler="xelatex")
