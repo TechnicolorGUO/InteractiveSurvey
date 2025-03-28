@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Video and Flowchart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fefefe;
+      color: #333;
+      margin: 0;
+      padding: 2rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    video {
+      display: block;
+      margin: 1rem auto;
+      max-width: 100%;
+      border: 1px solid #ccc;
+    }
+
+    hr {
+      margin: 2rem 0;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
+
+    .flowchart {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .flowchart-box {
+      padding: 0.75rem 1.5rem;
+      border: 2px solid #3498db;
+      border-radius: 6px;
+      background-color: #ecf0f1;
+      min-width: 200px;
+      text-align: center;
+      position: relative;
+    }
+
+    .arrow {
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 20px solid #3498db;
+    }
+
+    .description {
+      margin-top: 2rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Project Overview</h1>
+
+  <!-- Video Section -->
+  <video controls>
+    <source src="resources/demo_1.mp4" type="video/mp4" />
+  </video>
+
+  <hr />
+
+  <!-- Flowchart Section -->
+   <img src="resources/flowchart.png" alt="Flowchart" style="display: block; margin: 0 auto; max-width: 100%;" />
+
+  <!-- Description -->
+  <div class="description">
+    <p>
+        The exponential growth of academic literature creates urgent demands for comprehensive survey papers, yet manual writing remains time-consuming and labor-intensive. While most large language models (LLMs) support long document summarization, their context windows limit a comprehensive survey over multiple references (e.g., >10 papers). Recent advances in retrieval-augmented generation (RAG) facilitate studies in synthesizing survey papers from multiple references, but most existing works restrict users to title-only inputs and fixed outputs, neglecting the personalized process of survey paper writing. In this paper, we introduce InteractiveSurvey - an LLM-based personalized and interactive survey paper generation system. InteractiveSurvey can generate structured, multi-modal survey papers with reference categorizations from multiple reference papers through both online retrieval and user uploads. More importantly, users can customize and refine every component in survey paper generation, including reference categorization, survey paper outline, and the textual content through an intuitive interface. Evaluation results show that InteractiveSurvey achieves superior content quality in generated survey papers compared to most LLMs and existing survey generation methods, while also remaining time efficient
+    </p>
+  </div>
+
+</body>
+</html>
