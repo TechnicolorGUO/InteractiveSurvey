@@ -23,13 +23,13 @@
 
 ## Introduction
 
-**Auto Literature Survey Generator** is an **interactive** and **automated** tool designed to help researchers efficiently conduct **literature reviews**. By leveraging **natural language processing (NLP)** and **AI-powered summarization**, it enables users to collect, organize, and generate structured literature surveys **effortlessly**.
+**InteractiveSurvey** is an **interactive** and **personalized** tool designed to help researchers efficiently conduct **literature reviews**. By leveraging **natural language processing (NLP)** and **Large Language Models (LLMs)**, it enables users to collect, organize, and generate structured literature surveys **effortlessly**.
 
 ### 🔥 Key Features:
-- **📝 Automatic Literature Review Generation**: Extract key insights from papers and generate structured summaries.  
-- **💡 Interactive Exploration**: Dynamically filter, refine, and customize your survey in real time.  
-- **📄 PDF Export**: Easily generate high-quality literature surveys in PDF format.  
-- **⚡ AI-Powered Insights**: Identify trends, categorize research, and highlight important findings.  
+- **📝 Automatic Literature Review Generation**: Extract key insights from papers and generate structured literature surveys.  
+- **💡 Interactive Exploration**: Dynamically filter, refine, and customize your survey in real-time.  
+- **📄 PDF Export**: Easily generate high-quality literature surveys in PDF format with either **Markdown** or **LaTeX**.  
+- **⚡ Multimodality**: Extract figures from references and insert customized figures by yourself.
 - **🐳 Docker Support**: Quickly deploy and run the application in a containerized environment.  
 
 ---
@@ -43,15 +43,15 @@ LiveSurvey requires Python 3.10.
 ### 1️⃣ Clone the Repository  
 Clone the repository to your local machine:  
 ```sh
-git clone https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf.git
+git clone [https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf.git](https://github.com/TechnicolorGUO/InteractiveSurvey)
 cd Auto_Survey_Generator_pdf
 ```
 
 ### 2️⃣ Set Up the Environment
 Create a virtual environment and activate it:
 ```sh
-conda create -n livesurvey python=3.10
-conda activate livesurvey
+conda create -n interactivesurvey python=3.10
+conda activate interactivesurvey
 ```
 Install the required dependencies:
 ```sh
@@ -107,10 +107,10 @@ Replace the placeholders with your actual OpenAI API key, API base URL, and pref
 If you have GPU support, you can build and run the GPU version of the Docker container using the following commands:
 ```bash
 # Build the Docker image
-docker build -t my-docker-app .
+docker build -t interactivesurvey.
 
 # Run the Docker container (with GPU support)
-docker run --gpus all -p 8001:8001 my-docker-app
+docker run --gpus all -p 8001:8001 interactivesurvey
 ```
 
 ### CPU Version
@@ -121,13 +121,13 @@ If you do not have GPU support, you can run the CPU version of the Docker contai
 Then run the following commands:
 ```bash
 # Build the Docker image
-docker build -t my-docker-app .
+docker build -t interactivesurvey-cpu .
 
 # Run the Docker container (with CPU support)
-docker run -p 8001:8001 my-docker-app
+docker run -p 8001:8001 interactivesurvey-cpu
 ```
 
-After starting the container, access http://localhost:8001 to confirm that the application is running correctly.
+After starting the container, access (http://localhost:8001)[http://localhost:8001] to confirm that the application is running correctly.
 
 <hr>
 
