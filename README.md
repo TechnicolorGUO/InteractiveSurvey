@@ -43,8 +43,8 @@ LiveSurvey requires Python 3.10.
 ### 1️⃣ Clone the Repository  
 Clone the repository to your local machine:  
 ```sh
-git clone [https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf.git](https://github.com/TechnicolorGUO/InteractiveSurvey)
-cd Auto_Survey_Generator_pdf
+git clone https://github.com/TechnicolorGUO/InteractiveSurvey
+cd InteractiveSurvey
 ```
 
 ### 2️⃣ Set Up the Environment
