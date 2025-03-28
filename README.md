@@ -10,7 +10,7 @@
 </p>
 <p align="center">
 <img alt="python" src="https://img.shields.io/badge/python-3.10-blue">
-<img alt="Static Badge" src="https://img.shields.io/badge/license-MIT-green">
+<img alt="Static Badge" src="https://img.shields.io/badge/license-apache-green">
 </p>
 <div align="center">
 <hr>
