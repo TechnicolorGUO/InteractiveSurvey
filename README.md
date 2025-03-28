@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-<p align="center">An <b>Interactive</b> and <b>Automatic</b> literature survey generator.
+<p align="center">An <b>Interactive</b> and <b>Personalized</b> literature survey generation system.
 </p>
 <p align="center">
 <img alt="python" src="https://img.shields.io/badge/python-3.10-blue">
