@@ -1,12 +1,12 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/resources/logo.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/resources/logo.svg">
-    <img src="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/resources/logo.svg" alt="Logo" width="50%" height="50%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TechnicolorGUO/InteractiveSurvey/blob/main/resources/logo1.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/TechnicolorGUO/InteractiveSurvey/blob/main/resources/logo1.svg">
+    <img src="https://github.com/TechnicolorGUO/InteractiveSurvey/blob/main/resources/logo1.svg" alt="Logo" width="50%" height="50%">
   </picture>
 </p>
 
-<p align="center">An <b>Interactive</b> and <b>Automatic</b> literature survey generator.
+<p align="center">An <b>Interactive</b> and <b>Personalized</b> literature survey generation system.
 </p>
 <p align="center">
 <img alt="python" src="https://img.shields.io/badge/python-3.10-blue">
@@ -170,13 +170,8 @@ if __name__ == "__main__":
 ```
 
 ## Contact
-
-
-
-## Contributing
-
-
+If youhave any enquiries, please email [guobeichen0228@gmail.com](guobeichen0228@gmail.com)
 
 ## License
 
-[MIT](LICENSE)
+[Apache License 2.0](LICENSE)

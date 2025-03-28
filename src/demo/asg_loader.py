@@ -19,20 +19,18 @@ class DocumentLoading:
             
         command = ["magic-pdf", "-p", pdf_file, "-o", output_dir, "-m", method]
         try:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            process.communicate(timeout=300)
-        except subprocess.TimeoutExpired:
-            print(f"Command timed out: {command}")
-            process.terminate()
-            process.wait()
+            subprocess.run(command, check=True)
+            # 检查是否生成了 Markdown 文件
+            if not os.path.exists(md_file_path):
+                print(f"Conversion failed: Markdown file not found at {md_file_path}. Cleaning up folder...")
+                shutil.rmtree(target_dir)  # 删除生成的文件夹
+            else:
+                print(f"Successfully converted {pdf_file} to markdown format in {target_dir}.")
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred during conversion: {e}")
+            # 如果发生错误且文件夹已生成，则删除文件夹
             if os.path.exists(target_dir):
-                shutil.rmtree(target_dir)
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            if process.poll() is None:
-                process.terminate()
-                process.wait()
-            if os.path.exists(target_dir):
+                print(f"Cleaning up incomplete folder: {target_dir}")
                 shutil.rmtree(target_dir)
     # new
     def convert_pdf_to_md_new(self, pdf_dir, output_dir="output", method="auto"):
