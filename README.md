@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/resources/logo1.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/resources/logo1.svg">
-    <img src="https://github.com/TechnicolorGUO/Auto_Survey_Generator_pdf/blob/main/resources/logo1.svg" alt="Logo" width="50%" height="50%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TechnicolorGUO/InteractiveSurvey/tree/main/resources/logo2.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/TechnicolorGUO/InteractiveSurvey/tree/main/resources/logo2.svg">
+    <img src="https://github.com/TechnicolorGUO/InteractiveSurvey/tree/main/resources/logo2.svg" alt="Logo" width="50%" height="50%">
   </picture>
 </p>
 
@@ -174,4 +174,4 @@ If youhave any enquiries, please email [guobeichen0228@gmail.com](guobeichen0228
 
 ## License
 
-[MIT](LICENSE)
+[Apache License 2.0](LICENSE)
