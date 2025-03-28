@@ -740,7 +740,7 @@ def postprocess(tex_path, new_title):
       3) 将所有由 \[ \] 包裹的数学公式都替换为 \begin{dmath} \end{dmath}。
     最后将结果覆盖写回原始文件，并返回 tex_path。
     """
-    new_title = 'A Survey of' + new_title
+    new_title = 'A Survey of ' + new_title
     # 1) 读取文件行
     with open(tex_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
