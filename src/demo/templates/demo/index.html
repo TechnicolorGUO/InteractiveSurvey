@@ -882,16 +882,6 @@ FONTS & ICONS
 		<div class="container pre-scrollable col-md-12" style="max-height: 700px" id="survey_content">
 		</div>
 	</div>
-	<script>
-		// 第一个按钮一旦被点击，就解禁第二个按钮
-		const downloadBtn = document.getElementById('downloadBtn');
-		const finalDownloadBtn = document.getElementById('finalDownloadBtn');
-	
-		downloadBtn.addEventListener('click', () => {
-			finalDownloadBtn.disabled = false;
-		});
-	</script>
-
 	<div class="col-md-12" style="display: none" id="references"></div>
 
 
@@ -1697,6 +1687,8 @@ function select_sections() {
 						link.click();
 						document.body.removeChild(link);
 						alert('PDF downloaded successfully!, Now you can download LaTeX version');
+						const finalDownloadBtn = document.getElementById('finalDownloadBtn');
+						finalDownloadBtn.disabled = false;
 					} else {
 						alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
 					}
