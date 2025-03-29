@@ -1,12 +1,11 @@
-# 忽略 .env 文件
-.env
-
 # 忽略 Python 缓存文件
 __pycache__/
 *.pyc
 
 src/static/data
 chromadb
+resources
+logs
 
 src/demo/survey_generation_pipeline/info
 src/demo/survey_generation_pipeline/txt

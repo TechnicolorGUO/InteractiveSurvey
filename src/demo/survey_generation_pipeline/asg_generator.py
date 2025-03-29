@@ -5,6 +5,7 @@ import re
 import ast
 import json
 import base64
+import time
 
 def getQwenClient(): 
     openai_api_key = os.environ.get("OPENAI_API_KEY")
@@ -17,21 +18,46 @@ def getQwenClient():
     )
     return client
 
-def generateResponse(client, prompt):
-    chat_response = client.chat.completions.create(
-        model=os.environ.get("MODEL"),
-        max_tokens=768,
-        temperature=0.5,
-        stop="<|im_end|>",
-        stream=True,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    # Stream the response to console
-    text = ""
-    for chunk in chat_response:
-        if chunk.choices[0].delta.content:
-            text += chunk.choices[0].delta.content
-    return text
+def generateResponse(client, prompt, max_retries=3, retry_delay=2):
+    """
+    使用 OpenAI API 实现对话生成，并在发生错误时重试。
+
+    参数:
+        client: OpenAI API 客户端实例。
+        prompt: 传递给 API 的对话提示内容。
+        max_retries: 最大重试次数（默认 3 次）。
+        retry_delay: 每次重试前等待的秒数（默认 2 秒）。
+
+    返回:
+        返回生成的对话文本，或者在多次重试后返回错误提示字符串。
+    """
+    attempts = 0
+    while attempts < max_retries:
+        try:
+            chat_response = client.chat.completions.create(
+                model=os.environ.get("MODEL"),
+                max_tokens=768,
+                temperature=0.5,
+                stop="<|im_end|>",
+                stream=True,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            
+            # 处理流式响应
+            text = ""
+            for chunk in chat_response:
+                content = chunk.choices[0].delta.content
+                if content:
+                    text += content
+            return text
+        except Exception as e:
+            attempts += 1
+            print(f"尝试 {attempts} 发生未知错误：{e}")
+            if attempts >= max_retries:
+                return f"Error: {e} after multiple attempts"
+            time.sleep(retry_delay)
+
+    return "Error: 重试次数超限，未获得有效响应"
 
 def generate_sentence_patterns(keyword, num_patterns=5, temp=0.7):
     template = f"""

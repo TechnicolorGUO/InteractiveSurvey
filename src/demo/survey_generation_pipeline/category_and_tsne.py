@@ -184,12 +184,12 @@ def clustering(df, n_topics_list, survey_id, info_path='./src/static/data/info',
 
     # 保存 topic model 信息
     topic_json = topic_model.get_topic_info().to_json()
-    with open(f'./src/static/data/info/{survey_id}/topic.json', 'w', encoding="utf-8") as file:
+    with open(f'{info_path}/{survey_id}/topic.json', 'w', encoding="utf-8") as file:
         file.write(topic_json)
 
     # 创建描述信息
     description_dict = dict(zip(df['ref_title'], df['retrieval_result']))
-    with open(f'./src/static/data/info/{survey_id}/description.json', 'w', encoding="utf-8") as file:
+    with open(f'{info_path}/{survey_id}/description.json', 'w', encoding="utf-8") as file:
         json.dump(description_dict, file, ensure_ascii=False, indent=4)
 
     # t-SNE 降维可视化
