@@ -443,7 +443,7 @@ FONTS & ICONS
 				<div id="select_refs">
 				<div class="row">
 					<div class="col-md-8" style="height: 60px">
-						<h2 align="left"><span class="fas fa-tags"></span> Please Input the Survey Topic for Summarization: </h2>
+						<h2 align="left"><span class="fas fa-tags"></span> Please input the survey topic: </h2>
 					</div>
 					<!-- <div class="col-md-4" style="height: 60px">
 						<button type="button" class="btn btn-danger" id="delete_button" name="delete_button" style="margin-top: 10px; margin-left: 50px; background-color: #dc3545; border-color: #dc3545;" onclick="deleteFiles()">
@@ -720,7 +720,7 @@ FONTS & ICONS
 			<div class="list-group pre-scrollable" id="ref_list" style="height:800px">
 			</div>
 
-			<p align="right"> *(Selected references for instant survey generation)</p>
+			<!-- <p align="right"> *(Selected references for instant survey generation)</p> -->
 
 
 			<div class="col-md-12" style="text-align: center; display: none; align-items: center; justify-content: center;" id="auto_taxonomy">
@@ -737,7 +737,7 @@ FONTS & ICONS
 				</select>
 			
 				<!-- 触发 AJAX 的按钮 -->
-				<input type="button" class="btn btn-default" onclick="display_taxonomy()" value="Automatic Categorization" style="width: 200px; margin-left:40%">			</div>
+				<input type="button" class="btn btn-default" onclick="display_taxonomy()" value="Personalized Reference Categorization" style="width: 200px; margin-left:40%">			</div>
 		</form>
 
 
@@ -751,7 +751,7 @@ FONTS & ICONS
     ============================ -->
 	<div class="col-md-12" style="display: none" id="taxonomy">
 
-		<h2 align="left"> <span class="fas fa-chart-pie"></span> The Categorization result of selected references based on the input standard (in the order of upload). </h2>
+		<h2 align="left"> <span class="fas fa-chart-pie"></span> The Categorization result of references based on the input criteria. </h2>
 
 		<div class="row">
 			<div class="col-md-7" style="height:400px;">
@@ -769,7 +769,7 @@ FONTS & ICONS
 					aria-hidden="true">
 				&times;
 			</button>
-			<h4 align="center">Our system has finished the reference categorization.</h4>
+			<h4 align="center">We have finished the reference categorization.</h4>
 			<br>
 			<h4 align="center">Not satisfied with the results? You can modify it by yourself!</h4>
 		</div>
@@ -798,11 +798,11 @@ FONTS & ICONS
 			</button>
 			<h4 align="center">The categorization result is saved!</h4>
 			<br>
-			<h4 align="center">Our model will learn from your modification! </h4>
+			<!-- <h4 align="center">Our model will learn from your modification! </h4> -->
 		</div>
 
 
-		<h2 align="left"> The Outline of the generated survey: </h2>
+		<h2 align="left"> The outline of the survey paper to be generated: </h2>
 		<form action="" method="post", id="sections_">
 			{% csrf_token %}
 		</form>

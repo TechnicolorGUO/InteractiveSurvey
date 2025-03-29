@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mermaid Mindmap</title>
+  <!-- 从 CDN 加载 Mermaid，注意：mindmap 是 Mermaid 的实验性功能，请确保使用新版 Mermaid -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          background: #fafafa;
+          padding: 20px;
+      }
+      pre {
+          background: #f0f0f0;
+          padding: 10px;
+          border-radius: 5px;
+      }
+  </style>
+</head>
+<body>
+  <!-- Mermaid 流程图代码块 -->
+  <div class="mermaid">
+mindmap
+  root((Document Outline))
+    3 Blockchain-Enhanced Federated Learning
+      3.1 Blockchain-Based Asynchronous Federated Learning
+        3.1.1 Bafl: A Blockchain-Based Asynchronous Framework
+        3.1.2 Accelerating Blockchain-Enabled Federated Learning with Clustered Clients
+      3.2 Decentralized Federated Learning Frameworks
+        3.2.1 A Blockchain-Based Decentralized Federated Learning Framework with Committee Consensus
+    4 Secure and Explainable Federated Learning
+      4.1 Secure Federated Learning with Blockchain
+        4.1.1 Biscotti: A Blockchain System for Private and Secure Federated Learning
+      4.2 Explainable Federated Learning
+        4.2.1 An Explainable Federated Learning and Blockchain-Based Secure Credit Modeling Method
+    5 Efficient Model Update Compression in BCFL
+      5.1 Compressed Communications in Blockchain-Based Federated Learning
+        5.1.1 A Fast Blockchain-Based Federated Learning Framework with Compressed Communications
+  </div>
+</body>
+</html>
