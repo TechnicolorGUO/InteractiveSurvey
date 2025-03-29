@@ -40,7 +40,7 @@
 
 ## Quick Start
 
-Interactive requires Python 3.10.
+Interactive requires Python 3.10. A minimum 20G disk space is required
 
 ### 1️⃣ Clone the Repository  
 Clone the repository to your local machine:  
