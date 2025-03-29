@@ -32,13 +32,15 @@
 - **⚡ Multimodality**: Extract figures from references and insert customized figures by yourself.
 - **🐳 Docker Support**: Quickly deploy and run the application in a containerized environment.  
 
+
+![flochart](/resources/flowchart.png)
 ---
 
 <hr>
 
 ## Quick Start
 
-LiveSurvey requires Python 3.10.
+Interactive requires Python 3.10.
 
 ### 1️⃣ Clone the Repository  
 Clone the repository to your local machine:  
@@ -161,6 +163,8 @@ if __name__ == "__main__":
     survey_title = "Automating Literature Review Generation with LLM" #Set this to the title of your survey.
     cluster_standard = "method" #Set this to the clustering standard you want to use.
     asg_system = ASG_system(root_path, 'test', pdf_path, survey_title, cluster_standard) #test refers to the survey_id which prevent you from parsing pdfs again.
+    asg_system.download_pdf() 
+    # Downloads PDFs to "./sample_pdfs". Add with your own files for upload.
     asg_system.parsing_pdfs()
     asg_system.description_generation()
     asg_system.agglomerative_clustering()
