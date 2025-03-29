@@ -38,6 +38,19 @@
 
 <hr>
 
+## Examples
+
+### Markdown Example
+https://github.com/user-attachments/assets/fdf48927-ae0f-4040-9595-4a509ea62f08
+
+### LaTeX Example
+
+
+https://github.com/user-attachments/assets/db2b08f5-a328-43e1-9ae9-41c09b54214b
+
+
+<hr>
+
 ## Quick Start
 
 Interactive requires Python 3.10. A minimum 20G disk space is required

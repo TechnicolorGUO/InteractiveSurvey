@@ -6,6 +6,7 @@ src/static/data
 chromadb
 resources
 logs
+examples
 
 src/demo/survey_generation_pipeline/info
 src/demo/survey_generation_pipeline/txt
