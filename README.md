@@ -34,6 +34,11 @@
 
 
 ![flochart](/resources/flowchart.png)
+
+
+https://github.com/user-attachments/assets/15beefae-3b85-453e-a10d-3c210a80933b
+
+
 ---
 
 <hr>
