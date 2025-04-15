@@ -24,13 +24,12 @@
 ## 📰 News  
 <table>
   <tr>
-    <td style="white-space: nowrap;"><strong>[2025/4/15]</strong></td>
+    <td style="white-space: nowrap;"><strong>2025/4/15</strong></td>
     <td>The paper <strong><a href="https://arxiv.org/abs/2504.08762">InteractiveSurvey: An LLM-based Personalized and Interactive Survey Paper Generation System</a></strong> is now released! 🎉✨</td>
   </tr>
 </table>
 
 ---
-<hr>
 
 ## Introduction
 
