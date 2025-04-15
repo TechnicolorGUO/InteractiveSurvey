@@ -15,7 +15,7 @@
 <div align="center">
 <hr>
 
-[Quick Start](#quick-start) | [Use Docker(Recommended)](#use-docker) | [Paper]()
+[Quick Start](#quick-start) | [Use Docker(Recommended)](#use-docker) | [Paper](https://arxiv.org/abs/2504.08762)
 
 </div>
 
