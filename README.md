@@ -21,6 +21,9 @@
 
 ---
 
+## News
+**[2025/4/15]** The paper **[InteractiveSurvey: An LLM-based Personalized and Interactive Survey Paper Generation System](https://arxiv.org/abs/2504.08762)** is now released!
+
 ## Introduction
 
 **InteractiveSurvey** is an **interactive** and **personalized** tool designed to help researchers efficiently conduct **literature reviews**. By leveraging **natural language processing (NLP)** and **Large Language Models (LLMs)**, it enables users to collect, organize, and generate structured literature surveys **effortlessly**.
