@@ -22,8 +22,14 @@
 ---
 
 ## 📰 News  
-**[2025/4/15]** &emsp; The paper **[InteractiveSurvey: An LLM-based Personalized and Interactive Survey Paper Generation System](https://arxiv.org/abs/2504.08762)** is now released! 🎉✨
+<table>
+  <tr>
+    <td style="white-space: nowrap;"><strong>[2025/4/15]</strong></td>
+    <td>The paper <strong><a href="https://arxiv.org/abs/2504.08762">InteractiveSurvey: An LLM-based Personalized and Interactive Survey Paper Generation System</a></strong> is now released! 🎉✨</td>
+  </tr>
+</table>
 
+---
 <hr>
 
 ## Introduction
