@@ -6,11 +6,11 @@
   </picture>
 </p>
 
-<p align="center">An <b>Interactive</b> and <b>Personalized</b> literature survey generation system.
-</p>
+<p align="center">An <b>Interactive</b> and <b>Personalized</b> literature survey generation system.</p>
 <p align="center">
-<img alt="python" src="https://img.shields.io/badge/python-3.10-blue">
-<img alt="Static Badge" src="https://img.shields.io/badge/license-apache-green">
+  <img alt="python" src="https://img.shields.io/badge/python-3.10-blue">
+  <img alt="Static Badge" src="https://img.shields.io/badge/license-apache-green">
+  <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2504.08762-red" />
 </p>
 <div align="center">
 <hr>
