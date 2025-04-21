@@ -6,18 +6,30 @@
   </picture>
 </p>
 
-<p align="center">An <b>Interactive</b> and <b>Personalized</b> literature survey generation system.
-</p>
+<p align="center">An <b>Interactive</b> and <b>Personalized</b> literature survey generation system.</p>
 <p align="center">
-<img alt="python" src="https://img.shields.io/badge/python-3.10-blue">
-<img alt="Static Badge" src="https://img.shields.io/badge/license-apache-green">
+  <img alt="python" src="https://img.shields.io/badge/python-3.10-blue">
+  <img alt="Static Badge" src="https://img.shields.io/badge/license-apache-green">
+  <a href="https://arxiv.org/abs/2504.08762" target="_blank">
+    <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2504.08762-red" />
+  </a>
 </p>
 <div align="center">
 <hr>
 
-[Quick Start](#quick-start) | [Use Docker(Recommended)](#use-docker) | [Paper]()
+[Quick Start](#quick-start) | [Use Docker(Recommended)](#use-docker) | [Paper](https://arxiv.org/abs/2504.08762)
 
 </div>
+
+---
+
+## 📰 News  
+<table>
+  <tr>
+    <td style="white-space: nowrap;"><strong>2025/4/15</strong></td>
+    <td>The paper <strong><a href="https://arxiv.org/abs/2504.08762">InteractiveSurvey: An LLM-based Personalized and Interactive Survey Paper Generation System</a></strong> is now released! 🎉✨</td>
+  </tr>
+</table>
 
 ---
 
@@ -34,6 +46,11 @@
 
 
 ![flochart](/resources/flowchart.png)
+
+
+https://github.com/user-attachments/assets/15beefae-3b85-453e-a10d-3c210a80933b
+
+
 ---
 
 <hr>
