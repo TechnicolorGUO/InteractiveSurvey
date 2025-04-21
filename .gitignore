@@ -16,3 +16,4 @@ src/demo/survey_generation_pipeline/pdfs
 src/demo/survey_generation_pipeline/result
 src/demo/survey_generation_pipeline/tsv
 src/demo/survey_generation_pipeline/txt
+InteractiveSurvey-default-report.pdf
