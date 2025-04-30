@@ -460,43 +460,6 @@ class ASG_system:
             #pdb.set_trace()
             output_df.to_csv(output_tsv_filename, sep='\t')
 
-    def description_generation(self) -> None:
-        query= self.cluster_standard
-        query_list = generate_sentence_patterns(query)
-        for name in self.collection_names:
-            context, citation_data = query_embeddings_new_new(name, query_list)
-            self.citation_data.extend(citation_data)
-
-            description = generate(context, query, name)
-            self.description_list.append(description)
-
-        citation_path = f'{self.info_path}/{self.survey_id}/citation_data.json'
-        os.makedirs(os.path.dirname(citation_path), exist_ok=True)
-        with open(citation_path, 'w', encoding="utf-8") as outfile:
-            json.dump(self.citation_data, outfile, indent=4, ensure_ascii=False)
-        
-        file_path = f'{self.tsv_path}/{self.survey_id}.tsv'
-
-        with open(file_path, 'r', newline='', encoding='utf-8') as infile:
-            reader = csv.reader(infile, delimiter='\t')
-            rows = list(reader)
-        if rows:
-            headers = rows[0]
-            headers.append('retrieval_result')
-
-            updated_rows = [headers]
-            for row, description in zip(rows[1:], self.description_list):
-                row.append(description)
-                updated_rows.append(row)
-
-            with open(file_path, 'w', newline='', encoding='utf-8') as outfile:
-                writer = csv.writer(outfile, delimiter='\t')
-                writer.writerows(updated_rows)
-
-            print('Updated file has been saved to', file_path)
-        else:
-            print('Input file is empty.')
-
     def agglomerative_clustering(self) -> None:
         df = pd.read_csv(f'{self.tsv_path}/{self.survey_id}.tsv', sep='\t', index_col=0, encoding='utf-8')
         df_selected = df
@@ -572,7 +535,7 @@ class ASG_system:
             raise RuntimeError(f"Failed to generate PDF file: {e}")
         print(f"Files generated successfully: \nMarkdown: {markdown_filepath}\nPDF: {pdf_filepath}")
 
-    def description_generation(self) -> None:
+    def description_generation(self, retriever) -> None:
         user_input = self.cluster_standard
         query= self.cluster_standard
         query_list = generate_sentence_patterns(query)
@@ -582,7 +545,7 @@ class ASG_system:
             "results": []
         }
         for name in self.collection_names:
-            context, citation_data = query_embeddings_new_new(name, query_list)
+            context, citation_data = query_embeddings_new_new(name, query_list, retriever)
             self.citation_data.extend(citation_data)
             description = generate(context, query, name)
             self.description_list.append(description)

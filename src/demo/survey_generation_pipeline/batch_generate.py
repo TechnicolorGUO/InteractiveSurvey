@@ -2,6 +2,7 @@ import json
 import time
 from main import ASG_system
 import os
+from asg_retriever import Retriever
 
 
 root_path = "."
@@ -144,7 +145,7 @@ survey_titles = survey_titles[len(survey_titles)-len(pdf_paths):]
 print("Survey Titles:", len(survey_titles))
 print("PDF Paths:", len(pdf_paths))
 
-
+retriever = Retriever()
 for i in range(len(pdf_paths)):
     runtime_json = {}
     asg_system = ASG_system(root_path, survey_titles[i], pdf_paths[i], survey_titles[i], cluster_standard)
@@ -159,7 +160,7 @@ for i in range(len(pdf_paths)):
     runtime_json["Parsing PDF"] = parsing_time_end - parsing_time_start
 
     clustering_time_start = time.time()
-    asg_system.description_generation()
+    asg_system.description_generation(retriever)
     asg_system.agglomerative_clustering()
     clustering_time_end = time.time()
     runtime_json["Clustering"] = clustering_time_end - clustering_time_start
