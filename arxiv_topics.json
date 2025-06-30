@@ -1,0 +1,58 @@
+{
+    "Computer Science": [
+        "LLM for In-Context Learning",
+        "GANs in Computer Vision",
+        "Reinforcement Learning for Autonomous Driving",
+        "Self-Supervised Learning in NLP",
+        "Quantum Computing for Machine Learning",
+        "AI for Code Generation and Program Analysis",
+        "Transformer Architectures for Natural Language Processing",
+        "Federated Learning for Data Privacy",
+        "Graph Neural Networks in Social Network Analysis",
+        "Explainable AI for Decision Support Systems"
+    ],
+    "Mathematics": [
+        "Graph Theory for Social Network Analysis",
+        "Optimal Transport Theory in Machine Learning",
+        "Nonlinear Dynamics in Chaotic Systems"
+    ],
+    "Physics": [
+        "Physical Implementation of Quantum Computing",
+        "Advances in Gravitational Wave Detection",
+        "Topological Properties of Bose-Einstein Condensates",
+        "Supersymmetry Theory in High Energy Physics",
+        "AI Methods in Programmable Physics Simulations",
+        "Dark Matter Modeling in Cosmology",
+        "Neutrino Oscillations in Particle Physics",
+        "Topological Insulators in Solid State Physics"
+    ],
+    "Statistics": [
+        "Uncertainty Estimation in Deep Learning",
+        "Statistical Physics in Random Matrix Theory",
+        "Dimensionality Reduction in High-Dimensional Data",
+        "Bayesian Optimization in Machine Learning",
+        "Causal Inference Methods in Epidemiology",
+        "High-Dimensional Data Analysis in Machine Learning",
+        "Gaussian Process Regression in Robotics",
+        "Statistical Learning Theory and Generalization Error Analysis"
+    ],
+    "Electrical Engineering and Systems Science": [
+        "AI Optimization for 5G and 6G Networks",
+        "Optimization of Quantum Sensors",
+        "Low Power Design Methods in Electronics",
+        "Quantum Dot Technologies in Display Systems"
+    ],
+    "Quantitative Biology": [
+        "Computational Modeling in Neuroscience",
+        "Single-Cell RNA Sequencing in Cancer Research"
+    ],
+    "Quantitative Finance": [
+        "Reinforcement Learning in Algorithmic Trading",
+        "Machine Learning for Credit Scoring",
+        "Cryptocurrency Market Price Prediction",
+        "Blockchain Technologies for Financial Services"
+    ],
+    "Economics": [
+        "Modeling Climate Change Economics"
+    ]
+}
