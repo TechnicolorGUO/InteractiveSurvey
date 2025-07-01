@@ -1716,32 +1716,46 @@ function select_sections() {
 				downloadPDF();
 });
 			function downloadPDF_latex() {
+				// 从后端获取 survey_id
+				$.ajax({
+					url: '/get_survey_id',
+					method: 'GET',
+					dataType: 'json',
+					success: function(data) {
+						var survey_id = data.survey_id;
+						
+						var form = new FormData();
+						form.append('survey_id', survey_id);  // 添加 survey_id
+						
+						var xhr = new XMLHttpRequest();
+						xhr.open('POST', '/generate_pdf_from_tex/', true);
+						xhr.responseType = 'blob';
 
-				var form = new FormData();
-				var xhr = new XMLHttpRequest();
-				xhr.open('POST', '/generate_pdf_from_tex/', true);
-				xhr.responseType = 'blob';
+						xhr.onload = function () {
+							if (xhr.status === 200) {
+								var blob = new Blob([xhr.response], { type: 'application/pdf' });
+								var link = document.createElement('a');
+								link.href = window.URL.createObjectURL(blob);
+								link.download = 'A Survey of ' + topic + '_latex.pdf';
+								document.body.appendChild(link);
+								link.click();
+								document.body.removeChild(link);
+								alert('PDF downloaded successfully!');
+							} else {
+								alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
+							}
+						};
 
-				xhr.onload = function () {
-					if (xhr.status === 200) {
-						var blob = new Blob([xhr.response], { type: 'application/pdf' });
-						var link = document.createElement('a');
-						link.href = window.URL.createObjectURL(blob);
-						link.download = 'A Survey of ' + topic + '.pdf';
-						document.body.appendChild(link);
-						link.click();
-						document.body.removeChild(link);
-						alert('PDF downloaded successfully!');
-					} else {
-						alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
+						xhr.onerror = function () {
+							alert('An error occurred while processing the request.');
+						};
+
+						xhr.send(form);
+					},
+					error: function() {
+						alert("Failed to get survey ID.");
 					}
-				};
-
-				xhr.onerror = function () {
-					alert('An error occurred while processing the request.');
-				};
-
-				xhr.send(form);
+				});
 			}
 
 			// 绑定下载按钮的点击事件
