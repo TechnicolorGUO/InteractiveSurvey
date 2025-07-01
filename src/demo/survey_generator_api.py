@@ -735,7 +735,14 @@ def generate_survey_paper_new(title, outline, context_list, client):
     # Generate introduction and replace the existing one
     generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
     introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"
-    full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
+    # Use a lambda to build the replacement string so that any backslashes in
+    # generated_introduction do not get treated as invalid escape sequences
+    full_survey_content = re.sub(
+        introduction_pattern,
+        lambda m: f"{m.group(1)}{generated_introduction}\n{m.group(3)}",
+        full_survey_content,
+        flags=re.DOTALL,
+    )
     return full_survey_content
 
 # wza
@@ -753,7 +760,14 @@ def generate_survey_paper_new(title, outline, context_list, client, citation_dat
     generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
     generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
     introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"
-    full_survey_content = re.sub(introduction_pattern, rf"\1{generated_introduction}\n\3", full_survey_content, flags=re.DOTALL)
+    # Use a lambda to build the replacement string so that any backslashes in
+    # generated_introduction do not get treated as invalid escape sequences
+    full_survey_content = re.sub(
+        introduction_pattern,
+        lambda m: f"{m.group(1)}{generated_introduction}\n{m.group(3)}",
+        full_survey_content,
+        flags=re.DOTALL,
+    )
     return full_survey_content
 
 
