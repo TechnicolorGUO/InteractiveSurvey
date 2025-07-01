@@ -558,7 +558,7 @@ def generate_arxiv_query(request):
                         new_count += 1
 
                 attempts += 1
-                current_query = generic_query  # 将本轮的宽松查询作为“新的严格查询”
+                current_query = generic_query  # 将本轮的宽松查询作为"新的严格查询"
 
                 if len(total_papers) >= min_results:
                     # 一旦达到 min_results，就返回此时的查询
@@ -1019,12 +1019,22 @@ def generate_pdf(request):
 
 @csrf_exempt
 def generate_pdf_from_tex(request):
-
     global Global_survey_id, Global_survey_title
     if request.method == 'POST':
-        base_dir = f'./src/static/data/info/{Global_survey_id}'
-        md_path = os.path.join(base_dir, f'survey_{Global_survey_id}_processed.md')
-        new_md_path = os.path.join(base_dir, f'survey_{Global_survey_id}_preprocessed.md')
+        # 添加调试信息
+        print(f"Request content type: {request.content_type}")
+        print(f"Request POST data: {request.POST}")
+        print(f"Request FILES: {request.FILES}")
+        
+        # 优先用 request 里的 survey_id
+        survey_id = request.POST.get('survey_id', '') or Global_survey_id
+        print(f"Survey ID: {survey_id}")
+        
+        if not survey_id:
+            return JsonResponse({'error': 'survey_id is missing'}, status=400)
+        base_dir = f'./src/static/data/info/{survey_id}'
+        md_path = os.path.join(base_dir, f'survey_{survey_id}_processed.md')
+        new_md_path = os.path.join(base_dir, f'survey_{survey_id}_preprocessed.md')
         tex_path = os.path.join(base_dir, 'template.tex')
         new_tex_path = os.path.join(base_dir, 'template_with_figure.tex')
         sty_path = os.path.join(base_dir, 'acl.sty')
@@ -1044,9 +1054,9 @@ def generate_pdf_from_tex(request):
         md_to_tex(new_md_path, tex_path, Global_survey_title)
 
         insert_figures(
-            png_path=f'src/static/data/info/{Global_survey_id}/outline.png',
+            png_path=f'src/static/data/info/{survey_id}/outline.png',
             tex_path= tex_path, 
-            json_path=f'src/static/data/info/{Global_survey_id}/flowchart_results.json',
+            json_path=f'src/static/data/info/{survey_id}/flowchart_results.json',
             ref_names= Global_ref_list,
             survey_title=Global_survey_title,
             new_tex_path=new_tex_path
@@ -1058,7 +1068,7 @@ def generate_pdf_from_tex(request):
             compiler="xelatex"
         )
         pdf_path = os.path.join(os.path.dirname(new_tex_path), 'template_with_figure.pdf' )
-        final_pdf_path = os.path.join(pdf_dir, f'survey_{Global_survey_id}_latex.pdf')
+        final_pdf_path = os.path.join(pdf_dir, f'survey_{survey_id}_latex.pdf')
         shutil.copy2(pdf_path, final_pdf_path)
 
         try:
