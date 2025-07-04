@@ -26,7 +26,7 @@ class DocumentLoading:
             return
             
         # 执行转换命令
-        command = ["magic-pdf", "-p", pdf_file, "-o", output_dir, "-m", method]
+        command = ["mineru", "-p", pdf_file, "-o", output_dir, "-m", method]
         try:
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             process.communicate(timeout=300)  # 设置超时时间为 60 秒
@@ -56,7 +56,7 @@ class DocumentLoading:
             if os.path.exists(target_dir):
                 print(f"Folder for {pdf_file} already exists in {output_dir}. Skipping conversion.")
             else:
-                command = ["magic-pdf", "-p", pdf_file, "-o", output_dir, "-m", method]
+                command = ["mineru", "-p", pdf_file, "-o", output_dir, "-m", method]
                 try:
                     subprocess.run(command, check=True)
                     print(f"Successfully converted {pdf_file} to markdown format in {target_dir}.")

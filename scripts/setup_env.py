@@ -28,7 +28,8 @@ commands = [
     [sys.executable, "-m", "pip", "install", "--no-cache-dir", "bertopic==0.16.3"],
     [sys.executable, "-m", "pip", "install", "--no-cache-dir", "-U", "langchain-community"],
     [sys.executable, "-m", "pip", "install", "--no-cache-dir", "--force-reinstall", "torch==2.3.1", "torchvision==0.18.1", "numpy<2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"],
-    [sys.executable, "-m", "pip", "install", "--no-cache-dir", "-U", "magic-pdf[full]", "--extra-index-url", "https://wheels.myhloli.com"],
+    # 安装 MinerU 2.0 (替代旧的 magic-pdf)
+    [sys.executable, "-m", "pip", "install", "--no-cache-dir", "-U", "mineru[core]"],
     [sys.executable, "-m", "pip", "install", "--no-cache-dir", "Django==2.2.5"],
     [sys.executable, "-m", "pip", "install", "--no-cache-dir", "graphviz"]
 ]

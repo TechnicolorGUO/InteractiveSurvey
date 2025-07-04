@@ -16,10 +16,10 @@ COPY scripts/ /app/
 RUN python setup_env.py
 
 # 下载模型文件并调整存储路径
-RUN wget https://github.com/opendatalab/MinerU/raw/master/scripts/download_models_hf.py -O download_models_hf.py && \
-    python download_models_hf.py && \
-    rm -rf /root/.cache/pip && \
-    python additional_scripts.py
+# RUN wget https://github.com/opendatalab/MinerU/raw/master/scripts/download_models_hf.py -O download_models_hf.py && \
+#     python download_models_hf.py && \
+#     rm -rf /root/.cache/pip && \
+#     python additional_scripts.py
 
 # 复制项目代码
 COPY . /app/
