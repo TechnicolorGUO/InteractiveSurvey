@@ -1,0 +1,146 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Structure of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Overview of mmWave and THz Communications"
+  ],
+  [
+    2,
+    "2.2 Evolution to 6G"
+  ],
+  [
+    2,
+    "2.3 Beam Management Fundamentals"
+  ],
+  [
+    1,
+    "3 Related Work"
+  ],
+  [
+    2,
+    "3.1 Early Beam Management Techniques"
+  ],
+  [
+    2,
+    "3.2 Current Research Trends"
+  ],
+  [
+    2,
+    "3.3 Challenges and Limitations"
+  ],
+  [
+    1,
+    "4 Beam Management Techniques for mmWave and THz"
+  ],
+  [
+    2,
+    "4.1 Beamforming Algorithms"
+  ],
+  [
+    3,
+    "4.1.1 Analog Beamforming"
+  ],
+  [
+    3,
+    "4.1.2 Hybrid Beamforming"
+  ],
+  [
+    3,
+    "4.1.3 Digital Beamforming"
+  ],
+  [
+    2,
+    "4.2 Beam Alignment and Tracking"
+  ],
+  [
+    3,
+    "4.2.1 Initial Beam Alignment"
+  ],
+  [
+    3,
+    "4.2.2 Beam Refinement"
+  ],
+  [
+    3,
+    "4.2.3 Beam Tracking"
+  ],
+  [
+    2,
+    "4.3 Beam Recovery and Handover"
+  ],
+  [
+    3,
+    "4.3.1 Beam Failure Detection"
+  ],
+  [
+    3,
+    "4.3.2 Beam Recovery Mechanisms"
+  ],
+  [
+    3,
+    "4.3.3 Beam Handover Procedures"
+  ],
+  [
+    1,
+    "5 Performance Evaluation"
+  ],
+  [
+    2,
+    "5.1 Metrics and Benchmarks"
+  ],
+  [
+    2,
+    "5.2 Simulation Studies"
+  ],
+  [
+    2,
+    "5.3 Experimental Results"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Key Findings"
+  ],
+  [
+    2,
+    "6.2 Open Issues"
+  ],
+  [
+    2,
+    "6.3 Future Directions"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Contributions"
+  ],
+  [
+    2,
+    "7.2 Final Remarks"
+  ]
+]

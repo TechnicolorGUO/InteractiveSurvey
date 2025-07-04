@@ -1,0 +1,174 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Scope and Structure of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Generative Large Language Models (LLMs)"
+  ],
+  [
+    3,
+    "2.1.1 Model Architectures and Parameters"
+  ],
+  [
+    3,
+    "2.1.2 Training and Fine-Tuning Techniques"
+  ],
+  [
+    2,
+    "2.2 Challenges in Efficient Serving"
+  ],
+  [
+    3,
+    "2.2.1 Latency and Throughput Requirements"
+  ],
+  [
+    3,
+    "2.2.2 Resource Constraints and Scalability"
+  ],
+  [
+    3,
+    "2.2.3 Trade-offs Between Accuracy and Efficiency"
+  ],
+  [
+    1,
+    "3 State-of-the-Art Techniques for Efficient Serving"
+  ],
+  [
+    2,
+    "3.1 Model Compression and Optimization"
+  ],
+  [
+    3,
+    "3.1.1 Quantization"
+  ],
+  [
+    3,
+    "3.1.2 Pruning"
+  ],
+  [
+    3,
+    "3.1.3 Knowledge Distillation"
+  ],
+  [
+    2,
+    "3.2 Hardware Acceleration"
+  ],
+  [
+    3,
+    "3.2.1 Specialized Processors (e.g., GPUs, TPUs)"
+  ],
+  [
+    3,
+    "3.2.2 Custom Hardware Solutions"
+  ],
+  [
+    3,
+    "3.2.3 Hybrid Approaches"
+  ],
+  [
+    2,
+    "3.3 Software Frameworks and Tools"
+  ],
+  [
+    3,
+    "3.3.1 Optimized Inference Libraries"
+  ],
+  [
+    3,
+    "3.3.2 Cloud-Native Solutions"
+  ],
+  [
+    3,
+    "3.3.3 Edge Deployment Strategies"
+  ],
+  [
+    1,
+    "4 Evaluation Metrics and Benchmarks"
+  ],
+  [
+    2,
+    "4.1 Performance Metrics"
+  ],
+  [
+    3,
+    "4.1.1 Latency and Throughput"
+  ],
+  [
+    3,
+    "4.1.2 Energy Efficiency"
+  ],
+  [
+    3,
+    "4.1.3 Cost-Effectiveness"
+  ],
+  [
+    2,
+    "4.2 Benchmarking Frameworks"
+  ],
+  [
+    3,
+    "4.2.1 Standard Datasets and Workloads"
+  ],
+  [
+    3,
+    "4.2.2 Cross-Platform Comparisons"
+  ],
+  [
+    1,
+    "5 Applications and Use Cases"
+  ],
+  [
+    2,
+    "5.1 Real-Time Dialogue Systems"
+  ],
+  [
+    2,
+    "5.2 Content Generation Platforms"
+  ],
+  [
+    2,
+    "5.3 Edge Computing Scenarios"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Current Limitations"
+  ],
+  [
+    2,
+    "6.2 Future Research Directions"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for Industry and Academia"
+  ]
+]

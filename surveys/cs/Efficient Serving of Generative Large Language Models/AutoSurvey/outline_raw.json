@@ -1,0 +1,94 @@
+[
+  [
+    1,
+    "Efficient Serving of Generative Large Language Models"
+  ],
+  [
+    2,
+    "1 Model-Level Optimization Techniques"
+  ],
+  [
+    3,
+    "1.1 Pruning Techniques"
+  ],
+  [
+    3,
+    "1.2 Quantization Methods"
+  ],
+  [
+    3,
+    "1.3 Sparsity Optimization"
+  ],
+  [
+    3,
+    "1.4 Mixture-of-Experts Architectures"
+  ],
+  [
+    2,
+    "2 System-Level Optimizations and Architectural Innovations"
+  ],
+  [
+    3,
+    "2.1 Memory Optimization Techniques"
+  ],
+  [
+    3,
+    "2.2 Hardware-Aware Model Design"
+  ],
+  [
+    3,
+    "2.3 Distributed and Parallel Inference Systems"
+  ],
+  [
+    3,
+    "2.4 Customized Accelerators and FPGA Solutions"
+  ],
+  [
+    3,
+    "2.5 Phase-Aware Partitioning and Quantization Strategies"
+  ],
+  [
+    2,
+    "3 Hybrid Compression Techniques and Knowledge Distillation"
+  ],
+  [
+    3,
+    "3.1 Hybrid Compression Techniques"
+  ],
+  [
+    3,
+    "3.2 Knowledge Distillation Methods"
+  ],
+  [
+    2,
+    "4 Cost-Effective Deployment Strategies"
+  ],
+  [
+    3,
+    "4.1 Leveraging Preemptible Instances"
+  ],
+  [
+    3,
+    "4.2 Heterogeneous Cluster Utilization"
+  ],
+  [
+    3,
+    "4.3 Collaborative Inference Systems"
+  ],
+  [
+    3,
+    "4.4 Adaptive Offloading Strategies"
+  ],
+  [
+    3,
+    "4.5 Dynamic Scheduling Algorithms"
+  ],
+  [
+    3,
+    "4.6 Cost-Based Assessment Models"
+  ],
+  [
+    2,
+    "References"
+  ]
+]

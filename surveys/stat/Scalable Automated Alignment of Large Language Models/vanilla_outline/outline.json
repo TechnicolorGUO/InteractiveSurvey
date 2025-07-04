@@ -1,0 +1,154 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Scope and Structure of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Large Language Models"
+  ],
+  [
+    3,
+    "2.1.1 Architectures and Capabilities"
+  ],
+  [
+    3,
+    "2.1.2 Challenges in Scaling"
+  ],
+  [
+    2,
+    "2.2 Automated Alignment Techniques"
+  ],
+  [
+    3,
+    "2.2.1 Definition and Importance"
+  ],
+  [
+    3,
+    "2.2.2 Historical Development"
+  ],
+  [
+    1,
+    "3 Related Work"
+  ],
+  [
+    2,
+    "3.1 Alignment Methods for Small Models"
+  ],
+  [
+    3,
+    "3.1.1 Supervised Learning Approaches"
+  ],
+  [
+    3,
+    "3.1.2 Reinforcement Learning Approaches"
+  ],
+  [
+    2,
+    "3.2 Challenges in Aligning Large Models"
+  ],
+  [
+    3,
+    "3.2.1 Data Requirements"
+  ],
+  [
+    3,
+    "3.2.2 Computational Resources"
+  ],
+  [
+    1,
+    "4 Main Content"
+  ],
+  [
+    2,
+    "4.1 Scalability Issues in Automated Alignment"
+  ],
+  [
+    3,
+    "4.1.1 Algorithmic Complexity"
+  ],
+  [
+    3,
+    "4.1.2 Resource Management"
+  ],
+  [
+    2,
+    "4.2 State-of-the-Art Alignment Algorithms"
+  ],
+  [
+    3,
+    "4.2.1 Model-Based Techniques"
+  ],
+  [
+    3,
+    "4.2.2 Data-Driven Techniques"
+  ],
+  [
+    2,
+    "4.3 Evaluation Metrics for Alignment"
+  ],
+  [
+    3,
+    "4.3.1 Quantitative Metrics"
+  ],
+  [
+    3,
+    "4.3.2 Qualitative Metrics"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Current Limitations"
+  ],
+  [
+    3,
+    "5.1.1 Technical Constraints"
+  ],
+  [
+    3,
+    "5.1.2 Ethical Considerations"
+  ],
+  [
+    2,
+    "5.2 Future Directions"
+  ],
+  [
+    3,
+    "5.2.1 Research Opportunities"
+  ],
+  [
+    3,
+    "5.2.2 Potential Applications"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Findings"
+  ],
+  [
+    2,
+    "6.2 Final Remarks"
+  ]
+]

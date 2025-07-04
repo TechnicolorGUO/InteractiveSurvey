@@ -1,0 +1,338 @@
+{
+  "cs": [
+    {
+      "title": "Large Language Model based Multi-Agents: A Survey of Progress and Challenges",
+      "arxiv_id": "2402.01680"
+    },
+    {
+      "title": "Integrated Sensing and Communication Signals Toward 5G-A and 6G: A Survey",
+      "arxiv_id": "2301.03857"
+    },
+    {
+      "title": "A Survey on 3D Gaussian Splatting",
+      "arxiv_id": "2401.03890"
+    },
+    {
+      "title": "Large Language Models Meet NL2Code: A Survey",
+      "arxiv_id": "2212.09420"
+    },
+    {
+      "title": "Large Language Models Empowered Agent-based Modeling and Simulation: A Survey and Perspectives",
+      "arxiv_id": "2312.11970"
+    },
+    {
+      "title": "Physics-Informed Machine Learning: A Survey on Problems, Methods and Applications",
+      "arxiv_id": "2211.08064"
+    },
+    {
+      "title": "A Comprehensive Review of Data-Driven Co-Speech Gesture Generation",
+      "arxiv_id": "2301.05339"
+    },
+    {
+      "title": "Towards Efficient Generative Large Language Model Serving: A Survey from Algorithms to Systems",
+      "arxiv_id": "2312.15234"
+    },
+    {
+      "title": "A survey on the complexity of learning quantum states",
+      "arxiv_id": "2305.20069"
+    },
+    {
+      "title": "A Survey of Techniques for Optimizing Transformer Inference",
+      "arxiv_id": "2307.07982"
+    }
+  ],
+  "stat": [
+    {
+      "title": "A Review of Barren Plateaus in Variational Quantum Computing",
+      "arxiv_id": "2405.00781"
+    },
+    {
+      "title": "A Review of Off-Policy Evaluation in Reinforcement Learning",
+      "arxiv_id": "2212.06355"
+    },
+    {
+      "title": "A review of distributed statistical inference",
+      "arxiv_id": "2304.06245"
+    },
+    {
+      "title": "A review of predictive uncertainty estimation with machine learning",
+      "arxiv_id": "2209.08307"
+    },
+    {
+      "title": "Towards Scalable Automated Alignment of LLMs: A Survey",
+      "arxiv_id": "2406.01252"
+    },
+    {
+      "title": "The Variance-Gamma Distribution: A Review",
+      "arxiv_id": "2303.05615"
+    },
+    {
+      "title": "A survey of some recent developments in measures of association",
+      "arxiv_id": "2211.04702"
+    },
+    {
+      "title": "A Survey of Numerical Algorithms that can Solve the Lasso Problems",
+      "arxiv_id": "2303.03576"
+    },
+    {
+      "title": "Meta-survey on outlier and anomaly detection",
+      "arxiv_id": "2312.07101"
+    },
+    {
+      "title": "A Survey on Statistical Theory of Deep Learning: Approximation, Training Dynamics, and Generative Models",
+      "arxiv_id": "2401.07187"
+    }
+  ],
+  "physics": [
+    {
+      "title": "Phase field modeling and computer implementation: A review",
+      "arxiv_id": "2309.03996"
+    },
+    {
+      "title": "Regular black holes: A short topic review",
+      "arxiv_id": "2303.11696"
+    },
+    {
+      "title": "Improving aircraft performance using machine learning: a review",
+      "arxiv_id": "2210.11481"
+    },
+    {
+      "title": "Electrically Conductive 2D Material Coatings for Flexible & Stretchable Electronics: A Comparative Review of Graphenes & MXenes",
+      "arxiv_id": "2207.06776"
+    },
+    {
+      "title": "Tailoring Structure-borne Sound Through Bandgap Engineering in Phononic Crystals and Metamaterials: A Comprehensive Review",
+      "arxiv_id": "2207.05234"
+    },
+    {
+      "title": "A brief review of topological photonics in one, two, and three dimensions",
+      "arxiv_id": "2209.08669"
+    },
+    {
+      "title": "Hydrogen Trapping and Embrittlement in Metals -- A Review",
+      "arxiv_id": "2404.07736"
+    },
+    {
+      "title": "Thermodynamic and Transport Properties Modeling of Deep Eutectic Solvents: A review on gE-models, equations of state and molecular dynamics",
+      "arxiv_id": "2303.17159"
+    },
+    {
+      "title": "A Review of Applications, Prospects, and Challenges of Proton-Conducting Zirconates in Electrochemical Hydrogen Devices",
+      "arxiv_id": "2211.03200"
+    },
+    {
+      "title": "Earthquake-induced hazards in mountain regions: a review of case histories from Central Asia -- an inaugural lecture to the society",
+      "arxiv_id": "2401.07731"
+    }
+  ],
+  "math": [
+    {
+      "title": "Construction and application of exact solutions of the diffusive Lotka-Volterra system: a review and new results",
+      "arxiv_id": "2209.08863"
+    },
+    {
+      "title": "A Survey of Contextual Optimization Methods for Decision Making under Uncertainty",
+      "arxiv_id": "2306.10374"
+    },
+    {
+      "title": "A Review of Off-Policy Evaluation in Reinforcement Learning",
+      "arxiv_id": "2212.06355"
+    },
+    {
+      "title": "A Survey of Blockchain and Artificial Intelligence for 6G Wireless Communications",
+      "arxiv_id": "2305.08604"
+    },
+    {
+      "title": "A Survey of Beam Management for mmWave and THz Communications Towards 6G",
+      "arxiv_id": "2308.02135"
+    },
+    {
+      "title": "A Survey of Vectorization Methods in Topological Data Analysis",
+      "arxiv_id": "2212.09703"
+    },
+    {
+      "title": "Guarantees for data-driven control of nonlinear systems using semidefinite programming: A survey",
+      "arxiv_id": "2306.16042"
+    },
+    {
+      "title": "A review of predictive uncertainty estimation with machine learning",
+      "arxiv_id": "2209.08307"
+    },
+    {
+      "title": "A Survey of Recent Advances in Optimization Methods for Wireless Communications",
+      "arxiv_id": "2401.12025"
+    },
+    {
+      "title": "Multiple Access Techniques for Intelligent and Multi-Functional 6G: Tutorial, Survey, and Outlook",
+      "arxiv_id": "2401.01433"
+    }
+  ],
+  "q-bio": [
+    {
+      "title": "Phage family classification under Caudoviricetes: a review of current tools using the latest ICTV classification framework",
+      "arxiv_id": "2209.01942"
+    },
+    {
+      "title": "A survey of open questions in adaptive therapy: bridging mathematics and clinical translation",
+      "arxiv_id": "2210.12062"
+    },
+    {
+      "title": "A Survey of Generative AI for de novo Drug Design: New Frontiers in Molecule and Protein Generation",
+      "arxiv_id": "2402.08703"
+    },
+    {
+      "title": "Graph Neural Network-based EEG Classification: A Survey",
+      "arxiv_id": "2310.02152"
+    },
+    {
+      "title": "From time-series transcriptomics to gene regulatory networks: a review on inference methods",
+      "arxiv_id": "2210.08542"
+    },
+    {
+      "title": "Empowering Precision Medicine: AI-Driven Schizophrenia Diagnosis via EEG Signals: A Comprehensive Review from 2002-2023",
+      "arxiv_id": "2309.12202"
+    },
+    {
+      "title": "From Words to Molecules: A Survey of Large Language Models in Chemistry",
+      "arxiv_id": "2402.01439"
+    },
+    {
+      "title": "Neurotrophic Effects of Intermittent Fasting, Calorie Restriction and Exercise: A Review and Annotated Bibliography",
+      "arxiv_id": "2305.11425"
+    },
+    {
+      "title": "Unmasking Bias in AI: A Systematic Review of Bias Detection and Mitigation Strategies in Electronic Health Record-based Models",
+      "arxiv_id": "2310.19917"
+    },
+    {
+      "title": "Deep Learning Methods for Small Molecule Drug Discovery: A Survey",
+      "arxiv_id": "2303.00313"
+    }
+  ],
+  "q-fin": [
+    {
+      "title": "Large Language Models in Finance: A Survey",
+      "arxiv_id": "2311.10723"
+    },
+    {
+      "title": "A Survey of Large Language Models for Financial Applications: Progress, Prospects and Challenges",
+      "arxiv_id": "2406.11903"
+    },
+    {
+      "title": "Stock Market Prediction via Deep Learning Techniques: A Survey",
+      "arxiv_id": "2212.12717"
+    },
+    {
+      "title": "Understanding the environmental impacts of virgin aggregates: critical literature review and primary comprehensive Life Cycle Assessments",
+      "arxiv_id": "2501.10457"
+    },
+    {
+      "title": "Reap the Harvest on Blockchain: A Survey of Yield Farming Protocols",
+      "arxiv_id": "2210.04194"
+    },
+    {
+      "title": "Surveying Generative AI's Economic Expectations",
+      "arxiv_id": "2305.02823"
+    },
+    {
+      "title": "A Scoping Review of ChatGPT Research in Accounting and Finance",
+      "arxiv_id": "2412.05731"
+    },
+    {
+      "title": "From Portfolio Optimization to Quantum Blockchain and Security: A Systematic Review of Quantum Computing in Finance",
+      "arxiv_id": "2307.01155"
+    },
+    {
+      "title": "From constant to rough: A survey of continuous volatility modeling",
+      "arxiv_id": "2309.01033"
+    },
+    {
+      "title": "Towards High-Value Datasets determination for data-driven development: a systematic literature review",
+      "arxiv_id": "2305.10234"
+    }
+  ],
+  "eess": [
+    {
+      "title": "A Comprehensive Survey of Hallucination in Large Language, Image, Video and Audio Foundation Models",
+      "arxiv_id": "2405.09589"
+    },
+    {
+      "title": "WavChat: A Survey of Spoken Dialogue Models",
+      "arxiv_id": "2411.13577"
+    },
+    {
+      "title": "Automatic Speech Recognition with BERT and CTC Transformers: A Review",
+      "arxiv_id": "2410.09456"
+    },
+    {
+      "title": "Preference Tuning with Human Feedback on Language, Speech, and Vision Tasks: A Survey",
+      "arxiv_id": "2409.11564"
+    },
+    {
+      "title": "Foundation Models for Music: A Survey",
+      "arxiv_id": "2408.14340"
+    },
+    {
+      "title": "Recent Advances in Speech Language Models: A Survey",
+      "arxiv_id": "2410.03751"
+    },
+    {
+      "title": "Unleashing the Power of Data Tsunami: A Comprehensive Survey on Data Assessment and Selection for Instruction Tuning of Language Models",
+      "arxiv_id": "2408.02085"
+    },
+    {
+      "title": "Next Token Prediction Towards Multimodal Intelligence: A Comprehensive Survey",
+      "arxiv_id": "2412.18619"
+    },
+    {
+      "title": "A Survey on All-in-One Image Restoration: Taxonomy, Evaluation and Future Trends",
+      "arxiv_id": "2410.15067"
+    },
+    {
+      "title": "Advances in UAV Avionics Systems Architecture, Classification and Integration: A Comprehensive Review and Future Perspectives",
+      "arxiv_id": "2501.00856"
+    }
+  ],
+  "econ": [
+    {
+      "title": "Preference Restrictions in Computational Social Choice: A Survey",
+      "arxiv_id": "2205.09092"
+    },
+    {
+      "title": "Understanding the environmental impacts of virgin aggregates: critical literature review and primary comprehensive Life Cycle Assessments",
+      "arxiv_id": "2501.10457"
+    },
+    {
+      "title": "Causal Models for Longitudinal and Panel Data: A Survey",
+      "arxiv_id": "2311.15458"
+    },
+    {
+      "title": "Bayesian Forecasting in Economics and Finance: A Modern Review",
+      "arxiv_id": "2212.03471"
+    },
+    {
+      "title": "A Scoping Review of ChatGPT Research in Accounting and Finance",
+      "arxiv_id": "2412.05731"
+    },
+    {
+      "title": "Towards High-Value Datasets determination for data-driven development: a systematic literature review",
+      "arxiv_id": "2305.10234"
+    },
+    {
+      "title": "Testing for explosive bubbles: a review",
+      "arxiv_id": "2207.08249"
+    },
+    {
+      "title": "BPMS for management: a systematic literature review",
+      "arxiv_id": "2312.00442"
+    },
+    {
+      "title": "Datasets for Advanced Bankruptcy Prediction: A survey and Taxonomy",
+      "arxiv_id": "2411.01982"
+    },
+    {
+      "title": "Explosive growth from AI automation: A review of the arguments",
+      "arxiv_id": "2309.11690"
+    }
+  ]
+}

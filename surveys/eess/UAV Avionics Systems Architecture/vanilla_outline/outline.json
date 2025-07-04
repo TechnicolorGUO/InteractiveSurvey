@@ -1,0 +1,194 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.2 Scope and Structure"
+  ],
+  [
+    1,
+    "2 Background on UAV Systems"
+  ],
+  [
+    2,
+    "2.1 Overview of UAV Technology"
+  ],
+  [
+    3,
+    "2.1.1 Historical Development of UAVs"
+  ],
+  [
+    3,
+    "2.1.2 Types of UAVs"
+  ],
+  [
+    2,
+    "2.2 Importance of Avionics in UAVs"
+  ],
+  [
+    3,
+    "2.2.1 Role of Avionics in Flight Control"
+  ],
+  [
+    3,
+    "2.2.2 Impact on Mission Success"
+  ],
+  [
+    1,
+    "3 Architecture of UAV Avionics Systems"
+  ],
+  [
+    2,
+    "3.1 Core Components of Avionics Systems"
+  ],
+  [
+    3,
+    "3.1.1 Sensors and Data Acquisition"
+  ],
+  [
+    3,
+    "3.1.2 Navigation Systems (GPS, INS)"
+  ],
+  [
+    3,
+    "3.1.3 Communication Modules"
+  ],
+  [
+    2,
+    "3.2 System Integration Challenges"
+  ],
+  [
+    3,
+    "3.2.1 Hardware-Software Interoperability"
+  ],
+  [
+    3,
+    "3.2.2 Real-Time Processing Requirements"
+  ],
+  [
+    2,
+    "3.3 Modern Architectural Approaches"
+  ],
+  [
+    3,
+    "3.3.1 Centralized vs Distributed Architectures"
+  ],
+  [
+    3,
+    "3.3.2 Modular Design Principles"
+  ],
+  [
+    1,
+    "4 Key Technologies in UAV Avionics"
+  ],
+  [
+    2,
+    "4.1 Advanced Sensing Technologies"
+  ],
+  [
+    3,
+    "4.1.1 LiDAR and Radar Systems"
+  ],
+  [
+    3,
+    "4.1.2 Vision-Based Sensors"
+  ],
+  [
+    2,
+    "4.2 Artificial Intelligence in Avionics"
+  ],
+  [
+    3,
+    "4.2.1 Machine Learning for Decision-Making"
+  ],
+  [
+    3,
+    "4.2.2 AI-Powered Autonomy"
+  ],
+  [
+    2,
+    "4.3 Wireless Communication Protocols"
+  ],
+  [
+    3,
+    "4.3.1 5G Integration in UAVs"
+  ],
+  [
+    3,
+    "4.3.2 Satellite Communication"
+  ],
+  [
+    1,
+    "5 Applications of UAV Avionics Systems"
+  ],
+  [
+    2,
+    "5.1 Military and Defense Applications"
+  ],
+  [
+    3,
+    "5.1.1 Reconnaissance Missions"
+  ],
+  [
+    3,
+    "5.1.2 Combat Support"
+  ],
+  [
+    2,
+    "5.2 Civilian Applications"
+  ],
+  [
+    3,
+    "5.2.1 Agriculture and Environmental Monitoring"
+  ],
+  [
+    3,
+    "5.2.2 Delivery and Logistics"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Current Trends and Innovations"
+  ],
+  [
+    3,
+    "6.1.1 Edge Computing in Avionics"
+  ],
+  [
+    3,
+    "6.1.2 Quantum Computing Potential"
+  ],
+  [
+    2,
+    "6.2 Future Directions and Challenges"
+  ],
+  [
+    3,
+    "6.2.1 Regulatory and Ethical Considerations"
+  ],
+  [
+    3,
+    "6.2.2 Scalability and Cost Reduction"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for Future Research"
+  ]
+]

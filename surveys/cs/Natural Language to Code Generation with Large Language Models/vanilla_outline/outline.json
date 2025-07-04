@@ -1,0 +1,182 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Structure of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Natural Language Processing"
+  ],
+  [
+    3,
+    "2.1.1 Historical Context"
+  ],
+  [
+    3,
+    "2.1.2 Key Concepts"
+  ],
+  [
+    2,
+    "2.2 Code Generation"
+  ],
+  [
+    3,
+    "2.2.1 Evolution of Techniques"
+  ],
+  [
+    3,
+    "2.2.2 Challenges and Limitations"
+  ],
+  [
+    2,
+    "2.3 Large Language Models"
+  ],
+  [
+    3,
+    "2.3.1 Architectures"
+  ],
+  [
+    3,
+    "2.3.2 Training and Evaluation"
+  ],
+  [
+    1,
+    "3 Related Work"
+  ],
+  [
+    2,
+    "3.1 Early Approaches to NL-to-Code"
+  ],
+  [
+    3,
+    "3.1.1 Rule-Based Systems"
+  ],
+  [
+    3,
+    "3.1.2 Statistical Methods"
+  ],
+  [
+    2,
+    "3.2 Modern Approaches with LLMs"
+  ],
+  [
+    3,
+    "3.2.1 Supervised Learning"
+  ],
+  [
+    3,
+    "3.2.2 Reinforcement Learning"
+  ],
+  [
+    1,
+    "4 Main Content"
+  ],
+  [
+    2,
+    "4.1 Data Sources and Preprocessing"
+  ],
+  [
+    3,
+    "4.1.1 Public Datasets"
+  ],
+  [
+    3,
+    "4.1.2 Custom Data Collection"
+  ],
+  [
+    2,
+    "4.2 Model Architectures"
+  ],
+  [
+    3,
+    "4.2.1 Transformer-based Models"
+  ],
+  [
+    3,
+    "4.2.2 Hybrid Models"
+  ],
+  [
+    2,
+    "4.3 Evaluation Metrics"
+  ],
+  [
+    3,
+    "4.3.1 Accuracy and Precision"
+  ],
+  [
+    3,
+    "4.3.2 Human Evaluation"
+  ],
+  [
+    2,
+    "4.4 Applications and Use Cases"
+  ],
+  [
+    3,
+    "4.4.1 Automated Coding Assistance"
+  ],
+  [
+    3,
+    "4.4.2 Debugging and Refactoring"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Strengths and Weaknesses"
+  ],
+  [
+    3,
+    "5.1.1 Advantages of LLM-based Approaches"
+  ],
+  [
+    3,
+    "5.1.2 Limitations and Challenges"
+  ],
+  [
+    2,
+    "5.2 Ethical Considerations"
+  ],
+  [
+    3,
+    "5.2.1 Bias in Generated Code"
+  ],
+  [
+    3,
+    "5.2.2 Intellectual Property Issues"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Findings"
+  ],
+  [
+    2,
+    "6.2 Future Directions"
+  ],
+  [
+    2,
+    "6.3 Final Remarks"
+  ]
+]

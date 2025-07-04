@@ -1,0 +1,170 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Structure of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Speech and Gesture: A Brief Overview"
+  ],
+  [
+    2,
+    "2.2 Importance of Co-Speech Gestures in Communication"
+  ],
+  [
+    2,
+    "2.3 Data-Driven Approaches in Human Motion Modeling"
+  ],
+  [
+    1,
+    "3 Related Work"
+  ],
+  [
+    2,
+    "3.1 Traditional Rule-Based Gesture Generation"
+  ],
+  [
+    2,
+    "3.2 Machine Learning Approaches for Gesture Synthesis"
+  ],
+  [
+    3,
+    "3.2.1 Supervised Learning Methods"
+  ],
+  [
+    3,
+    "3.2.2 Unsupervised and Self-Supervised Techniques"
+  ],
+  [
+    2,
+    "3.3 Deep Learning Models for Gesture Prediction"
+  ],
+  [
+    3,
+    "3.3.1 Recurrent Neural Networks (RNNs) and LSTMs"
+  ],
+  [
+    3,
+    "3.3.2 Transformers and Attention Mechanisms"
+  ],
+  [
+    3,
+    "3.3.3 Generative Adversarial Networks (GANs)"
+  ],
+  [
+    1,
+    "4 Data-Driven Co-Speech Gesture Generation"
+  ],
+  [
+    2,
+    "4.1 Dataset Characteristics and Requirements"
+  ],
+  [
+    3,
+    "4.1.1 Multimodal Datasets for Speech and Gesture"
+  ],
+  [
+    3,
+    "4.1.2 Annotation and Preprocessing Challenges"
+  ],
+  [
+    2,
+    "4.2 Key Architectures and Algorithms"
+  ],
+  [
+    3,
+    "4.2.1 Sequence-to-Sequence Models"
+  ],
+  [
+    3,
+    "4.2.2 Temporal Convolutional Networks (TCNs)"
+  ],
+  [
+    3,
+    "4.2.3 Hybrid Models Combining Multiple Modalities"
+  ],
+  [
+    2,
+    "4.3 Evaluation Metrics and Benchmarks"
+  ],
+  [
+    3,
+    "4.3.1 Quantitative Metrics (e.g., MSE, FID)"
+  ],
+  [
+    3,
+    "4.3.2 Qualitative Assessment (e.g., Human Studies)"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Current Limitations and Challenges"
+  ],
+  [
+    3,
+    "5.1.1 Data Sparsity and Quality Issues"
+  ],
+  [
+    3,
+    "5.1.2 Generalization Across Languages and Cultures"
+  ],
+  [
+    3,
+    "5.1.3 Real-Time Performance Constraints"
+  ],
+  [
+    2,
+    "5.2 Ethical Considerations"
+  ],
+  [
+    3,
+    "5.2.1 Bias in Training Data"
+  ],
+  [
+    3,
+    "5.2.2 Privacy Concerns with Motion Capture Data"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Findings"
+  ],
+  [
+    2,
+    "6.2 Future Directions"
+  ],
+  [
+    3,
+    "6.2.1 Integration with Virtual and Augmented Reality"
+  ],
+  [
+    3,
+    "6.2.2 Cross-Modal Learning for Enhanced Expressiveness"
+  ],
+  [
+    3,
+    "6.2.3 Development of Standardized Benchmarking Protocols"
+  ]
+]

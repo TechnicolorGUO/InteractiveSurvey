@@ -1,0 +1,166 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Outline of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Topological Data Analysis Overview"
+  ],
+  [
+    3,
+    "2.1.1 Persistent Homology"
+  ],
+  [
+    3,
+    "2.1.2 Simplicial Complexes"
+  ],
+  [
+    3,
+    "2.1.3 Topological Features"
+  ],
+  [
+    2,
+    "2.2 Machine Learning and Vectorization"
+  ],
+  [
+    3,
+    "2.2.1 Importance of Vectorization"
+  ],
+  [
+    3,
+    "2.2.2 Challenges in Vectorizing Topological Data"
+  ],
+  [
+    1,
+    "3 Vectorization Techniques in TDA"
+  ],
+  [
+    2,
+    "3.1 Persistence Diagrams"
+  ],
+  [
+    3,
+    "3.1.1 Vectorization via Kernel Methods"
+  ],
+  [
+    3,
+    "3.1.2 Persistence Images"
+  ],
+  [
+    3,
+    "3.1.3 Persistence Landscapes"
+  ],
+  [
+    2,
+    "3.2 Feature Engineering Approaches"
+  ],
+  [
+    3,
+    "3.2.1 Betti Curves"
+  ],
+  [
+    3,
+    "3.2.2 Euler Characteristic Curves"
+  ],
+  [
+    3,
+    "3.2.3 Barcode Summaries"
+  ],
+  [
+    2,
+    "3.3 Deep Learning-Based Methods"
+  ],
+  [
+    3,
+    "3.3.1 Neural Networks for Persistence Diagrams"
+  ],
+  [
+    3,
+    "3.3.2 Graph Neural Networks for Simplicial Complexes"
+  ],
+  [
+    3,
+    "3.3.3 Autoencoders for Topological Signatures"
+  ],
+  [
+    1,
+    "4 Applications of Vectorized TDA"
+  ],
+  [
+    2,
+    "4.1 In Material Science"
+  ],
+  [
+    3,
+    "4.1.1 Crystal Structure Analysis"
+  ],
+  [
+    3,
+    "4.1.2 Porous Material Classification"
+  ],
+  [
+    2,
+    "4.2 In Biology and Medicine"
+  ],
+  [
+    3,
+    "4.2.1 Protein Structure Prediction"
+  ],
+  [
+    3,
+    "4.2.2 Brain Network Analysis"
+  ],
+  [
+    2,
+    "4.3 In Image and Signal Processing"
+  ],
+  [
+    3,
+    "4.3.1 Texture Classification"
+  ],
+  [
+    3,
+    "4.3.2 Time-Series Analysis"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Strengths and Limitations of Current Techniques"
+  ],
+  [
+    2,
+    "5.2 Open Problems and Future Directions"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "6.2 Broader Implications"
+  ]
+]

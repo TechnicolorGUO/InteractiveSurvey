@@ -1,0 +1,158 @@
+[
+  [
+    1,
+    "Agent-based Modeling and Simulation using Large Language Models"
+  ],
+  [
+    2,
+    "1 Introduction to Agent-based Modeling with Large Language Models"
+  ],
+  [
+    3,
+    "1.1 Overview of Agent-Based Modeling"
+  ],
+  [
+    3,
+    "1.2 Rise of Large Language Models"
+  ],
+  [
+    3,
+    "1.3 Integration of LLMs into ABM Systems"
+  ],
+  [
+    3,
+    "1.4 Advantages of Using LLMs in Simulating Human Behaviors"
+  ],
+  [
+    3,
+    "1.5 Challenges Associated with Integrating LLMs into ABMs"
+  ],
+  [
+    2,
+    "2 Methodologies for Implementing LLM-Enhanced Agents"
+  ],
+  [
+    3,
+    "2.1 Planning Methodologies for LLM-Enhanced Agents"
+  ],
+  [
+    3,
+    "2.2 Memory Mechanisms in LLM-Based Agents"
+  ],
+  [
+    3,
+    "2.3 Grounded Decoding Techniques"
+  ],
+  [
+    3,
+    "2.4 Multi-Agent Interactions and Coordination"
+  ],
+  [
+    3,
+    "2.5 Reinforcement Learning Approaches for LLM-Enhanced Agents"
+  ],
+  [
+    2,
+    "3 Applications and Case Studies of LLM-based Agent Simulations"
+  ],
+  [
+    3,
+    "3.1 Autonomous Driving and Transportation Systems"
+  ],
+  [
+    3,
+    "3.2 Multi-Agent Collaboration and Simulation"
+  ],
+  [
+    3,
+    "3.3 Healthcare Applications"
+  ],
+  [
+    3,
+    "3.4 Urban Mobility and Traffic Management"
+  ],
+  [
+    3,
+    "3.5 Social Sciences and Economic Simulations"
+  ],
+  [
+    3,
+    "3.6 Gaming and Interactive Environments"
+  ],
+  [
+    3,
+    "3.7 Human-Agent Interaction and Coordination"
+  ],
+  [
+    2,
+    "4 Challenges and Limitations of LLM-Enhanced ABM"
+  ],
+  [
+    3,
+    "4.1 Scalability Issues"
+  ],
+  [
+    3,
+    "4.2 Bias in Training Data"
+  ],
+  [
+    3,
+    "4.3 Lack of Interpretability"
+  ],
+  [
+    3,
+    "4.4 Ethical Considerations"
+  ],
+  [
+    3,
+    "4.5 Information Asymmetry and Real-World Conditions"
+  ],
+  [
+    3,
+    "4.6 Long-Term Reasoning and Memory Constraints"
+  ],
+  [
+    3,
+    "4.7 Performance Variability Across Models"
+  ],
+  [
+    2,
+    "5 Future Directions and Opportunities in LLM-Based ABM"
+  ],
+  [
+    3,
+    "5.1 Enhancing Efficiency in LLM-Based ABM"
+  ],
+  [
+    3,
+    "5.2 Improving Transparency and Interpretability"
+  ],
+  [
+    3,
+    "5.3 Domain-Specific Optimizations"
+  ],
+  [
+    3,
+    "5.4 Expanding Interdisciplinary Collaborations"
+  ],
+  [
+    3,
+    "5.5 Addressing Ethical and Societal Concerns"
+  ],
+  [
+    3,
+    "5.6 Advancing Multi-Agent Systems with LLMs"
+  ],
+  [
+    3,
+    "5.7 Integrating External Knowledge Sources"
+  ],
+  [
+    3,
+    "5.8 Long-Term Evolution and Self-Evolution of Agents"
+  ],
+  [
+    2,
+    "References"
+  ]
+]

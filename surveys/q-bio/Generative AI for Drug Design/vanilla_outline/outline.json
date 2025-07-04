@@ -1,0 +1,206 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation and Importance of Drug Design"
+  ],
+  [
+    2,
+    "1.2 Role of Generative AI in Drug Discovery"
+  ],
+  [
+    2,
+    "1.3 Scope and Objectives of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Basics of Drug Design"
+  ],
+  [
+    3,
+    "2.1.1 Traditional Methods in Drug Discovery"
+  ],
+  [
+    3,
+    "2.1.2 Challenges in Conventional Approaches"
+  ],
+  [
+    2,
+    "2.2 Overview of Generative AI"
+  ],
+  [
+    3,
+    "2.2.1 Core Concepts of Generative Models"
+  ],
+  [
+    3,
+    "2.2.2 Applications of Generative AI in Other Domains"
+  ],
+  [
+    1,
+    "3 Generative AI Techniques for Drug Design"
+  ],
+  [
+    2,
+    "3.1 Generative Adversarial Networks (GANs)"
+  ],
+  [
+    3,
+    "3.1.1 Architecture and Functionality of GANs"
+  ],
+  [
+    3,
+    "3.1.2 Applications in Molecular Generation"
+  ],
+  [
+    2,
+    "3.2 Variational Autoencoders (VAEs)"
+  ],
+  [
+    3,
+    "3.2.1 Principles of VAEs in Chemical Space Exploration"
+  ],
+  [
+    3,
+    "3.2.2 Case Studies in Drug Optimization"
+  ],
+  [
+    2,
+    "3.3 Transformer-Based Models"
+  ],
+  [
+    3,
+    "3.3.1 Advantages of Transformers in Sequence Modeling"
+  ],
+  [
+    3,
+    "3.3.2 Use Cases in Ligand Design"
+  ],
+  [
+    2,
+    "3.4 Reinforcement Learning Approaches"
+  ],
+  [
+    3,
+    "3.4.1 Integration with Generative Models"
+  ],
+  [
+    3,
+    "3.4.2 Success Stories in Lead Compound Identification"
+  ],
+  [
+    1,
+    "4 Evaluation Metrics and Benchmarks"
+  ],
+  [
+    2,
+    "4.1 Common Metrics for Assessing Generative Models"
+  ],
+  [
+    3,
+    "4.1.1 Diversity and Novelty of Generated Molecules"
+  ],
+  [
+    3,
+    "4.1.2 Binding Affinity and Physicochemical Properties"
+  ],
+  [
+    2,
+    "4.2 Benchmark Datasets in Drug Design"
+  ],
+  [
+    3,
+    "4.2.1 ZINC Database and Its Variants"
+  ],
+  [
+    3,
+    "4.2.2 ChEMBL and PubChem as Data Sources"
+  ],
+  [
+    1,
+    "5 Challenges and Limitations"
+  ],
+  [
+    2,
+    "5.1 Data-Related Issues"
+  ],
+  [
+    3,
+    "5.1.1 Quality and Quantity of Training Data"
+  ],
+  [
+    3,
+    "5.1.2 Bias in Molecular Databases"
+  ],
+  [
+    2,
+    "5.2 Model Limitations"
+  ],
+  [
+    3,
+    "5.2.1 Scalability and Computational Complexity"
+  ],
+  [
+    3,
+    "5.2.2 Generalization Across Chemical Spaces"
+  ],
+  [
+    2,
+    "5.3 Ethical and Regulatory Concerns"
+  ],
+  [
+    3,
+    "5.3.1 Intellectual Property and Data Privacy"
+  ],
+  [
+    3,
+    "5.3.2 Safety Considerations in AI-Generated Compounds"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Comparative Analysis of Techniques"
+  ],
+  [
+    3,
+    "6.1.1 Strengths and Weaknesses of Different Models"
+  ],
+  [
+    3,
+    "6.1.2 Suitability for Various Stages of Drug Development"
+  ],
+  [
+    2,
+    "6.2 Future Directions"
+  ],
+  [
+    3,
+    "6.2.1 Multi-Modal Generative Models"
+  ],
+  [
+    3,
+    "6.2.2 Hybrid Approaches Combining AI and Wet Lab Experiments"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for the Field of Drug Design"
+  ]
+]

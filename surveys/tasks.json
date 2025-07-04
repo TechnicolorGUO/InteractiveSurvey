@@ -1,0 +1,1454 @@
+{
+  "InteractiveSurvey": [
+    {
+      "3D Gaussian Splatting Techniques": "cs/3D Gaussian Splatting Techniques/InteractiveSurvey"
+    },
+    {
+      "Agent-based Modeling and Simulation using Large Language Models": "cs/Agent-based Modeling and Simulation using Large Language Models/InteractiveSurvey"
+    },
+    {
+      "Complexity of Learning Quantum States": "cs/Complexity of Learning Quantum States/InteractiveSurvey"
+    },
+    {
+      "Data-Driven Co-Speech Gesture Generation": "cs/Data-Driven Co-Speech Gesture Generation/InteractiveSurvey"
+    },
+    {
+      "Efficient Serving of Generative Large Language Models": "cs/Efficient Serving of Generative Large Language Models/InteractiveSurvey"
+    },
+    {
+      "Integrated Sensing and Communication for 5G_6G Networks": "cs/Integrated Sensing and Communication for 5G_6G Networks/InteractiveSurvey"
+    },
+    {
+      "Large Language Model Based Multi-Agent Systems": "cs/Large Language Model Based Multi-Agent Systems/InteractiveSurvey"
+    },
+    {
+      "Natural Language to Code Generation with Large Language Models": "cs/Natural Language to Code Generation with Large Language Models/InteractiveSurvey"
+    },
+    {
+      "Optimization Techniques for Transformer Inference": "cs/Optimization Techniques for Transformer Inference/InteractiveSurvey"
+    },
+    {
+      "Physics-Informed Machine Learning Applications and Methods": "cs/Physics-Informed Machine Learning Applications and Methods/InteractiveSurvey"
+    },
+    {
+      "AI Automation and Its Potential for Explosive Economic Growth": "econ/AI Automation and Its Potential for Explosive Economic Growth/InteractiveSurvey"
+    },
+    {
+      "Bayesian Forecasting in Economics and Finance": "econ/Bayesian Forecasting in Economics and Finance/InteractiveSurvey"
+    },
+    {
+      "Business Process Management Systems in Organizational Contexts": "econ/Business Process Management Systems in Organizational Contexts/InteractiveSurvey"
+    },
+    {
+      "Causal Modeling for Longitudinal and Panel Data": "econ/Causal Modeling for Longitudinal and Panel Data/InteractiveSurvey"
+    },
+    {
+      "ChatGPT Applications in Accounting and Finance Research": "econ/ChatGPT Applications in Accounting and Finance Research/InteractiveSurvey"
+    },
+    {
+      "Computational Social Choice and Preference Restrictions": "econ/Computational Social Choice and Preference Restrictions/InteractiveSurvey"
+    },
+    {
+      "Environmental Impact of Virgin Aggregates and Life Cycle Assessments": "econ/Environmental Impact of Virgin Aggregates and Life Cycle Assessments/InteractiveSurvey"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "econ/High-Value Datasets for Data-Driven Development/InteractiveSurvey"
+    },
+    {
+      "Datasets for Advanced Bankruptcy Prediction": "econ/Datasets for Advanced Bankruptcy Prediction/InteractiveSurvey"
+    },
+    {
+      "Statistical Testing for Explosive Financial Bubbles": "econ/Statistical Testing for Explosive Financial Bubbles/InteractiveSurvey"
+    },
+    {
+      "Advances in Speech Language Models": "eess/Advances in Speech Language Models/InteractiveSurvey"
+    },
+    {
+      "All-in-One Image Restoration": "eess/All-in-One Image Restoration/InteractiveSurvey"
+    },
+    {
+      "BERT and CTC Transformers for ASR": "eess/BERT and CTC Transformers for ASR/InteractiveSurvey"
+    },
+    {
+      "Data Assessment for Instruction Tuning": "eess/Data Assessment for Instruction Tuning/InteractiveSurvey"
+    },
+    {
+      "Foundation Models for Music": "eess/Foundation Models for Music/InteractiveSurvey"
+    },
+    {
+      "Hallucination in Multimodal Foundation Models": "eess/Hallucination in Multimodal Foundation Models/InteractiveSurvey"
+    },
+    {
+      "Next Token Prediction in Multimodal Intelligence": "eess/Next Token Prediction in Multimodal Intelligence/InteractiveSurvey"
+    },
+    {
+      "Preference Tuning with Human Feedback": "eess/Preference Tuning with Human Feedback/InteractiveSurvey"
+    },
+    {
+      "Spoken Dialogue Models": "eess/Spoken Dialogue Models/InteractiveSurvey"
+    },
+    {
+      "UAV Avionics Systems Architecture": "eess/UAV Avionics Systems Architecture/InteractiveSurvey"
+    },
+    {
+      "Beam Management for mmWave and THz Communications in 6G": "math/Beam Management for mmWave and THz Communications in 6G/InteractiveSurvey"
+    },
+    {
+      "Blockchain and AI for 6G Wireless Communications": "math/Blockchain and AI for 6G Wireless Communications/InteractiveSurvey"
+    },
+    {
+      "Contextual Optimization under Uncertainty": "math/Contextual Optimization under Uncertainty/InteractiveSurvey"
+    },
+    {
+      "Data-Driven Control of Nonlinear Systems via Semidefinite Programming": "math/Data-Driven Control of Nonlinear Systems via Semidefinite Programming/InteractiveSurvey"
+    },
+    {
+      "Integrated Sensing and Communication for 5G-A and 6G": "math/Integrated Sensing and Communication for 5G-A and 6G/InteractiveSurvey"
+    },
+    {
+      "Multiple Access Techniques for Intelligent 6G Networks": "math/Multiple Access Techniques for Intelligent 6G Networks/InteractiveSurvey"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "math/Off-Policy Evaluation in Reinforcement Learning/InteractiveSurvey"
+    },
+    {
+      "Optimization Methods for Wireless Communications": "math/Optimization Methods for Wireless Communications/InteractiveSurvey"
+    },
+    {
+      "Predictive Uncertainty Estimation with Machine Learning": "math/Predictive Uncertainty Estimation with Machine Learning/InteractiveSurvey"
+    },
+    {
+      "Vectorization Techniques in Topological Data Analysis": "math/Vectorization Techniques in Topological Data Analysis/InteractiveSurvey"
+    },
+    {
+      "Bandgap Engineering in Phononic Crystals": "physics/Bandgap Engineering in Phononic Crystals/InteractiveSurvey"
+    },
+    {
+      "Regular Black Holes": "physics/Regular Black Holes/InteractiveSurvey"
+    },
+    {
+      "Conductive 2D Material Coatings for Electronics": "physics/Conductive 2D Material Coatings for Electronics/InteractiveSurvey"
+    },
+    {
+      "Earthquake Hazards in Mountain Regions": "physics/Earthquake Hazards in Mountain Regions/InteractiveSurvey"
+    },
+    {
+      "Hydrogen Trapping and Embrittlement in Metals": "physics/Hydrogen Trapping and Embrittlement in Metals/InteractiveSurvey"
+    },
+    {
+      "Machine Learning for Aircraft Performance": "physics/Machine Learning for Aircraft Performance/InteractiveSurvey"
+    },
+    {
+      "Modeling Thermodynamic Properties of Deep Eutectic Solvents": "physics/Modeling Thermodynamic Properties of Deep Eutectic Solvents/InteractiveSurvey"
+    },
+    {
+      "Phase Field Modeling and Simulation": "physics/Phase Field Modeling and Simulation/InteractiveSurvey"
+    },
+    {
+      "Proton-Conducting Zirconates in Hydrogen Devices": "physics/Proton-Conducting Zirconates in Hydrogen Devices/InteractiveSurvey"
+    },
+    {
+      "Topological Photonics Across Dimensions": "physics/Topological Photonics Across Dimensions/InteractiveSurvey"
+    },
+    {
+      "Adaptive Therapy in Oncology": "q-bio/Adaptive Therapy in Oncology/InteractiveSurvey"
+    },
+    {
+      "AI in Schizophrenia Diagnosis via EEG": "q-bio/AI in Schizophrenia Diagnosis via EEG/InteractiveSurvey"
+    },
+    {
+      "Bias in EHR-Based AI Models": "q-bio/Bias in EHR-Based AI Models/InteractiveSurvey"
+    },
+    {
+      "Deep Learning for Small Molecule Discovery": "q-bio/Deep Learning for Small Molecule Discovery/InteractiveSurvey"
+    },
+    {
+      "Generative AI for Drug Design": "q-bio/Generative AI for Drug Design/InteractiveSurvey"
+    },
+    {
+      "Graph Neural Networks for EEG Analysis": "q-bio/Graph Neural Networks for EEG Analysis/InteractiveSurvey"
+    },
+    {
+      "Large Language Models in Chemistry": "q-bio/Large Language Models in Chemistry/InteractiveSurvey"
+    },
+    {
+      "Neurotrophic Effects of Interventions": "q-bio/Neurotrophic Effects of Interventions/InteractiveSurvey"
+    },
+    {
+      "Phage Classification Tools": "q-bio/Phage Classification Tools/InteractiveSurvey"
+    },
+    {
+      "Transcriptomics to Gene Regulatory Networks": "q-bio/Transcriptomics to Gene Regulatory Networks/InteractiveSurvey"
+    },
+    {
+      "ChatGPT Research in Accounting and Finance": "q-fin/ChatGPT Research in Accounting and Finance/InteractiveSurvey"
+    },
+    {
+      "Continuous Volatility Modeling": "q-fin/Continuous Volatility Modeling/InteractiveSurvey"
+    },
+    {
+      "Deep Learning Techniques for Stock Market Prediction": "q-fin/Deep Learning Techniques for Stock Market Prediction/InteractiveSurvey"
+    },
+    {
+      "Economic Expectations of Generative AI": "q-fin/Economic Expectations of Generative AI/InteractiveSurvey"
+    },
+    {
+      "Environmental Impacts of Virgin Aggregates": "q-fin/Environmental Impacts of Virgin Aggregates/InteractiveSurvey"
+    },
+    {
+      "Financial Applications of Large Language Models": "q-fin/Financial Applications of Large Language Models/InteractiveSurvey"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "q-fin/High-Value Datasets for Data-Driven Development/InteractiveSurvey"
+    },
+    {
+      "Large Language Models in Finance": "q-fin/Large Language Models in Finance/InteractiveSurvey"
+    },
+    {
+      "Quantum Computing Applications in Finance": "q-fin/Quantum Computing Applications in Finance/InteractiveSurvey"
+    },
+    {
+      "Yield Farming Protocols in Blockchain": "q-fin/Yield Farming Protocols in Blockchain/InteractiveSurvey"
+    },
+    {
+      "Barren Plateaus in Variational Quantum Computing": "stat/Barren Plateaus in Variational Quantum Computing/InteractiveSurvey"
+    },
+    {
+      "Distributed Statistical Inference": "stat/Distributed Statistical Inference/InteractiveSurvey"
+    },
+    {
+      "Numerical Algorithms for Lasso Problems": "stat/Numerical Algorithms for Lasso Problems/InteractiveSurvey"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "stat/Off-Policy Evaluation in Reinforcement Learning/InteractiveSurvey"
+    },
+    {
+      "Outlier and Anomaly Detection Methods": "stat/Outlier and Anomaly Detection Methods/InteractiveSurvey"
+    },
+    {
+      "Predictive Uncertainty Estimation in Machine Learning": "stat/Predictive Uncertainty Estimation in Machine Learning/InteractiveSurvey"
+    },
+    {
+      "Recent Developments in Measures of Association": "stat/Recent Developments in Measures of Association/InteractiveSurvey"
+    },
+    {
+      "Scalable Automated Alignment of Large Language Models": "stat/Scalable Automated Alignment of Large Language Models/InteractiveSurvey"
+    },
+    {
+      "Statistical Theory of Deep Learning": "stat/Statistical Theory of Deep Learning/InteractiveSurvey"
+    },
+    {
+      "Variance-Gamma Distribution Theory": "stat/Variance-Gamma Distribution Theory/InteractiveSurvey"
+    }
+  ],
+  "AutoSurvey": [
+    {
+      "3D Gaussian Splatting Techniques": "cs/3D Gaussian Splatting Techniques/AutoSurvey"
+    },
+    {
+      "Agent-based Modeling and Simulation using Large Language Models": "cs/Agent-based Modeling and Simulation using Large Language Models/AutoSurvey"
+    },
+    {
+      "Complexity of Learning Quantum States": "cs/Complexity of Learning Quantum States/AutoSurvey"
+    },
+    {
+      "Data-Driven Co-Speech Gesture Generation": "cs/Data-Driven Co-Speech Gesture Generation/AutoSurvey"
+    },
+    {
+      "Efficient Serving of Generative Large Language Models": "cs/Efficient Serving of Generative Large Language Models/AutoSurvey"
+    },
+    {
+      "Integrated Sensing and Communication for 5G_6G Networks": "cs/Integrated Sensing and Communication for 5G_6G Networks/AutoSurvey"
+    },
+    {
+      "Large Language Model Based Multi-Agent Systems": "cs/Large Language Model Based Multi-Agent Systems/AutoSurvey"
+    },
+    {
+      "Natural Language to Code Generation with Large Language Models": "cs/Natural Language to Code Generation with Large Language Models/AutoSurvey"
+    },
+    {
+      "Optimization Techniques for Transformer Inference": "cs/Optimization Techniques for Transformer Inference/AutoSurvey"
+    },
+    {
+      "Physics-Informed Machine Learning Applications and Methods": "cs/Physics-Informed Machine Learning Applications and Methods/AutoSurvey"
+    },
+    {
+      "AI Automation and Its Potential for Explosive Economic Growth": "econ/AI Automation and Its Potential for Explosive Economic Growth/AutoSurvey"
+    },
+    {
+      "Bayesian Forecasting in Economics and Finance": "econ/Bayesian Forecasting in Economics and Finance/AutoSurvey"
+    },
+    {
+      "Business Process Management Systems in Organizational Contexts": "econ/Business Process Management Systems in Organizational Contexts/AutoSurvey"
+    },
+    {
+      "Causal Modeling for Longitudinal and Panel Data": "econ/Causal Modeling for Longitudinal and Panel Data/AutoSurvey"
+    },
+    {
+      "ChatGPT Applications in Accounting and Finance Research": "econ/ChatGPT Applications in Accounting and Finance Research/AutoSurvey"
+    },
+    {
+      "Computational Social Choice and Preference Restrictions": "econ/Computational Social Choice and Preference Restrictions/AutoSurvey"
+    },
+    {
+      "Environmental Impact of Virgin Aggregates and Life Cycle Assessments": "econ/Environmental Impact of Virgin Aggregates and Life Cycle Assessments/AutoSurvey"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "econ/High-Value Datasets for Data-Driven Development/AutoSurvey"
+    },
+    {
+      "Datasets for Advanced Bankruptcy Prediction": "econ/Datasets for Advanced Bankruptcy Prediction/AutoSurvey"
+    },
+    {
+      "Statistical Testing for Explosive Financial Bubbles": "econ/Statistical Testing for Explosive Financial Bubbles/AutoSurvey"
+    },
+    {
+      "Advances in Speech Language Models": "eess/Advances in Speech Language Models/AutoSurvey"
+    },
+    {
+      "All-in-One Image Restoration": "eess/All-in-One Image Restoration/AutoSurvey"
+    },
+    {
+      "BERT and CTC Transformers for ASR": "eess/BERT and CTC Transformers for ASR/AutoSurvey"
+    },
+    {
+      "Data Assessment for Instruction Tuning": "eess/Data Assessment for Instruction Tuning/AutoSurvey"
+    },
+    {
+      "Foundation Models for Music": "eess/Foundation Models for Music/AutoSurvey"
+    },
+    {
+      "Hallucination in Multimodal Foundation Models": "eess/Hallucination in Multimodal Foundation Models/AutoSurvey"
+    },
+    {
+      "Next Token Prediction in Multimodal Intelligence": "eess/Next Token Prediction in Multimodal Intelligence/AutoSurvey"
+    },
+    {
+      "Preference Tuning with Human Feedback": "eess/Preference Tuning with Human Feedback/AutoSurvey"
+    },
+    {
+      "Spoken Dialogue Models": "eess/Spoken Dialogue Models/AutoSurvey"
+    },
+    {
+      "UAV Avionics Systems Architecture": "eess/UAV Avionics Systems Architecture/AutoSurvey"
+    },
+    {
+      "Beam Management for mmWave and THz Communications in 6G": "math/Beam Management for mmWave and THz Communications in 6G/AutoSurvey"
+    },
+    {
+      "Blockchain and AI for 6G Wireless Communications": "math/Blockchain and AI for 6G Wireless Communications/AutoSurvey"
+    },
+    {
+      "Contextual Optimization under Uncertainty": "math/Contextual Optimization under Uncertainty/AutoSurvey"
+    },
+    {
+      "Data-Driven Control of Nonlinear Systems via Semidefinite Programming": "math/Data-Driven Control of Nonlinear Systems via Semidefinite Programming/AutoSurvey"
+    },
+    {
+      "Integrated Sensing and Communication for 5G-A and 6G": "math/Integrated Sensing and Communication for 5G-A and 6G/AutoSurvey"
+    },
+    {
+      "Multiple Access Techniques for Intelligent 6G Networks": "math/Multiple Access Techniques for Intelligent 6G Networks/AutoSurvey"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "math/Off-Policy Evaluation in Reinforcement Learning/AutoSurvey"
+    },
+    {
+      "Optimization Methods for Wireless Communications": "math/Optimization Methods for Wireless Communications/AutoSurvey"
+    },
+    {
+      "Predictive Uncertainty Estimation with Machine Learning": "math/Predictive Uncertainty Estimation with Machine Learning/AutoSurvey"
+    },
+    {
+      "Vectorization Techniques in Topological Data Analysis": "math/Vectorization Techniques in Topological Data Analysis/AutoSurvey"
+    },
+    {
+      "Bandgap Engineering in Phononic Crystals": "physics/Bandgap Engineering in Phononic Crystals/AutoSurvey"
+    },
+    {
+      "Regular Black Holes": "physics/Regular Black Holes/AutoSurvey"
+    },
+    {
+      "Conductive 2D Material Coatings for Electronics": "physics/Conductive 2D Material Coatings for Electronics/AutoSurvey"
+    },
+    {
+      "Earthquake Hazards in Mountain Regions": "physics/Earthquake Hazards in Mountain Regions/AutoSurvey"
+    },
+    {
+      "Hydrogen Trapping and Embrittlement in Metals": "physics/Hydrogen Trapping and Embrittlement in Metals/AutoSurvey"
+    },
+    {
+      "Machine Learning for Aircraft Performance": "physics/Machine Learning for Aircraft Performance/AutoSurvey"
+    },
+    {
+      "Modeling Thermodynamic Properties of Deep Eutectic Solvents": "physics/Modeling Thermodynamic Properties of Deep Eutectic Solvents/AutoSurvey"
+    },
+    {
+      "Phase Field Modeling and Simulation": "physics/Phase Field Modeling and Simulation/AutoSurvey"
+    },
+    {
+      "Proton-Conducting Zirconates in Hydrogen Devices": "physics/Proton-Conducting Zirconates in Hydrogen Devices/AutoSurvey"
+    },
+    {
+      "Topological Photonics Across Dimensions": "physics/Topological Photonics Across Dimensions/AutoSurvey"
+    },
+    {
+      "Adaptive Therapy in Oncology": "q-bio/Adaptive Therapy in Oncology/AutoSurvey"
+    },
+    {
+      "AI in Schizophrenia Diagnosis via EEG": "q-bio/AI in Schizophrenia Diagnosis via EEG/AutoSurvey"
+    },
+    {
+      "Bias in EHR-Based AI Models": "q-bio/Bias in EHR-Based AI Models/AutoSurvey"
+    },
+    {
+      "Deep Learning for Small Molecule Discovery": "q-bio/Deep Learning for Small Molecule Discovery/AutoSurvey"
+    },
+    {
+      "Generative AI for Drug Design": "q-bio/Generative AI for Drug Design/AutoSurvey"
+    },
+    {
+      "Graph Neural Networks for EEG Analysis": "q-bio/Graph Neural Networks for EEG Analysis/AutoSurvey"
+    },
+    {
+      "Large Language Models in Chemistry": "q-bio/Large Language Models in Chemistry/AutoSurvey"
+    },
+    {
+      "Neurotrophic Effects of Interventions": "q-bio/Neurotrophic Effects of Interventions/AutoSurvey"
+    },
+    {
+      "Phage Classification Tools": "q-bio/Phage Classification Tools/AutoSurvey"
+    },
+    {
+      "Transcriptomics to Gene Regulatory Networks": "q-bio/Transcriptomics to Gene Regulatory Networks/AutoSurvey"
+    },
+    {
+      "ChatGPT Research in Accounting and Finance": "q-fin/ChatGPT Research in Accounting and Finance/AutoSurvey"
+    },
+    {
+      "Continuous Volatility Modeling": "q-fin/Continuous Volatility Modeling/AutoSurvey"
+    },
+    {
+      "Deep Learning Techniques for Stock Market Prediction": "q-fin/Deep Learning Techniques for Stock Market Prediction/AutoSurvey"
+    },
+    {
+      "Economic Expectations of Generative AI": "q-fin/Economic Expectations of Generative AI/AutoSurvey"
+    },
+    {
+      "Environmental Impacts of Virgin Aggregates": "q-fin/Environmental Impacts of Virgin Aggregates/AutoSurvey"
+    },
+    {
+      "Financial Applications of Large Language Models": "q-fin/Financial Applications of Large Language Models/AutoSurvey"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "q-fin/High-Value Datasets for Data-Driven Development/AutoSurvey"
+    },
+    {
+      "Large Language Models in Finance": "q-fin/Large Language Models in Finance/AutoSurvey"
+    },
+    {
+      "Quantum Computing Applications in Finance": "q-fin/Quantum Computing Applications in Finance/AutoSurvey"
+    },
+    {
+      "Yield Farming Protocols in Blockchain": "q-fin/Yield Farming Protocols in Blockchain/AutoSurvey"
+    },
+    {
+      "Barren Plateaus in Variational Quantum Computing": "stat/Barren Plateaus in Variational Quantum Computing/AutoSurvey"
+    },
+    {
+      "Distributed Statistical Inference": "stat/Distributed Statistical Inference/AutoSurvey"
+    },
+    {
+      "Numerical Algorithms for Lasso Problems": "stat/Numerical Algorithms for Lasso Problems/AutoSurvey"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "stat/Off-Policy Evaluation in Reinforcement Learning/AutoSurvey"
+    },
+    {
+      "Outlier and Anomaly Detection Methods": "stat/Outlier and Anomaly Detection Methods/AutoSurvey"
+    },
+    {
+      "Predictive Uncertainty Estimation in Machine Learning": "stat/Predictive Uncertainty Estimation in Machine Learning/AutoSurvey"
+    },
+    {
+      "Recent Developments in Measures of Association": "stat/Recent Developments in Measures of Association/AutoSurvey"
+    },
+    {
+      "Scalable Automated Alignment of Large Language Models": "stat/Scalable Automated Alignment of Large Language Models/AutoSurvey"
+    },
+    {
+      "Statistical Theory of Deep Learning": "stat/Statistical Theory of Deep Learning/AutoSurvey"
+    },
+    {
+      "Variance-Gamma Distribution Theory": "stat/Variance-Gamma Distribution Theory/AutoSurvey"
+    }
+  ],
+  "SurveyX": [
+    {
+      "3D Gaussian Splatting Techniques": "cs/3D Gaussian Splatting Techniques/SurveyX"
+    },
+    {
+      "Agent-based Modeling and Simulation using Large Language Models": "cs/Agent-based Modeling and Simulation using Large Language Models/SurveyX"
+    },
+    {
+      "Complexity of Learning Quantum States": "cs/Complexity of Learning Quantum States/SurveyX"
+    },
+    {
+      "Data-Driven Co-Speech Gesture Generation": "cs/Data-Driven Co-Speech Gesture Generation/SurveyX"
+    },
+    {
+      "Efficient Serving of Generative Large Language Models": "cs/Efficient Serving of Generative Large Language Models/SurveyX"
+    },
+    {
+      "Integrated Sensing and Communication for 5G_6G Networks": "cs/Integrated Sensing and Communication for 5G_6G Networks/SurveyX"
+    },
+    {
+      "Large Language Model Based Multi-Agent Systems": "cs/Large Language Model Based Multi-Agent Systems/SurveyX"
+    },
+    {
+      "Natural Language to Code Generation with Large Language Models": "cs/Natural Language to Code Generation with Large Language Models/SurveyX"
+    },
+    {
+      "Optimization Techniques for Transformer Inference": "cs/Optimization Techniques for Transformer Inference/SurveyX"
+    },
+    {
+      "Physics-Informed Machine Learning Applications and Methods": "cs/Physics-Informed Machine Learning Applications and Methods/SurveyX"
+    },
+    {
+      "AI Automation and Its Potential for Explosive Economic Growth": "econ/AI Automation and Its Potential for Explosive Economic Growth/SurveyX"
+    },
+    {
+      "Bayesian Forecasting in Economics and Finance": "econ/Bayesian Forecasting in Economics and Finance/SurveyX"
+    },
+    {
+      "Business Process Management Systems in Organizational Contexts": "econ/Business Process Management Systems in Organizational Contexts/SurveyX"
+    },
+    {
+      "Causal Modeling for Longitudinal and Panel Data": "econ/Causal Modeling for Longitudinal and Panel Data/SurveyX"
+    },
+    {
+      "ChatGPT Applications in Accounting and Finance Research": "econ/ChatGPT Applications in Accounting and Finance Research/SurveyX"
+    },
+    {
+      "Computational Social Choice and Preference Restrictions": "econ/Computational Social Choice and Preference Restrictions/SurveyX"
+    },
+    {
+      "Environmental Impact of Virgin Aggregates and Life Cycle Assessments": "econ/Environmental Impact of Virgin Aggregates and Life Cycle Assessments/SurveyX"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "econ/High-Value Datasets for Data-Driven Development/SurveyX"
+    },
+    {
+      "Datasets for Advanced Bankruptcy Prediction": "econ/Datasets for Advanced Bankruptcy Prediction/SurveyX"
+    },
+    {
+      "Statistical Testing for Explosive Financial Bubbles": "econ/Statistical Testing for Explosive Financial Bubbles/SurveyX"
+    },
+    {
+      "Advances in Speech Language Models": "eess/Advances in Speech Language Models/SurveyX"
+    },
+    {
+      "All-in-One Image Restoration": "eess/All-in-One Image Restoration/SurveyX"
+    },
+    {
+      "BERT and CTC Transformers for ASR": "eess/BERT and CTC Transformers for ASR/SurveyX"
+    },
+    {
+      "Data Assessment for Instruction Tuning": "eess/Data Assessment for Instruction Tuning/SurveyX"
+    },
+    {
+      "Foundation Models for Music": "eess/Foundation Models for Music/SurveyX"
+    },
+    {
+      "Hallucination in Multimodal Foundation Models": "eess/Hallucination in Multimodal Foundation Models/SurveyX"
+    },
+    {
+      "Next Token Prediction in Multimodal Intelligence": "eess/Next Token Prediction in Multimodal Intelligence/SurveyX"
+    },
+    {
+      "Preference Tuning with Human Feedback": "eess/Preference Tuning with Human Feedback/SurveyX"
+    },
+    {
+      "Spoken Dialogue Models": "eess/Spoken Dialogue Models/SurveyX"
+    },
+    {
+      "UAV Avionics Systems Architecture": "eess/UAV Avionics Systems Architecture/SurveyX"
+    },
+    {
+      "Beam Management for mmWave and THz Communications in 6G": "math/Beam Management for mmWave and THz Communications in 6G/SurveyX"
+    },
+    {
+      "Blockchain and AI for 6G Wireless Communications": "math/Blockchain and AI for 6G Wireless Communications/SurveyX"
+    },
+    {
+      "Contextual Optimization under Uncertainty": "math/Contextual Optimization under Uncertainty/SurveyX"
+    },
+    {
+      "Data-Driven Control of Nonlinear Systems via Semidefinite Programming": "math/Data-Driven Control of Nonlinear Systems via Semidefinite Programming/SurveyX"
+    },
+    {
+      "Integrated Sensing and Communication for 5G-A and 6G": "math/Integrated Sensing and Communication for 5G-A and 6G/SurveyX"
+    },
+    {
+      "Multiple Access Techniques for Intelligent 6G Networks": "math/Multiple Access Techniques for Intelligent 6G Networks/SurveyX"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "math/Off-Policy Evaluation in Reinforcement Learning/SurveyX"
+    },
+    {
+      "Optimization Methods for Wireless Communications": "math/Optimization Methods for Wireless Communications/SurveyX"
+    },
+    {
+      "Predictive Uncertainty Estimation with Machine Learning": "math/Predictive Uncertainty Estimation with Machine Learning/SurveyX"
+    },
+    {
+      "Vectorization Techniques in Topological Data Analysis": "math/Vectorization Techniques in Topological Data Analysis/SurveyX"
+    },
+    {
+      "Bandgap Engineering in Phononic Crystals": "physics/Bandgap Engineering in Phononic Crystals/SurveyX"
+    },
+    {
+      "Regular Black Holes": "physics/Regular Black Holes/SurveyX"
+    },
+    {
+      "Conductive 2D Material Coatings for Electronics": "physics/Conductive 2D Material Coatings for Electronics/SurveyX"
+    },
+    {
+      "Earthquake Hazards in Mountain Regions": "physics/Earthquake Hazards in Mountain Regions/SurveyX"
+    },
+    {
+      "Hydrogen Trapping and Embrittlement in Metals": "physics/Hydrogen Trapping and Embrittlement in Metals/SurveyX"
+    },
+    {
+      "Machine Learning for Aircraft Performance": "physics/Machine Learning for Aircraft Performance/SurveyX"
+    },
+    {
+      "Modeling Thermodynamic Properties of Deep Eutectic Solvents": "physics/Modeling Thermodynamic Properties of Deep Eutectic Solvents/SurveyX"
+    },
+    {
+      "Phase Field Modeling and Simulation": "physics/Phase Field Modeling and Simulation/SurveyX"
+    },
+    {
+      "Proton-Conducting Zirconates in Hydrogen Devices": "physics/Proton-Conducting Zirconates in Hydrogen Devices/SurveyX"
+    },
+    {
+      "Topological Photonics Across Dimensions": "physics/Topological Photonics Across Dimensions/SurveyX"
+    },
+    {
+      "Adaptive Therapy in Oncology": "q-bio/Adaptive Therapy in Oncology/SurveyX"
+    },
+    {
+      "AI in Schizophrenia Diagnosis via EEG": "q-bio/AI in Schizophrenia Diagnosis via EEG/SurveyX"
+    },
+    {
+      "Bias in EHR-Based AI Models": "q-bio/Bias in EHR-Based AI Models/SurveyX"
+    },
+    {
+      "Deep Learning for Small Molecule Discovery": "q-bio/Deep Learning for Small Molecule Discovery/SurveyX"
+    },
+    {
+      "Generative AI for Drug Design": "q-bio/Generative AI for Drug Design/SurveyX"
+    },
+    {
+      "Graph Neural Networks for EEG Analysis": "q-bio/Graph Neural Networks for EEG Analysis/SurveyX"
+    },
+    {
+      "Large Language Models in Chemistry": "q-bio/Large Language Models in Chemistry/SurveyX"
+    },
+    {
+      "Neurotrophic Effects of Interventions": "q-bio/Neurotrophic Effects of Interventions/SurveyX"
+    },
+    {
+      "Phage Classification Tools": "q-bio/Phage Classification Tools/SurveyX"
+    },
+    {
+      "Transcriptomics to Gene Regulatory Networks": "q-bio/Transcriptomics to Gene Regulatory Networks/SurveyX"
+    },
+    {
+      "ChatGPT Research in Accounting and Finance": "q-fin/ChatGPT Research in Accounting and Finance/SurveyX"
+    },
+    {
+      "Continuous Volatility Modeling": "q-fin/Continuous Volatility Modeling/SurveyX"
+    },
+    {
+      "Deep Learning Techniques for Stock Market Prediction": "q-fin/Deep Learning Techniques for Stock Market Prediction/SurveyX"
+    },
+    {
+      "Economic Expectations of Generative AI": "q-fin/Economic Expectations of Generative AI/SurveyX"
+    },
+    {
+      "Environmental Impacts of Virgin Aggregates": "q-fin/Environmental Impacts of Virgin Aggregates/SurveyX"
+    },
+    {
+      "Financial Applications of Large Language Models": "q-fin/Financial Applications of Large Language Models/SurveyX"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "q-fin/High-Value Datasets for Data-Driven Development/SurveyX"
+    },
+    {
+      "Large Language Models in Finance": "q-fin/Large Language Models in Finance/SurveyX"
+    },
+    {
+      "Quantum Computing Applications in Finance": "q-fin/Quantum Computing Applications in Finance/SurveyX"
+    },
+    {
+      "Yield Farming Protocols in Blockchain": "q-fin/Yield Farming Protocols in Blockchain/SurveyX"
+    },
+    {
+      "Barren Plateaus in Variational Quantum Computing": "stat/Barren Plateaus in Variational Quantum Computing/SurveyX"
+    },
+    {
+      "Distributed Statistical Inference": "stat/Distributed Statistical Inference/SurveyX"
+    },
+    {
+      "Numerical Algorithms for Lasso Problems": "stat/Numerical Algorithms for Lasso Problems/SurveyX"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "stat/Off-Policy Evaluation in Reinforcement Learning/SurveyX"
+    },
+    {
+      "Outlier and Anomaly Detection Methods": "stat/Outlier and Anomaly Detection Methods/SurveyX"
+    },
+    {
+      "Predictive Uncertainty Estimation in Machine Learning": "stat/Predictive Uncertainty Estimation in Machine Learning/SurveyX"
+    },
+    {
+      "Recent Developments in Measures of Association": "stat/Recent Developments in Measures of Association/SurveyX"
+    },
+    {
+      "Scalable Automated Alignment of Large Language Models": "stat/Scalable Automated Alignment of Large Language Models/SurveyX"
+    },
+    {
+      "Statistical Theory of Deep Learning": "stat/Statistical Theory of Deep Learning/SurveyX"
+    },
+    {
+      "Variance-Gamma Distribution Theory": "stat/Variance-Gamma Distribution Theory/SurveyX"
+    }
+  ],
+  "SurveyForge": [
+    {
+      "3D Gaussian Splatting Techniques": "cs/3D Gaussian Splatting Techniques/SurveyForge"
+    },
+    {
+      "Agent-based Modeling and Simulation using Large Language Models": "cs/Agent-based Modeling and Simulation using Large Language Models/SurveyForge"
+    },
+    {
+      "Complexity of Learning Quantum States": "cs/Complexity of Learning Quantum States/SurveyForge"
+    },
+    {
+      "Data-Driven Co-Speech Gesture Generation": "cs/Data-Driven Co-Speech Gesture Generation/SurveyForge"
+    },
+    {
+      "Efficient Serving of Generative Large Language Models": "cs/Efficient Serving of Generative Large Language Models/SurveyForge"
+    },
+    {
+      "Integrated Sensing and Communication for 5G_6G Networks": "cs/Integrated Sensing and Communication for 5G_6G Networks/SurveyForge"
+    },
+    {
+      "Large Language Model Based Multi-Agent Systems": "cs/Large Language Model Based Multi-Agent Systems/SurveyForge"
+    },
+    {
+      "Natural Language to Code Generation with Large Language Models": "cs/Natural Language to Code Generation with Large Language Models/SurveyForge"
+    },
+    {
+      "Optimization Techniques for Transformer Inference": "cs/Optimization Techniques for Transformer Inference/SurveyForge"
+    },
+    {
+      "Physics-Informed Machine Learning Applications and Methods": "cs/Physics-Informed Machine Learning Applications and Methods/SurveyForge"
+    },
+    {
+      "AI Automation and Its Potential for Explosive Economic Growth": "econ/AI Automation and Its Potential for Explosive Economic Growth/SurveyForge"
+    },
+    {
+      "Bayesian Forecasting in Economics and Finance": "econ/Bayesian Forecasting in Economics and Finance/SurveyForge"
+    },
+    {
+      "Business Process Management Systems in Organizational Contexts": "econ/Business Process Management Systems in Organizational Contexts/SurveyForge"
+    },
+    {
+      "Causal Modeling for Longitudinal and Panel Data": "econ/Causal Modeling for Longitudinal and Panel Data/SurveyForge"
+    },
+    {
+      "ChatGPT Applications in Accounting and Finance Research": "econ/ChatGPT Applications in Accounting and Finance Research/SurveyForge"
+    },
+    {
+      "Computational Social Choice and Preference Restrictions": "econ/Computational Social Choice and Preference Restrictions/SurveyForge"
+    },
+    {
+      "Environmental Impact of Virgin Aggregates and Life Cycle Assessments": "econ/Environmental Impact of Virgin Aggregates and Life Cycle Assessments/SurveyForge"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "econ/High-Value Datasets for Data-Driven Development/SurveyForge"
+    },
+    {
+      "Datasets for Advanced Bankruptcy Prediction": "econ/Datasets for Advanced Bankruptcy Prediction/SurveyForge"
+    },
+    {
+      "Statistical Testing for Explosive Financial Bubbles": "econ/Statistical Testing for Explosive Financial Bubbles/SurveyForge"
+    },
+    {
+      "Advances in Speech Language Models": "eess/Advances in Speech Language Models/SurveyForge"
+    },
+    {
+      "All-in-One Image Restoration": "eess/All-in-One Image Restoration/SurveyForge"
+    },
+    {
+      "BERT and CTC Transformers for ASR": "eess/BERT and CTC Transformers for ASR/SurveyForge"
+    },
+    {
+      "Data Assessment for Instruction Tuning": "eess/Data Assessment for Instruction Tuning/SurveyForge"
+    },
+    {
+      "Foundation Models for Music": "eess/Foundation Models for Music/SurveyForge"
+    },
+    {
+      "Hallucination in Multimodal Foundation Models": "eess/Hallucination in Multimodal Foundation Models/SurveyForge"
+    },
+    {
+      "Next Token Prediction in Multimodal Intelligence": "eess/Next Token Prediction in Multimodal Intelligence/SurveyForge"
+    },
+    {
+      "Preference Tuning with Human Feedback": "eess/Preference Tuning with Human Feedback/SurveyForge"
+    },
+    {
+      "Spoken Dialogue Models": "eess/Spoken Dialogue Models/SurveyForge"
+    },
+    {
+      "UAV Avionics Systems Architecture": "eess/UAV Avionics Systems Architecture/SurveyForge"
+    },
+    {
+      "Beam Management for mmWave and THz Communications in 6G": "math/Beam Management for mmWave and THz Communications in 6G/SurveyForge"
+    },
+    {
+      "Blockchain and AI for 6G Wireless Communications": "math/Blockchain and AI for 6G Wireless Communications/SurveyForge"
+    },
+    {
+      "Contextual Optimization under Uncertainty": "math/Contextual Optimization under Uncertainty/SurveyForge"
+    },
+    {
+      "Data-Driven Control of Nonlinear Systems via Semidefinite Programming": "math/Data-Driven Control of Nonlinear Systems via Semidefinite Programming/SurveyForge"
+    },
+    {
+      "Integrated Sensing and Communication for 5G-A and 6G": "math/Integrated Sensing and Communication for 5G-A and 6G/SurveyForge"
+    },
+    {
+      "Multiple Access Techniques for Intelligent 6G Networks": "math/Multiple Access Techniques for Intelligent 6G Networks/SurveyForge"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "math/Off-Policy Evaluation in Reinforcement Learning/SurveyForge"
+    },
+    {
+      "Optimization Methods for Wireless Communications": "math/Optimization Methods for Wireless Communications/SurveyForge"
+    },
+    {
+      "Predictive Uncertainty Estimation with Machine Learning": "math/Predictive Uncertainty Estimation with Machine Learning/SurveyForge"
+    },
+    {
+      "Vectorization Techniques in Topological Data Analysis": "math/Vectorization Techniques in Topological Data Analysis/SurveyForge"
+    },
+    {
+      "Bandgap Engineering in Phononic Crystals": "physics/Bandgap Engineering in Phononic Crystals/SurveyForge"
+    },
+    {
+      "Regular Black Holes": "physics/Regular Black Holes/SurveyForge"
+    },
+    {
+      "Conductive 2D Material Coatings for Electronics": "physics/Conductive 2D Material Coatings for Electronics/SurveyForge"
+    },
+    {
+      "Earthquake Hazards in Mountain Regions": "physics/Earthquake Hazards in Mountain Regions/SurveyForge"
+    },
+    {
+      "Hydrogen Trapping and Embrittlement in Metals": "physics/Hydrogen Trapping and Embrittlement in Metals/SurveyForge"
+    },
+    {
+      "Machine Learning for Aircraft Performance": "physics/Machine Learning for Aircraft Performance/SurveyForge"
+    },
+    {
+      "Modeling Thermodynamic Properties of Deep Eutectic Solvents": "physics/Modeling Thermodynamic Properties of Deep Eutectic Solvents/SurveyForge"
+    },
+    {
+      "Phase Field Modeling and Simulation": "physics/Phase Field Modeling and Simulation/SurveyForge"
+    },
+    {
+      "Proton-Conducting Zirconates in Hydrogen Devices": "physics/Proton-Conducting Zirconates in Hydrogen Devices/SurveyForge"
+    },
+    {
+      "Topological Photonics Across Dimensions": "physics/Topological Photonics Across Dimensions/SurveyForge"
+    },
+    {
+      "Adaptive Therapy in Oncology": "q-bio/Adaptive Therapy in Oncology/SurveyForge"
+    },
+    {
+      "AI in Schizophrenia Diagnosis via EEG": "q-bio/AI in Schizophrenia Diagnosis via EEG/SurveyForge"
+    },
+    {
+      "Bias in EHR-Based AI Models": "q-bio/Bias in EHR-Based AI Models/SurveyForge"
+    },
+    {
+      "Deep Learning for Small Molecule Discovery": "q-bio/Deep Learning for Small Molecule Discovery/SurveyForge"
+    },
+    {
+      "Generative AI for Drug Design": "q-bio/Generative AI for Drug Design/SurveyForge"
+    },
+    {
+      "Graph Neural Networks for EEG Analysis": "q-bio/Graph Neural Networks for EEG Analysis/SurveyForge"
+    },
+    {
+      "Large Language Models in Chemistry": "q-bio/Large Language Models in Chemistry/SurveyForge"
+    },
+    {
+      "Neurotrophic Effects of Interventions": "q-bio/Neurotrophic Effects of Interventions/SurveyForge"
+    },
+    {
+      "Phage Classification Tools": "q-bio/Phage Classification Tools/SurveyForge"
+    },
+    {
+      "Transcriptomics to Gene Regulatory Networks": "q-bio/Transcriptomics to Gene Regulatory Networks/SurveyForge"
+    },
+    {
+      "ChatGPT Research in Accounting and Finance": "q-fin/ChatGPT Research in Accounting and Finance/SurveyForge"
+    },
+    {
+      "Continuous Volatility Modeling": "q-fin/Continuous Volatility Modeling/SurveyForge"
+    },
+    {
+      "Deep Learning Techniques for Stock Market Prediction": "q-fin/Deep Learning Techniques for Stock Market Prediction/SurveyForge"
+    },
+    {
+      "Economic Expectations of Generative AI": "q-fin/Economic Expectations of Generative AI/SurveyForge"
+    },
+    {
+      "Environmental Impacts of Virgin Aggregates": "q-fin/Environmental Impacts of Virgin Aggregates/SurveyForge"
+    },
+    {
+      "Financial Applications of Large Language Models": "q-fin/Financial Applications of Large Language Models/SurveyForge"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "q-fin/High-Value Datasets for Data-Driven Development/SurveyForge"
+    },
+    {
+      "Large Language Models in Finance": "q-fin/Large Language Models in Finance/SurveyForge"
+    },
+    {
+      "Quantum Computing Applications in Finance": "q-fin/Quantum Computing Applications in Finance/SurveyForge"
+    },
+    {
+      "Yield Farming Protocols in Blockchain": "q-fin/Yield Farming Protocols in Blockchain/SurveyForge"
+    },
+    {
+      "Barren Plateaus in Variational Quantum Computing": "stat/Barren Plateaus in Variational Quantum Computing/SurveyForge"
+    },
+    {
+      "Distributed Statistical Inference": "stat/Distributed Statistical Inference/SurveyForge"
+    },
+    {
+      "Numerical Algorithms for Lasso Problems": "stat/Numerical Algorithms for Lasso Problems/SurveyForge"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "stat/Off-Policy Evaluation in Reinforcement Learning/SurveyForge"
+    },
+    {
+      "Outlier and Anomaly Detection Methods": "stat/Outlier and Anomaly Detection Methods/SurveyForge"
+    },
+    {
+      "Predictive Uncertainty Estimation in Machine Learning": "stat/Predictive Uncertainty Estimation in Machine Learning/SurveyForge"
+    },
+    {
+      "Recent Developments in Measures of Association": "stat/Recent Developments in Measures of Association/SurveyForge"
+    },
+    {
+      "Scalable Automated Alignment of Large Language Models": "stat/Scalable Automated Alignment of Large Language Models/SurveyForge"
+    },
+    {
+      "Statistical Theory of Deep Learning": "stat/Statistical Theory of Deep Learning/SurveyForge"
+    },
+    {
+      "Variance-Gamma Distribution Theory": "stat/Variance-Gamma Distribution Theory/SurveyForge"
+    }
+  ],
+  "LLMxMapReduce": [
+    {
+      "3D Gaussian Splatting Techniques": "cs/3D Gaussian Splatting Techniques/LLMxMapReduce"
+    },
+    {
+      "Agent-based Modeling and Simulation using Large Language Models": "cs/Agent-based Modeling and Simulation using Large Language Models/LLMxMapReduce"
+    },
+    {
+      "Complexity of Learning Quantum States": "cs/Complexity of Learning Quantum States/LLMxMapReduce"
+    },
+    {
+      "Data-Driven Co-Speech Gesture Generation": "cs/Data-Driven Co-Speech Gesture Generation/LLMxMapReduce"
+    },
+    {
+      "Efficient Serving of Generative Large Language Models": "cs/Efficient Serving of Generative Large Language Models/LLMxMapReduce"
+    },
+    {
+      "Integrated Sensing and Communication for 5G_6G Networks": "cs/Integrated Sensing and Communication for 5G_6G Networks/LLMxMapReduce"
+    },
+    {
+      "Large Language Model Based Multi-Agent Systems": "cs/Large Language Model Based Multi-Agent Systems/LLMxMapReduce"
+    },
+    {
+      "Natural Language to Code Generation with Large Language Models": "cs/Natural Language to Code Generation with Large Language Models/LLMxMapReduce"
+    },
+    {
+      "Optimization Techniques for Transformer Inference": "cs/Optimization Techniques for Transformer Inference/LLMxMapReduce"
+    },
+    {
+      "Physics-Informed Machine Learning Applications and Methods": "cs/Physics-Informed Machine Learning Applications and Methods/LLMxMapReduce"
+    },
+    {
+      "AI Automation and Its Potential for Explosive Economic Growth": "econ/AI Automation and Its Potential for Explosive Economic Growth/LLMxMapReduce"
+    },
+    {
+      "Bayesian Forecasting in Economics and Finance": "econ/Bayesian Forecasting in Economics and Finance/LLMxMapReduce"
+    },
+    {
+      "Business Process Management Systems in Organizational Contexts": "econ/Business Process Management Systems in Organizational Contexts/LLMxMapReduce"
+    },
+    {
+      "Causal Modeling for Longitudinal and Panel Data": "econ/Causal Modeling for Longitudinal and Panel Data/LLMxMapReduce"
+    },
+    {
+      "ChatGPT Applications in Accounting and Finance Research": "econ/ChatGPT Applications in Accounting and Finance Research/LLMxMapReduce"
+    },
+    {
+      "Computational Social Choice and Preference Restrictions": "econ/Computational Social Choice and Preference Restrictions/LLMxMapReduce"
+    },
+    {
+      "Environmental Impact of Virgin Aggregates and Life Cycle Assessments": "econ/Environmental Impact of Virgin Aggregates and Life Cycle Assessments/LLMxMapReduce"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "econ/High-Value Datasets for Data-Driven Development/LLMxMapReduce"
+    },
+    {
+      "Datasets for Advanced Bankruptcy Prediction": "econ/Datasets for Advanced Bankruptcy Prediction/LLMxMapReduce"
+    },
+    {
+      "Statistical Testing for Explosive Financial Bubbles": "econ/Statistical Testing for Explosive Financial Bubbles/LLMxMapReduce"
+    },
+    {
+      "Advances in Speech Language Models": "eess/Advances in Speech Language Models/LLMxMapReduce"
+    },
+    {
+      "All-in-One Image Restoration": "eess/All-in-One Image Restoration/LLMxMapReduce"
+    },
+    {
+      "BERT and CTC Transformers for ASR": "eess/BERT and CTC Transformers for ASR/LLMxMapReduce"
+    },
+    {
+      "Data Assessment for Instruction Tuning": "eess/Data Assessment for Instruction Tuning/LLMxMapReduce"
+    },
+    {
+      "Foundation Models for Music": "eess/Foundation Models for Music/LLMxMapReduce"
+    },
+    {
+      "Hallucination in Multimodal Foundation Models": "eess/Hallucination in Multimodal Foundation Models/LLMxMapReduce"
+    },
+    {
+      "Next Token Prediction in Multimodal Intelligence": "eess/Next Token Prediction in Multimodal Intelligence/LLMxMapReduce"
+    },
+    {
+      "Preference Tuning with Human Feedback": "eess/Preference Tuning with Human Feedback/LLMxMapReduce"
+    },
+    {
+      "Spoken Dialogue Models": "eess/Spoken Dialogue Models/LLMxMapReduce"
+    },
+    {
+      "UAV Avionics Systems Architecture": "eess/UAV Avionics Systems Architecture/LLMxMapReduce"
+    },
+    {
+      "Beam Management for mmWave and THz Communications in 6G": "math/Beam Management for mmWave and THz Communications in 6G/LLMxMapReduce"
+    },
+    {
+      "Blockchain and AI for 6G Wireless Communications": "math/Blockchain and AI for 6G Wireless Communications/LLMxMapReduce"
+    },
+    {
+      "Contextual Optimization under Uncertainty": "math/Contextual Optimization under Uncertainty/LLMxMapReduce"
+    },
+    {
+      "Data-Driven Control of Nonlinear Systems via Semidefinite Programming": "math/Data-Driven Control of Nonlinear Systems via Semidefinite Programming/LLMxMapReduce"
+    },
+    {
+      "Integrated Sensing and Communication for 5G-A and 6G": "math/Integrated Sensing and Communication for 5G-A and 6G/LLMxMapReduce"
+    },
+    {
+      "Multiple Access Techniques for Intelligent 6G Networks": "math/Multiple Access Techniques for Intelligent 6G Networks/LLMxMapReduce"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "math/Off-Policy Evaluation in Reinforcement Learning/LLMxMapReduce"
+    },
+    {
+      "Optimization Methods for Wireless Communications": "math/Optimization Methods for Wireless Communications/LLMxMapReduce"
+    },
+    {
+      "Predictive Uncertainty Estimation with Machine Learning": "math/Predictive Uncertainty Estimation with Machine Learning/LLMxMapReduce"
+    },
+    {
+      "Vectorization Techniques in Topological Data Analysis": "math/Vectorization Techniques in Topological Data Analysis/LLMxMapReduce"
+    },
+    {
+      "Bandgap Engineering in Phononic Crystals": "physics/Bandgap Engineering in Phononic Crystals/LLMxMapReduce"
+    },
+    {
+      "Regular Black Holes": "physics/Regular Black Holes/LLMxMapReduce"
+    },
+    {
+      "Conductive 2D Material Coatings for Electronics": "physics/Conductive 2D Material Coatings for Electronics/LLMxMapReduce"
+    },
+    {
+      "Earthquake Hazards in Mountain Regions": "physics/Earthquake Hazards in Mountain Regions/LLMxMapReduce"
+    },
+    {
+      "Hydrogen Trapping and Embrittlement in Metals": "physics/Hydrogen Trapping and Embrittlement in Metals/LLMxMapReduce"
+    },
+    {
+      "Machine Learning for Aircraft Performance": "physics/Machine Learning for Aircraft Performance/LLMxMapReduce"
+    },
+    {
+      "Modeling Thermodynamic Properties of Deep Eutectic Solvents": "physics/Modeling Thermodynamic Properties of Deep Eutectic Solvents/LLMxMapReduce"
+    },
+    {
+      "Phase Field Modeling and Simulation": "physics/Phase Field Modeling and Simulation/LLMxMapReduce"
+    },
+    {
+      "Proton-Conducting Zirconates in Hydrogen Devices": "physics/Proton-Conducting Zirconates in Hydrogen Devices/LLMxMapReduce"
+    },
+    {
+      "Topological Photonics Across Dimensions": "physics/Topological Photonics Across Dimensions/LLMxMapReduce"
+    },
+    {
+      "Adaptive Therapy in Oncology": "q-bio/Adaptive Therapy in Oncology/LLMxMapReduce"
+    },
+    {
+      "AI in Schizophrenia Diagnosis via EEG": "q-bio/AI in Schizophrenia Diagnosis via EEG/LLMxMapReduce"
+    },
+    {
+      "Bias in EHR-Based AI Models": "q-bio/Bias in EHR-Based AI Models/LLMxMapReduce"
+    },
+    {
+      "Deep Learning for Small Molecule Discovery": "q-bio/Deep Learning for Small Molecule Discovery/LLMxMapReduce"
+    },
+    {
+      "Generative AI for Drug Design": "q-bio/Generative AI for Drug Design/LLMxMapReduce"
+    },
+    {
+      "Graph Neural Networks for EEG Analysis": "q-bio/Graph Neural Networks for EEG Analysis/LLMxMapReduce"
+    },
+    {
+      "Large Language Models in Chemistry": "q-bio/Large Language Models in Chemistry/LLMxMapReduce"
+    },
+    {
+      "Neurotrophic Effects of Interventions": "q-bio/Neurotrophic Effects of Interventions/LLMxMapReduce"
+    },
+    {
+      "Phage Classification Tools": "q-bio/Phage Classification Tools/LLMxMapReduce"
+    },
+    {
+      "Transcriptomics to Gene Regulatory Networks": "q-bio/Transcriptomics to Gene Regulatory Networks/LLMxMapReduce"
+    },
+    {
+      "ChatGPT Research in Accounting and Finance": "q-fin/ChatGPT Research in Accounting and Finance/LLMxMapReduce"
+    },
+    {
+      "Continuous Volatility Modeling": "q-fin/Continuous Volatility Modeling/LLMxMapReduce"
+    },
+    {
+      "Deep Learning Techniques for Stock Market Prediction": "q-fin/Deep Learning Techniques for Stock Market Prediction/LLMxMapReduce"
+    },
+    {
+      "Economic Expectations of Generative AI": "q-fin/Economic Expectations of Generative AI/LLMxMapReduce"
+    },
+    {
+      "Environmental Impacts of Virgin Aggregates": "q-fin/Environmental Impacts of Virgin Aggregates/LLMxMapReduce"
+    },
+    {
+      "Financial Applications of Large Language Models": "q-fin/Financial Applications of Large Language Models/LLMxMapReduce"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "q-fin/High-Value Datasets for Data-Driven Development/LLMxMapReduce"
+    },
+    {
+      "Large Language Models in Finance": "q-fin/Large Language Models in Finance/LLMxMapReduce"
+    },
+    {
+      "Quantum Computing Applications in Finance": "q-fin/Quantum Computing Applications in Finance/LLMxMapReduce"
+    },
+    {
+      "Yield Farming Protocols in Blockchain": "q-fin/Yield Farming Protocols in Blockchain/LLMxMapReduce"
+    },
+    {
+      "Barren Plateaus in Variational Quantum Computing": "stat/Barren Plateaus in Variational Quantum Computing/LLMxMapReduce"
+    },
+    {
+      "Distributed Statistical Inference": "stat/Distributed Statistical Inference/LLMxMapReduce"
+    },
+    {
+      "Numerical Algorithms for Lasso Problems": "stat/Numerical Algorithms for Lasso Problems/LLMxMapReduce"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "stat/Off-Policy Evaluation in Reinforcement Learning/LLMxMapReduce"
+    },
+    {
+      "Outlier and Anomaly Detection Methods": "stat/Outlier and Anomaly Detection Methods/LLMxMapReduce"
+    },
+    {
+      "Predictive Uncertainty Estimation in Machine Learning": "stat/Predictive Uncertainty Estimation in Machine Learning/LLMxMapReduce"
+    },
+    {
+      "Recent Developments in Measures of Association": "stat/Recent Developments in Measures of Association/LLMxMapReduce"
+    },
+    {
+      "Scalable Automated Alignment of Large Language Models": "stat/Scalable Automated Alignment of Large Language Models/LLMxMapReduce"
+    },
+    {
+      "Statistical Theory of Deep Learning": "stat/Statistical Theory of Deep Learning/LLMxMapReduce"
+    },
+    {
+      "Variance-Gamma Distribution Theory": "stat/Variance-Gamma Distribution Theory/LLMxMapReduce"
+    }
+  ],
+  "vanilla": [
+    {
+      "3D Gaussian Splatting Techniques": "cs/3D Gaussian Splatting Techniques/vanilla"
+    },
+    {
+      "Agent-based Modeling and Simulation using Large Language Models": "cs/Agent-based Modeling and Simulation using Large Language Models/vanilla"
+    },
+    {
+      "Complexity of Learning Quantum States": "cs/Complexity of Learning Quantum States/vanilla"
+    },
+    {
+      "Data-Driven Co-Speech Gesture Generation": "cs/Data-Driven Co-Speech Gesture Generation/vanilla"
+    },
+    {
+      "Efficient Serving of Generative Large Language Models": "cs/Efficient Serving of Generative Large Language Models/vanilla"
+    },
+    {
+      "Integrated Sensing and Communication for 5G_6G Networks": "cs/Integrated Sensing and Communication for 5G_6G Networks/vanilla"
+    },
+    {
+      "Large Language Model Based Multi-Agent Systems": "cs/Large Language Model Based Multi-Agent Systems/vanilla"
+    },
+    {
+      "Natural Language to Code Generation with Large Language Models": "cs/Natural Language to Code Generation with Large Language Models/vanilla"
+    },
+    {
+      "Optimization Techniques for Transformer Inference": "cs/Optimization Techniques for Transformer Inference/vanilla"
+    },
+    {
+      "Physics-Informed Machine Learning Applications and Methods": "cs/Physics-Informed Machine Learning Applications and Methods/vanilla"
+    },
+    {
+      "AI Automation and Its Potential for Explosive Economic Growth": "econ/AI Automation and Its Potential for Explosive Economic Growth/vanilla"
+    },
+    {
+      "Bayesian Forecasting in Economics and Finance": "econ/Bayesian Forecasting in Economics and Finance/vanilla"
+    },
+    {
+      "Business Process Management Systems in Organizational Contexts": "econ/Business Process Management Systems in Organizational Contexts/vanilla"
+    },
+    {
+      "Causal Modeling for Longitudinal and Panel Data": "econ/Causal Modeling for Longitudinal and Panel Data/vanilla"
+    },
+    {
+      "ChatGPT Applications in Accounting and Finance Research": "econ/ChatGPT Applications in Accounting and Finance Research/vanilla"
+    },
+    {
+      "Computational Social Choice and Preference Restrictions": "econ/Computational Social Choice and Preference Restrictions/vanilla"
+    },
+    {
+      "Environmental Impact of Virgin Aggregates and Life Cycle Assessments": "econ/Environmental Impact of Virgin Aggregates and Life Cycle Assessments/vanilla"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "econ/High-Value Datasets for Data-Driven Development/vanilla"
+    },
+    {
+      "Datasets for Advanced Bankruptcy Prediction": "econ/Datasets for Advanced Bankruptcy Prediction/vanilla"
+    },
+    {
+      "Statistical Testing for Explosive Financial Bubbles": "econ/Statistical Testing for Explosive Financial Bubbles/vanilla"
+    },
+    {
+      "Advances in Speech Language Models": "eess/Advances in Speech Language Models/vanilla"
+    },
+    {
+      "All-in-One Image Restoration": "eess/All-in-One Image Restoration/vanilla"
+    },
+    {
+      "BERT and CTC Transformers for ASR": "eess/BERT and CTC Transformers for ASR/vanilla"
+    },
+    {
+      "Data Assessment for Instruction Tuning": "eess/Data Assessment for Instruction Tuning/vanilla"
+    },
+    {
+      "Foundation Models for Music": "eess/Foundation Models for Music/vanilla"
+    },
+    {
+      "Hallucination in Multimodal Foundation Models": "eess/Hallucination in Multimodal Foundation Models/vanilla"
+    },
+    {
+      "Next Token Prediction in Multimodal Intelligence": "eess/Next Token Prediction in Multimodal Intelligence/vanilla"
+    },
+    {
+      "Preference Tuning with Human Feedback": "eess/Preference Tuning with Human Feedback/vanilla"
+    },
+    {
+      "Spoken Dialogue Models": "eess/Spoken Dialogue Models/vanilla"
+    },
+    {
+      "UAV Avionics Systems Architecture": "eess/UAV Avionics Systems Architecture/vanilla"
+    },
+    {
+      "Beam Management for mmWave and THz Communications in 6G": "math/Beam Management for mmWave and THz Communications in 6G/vanilla"
+    },
+    {
+      "Blockchain and AI for 6G Wireless Communications": "math/Blockchain and AI for 6G Wireless Communications/vanilla"
+    },
+    {
+      "Contextual Optimization under Uncertainty": "math/Contextual Optimization under Uncertainty/vanilla"
+    },
+    {
+      "Data-Driven Control of Nonlinear Systems via Semidefinite Programming": "math/Data-Driven Control of Nonlinear Systems via Semidefinite Programming/vanilla"
+    },
+    {
+      "Integrated Sensing and Communication for 5G-A and 6G": "math/Integrated Sensing and Communication for 5G-A and 6G/vanilla"
+    },
+    {
+      "Multiple Access Techniques for Intelligent 6G Networks": "math/Multiple Access Techniques for Intelligent 6G Networks/vanilla"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "math/Off-Policy Evaluation in Reinforcement Learning/vanilla"
+    },
+    {
+      "Optimization Methods for Wireless Communications": "math/Optimization Methods for Wireless Communications/vanilla"
+    },
+    {
+      "Predictive Uncertainty Estimation with Machine Learning": "math/Predictive Uncertainty Estimation with Machine Learning/vanilla"
+    },
+    {
+      "Vectorization Techniques in Topological Data Analysis": "math/Vectorization Techniques in Topological Data Analysis/vanilla"
+    },
+    {
+      "Bandgap Engineering in Phononic Crystals": "physics/Bandgap Engineering in Phononic Crystals/vanilla"
+    },
+    {
+      "Regular Black Holes": "physics/Regular Black Holes/vanilla"
+    },
+    {
+      "Conductive 2D Material Coatings for Electronics": "physics/Conductive 2D Material Coatings for Electronics/vanilla"
+    },
+    {
+      "Earthquake Hazards in Mountain Regions": "physics/Earthquake Hazards in Mountain Regions/vanilla"
+    },
+    {
+      "Hydrogen Trapping and Embrittlement in Metals": "physics/Hydrogen Trapping and Embrittlement in Metals/vanilla"
+    },
+    {
+      "Machine Learning for Aircraft Performance": "physics/Machine Learning for Aircraft Performance/vanilla"
+    },
+    {
+      "Modeling Thermodynamic Properties of Deep Eutectic Solvents": "physics/Modeling Thermodynamic Properties of Deep Eutectic Solvents/vanilla"
+    },
+    {
+      "Phase Field Modeling and Simulation": "physics/Phase Field Modeling and Simulation/vanilla"
+    },
+    {
+      "Proton-Conducting Zirconates in Hydrogen Devices": "physics/Proton-Conducting Zirconates in Hydrogen Devices/vanilla"
+    },
+    {
+      "Topological Photonics Across Dimensions": "physics/Topological Photonics Across Dimensions/vanilla"
+    },
+    {
+      "Adaptive Therapy in Oncology": "q-bio/Adaptive Therapy in Oncology/vanilla"
+    },
+    {
+      "AI in Schizophrenia Diagnosis via EEG": "q-bio/AI in Schizophrenia Diagnosis via EEG/vanilla"
+    },
+    {
+      "Bias in EHR-Based AI Models": "q-bio/Bias in EHR-Based AI Models/vanilla"
+    },
+    {
+      "Deep Learning for Small Molecule Discovery": "q-bio/Deep Learning for Small Molecule Discovery/vanilla"
+    },
+    {
+      "Generative AI for Drug Design": "q-bio/Generative AI for Drug Design/vanilla"
+    },
+    {
+      "Graph Neural Networks for EEG Analysis": "q-bio/Graph Neural Networks for EEG Analysis/vanilla"
+    },
+    {
+      "Large Language Models in Chemistry": "q-bio/Large Language Models in Chemistry/vanilla"
+    },
+    {
+      "Neurotrophic Effects of Interventions": "q-bio/Neurotrophic Effects of Interventions/vanilla"
+    },
+    {
+      "Phage Classification Tools": "q-bio/Phage Classification Tools/vanilla"
+    },
+    {
+      "Transcriptomics to Gene Regulatory Networks": "q-bio/Transcriptomics to Gene Regulatory Networks/vanilla"
+    },
+    {
+      "ChatGPT Research in Accounting and Finance": "q-fin/ChatGPT Research in Accounting and Finance/vanilla"
+    },
+    {
+      "Continuous Volatility Modeling": "q-fin/Continuous Volatility Modeling/vanilla"
+    },
+    {
+      "Deep Learning Techniques for Stock Market Prediction": "q-fin/Deep Learning Techniques for Stock Market Prediction/vanilla"
+    },
+    {
+      "Economic Expectations of Generative AI": "q-fin/Economic Expectations of Generative AI/vanilla"
+    },
+    {
+      "Environmental Impacts of Virgin Aggregates": "q-fin/Environmental Impacts of Virgin Aggregates/vanilla"
+    },
+    {
+      "Financial Applications of Large Language Models": "q-fin/Financial Applications of Large Language Models/vanilla"
+    },
+    {
+      "High-Value Datasets for Data-Driven Development": "q-fin/High-Value Datasets for Data-Driven Development/vanilla"
+    },
+    {
+      "Large Language Models in Finance": "q-fin/Large Language Models in Finance/vanilla"
+    },
+    {
+      "Quantum Computing Applications in Finance": "q-fin/Quantum Computing Applications in Finance/vanilla"
+    },
+    {
+      "Yield Farming Protocols in Blockchain": "q-fin/Yield Farming Protocols in Blockchain/vanilla"
+    },
+    {
+      "Barren Plateaus in Variational Quantum Computing": "stat/Barren Plateaus in Variational Quantum Computing/vanilla"
+    },
+    {
+      "Distributed Statistical Inference": "stat/Distributed Statistical Inference/vanilla"
+    },
+    {
+      "Numerical Algorithms for Lasso Problems": "stat/Numerical Algorithms for Lasso Problems/vanilla"
+    },
+    {
+      "Off-Policy Evaluation in Reinforcement Learning": "stat/Off-Policy Evaluation in Reinforcement Learning/vanilla"
+    },
+    {
+      "Outlier and Anomaly Detection Methods": "stat/Outlier and Anomaly Detection Methods/vanilla"
+    },
+    {
+      "Predictive Uncertainty Estimation in Machine Learning": "stat/Predictive Uncertainty Estimation in Machine Learning/vanilla"
+    },
+    {
+      "Recent Developments in Measures of Association": "stat/Recent Developments in Measures of Association/vanilla"
+    },
+    {
+      "Scalable Automated Alignment of Large Language Models": "stat/Scalable Automated Alignment of Large Language Models/vanilla"
+    },
+    {
+      "Statistical Theory of Deep Learning": "stat/Statistical Theory of Deep Learning/vanilla"
+    },
+    {
+      "Variance-Gamma Distribution Theory": "stat/Variance-Gamma Distribution Theory/vanilla"
+    }
+  ]
+}

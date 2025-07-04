@@ -1,0 +1,194 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Scope and Organization"
+  ],
+  [
+    1,
+    "2 Background on Wireless Communications"
+  ],
+  [
+    2,
+    "2.1 Fundamentals of Wireless Systems"
+  ],
+  [
+    3,
+    "2.1.1 Channel Models"
+  ],
+  [
+    3,
+    "2.1.2 Resource Allocation Challenges"
+  ],
+  [
+    2,
+    "2.2 Optimization in Wireless Networks"
+  ],
+  [
+    3,
+    "2.2.1 Types of Optimization Problems"
+  ],
+  [
+    3,
+    "2.2.2 Key Performance Metrics"
+  ],
+  [
+    1,
+    "3 Overview of Optimization Methods"
+  ],
+  [
+    2,
+    "3.1 Classical Optimization Techniques"
+  ],
+  [
+    3,
+    "3.1.1 Linear Programming"
+  ],
+  [
+    3,
+    "3.1.2 Convex Optimization"
+  ],
+  [
+    2,
+    "3.2 Modern Heuristic Algorithms"
+  ],
+  [
+    3,
+    "3.2.1 Genetic Algorithms"
+  ],
+  [
+    3,
+    "3.2.2 Particle Swarm Optimization"
+  ],
+  [
+    2,
+    "3.3 Machine Learning-Based Approaches"
+  ],
+  [
+    3,
+    "3.3.1 Reinforcement Learning"
+  ],
+  [
+    3,
+    "3.3.2 Deep Learning for Optimization"
+  ],
+  [
+    1,
+    "4 Applications in Wireless Communications"
+  ],
+  [
+    2,
+    "4.1 Power Control Optimization"
+  ],
+  [
+    3,
+    "4.1.1 Energy Efficiency in 5G Networks"
+  ],
+  [
+    3,
+    "4.1.2 Interference Management"
+  ],
+  [
+    2,
+    "4.2 Spectrum Allocation"
+  ],
+  [
+    3,
+    "4.2.1 Cognitive Radio Systems"
+  ],
+  [
+    3,
+    "4.2.2 Dynamic Spectrum Access"
+  ],
+  [
+    2,
+    "4.3 Multi-User MIMO Systems"
+  ],
+  [
+    3,
+    "4.3.1 Beamforming Optimization"
+  ],
+  [
+    3,
+    "4.3.2 User Scheduling"
+  ],
+  [
+    1,
+    "5 Comparative Analysis of Optimization Methods"
+  ],
+  [
+    2,
+    "5.1 Strengths and Limitations"
+  ],
+  [
+    3,
+    "5.1.1 Computational Complexity"
+  ],
+  [
+    3,
+    "5.1.2 Scalability"
+  ],
+  [
+    2,
+    "5.2 Suitability for Different Scenarios"
+  ],
+  [
+    3,
+    "5.2.1 High-Density Networks"
+  ],
+  [
+    3,
+    "5.2.2 IoT Applications"
+  ],
+  [
+    1,
+    "6 Discussion and Open Research Issues"
+  ],
+  [
+    2,
+    "6.1 Challenges in Practical Deployment"
+  ],
+  [
+    3,
+    "6.1.1 Real-Time Constraints"
+  ],
+  [
+    3,
+    "6.1.2 Hardware Limitations"
+  ],
+  [
+    2,
+    "6.2 Emerging Trends"
+  ],
+  [
+    3,
+    "6.2.1 AI-Driven Optimization"
+  ],
+  [
+    3,
+    "6.2.2 Beyond 5G Networks"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Findings"
+  ],
+  [
+    2,
+    "7.2 Future Directions"
+  ]
+]

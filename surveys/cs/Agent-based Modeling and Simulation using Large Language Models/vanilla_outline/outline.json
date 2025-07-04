@@ -1,0 +1,154 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Structure of the Paper"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Agent-based Modeling Fundamentals"
+  ],
+  [
+    3,
+    "2.1.1 Definition and Key Concepts"
+  ],
+  [
+    3,
+    "2.1.2 Applications of Agent-based Modeling"
+  ],
+  [
+    2,
+    "2.2 Large Language Models Overview"
+  ],
+  [
+    3,
+    "2.2.1 Architecture and Training"
+  ],
+  [
+    3,
+    "2.2.2 Capabilities and Limitations"
+  ],
+  [
+    1,
+    "3 Integration of LLMs in Agent-based Modeling"
+  ],
+  [
+    2,
+    "3.1 Role of LLMs in Agents' Decision-making"
+  ],
+  [
+    3,
+    "3.1.1 Natural Language Processing for Communication"
+  ],
+  [
+    3,
+    "3.1.2 Knowledge Representation and Reasoning"
+  ],
+  [
+    2,
+    "3.2 Simulation Environments Enhanced by LLMs"
+  ],
+  [
+    3,
+    "3.2.1 Dynamic Environment Generation"
+  ],
+  [
+    3,
+    "3.2.2 Real-time Adaptation"
+  ],
+  [
+    2,
+    "3.3 Challenges in Integration"
+  ],
+  [
+    3,
+    "3.3.1 Scalability Issues"
+  ],
+  [
+    3,
+    "3.3.2 Ethical Considerations"
+  ],
+  [
+    1,
+    "4 State-of-the-Art Applications"
+  ],
+  [
+    2,
+    "4.1 Social Systems Modeling"
+  ],
+  [
+    3,
+    "4.1.1 Political Simulations"
+  ],
+  [
+    3,
+    "4.1.2 Economic Behavior Analysis"
+  ],
+  [
+    2,
+    "4.2 Healthcare and Epidemiology"
+  ],
+  [
+    3,
+    "4.2.1 Disease Spread Prediction"
+  ],
+  [
+    3,
+    "4.2.2 Patient Interaction Simulations"
+  ],
+  [
+    2,
+    "4.3 Environmental Studies"
+  ],
+  [
+    3,
+    "4.3.1 Climate Change Impact Assessment"
+  ],
+  [
+    3,
+    "4.3.2 Ecosystem Dynamics"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Strengths and Weaknesses of Current Approaches"
+  ],
+  [
+    2,
+    "5.2 Future Research Directions"
+  ],
+  [
+    2,
+    "5.3 Broader Implications"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Findings"
+  ],
+  [
+    2,
+    "6.2 Final Remarks"
+  ]
+]

@@ -1,0 +1,174 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Research Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Structure of the Paper"
+  ],
+  [
+    1,
+    "2 Background on Bankruptcy Prediction"
+  ],
+  [
+    2,
+    "2.1 Traditional Methods in Bankruptcy Prediction"
+  ],
+  [
+    3,
+    "2.1.1 Statistical Models"
+  ],
+  [
+    3,
+    "2.1.2 Expert Systems"
+  ],
+  [
+    2,
+    "2.2 Role of Data in Prediction Models"
+  ],
+  [
+    3,
+    "2.2.1 Data Quality and Quantity"
+  ],
+  [
+    3,
+    "2.2.2 Feature Engineering in Financial Data"
+  ],
+  [
+    1,
+    "3 Overview of Datasets for Bankruptcy Prediction"
+  ],
+  [
+    2,
+    "3.1 Characteristics of Bankruptcy Prediction Datasets"
+  ],
+  [
+    3,
+    "3.1.1 Temporal Dynamics in Financial Data"
+  ],
+  [
+    3,
+    "3.1.2 Imbalanced Class Distribution"
+  ],
+  [
+    2,
+    "3.2 Commonly Used Datasets"
+  ],
+  [
+    3,
+    "3.2.1 Altman's Dataset"
+  ],
+  [
+    3,
+    "3.2.2 Taiwanese Credit Dataset"
+  ],
+  [
+    3,
+    "3.2.3 Global Corporate Datasets"
+  ],
+  [
+    1,
+    "4 Advanced Datasets and Their Features"
+  ],
+  [
+    2,
+    "4.1 Machine Learning-Oriented Datasets"
+  ],
+  [
+    3,
+    "4.1.1 High-Dimensional Financial Features"
+  ],
+  [
+    3,
+    "4.1.2 Time-Series Datasets"
+  ],
+  [
+    2,
+    "4.2 Big Data and Alternative Data Sources"
+  ],
+  [
+    3,
+    "4.2.1 Social Media and News Sentiment Data"
+  ],
+  [
+    3,
+    "4.2.2 Transactional and Behavioral Data"
+  ],
+  [
+    1,
+    "5 Challenges in Using Datasets for Bankruptcy Prediction"
+  ],
+  [
+    2,
+    "5.1 Data Privacy and Security Issues"
+  ],
+  [
+    3,
+    "5.1.1 Legal and Ethical Considerations"
+  ],
+  [
+    3,
+    "5.1.2 Anonymization Techniques"
+  ],
+  [
+    2,
+    "5.2 Data Integration and Standardization"
+  ],
+  [
+    3,
+    "5.2.1 Cross-Industry Data Compatibility"
+  ],
+  [
+    3,
+    "5.2.2 Handling Missing Values"
+  ],
+  [
+    1,
+    "6 Discussion: Future Directions in Dataset Development"
+  ],
+  [
+    2,
+    "6.1 Emerging Trends in Data Collection"
+  ],
+  [
+    3,
+    "6.1.1 Real-Time Financial Data Streams"
+  ],
+  [
+    3,
+    "6.1.2 Blockchain-Based Financial Records"
+  ],
+  [
+    2,
+    "6.2 Potential Improvements in Dataset Design"
+  ],
+  [
+    3,
+    "6.2.1 Enhanced Labeling Techniques"
+  ],
+  [
+    3,
+    "6.2.2 Incorporating Macro-Economic Indicators"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for Practitioners and Researchers"
+  ]
+]

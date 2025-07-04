@@ -1,0 +1,166 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Structure of the Paper"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Basics of Quantum Mechanics"
+  ],
+  [
+    3,
+    "2.1.1 Quantum States and Representations"
+  ],
+  [
+    3,
+    "2.1.2 Measurement and Superposition"
+  ],
+  [
+    2,
+    "2.2 Learning Theory Fundamentals"
+  ],
+  [
+    3,
+    "2.2.1 PAC Learning Framework"
+  ],
+  [
+    3,
+    "2.2.2 Computational Complexity in Learning"
+  ],
+  [
+    1,
+    "3 Complexity of Learning Quantum States"
+  ],
+  [
+    2,
+    "3.1 Classical vs Quantum Learning Paradigms"
+  ],
+  [
+    3,
+    "3.1.1 Challenges in Classical Simulation of Quantum Systems"
+  ],
+  [
+    3,
+    "3.1.2 Advantages of Quantum Learning Algorithms"
+  ],
+  [
+    2,
+    "3.2 Sample Complexity"
+  ],
+  [
+    3,
+    "3.2.1 Efficient Shadow Tomography"
+  ],
+  [
+    3,
+    "3.2.2 Query-Based Models for Quantum State Learning"
+  ],
+  [
+    2,
+    "3.3 Time Complexity"
+  ],
+  [
+    3,
+    "3.3.1 Scalability of Quantum Algorithms"
+  ],
+  [
+    3,
+    "3.3.2 Trade-offs Between Resources and Accuracy"
+  ],
+  [
+    1,
+    "4 Recent Advances and Techniques"
+  ],
+  [
+    2,
+    "4.1 Variational Quantum Algorithms"
+  ],
+  [
+    3,
+    "4.1.1 Quantum Neural Networks"
+  ],
+  [
+    3,
+    "4.1.2 Parameterized Quantum Circuits"
+  ],
+  [
+    2,
+    "4.2 Hybrid Quantum-Classical Approaches"
+  ],
+  [
+    3,
+    "4.2.1 Optimization Methods for Learning Quantum States"
+  ],
+  [
+    3,
+    "4.2.2 Error Mitigation Strategies"
+  ],
+  [
+    1,
+    "5 Applications and Implications"
+  ],
+  [
+    2,
+    "5.1 Quantum Machine Learning"
+  ],
+  [
+    3,
+    "5.1.1 Classification of Quantum Data"
+  ],
+  [
+    3,
+    "5.1.2 Clustering Quantum States"
+  ],
+  [
+    2,
+    "5.2 Quantum Cryptography"
+  ],
+  [
+    3,
+    "5.2.1 Key Distribution Protocols Based on Quantum States"
+  ],
+  [
+    3,
+    "5.2.2 Security Analysis Using Learning Models"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Open Problems and Research Directions"
+  ],
+  [
+    2,
+    "6.2 Theoretical Gaps in Current Literature"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Findings"
+  ],
+  [
+    2,
+    "7.2 Future Outlook"
+  ]
+]

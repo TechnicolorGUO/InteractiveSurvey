@@ -1,0 +1,182 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation for Using Large Language Models in Finance"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Literature Survey"
+  ],
+  [
+    2,
+    "1.3 Structure of the Paper"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Overview of Large Language Models (LLMs)"
+  ],
+  [
+    3,
+    "2.1.1 Architectures and Training Paradigms"
+  ],
+  [
+    3,
+    "2.1.2 Key Characteristics of LLMs"
+  ],
+  [
+    2,
+    "2.2 Financial Domain Context"
+  ],
+  [
+    3,
+    "2.2.1 Data Sources in Finance"
+  ],
+  [
+    3,
+    "2.2.2 Challenges in Applying AI to Finance"
+  ],
+  [
+    1,
+    "3 Applications of LLMs in Finance"
+  ],
+  [
+    2,
+    "3.1 Natural Language Processing (NLP) Tasks in Finance"
+  ],
+  [
+    3,
+    "3.1.1 Sentiment Analysis of News and Social Media"
+  ],
+  [
+    3,
+    "3.1.2 Information Extraction from Financial Reports"
+  ],
+  [
+    2,
+    "3.2 Trading and Investment Strategies"
+  ],
+  [
+    3,
+    "3.2.1 Market Prediction Using Textual Data"
+  ],
+  [
+    3,
+    "3.2.2 Portfolio Management with LLM Insights"
+  ],
+  [
+    2,
+    "3.3 Risk Management and Compliance"
+  ],
+  [
+    3,
+    "3.3.1 Fraud Detection through Anomaly Identification"
+  ],
+  [
+    3,
+    "3.3.2 Regulatory Text Interpretation"
+  ],
+  [
+    1,
+    "4 Technical Considerations"
+  ],
+  [
+    2,
+    "4.1 Fine-Tuning LLMs for Financial Use Cases"
+  ],
+  [
+    3,
+    "4.1.1 Domain-Specific Pretraining"
+  ],
+  [
+    3,
+    "4.1.2 Transfer Learning Approaches"
+  ],
+  [
+    2,
+    "4.2 Evaluation Metrics for Financial Applications"
+  ],
+  [
+    3,
+    "4.2.1 Accuracy and Precision"
+  ],
+  [
+    3,
+    "4.2.2 Economic Impact Measures"
+  ],
+  [
+    1,
+    "5 Challenges and Limitations"
+  ],
+  [
+    2,
+    "5.1 Data Privacy and Security Concerns"
+  ],
+  [
+    3,
+    "5.1.1 Handling Sensitive Financial Information"
+  ],
+  [
+    3,
+    "5.1.2 Legal and Ethical Implications"
+  ],
+  [
+    2,
+    "5.2 Bias and Fairness Issues"
+  ],
+  [
+    3,
+    "5.2.1 Historical Data Bias in Financial Models"
+  ],
+  [
+    3,
+    "5.2.2 Mitigation Techniques"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Current Trends in LLMs for Finance"
+  ],
+  [
+    3,
+    "6.1.1 Multimodal Models"
+  ],
+  [
+    3,
+    "6.1.2 Real-Time Processing Capabilities"
+  ],
+  [
+    2,
+    "6.2 Future Research Directions"
+  ],
+  [
+    3,
+    "6.2.1 Integration with Other AI Technologies"
+  ],
+  [
+    3,
+    "6.2.2 Exploring New Financial Datasets"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for Practitioners and Researchers"
+  ]
+]

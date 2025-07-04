@@ -1,0 +1,194 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation and Importance"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Scope and Structure"
+  ],
+  [
+    1,
+    "2 Background on Generative AI"
+  ],
+  [
+    2,
+    "2.1 Fundamentals of Generative Models"
+  ],
+  [
+    3,
+    "2.1.1 Generative Adversarial Networks (GANs)"
+  ],
+  [
+    3,
+    "2.1.2 Variational Autoencoders (VAEs)"
+  ],
+  [
+    3,
+    "2.1.3 Transformer-Based Models"
+  ],
+  [
+    2,
+    "2.2 Evolution and Current State of Generative AI"
+  ],
+  [
+    3,
+    "2.2.1 Historical Development"
+  ],
+  [
+    3,
+    "2.2.2 Recent Advances and Milestones"
+  ],
+  [
+    1,
+    "3 Economic Impact of Generative AI"
+  ],
+  [
+    2,
+    "3.1 Productivity and Efficiency Gains"
+  ],
+  [
+    3,
+    "3.1.1 Automation in Creative Industries"
+  ],
+  [
+    3,
+    "3.1.2 Cost Reduction in Data-Driven Processes"
+  ],
+  [
+    2,
+    "3.2 Market Dynamics and Competition"
+  ],
+  [
+    3,
+    "3.2.1 New Business Models Enabled by Generative AI"
+  ],
+  [
+    3,
+    "3.2.2 Disruption of Traditional Markets"
+  ],
+  [
+    2,
+    "3.3 Employment and Labor Market Effects"
+  ],
+  [
+    3,
+    "3.3.1 Job Creation and Transformation"
+  ],
+  [
+    3,
+    "3.3.2 Risks of Job Displacement"
+  ],
+  [
+    1,
+    "4 Challenges and Limitations"
+  ],
+  [
+    2,
+    "4.1 Technical Constraints"
+  ],
+  [
+    3,
+    "4.1.1 Computational Requirements"
+  ],
+  [
+    3,
+    "4.1.2 Data Quality and Quantity"
+  ],
+  [
+    2,
+    "4.2 Ethical and Societal Concerns"
+  ],
+  [
+    3,
+    "4.2.1 Bias and Fairness Issues"
+  ],
+  [
+    3,
+    "4.2.2 Intellectual Property and Ownership"
+  ],
+  [
+    2,
+    "4.3 Economic Inequality Risks"
+  ],
+  [
+    3,
+    "4.3.1 Access to Generative AI Technologies"
+  ],
+  [
+    3,
+    "4.3.2 Widening Digital Divide"
+  ],
+  [
+    1,
+    "5 Case Studies and Applications"
+  ],
+  [
+    2,
+    "5.1 Generative AI in Content Creation"
+  ],
+  [
+    3,
+    "5.1.1 Text Generation and Natural Language Processing"
+  ],
+  [
+    3,
+    "5.1.2 Image and Video Synthesis"
+  ],
+  [
+    2,
+    "5.2 Generative AI in Healthcare"
+  ],
+  [
+    3,
+    "5.2.1 Drug Discovery and Molecular Design"
+  ],
+  [
+    3,
+    "5.2.2 Medical Imaging and Diagnostics"
+  ],
+  [
+    2,
+    "5.3 Generative AI in Finance"
+  ],
+  [
+    3,
+    "5.3.1 Algorithmic Trading and Risk Management"
+  ],
+  [
+    3,
+    "5.3.2 Fraud Detection and Prevention"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Balancing Innovation and Regulation"
+  ],
+  [
+    2,
+    "6.2 Future Research Directions"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for Policymakers and Practitioners"
+  ]
+]

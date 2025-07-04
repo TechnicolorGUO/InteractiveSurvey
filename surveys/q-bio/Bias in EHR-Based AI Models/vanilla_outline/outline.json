@@ -1,0 +1,190 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Background on EHR-Based AI Models"
+  ],
+  [
+    2,
+    "1.2 Importance of Addressing Bias"
+  ],
+  [
+    2,
+    "1.3 Objectives of the Survey"
+  ],
+  [
+    1,
+    "2 Literature Review Framework"
+  ],
+  [
+    2,
+    "2.1 Scope and Definitions"
+  ],
+  [
+    2,
+    "2.2 Methodology for Selection of Studies"
+  ],
+  [
+    1,
+    "3 Sources of Bias in EHR Data"
+  ],
+  [
+    2,
+    "3.1 Demographic Bias"
+  ],
+  [
+    3,
+    "3.1.1 Underrepresentation of Minorities"
+  ],
+  [
+    3,
+    "3.1.2 Gender Disparities"
+  ],
+  [
+    2,
+    "3.2 Clinical Documentation Bias"
+  ],
+  [
+    3,
+    "3.2.1 Inconsistent Recording Practices"
+  ],
+  [
+    3,
+    "3.2.2 Subjectivity in Notes"
+  ],
+  [
+    2,
+    "3.3 Algorithmic Bias"
+  ],
+  [
+    3,
+    "3.3.1 Training Data Imbalance"
+  ],
+  [
+    3,
+    "3.3.2 Model Architecture Limitations"
+  ],
+  [
+    1,
+    "4 Approaches to Mitigate Bias"
+  ],
+  [
+    2,
+    "4.1 Preprocessing Techniques"
+  ],
+  [
+    3,
+    "4.1.1 Data Augmentation"
+  ],
+  [
+    3,
+    "4.1.2 Rebalancing Datasets"
+  ],
+  [
+    2,
+    "4.2 Model-Level Interventions"
+  ],
+  [
+    3,
+    "4.2.1 Regularization Methods"
+  ],
+  [
+    3,
+    "4.2.2 Fairness-Constrained Optimization"
+  ],
+  [
+    2,
+    "4.3 Postprocessing Adjustments"
+  ],
+  [
+    3,
+    "4.3.1 Calibration of Predictions"
+  ],
+  [
+    3,
+    "4.3.2 Outcome Adjustment Strategies"
+  ],
+  [
+    1,
+    "5 Evaluation Metrics for Bias Assessment"
+  ],
+  [
+    2,
+    "5.1 Quantitative Metrics"
+  ],
+  [
+    3,
+    "5.1.1 Statistical Parity Difference"
+  ],
+  [
+    3,
+    "5.1.2 Equal Opportunity Difference"
+  ],
+  [
+    2,
+    "5.2 Qualitative Analysis"
+  ],
+  [
+    3,
+    "5.2.1 Case Studies in Healthcare"
+  ],
+  [
+    3,
+    "5.2.2 Stakeholder Feedback"
+  ],
+  [
+    1,
+    "6 Ethical Considerations"
+  ],
+  [
+    2,
+    "6.1 Transparency in AI Systems"
+  ],
+  [
+    3,
+    "6.1.1 Explainability of EHR-Based Models"
+  ],
+  [
+    3,
+    "6.1.2 Audit Trails for Decision-Making"
+  ],
+  [
+    2,
+    "6.2 Accountability and Governance"
+  ],
+  [
+    3,
+    "6.2.1 Regulatory Standards"
+  ],
+  [
+    3,
+    "6.2.2 Liability Frameworks"
+  ],
+  [
+    1,
+    "7 Discussion"
+  ],
+  [
+    2,
+    "7.1 Current Gaps in Research"
+  ],
+  [
+    2,
+    "7.2 Future Directions"
+  ],
+  [
+    1,
+    "8 Conclusion"
+  ],
+  [
+    2,
+    "8.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "8.2 Implications for Practice"
+  ]
+]

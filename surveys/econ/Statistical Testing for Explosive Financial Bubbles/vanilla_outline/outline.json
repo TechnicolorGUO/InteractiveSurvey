@@ -1,0 +1,150 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Structure of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Financial Bubbles: Definitions and Characteristics"
+  ],
+  [
+    2,
+    "2.2 Importance of Statistical Testing in Bubble Detection"
+  ],
+  [
+    2,
+    "2.3 Historical Context of Bubble Analysis"
+  ],
+  [
+    1,
+    "3 Statistical Methods for Bubble Detection"
+  ],
+  [
+    2,
+    "3.1 Early Warning Indicators"
+  ],
+  [
+    3,
+    "3.1.1 Log-Periodic Power Law Models"
+  ],
+  [
+    3,
+    "3.1.2 Detrended Fluctuation Analysis"
+  ],
+  [
+    2,
+    "3.2 Unit Root Tests"
+  ],
+  [
+    3,
+    "3.2.1 Phillips-Perron Test"
+  ],
+  [
+    3,
+    "3.2.2 Zivot-Andrews Test"
+  ],
+  [
+    2,
+    "3.3 Supra-Unit Root Tests"
+  ],
+  [
+    3,
+    "3.3.1 SADF (Supremum Augmented Dickey-Fuller) Test"
+  ],
+  [
+    3,
+    "3.3.2 GSADF (Generalized SADF) Test"
+  ],
+  [
+    1,
+    "4 Empirical Applications and Case Studies"
+  ],
+  [
+    2,
+    "4.1 Cryptocurrency Markets"
+  ],
+  [
+    3,
+    "4.1.1 Bitcoin Price Dynamics"
+  ],
+  [
+    3,
+    "4.1.2 Altcoin Bubble Analysis"
+  ],
+  [
+    2,
+    "4.2 Stock Market Bubbles"
+  ],
+  [
+    3,
+    "4.2.1 Dot-com Bubble of the Late 1990s"
+  ],
+  [
+    3,
+    "4.2.2 Recent Tech Sector Bubbles"
+  ],
+  [
+    2,
+    "4.3 Real Estate Bubbles"
+  ],
+  [
+    3,
+    "4.3.1 Housing Market Crises"
+  ],
+  [
+    3,
+    "4.3.2 Commercial Real Estate Speculation"
+  ],
+  [
+    1,
+    "5 Challenges and Limitations"
+  ],
+  [
+    2,
+    "5.1 Data Quality and Availability"
+  ],
+  [
+    2,
+    "5.2 Model Assumptions and Robustness"
+  ],
+  [
+    2,
+    "5.3 Overfitting and False Positives"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Implications for Policy Makers"
+  ],
+  [
+    2,
+    "6.2 Practical Applications for Investors"
+  ],
+  [
+    2,
+    "6.3 Future Research Directions"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ]
+]
