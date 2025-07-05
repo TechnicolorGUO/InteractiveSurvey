@@ -532,6 +532,9 @@ def upload_refs(request):
 
             print(f'Title-abstract pairs have been saved to {output_path}')
 
+            # 初始化 output_tsv_filename，确保它总是被定义
+            output_tsv_filename = "./src/static/data/tsv/" + new_file_name + '.tsv'
+
             if ref_paper_num>0:
 
                 print('The filenames are:', filenames)
@@ -545,8 +548,6 @@ def upload_refs(request):
                 input_pd["label"] = input_pd["reference paper category label (optional)"].apply(lambda x: str(x) if len(str(x))>0 else '')
 
                 try:
-                    output_tsv_filename = "./src/static/data/tsv/" + new_file_name + '.tsv'
-
                     output_df = input_pd[["ref_title","ref_context","ref_entry","abstract","intro"]]
 
                     if has_label_id == True:
@@ -555,8 +556,8 @@ def upload_refs(request):
                         output_df["label"]=[""]*input_pd.shape[0]
 
                     output_df.to_csv(output_tsv_filename, sep='\t')
-                except:
-                    print("Cannot output tsv")
+                except Exception as e:
+                    print(f"Cannot output tsv: {e}")
                     is_valid_submission = False
 
             else:
