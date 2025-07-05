@@ -9,6 +9,9 @@ from langchain_huggingface import HuggingFaceEmbeddings
 import time
 import concurrent.futures
 
+# 禁用 ChromaDB 遥测以避免错误信息
+os.environ['ANONYMIZED_TELEMETRY'] = 'False'
+
 # Singleton retriever to prevent multiple database connections
 class RetrieverSingleton:
     _instance = None
