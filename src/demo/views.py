@@ -47,7 +47,7 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from functools import wraps
 
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
-load_dotenv()
+load_dotenv(dotenv_path)
 # # 打印所有环境变量（可选，调试时使用）
 # print("所有环境变量:", os.environ)
 
@@ -129,6 +129,64 @@ Global_cluster_num = 4
 embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 from demo.category_and_tsne import clustering
+
+# 添加超时装饰器
+def timeout_handler(seconds):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            result = [None]
+            exception = [None]
+            
+            def target():
+                try:
+                    result[0] = func(*args, **kwargs)
+                except Exception as e:
+                    exception[0] = e
+            
+            thread = threading.Thread(target=target)
+            thread.daemon = True
+            thread.start()
+            thread.join(seconds)
+            
+            if thread.is_alive():
+                # 线程仍在运行，说明超时了
+                raise TimeoutError(f"Function {func.__name__} timed out after {seconds} seconds")
+            
+            if exception[0]:
+                raise exception[0]
+            
+            return result[0]
+        return wrapper
+    return decorator
+
+# 添加进度跟踪
+progress_tracker = {}
+
+def update_progress(operation_id, progress, message=""):
+    """更新操作进度"""
+    progress_tracker[operation_id] = {
+        'progress': progress,
+        'message': message,
+        'timestamp': time.time()
+    }
+    print(f"[{operation_id}] {progress}% - {message}")
+
+def get_progress(operation_id):
+    """获取操作进度"""
+    return progress_tracker.get(operation_id, {'progress': 0, 'message': 'Starting...', 'timestamp': time.time()})
+
+# 添加进度查询端点
+@csrf_exempt
+def get_operation_progress(request):
+    """获取操作进度的API端点"""
+    if request.method == 'GET':
+        operation_id = request.GET.get('operation_id')
+        if operation_id:
+            progress_info = get_progress(operation_id)
+            return JsonResponse(progress_info)
+        return JsonResponse({'error': 'operation_id is required'}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 class reference_collection(object):
     def __init__(
@@ -1459,61 +1517,3 @@ def cleanup_resources():
 # Register cleanup function for Django shutdown
 import atexit
 atexit.register(cleanup_resources)
-
-# 添加超时装饰器
-def timeout_handler(seconds):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            result = [None]
-            exception = [None]
-            
-            def target():
-                try:
-                    result[0] = func(*args, **kwargs)
-                except Exception as e:
-                    exception[0] = e
-            
-            thread = threading.Thread(target=target)
-            thread.daemon = True
-            thread.start()
-            thread.join(seconds)
-            
-            if thread.is_alive():
-                # 线程仍在运行，说明超时了
-                raise TimeoutError(f"Function {func.__name__} timed out after {seconds} seconds")
-            
-            if exception[0]:
-                raise exception[0]
-            
-            return result[0]
-        return wrapper
-    return decorator
-
-# 添加进度跟踪
-progress_tracker = {}
-
-def update_progress(operation_id, progress, message=""):
-    """更新操作进度"""
-    progress_tracker[operation_id] = {
-        'progress': progress,
-        'message': message,
-        'timestamp': time.time()
-    }
-    print(f"[{operation_id}] {progress}% - {message}")
-
-def get_progress(operation_id):
-    """获取操作进度"""
-    return progress_tracker.get(operation_id, {'progress': 0, 'message': 'Starting...', 'timestamp': time.time()})
-
-# 添加进度查询端点
-@csrf_exempt
-def get_operation_progress(request):
-    """获取操作进度的API端点"""
-    if request.method == 'GET':
-        operation_id = request.GET.get('operation_id')
-        if operation_id:
-            progress_info = get_progress(operation_id)
-            return JsonResponse(progress_info)
-        return JsonResponse({'error': 'operation_id is required'}, status=400)
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
