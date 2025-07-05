@@ -332,6 +332,35 @@ textarea {
             justify-content: center;
             z-index: 1000; /* 确保覆盖在最上层 */
         }
+
+  /* PDF预览容器样式 */
+  .pdf-container {
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .pdf-container iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
+  }
+
+  #pdf-preview-section {
+    margin-top: 40px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+
+  #pdf-preview-section h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
 </style>
 
 <!-- ===========================
@@ -897,6 +926,17 @@ FONTS & ICONS
 	</script>
 
 	<div class="col-md-12" style="display: none" id="references"></div>
+
+	<!-- ===========================
+     PDF Preview Section
+    ============================ -->
+	<div class="col-md-12" style="display: none" id="pdf-preview-section">
+		<hr class="firsthr">
+		<h2 align="left"><span class="fas fa-file-pdf"></span> PDF Preview</h2>
+		<div class="pdf-container" id="pdf-preview-container">
+			<iframe id="pdf-preview-frame" src="" style="width: 100%; height: 600px; border: 1px solid #ddd;"></iframe>
+		</div>
+	</div>
 
 
 </div><!--container end-->
@@ -1700,6 +1740,18 @@ function select_sections() {
 						document.body.appendChild(link);
 						link.click();
 						document.body.removeChild(link);
+						
+						// 显示PDF预览
+						var pdfUrl = window.URL.createObjectURL(blob);
+						document.getElementById('pdf-preview-frame').src = pdfUrl;
+						document.getElementById('pdf-preview-section').style.display = 'block';
+						
+						// 滚动到预览区域
+						document.getElementById('pdf-preview-section').scrollIntoView({
+							behavior: 'smooth',
+							block: 'start'
+						});
+						
 						alert('PDF downloaded successfully!, Now you can download LaTeX version');
 					} else {
 						alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
@@ -1742,6 +1794,18 @@ function select_sections() {
 								document.body.appendChild(link);
 								link.click();
 								document.body.removeChild(link);
+								
+								// 显示PDF预览
+								var pdfUrl = window.URL.createObjectURL(blob);
+								document.getElementById('pdf-preview-frame').src = pdfUrl;
+								document.getElementById('pdf-preview-section').style.display = 'block';
+								
+								// 滚动到预览区域
+								document.getElementById('pdf-preview-section').scrollIntoView({
+									behavior: 'smooth',
+									block: 'start'
+								});
+								
 								alert('PDF downloaded successfully!');
 							} else {
 								alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
