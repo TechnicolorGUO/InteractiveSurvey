@@ -827,9 +827,26 @@ def automatic_taxonomy(request):
         update_progress(operation_id, 10, "Loading reference data...")
         
         if request.method == 'POST':
-            data = json.loads(request.body)
-            n_clusters = data.get('n_clusters', 5)
-            survey_id = data.get('survey_id', Global_survey_id)
+            # 处理不同的请求格式
+            try:
+                # 尝试解析 JSON 数据
+                if request.content_type == 'application/json':
+                    data = json.loads(request.body)
+                    n_clusters = data.get('n_clusters', 5)
+                    survey_id = data.get('survey_id', Global_survey_id)
+                else:
+                    # 处理 form-data 格式
+                    n_clusters = int(request.POST.get('Global_cluster_num', 5))
+                    survey_id = Global_survey_id
+                    
+            except (json.JSONDecodeError, ValueError) as e:
+                # 如果 JSON 解析失败，尝试 form-data
+                try:
+                    n_clusters = int(request.POST.get('Global_cluster_num', 5))
+                    survey_id = Global_survey_id
+                except (ValueError, TypeError):
+                    n_clusters = 5
+                    survey_id = Global_survey_id
             
             update_progress(operation_id, 20, "Setting up clustering...")
             
@@ -888,13 +905,40 @@ def automatic_taxonomy(request):
                     # 创建outline生成器
                     outline_generator = OutlineGenerator(df, Global_collection_names_clustered, mode='desp')
                     
+                    # 准备前端需要的响应数据
+                    colors = []
+                    category_label = []
+                    ref_titles = []
+                    ref_indexs = []
+                    
+                    # 生成颜色和分类信息
+                    import matplotlib.pyplot as plt
+                    import seaborn as sns
+                    palette = sns.color_palette(sns.hls_palette(len(Global_collection_names_clustered), l=0.4, s=.8)).as_hex()
+                    
+                    for i, cluster in enumerate(Global_collection_names_clustered):
+                        colors.append(palette[i] if i < len(palette) else '#000000')
+                        category_label.append(f'Cluster {i+1}')
+                        
+                        # 获取该聚类的引用标题和索引
+                        cluster_titles = []
+                        cluster_indices = []
+                        for j, ref_name in enumerate(cluster):
+                            cluster_titles.append(ref_name)
+                            cluster_indices.append(j)  # 使用相对索引
+                        
+                        ref_titles.append(cluster_titles)
+                        ref_indexs.append(cluster_indices)
+                    
                     update_progress(operation_id, 100, "Taxonomy generation completed!")
                     
                     response_data = {
-                        'message': 'Automatic taxonomy completed successfully',
-                        'n_clusters': n_clusters,
+                        'colors': colors,
+                        'category_label': category_label,
+                        'ref_titles': ref_titles,
+                        'ref_indexs': ref_indexs,
                         'survey_id': Global_survey_id,
-                        'clustered_collections': Global_collection_names_clustered,
+                        'n_clusters': n_clusters,
                         'total_references': len(Global_ref_list),
                         'operation_id': operation_id,
                         'processing_time': round(time.time() - start_time, 2)
