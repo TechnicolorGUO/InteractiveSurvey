@@ -584,7 +584,7 @@ FONTS & ICONS
 						  surveySelect.appendChild(option);
 						});
 			  
-						// 添加 “new” 选项
+						// 添加 "new" 选项
 						const newOption = document.createElement("option");
 						newOption.value = "new";
 						newOption.textContent = "Create New Survey ID";
@@ -709,23 +709,66 @@ FONTS & ICONS
 					alert("No PDFs to download.");
 					return;
 				}
-				document.getElementById("loading-overlay").style.display = "flex";
+				
+				// 显示加载界面
+				const loadingOverlay = document.getElementById("loading-overlay");
+				loadingOverlay.style.display = "flex";
+				loadingOverlay.innerHTML = `
+					<div style="text-align: center;">
+						<div style="font-size: 24px; margin-bottom: 10px;">Downloading PDFs...</div>
+						<div style="font-size: 16px;">This may take a few minutes. Please don't close the browser.</div>
+						<div style="font-size: 14px; margin-top: 10px;">Downloading 0/${pdfLinks.length} files</div>
+					</div>
+				`;
 
 				try {
+					// 设置更长的超时时间
+					const controller = new AbortController();
+					const timeoutId = setTimeout(() => controller.abort(), 300000); // 5分钟超时
+
 					const response = await fetch('/download_pdfs/', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify({ pdf_links: pdfLinks, pdf_titles: pdfTitles }),
+						signal: controller.signal
 					});
+
+					clearTimeout(timeoutId);
+
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+
 					const result = await response.json();
-					alert(result.message);
+					
+					// 构建结果消息
+					let message = result.message;
+					if (result.failed && result.failed.length > 0) {
+						message += `\n\nFailed downloads (${result.failed.length}):\n`;
+						result.failed.forEach(failed => {
+							message += `- ${failed.url}: ${failed.reason}\n`;
+						});
+					}
+					
+					alert(message);
+					
 				} catch (error) {
 					console.error("Error sending PDF links to server:", error);
-					alert("Failed to send PDF links to server.");
+					
+					let errorMessage = "Failed to download PDFs.";
+					if (error.name === 'AbortError') {
+						errorMessage = "Download timed out. Please try again with fewer files or check your internet connection.";
+					} else if (error.message.includes('fetch')) {
+						errorMessage = "Network error. Please check your internet connection and try again.";
+					} else {
+						errorMessage = `Error: ${error.message}`;
+					}
+					
+					alert(errorMessage);
 				} finally {
-					document.getElementById("loading-overlay").style.display = "none";
+					loadingOverlay.style.display = "none";
 				}
 			}
 		</script>
@@ -1839,6 +1882,164 @@ function select_sections() {
       }
     });
   }
+
+	// 添加进度跟踪功能
+	let currentOperationId = null;
+	let progressInterval = null;
+
+	function startProgressTracking(operationId, progressCallback) {
+		currentOperationId = operationId;
+		progressInterval = setInterval(() => {
+			fetch(`/get_operation_progress/?operation_id=${operationId}`)
+				.then(response => response.json())
+				.then(data => {
+					if (data.progress !== undefined) {
+						progressCallback(data.progress, data.message);
+						
+						// 如果完成或失败，停止跟踪
+						if (data.progress >= 100 || data.progress < 0) {
+							stopProgressTracking();
+						}
+					}
+				})
+				.catch(error => {
+					console.error('Progress tracking error:', error);
+				});
+		}, 2000); // 每2秒更新一次
+	}
+
+	function stopProgressTracking() {
+		if (progressInterval) {
+			clearInterval(progressInterval);
+			progressInterval = null;
+		}
+		currentOperationId = null;
+	}
+
+	function updateProgressDisplay(progress, message) {
+		const loadingOverlay = document.getElementById("loading-overlay");
+		if (loadingOverlay && loadingOverlay.style.display === "flex") {
+			const progressBar = document.getElementById("progress-bar");
+			const progressText = document.getElementById("progress-text");
+			const progressMessage = document.getElementById("progress-message");
+			
+			if (progressBar) {
+				progressBar.style.width = `${Math.max(0, progress)}%`;
+			}
+			if (progressText) {
+				progressText.textContent = `${Math.max(0, progress)}%`;
+			}
+			if (progressMessage) {
+				progressMessage.textContent = message || "Processing...";
+			}
+			
+			// 如果失败，显示错误
+			if (progress < 0) {
+				loadingOverlay.innerHTML = `
+					<div style="text-align: center; color: #ff4444;">
+						<div style="font-size: 24px; margin-bottom: 10px;">❌ Operation Failed</div>
+						<div style="font-size: 16px;">${message}</div>
+						<button onclick="hideLoadingOverlay()" style="margin-top: 15px; padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+					</div>
+				`;
+			}
+		}
+	}
+
+	function showLoadingOverlayWithProgress(title, subtitle) {
+		const loadingOverlay = document.getElementById("loading-overlay");
+		loadingOverlay.style.display = "flex";
+		loadingOverlay.innerHTML = `
+			<div style="text-align: center; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 500px; width: 90%;">
+				<div style="font-size: 24px; margin-bottom: 10px; color: #333;">${title}</div>
+				<div style="font-size: 16px; margin-bottom: 20px; color: #666;">${subtitle}</div>
+				<div style="width: 100%; background: #f0f0f0; border-radius: 10px; margin-bottom: 15px; overflow: hidden;">
+					<div id="progress-bar" style="width: 0%; height: 20px; background: linear-gradient(90deg, #4CAF50, #45a049); transition: width 0.3s ease;"></div>
+				</div>
+				<div id="progress-text" style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">0%</div>
+				<div id="progress-message" style="font-size: 14px; color: #666;">Starting...</div>
+			</div>
+		`;
+	}
+
+	function hideLoadingOverlay() {
+		const loadingOverlay = document.getElementById("loading-overlay");
+		loadingOverlay.style.display = "none";
+		stopProgressTracking();
+	}
+
+	// 修改现有的上传函数
+	function uploadFiles() {
+		showLoadingOverlayWithProgress("Uploading Files", "Processing your PDF files...");
+		
+		const formData = new FormData();
+		// ... 添加表单数据 ...
+		
+		fetch('/upload_refs/', {
+			method: 'POST',
+			body: formData
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.operation_id) {
+				startProgressTracking(data.operation_id, updateProgressDisplay);
+			}
+			// 处理响应...
+		})
+		.catch(error => {
+			hideLoadingOverlay();
+			console.error('Upload error:', error);
+		});
+	}
+
+	// 修改taxonomy函数
+	function performTaxonomy() {
+		showLoadingOverlayWithProgress("Generating Taxonomy", "Analyzing and clustering your references...");
+		
+		const requestData = {
+			n_clusters: document.getElementById('cluster-count').value || 5,
+			survey_id: Global_survey_id
+		};
+		
+		fetch('/automatic_taxonomy/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(requestData)
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.operation_id) {
+				startProgressTracking(data.operation_id, updateProgressDisplay);
+			}
+			// 处理响应...
+		})
+		.catch(error => {
+			hideLoadingOverlay();
+			console.error('Taxonomy error:', error);
+		});
+	}
+
+	// 修改survey生成函数
+	function generateSurvey() {
+		showLoadingOverlayWithProgress("Generating Survey", "Creating your comprehensive survey paper...");
+		
+		fetch('/get_survey_id/', {
+			method: 'GET'
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.operation_id) {
+				startProgressTracking(data.operation_id, updateProgressDisplay);
+			}
+			// 处理响应...
+		})
+		.catch(error => {
+			hideLoadingOverlay();
+			console.error('Survey generation error:', error);
+		});
+	}
 
 </script>
 

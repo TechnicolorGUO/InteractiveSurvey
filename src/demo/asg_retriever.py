@@ -9,13 +9,39 @@ from langchain_huggingface import HuggingFaceEmbeddings
 import time
 import concurrent.futures
 
+# Singleton retriever to prevent multiple database connections
+class RetrieverSingleton:
+    _instance = None
+    _retriever = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(RetrieverSingleton, cls).__new__(cls)
+        return cls._instance
+    
+    def get_retriever(self):
+        if self._retriever is None:
+            self._retriever = Retriever()
+        return self._retriever
+    
+    def close_retriever(self):
+        if self._retriever is not None:
+            try:
+                if hasattr(self._retriever, 'client') and self._retriever.client:
+                    # ChromaDB doesn't have explicit close method, but we can reset it
+                    self._retriever.client = None
+            except:
+                pass
+            self._retriever = None
+
 class Retriever:
     client = None
     cur_dir = os.getcwd()
     chromadb_path = os.path.join(cur_dir, "chromadb")
 
     def __init__ (self):
-        self.client = chromadb.PersistentClient(path=self.chromadb_path)
+        if self.client is None:
+            self.client = chromadb.PersistentClient(path=self.chromadb_path)
 
     def create_collection_chroma(self, collection_name: str):
         """
@@ -250,7 +276,7 @@ def query_embeddings_new(collection_name: str, query_list: list):
 # wza
 def query_embeddings_new_new(collection_name: str, query_list: list):
     embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    retriever = Retriever()
+    retriever = get_retriever()  # Use singleton instead of creating new instance
 
     final_context = ""  # Stores concatenated context
     citation_data_list = []  # Stores chunk content and collection name as source
@@ -258,20 +284,29 @@ def query_embeddings_new_new(collection_name: str, query_list: list):
 
     def process_query(query_text):
         # Embed the query text and retrieve relevant chunks
-        query_embeddings = embedder.embed_query(query_text)
-        query_result = retriever.query_chroma(
-            collection_name=collection_name,
-            query_embeddings=[query_embeddings],
-            n_results=5  # Fixed number of results
-        )
-        return query_result
+        try:
+            query_embeddings = embedder.embed_query(query_text)
+            query_result = retriever.query_chroma(
+                collection_name=collection_name,
+                query_embeddings=[query_embeddings],
+                n_results=5  # Fixed number of results
+            )
+            return query_result
+        except Exception as e:
+            print(f"Error processing query '{query_text}': {e}")
+            return None
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    # Limit the number of concurrent threads to prevent resource exhaustion
+    max_workers = min(len(query_list), 5)  # Limit to 5 concurrent threads
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_query = {executor.submit(process_query, q): q for q in query_list}
         for future in concurrent.futures.as_completed(future_to_query):
             query_text = future_to_query[future]
             try:
                 query_result = future.result()
+                if query_result is None:
+                    continue
             except Exception as e:
                 print(f"Query '{query_text}' failed with exception: {e}")
                 continue
@@ -362,3 +397,13 @@ def query_multiple_collections(collection_names: list[str], query_list: list[str
     print(f"Results saved to {file_path}")
 
     return results
+
+# Use singleton retriever in the functions
+def get_retriever():
+    singleton = RetrieverSingleton()
+    return singleton.get_retriever()
+
+def cleanup_retriever():
+    """Call this function to cleanup retriever when shutting down"""
+    singleton = RetrieverSingleton()
+    singleton.close_retriever()

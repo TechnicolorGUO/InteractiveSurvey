@@ -13,6 +13,7 @@ urlpatterns = [
     path('save_outline/', views.save_outline, name='save_outline'),
     path("download_pdfs/", views.download_pdfs, name="download_pdfs"),
     path('save_updated_cluster_info', views.save_updated_cluster_info, name='save_updated_cluster_info'),
+    path('get_operation_progress/', views.get_operation_progress, name='get_operation_progress'),
     url(r'^get_topic$', views.get_topic, name='get_topic'),
     url(r'^get_survey$', views.get_survey, name='get_survey'),
     url(r'^automatic_taxonomy$', views.automatic_taxonomy, name='automatic_taxonomy'),
