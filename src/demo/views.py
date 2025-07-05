@@ -816,12 +816,8 @@ def automatic_taxonomy(request):
     operation_id = f"taxonomy_{int(start_time)}"
     update_progress(operation_id, 0, "Starting automatic taxonomy...")
     
-    global Global_survey_id
-    global Global_collection_names
-    global Global_collection_names_clustered
-    global Global_citation_data
-    global Global_file_names
-    global Global_ref_list
+    global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label, Global_collection_names_clustered, Global_cluster_num
+    global Global_survey_id, Global_collection_names, Global_citation_data, Global_file_names, Global_survey_title
     
     try:
         update_progress(operation_id, 10, "Loading reference data...")
@@ -832,136 +828,175 @@ def automatic_taxonomy(request):
                 # 尝试解析 JSON 数据
                 if request.content_type == 'application/json':
                     data = json.loads(request.body)
-                    n_clusters = data.get('n_clusters', 5)
-                    survey_id = data.get('survey_id', Global_survey_id)
+                    Global_cluster_num = data.get('Global_cluster_num', 5)
+                    refs_data = data.get('refs', [])
+                    query = data.get('taxonomy_standard', '')
                 else:
                     # 处理 form-data 格式
-                    n_clusters = int(request.POST.get('Global_cluster_num', 5))
-                    survey_id = Global_survey_id
+                    Global_cluster_num = int(request.POST.get('Global_cluster_num', 5))
+                    refs_data = request.POST.get('refs', '[]')
+                    query = request.POST.get('taxonomy_standard', '')
+                    
+                    # 解析 refs 数据
+                    if isinstance(refs_data, str):
+                        try:
+                            refs_data = json.loads(refs_data)
+                        except json.JSONDecodeError:
+                            refs_data = []
                     
             except (json.JSONDecodeError, ValueError) as e:
-                # 如果 JSON 解析失败，尝试 form-data
+                # 如果解析失败，尝试 form-data
                 try:
-                    n_clusters = int(request.POST.get('Global_cluster_num', 5))
-                    survey_id = Global_survey_id
-                except (ValueError, TypeError):
-                    n_clusters = 5
-                    survey_id = Global_survey_id
+                    Global_cluster_num = int(request.POST.get('Global_cluster_num', 5))
+                    refs_data = request.POST.get('refs', '[]')
+                    query = request.POST.get('taxonomy_standard', '')
+                    
+                    # 解析 refs 数据
+                    if isinstance(refs_data, str):
+                        try:
+                            refs_data = json.loads(refs_data)
+                        except json.JSONDecodeError:
+                            refs_data = []
+                except Exception as parse_error:
+                    print(f"Error parsing request data: {parse_error}")
+                    return JsonResponse({'error': f'Invalid request format: {parse_error}'}, status=400)
             
-            update_progress(operation_id, 20, "Setting up clustering...")
+            # 处理 refs 数据
+            if isinstance(refs_data, list):
+                ref_list = [int(item) for item in refs_data if str(item).isdigit()]
+            else:
+                ref_list = []
             
-            Global_survey_id = survey_id
-            json_files_path = f'./src/static/data/txt/{Global_survey_id}/*.json'
-            json_files = glob.glob(json_files_path)
+            print(f"Parsed ref_list: {ref_list}")
+            print(f"Global_cluster_num: {Global_cluster_num}")
+            print(f"Query: {query}")
             
-            # 确保只处理有效的JSON文件
-            filtered_json_files = [
-                json_file for json_file in json_files
-                if os.path.splitext(os.path.basename(json_file))[0] in Global_file_names
-            ]
+            update_progress(operation_id, 20, "Generating query patterns...")
             
-            if not filtered_json_files:
-                update_progress(operation_id, -1, "No valid JSON files found")
-                return JsonResponse({'error': 'No valid JSON files found'}, status=400)
+            # 生成查询模式
+            query_list = generate_sentence_patterns(query)
             
-            update_progress(operation_id, 30, f"Processing {len(filtered_json_files)} files...")
+            update_progress(operation_id, 30, "Processing collections...")
             
-            # 加载数据
-            title_abstract_dict = {}
-            processed_files = 0
+            # 处理每个集合
+            for name in Global_collection_names:
+                context, citation_data = query_embeddings_new_new(name, query_list)
+                Global_citation_data.extend(citation_data)
+                
+                description = generate(context, query, name)
+                Global_description_list.append(description)
             
-            for i, file_path in enumerate(filtered_json_files):
-                try:
-                    with open(file_path, 'r', encoding="utf-8") as file:
-                        data = json.load(file)
-                        title = data.get("title", "")
-                        abstract = data.get("abstract", "")
-                        title_abstract_dict[title] = abstract
-                        
-                        processed_files += 1
-                        progress = 30 + (processed_files / len(filtered_json_files)) * 20
-                        update_progress(operation_id, progress, f"Loaded {processed_files}/{len(filtered_json_files)} files")
-                        
-                except Exception as e:
-                    print(f"Error loading file {file_path}: {e}")
-                    continue
+            update_progress(operation_id, 50, "Saving citation data...")
             
-            update_progress(operation_id, 50, "Performing clustering analysis...")
+            # 保存引用数据
+            citation_path = f'./src/static/data/info/{Global_survey_id}/citation_data.json'
+            os.makedirs(os.path.dirname(citation_path), exist_ok=True)
+            with open(citation_path, 'w', encoding="utf-8") as outfile:
+                json.dump(Global_citation_data, outfile, indent=4, ensure_ascii=False)
+            
+            update_progress(operation_id, 60, "Updating TSV file...")
+            
+            # 更新 TSV 文件
+            file_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
+            with open(file_path, 'r', newline='', encoding='utf-8') as infile:
+                reader = csv.reader(infile, delimiter='\t')
+                rows = list(reader)
+            
+            if rows:
+                headers = rows[0]
+                headers.append('retrieval_result')
+                
+                updated_rows = [headers]
+                for row, description in zip(rows[1:], Global_description_list):
+                    row.append(description)
+                    updated_rows.append(row)
+                
+                with open(file_path, 'w', newline='', encoding='utf-8') as outfile:
+                    writer = csv.writer(outfile, delimiter='\t')
+                    writer.writerows(updated_rows)
+                
+                print('Updated file has been saved to', file_path)
+            else:
+                print('Input file is empty.')
+            
+            Global_ref_list = ref_list
+            
+            print('Categorization survey id', Global_survey_id)
+            
+            update_progress(operation_id, 70, "Performing clustering...")
             
             # 执行聚类
-            try:
-                Global_collection_names_clustered, Global_citation_data = Clustering_refs(n_clusters)
-                Global_ref_list = [item for sublist in Global_collection_names_clustered for item in sublist]
-                
-                update_progress(operation_id, 80, "Generating cluster visualization...")
-                
-                # 生成聚类可视化
-                tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
-                if os.path.exists(tsv_path):
-                    df = pd.read_csv(tsv_path, sep='\t')
-                    
-                    update_progress(operation_id, 90, "Finalizing results...")
-                    
-                    # 创建outline生成器
-                    outline_generator = OutlineGenerator(df, Global_collection_names_clustered, mode='desp')
-                    
-                    # 准备前端需要的响应数据
-                    colors = []
-                    category_label = []
-                    ref_titles = []
-                    ref_indexs = []
-                    
-                    # 生成颜色和分类信息
-                    import matplotlib.pyplot as plt
-                    import seaborn as sns
-                    palette = sns.color_palette(sns.hls_palette(len(Global_collection_names_clustered), l=0.4, s=.8)).as_hex()
-                    
-                    for i, cluster in enumerate(Global_collection_names_clustered):
-                        colors.append(palette[i] if i < len(palette) else '#000000')
-                        category_label.append(f'Cluster {i+1}')
-                        
-                        # 获取该聚类的引用标题和索引
-                        cluster_titles = []
-                        cluster_indices = []
-                        for j, ref_name in enumerate(cluster):
-                            cluster_titles.append(ref_name)
-                            cluster_indices.append(j)  # 使用相对索引
-                        
-                        ref_titles.append(cluster_titles)
-                        ref_indexs.append(cluster_indices)
-                    
-                    update_progress(operation_id, 100, "Taxonomy generation completed!")
-                    
-                    response_data = {
-                        'colors': colors,
-                        'category_label': category_label,
-                        'ref_titles': ref_titles,
-                        'ref_indexs': ref_indexs,
-                        'survey_id': Global_survey_id,
-                        'n_clusters': n_clusters,
-                        'total_references': len(Global_ref_list),
-                        'operation_id': operation_id,
-                        'processing_time': round(time.time() - start_time, 2)
-                    }
-                    
-                    return JsonResponse(response_data)
-                else:
-                    update_progress(operation_id, -1, "TSV file not found")
-                    return JsonResponse({'error': 'TSV file not found'}, status=400)
-                    
-            except Exception as e:
-                update_progress(operation_id, -1, f"Clustering failed: {str(e)}")
-                return JsonResponse({'error': f'Clustering failed: {str(e)}'}, status=500)
+            colors, category_label = Clustering_refs(n_clusters=Global_cluster_num)
+            Global_category_label = category_label
+            
+            update_progress(operation_id, 80, "Processing cluster results...")
+            
+            # 处理聚类结果
+            df_tmp = Global_df_selected.reset_index()
+            df_tmp['index'] = df_tmp.index
+            ref_titles = list(df_tmp.groupby(df_tmp['label'])['ref_title'].apply(list))
+            ref_indexs = list(df_tmp.groupby(df_tmp['label'])['index'].apply(list))
+            
+            # 读取主题信息
+            info = pd.read_json(f'./src/static/data/info/{Global_survey_id}/topic.json')
+            category_label = info['KeyBERT'].to_list()
+            category_label_summarized = []
+            
+            tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
+            
+            cluster_num = Global_cluster_num
+            category_label_summarized = generate_cluster_name_new(tsv_path, Global_survey_title, cluster_num)
+            Global_cluster_names = category_label_summarized
+            
+            update_progress(operation_id, 90, "Generating final results...")
+            
+            # 准备返回数据
+            cate_list = {
+                'colors': colors,
+                'category_label': category_label_summarized,
+                'survey_id': Global_survey_id,
+                'ref_titles': [[i.title() for i in j] for j in ref_titles],
+                'ref_indexs': ref_indexs
+            }
+            print(cate_list)
+            
+            # 保存聚类信息
+            cluster_info = {category_label_summarized[i]: ref_titles[i] for i in range(len(category_label_summarized))}
+            for key, value in cluster_info.items():
+                temp = [legal_pdf(i) for i in value]
+                cluster_info[key] = temp
+                Global_collection_names_clustered.append(temp)
+            
+            cluster_info_path = f'./src/static/data/info/{Global_survey_id}/cluster_info.json'
+            with open(cluster_info_path, 'w', encoding="utf-8") as outfile:
+                json.dump(cluster_info, outfile, indent=4, ensure_ascii=False)
+            
+            # 生成大纲
+            outline_generator = OutlineGenerator(Global_df_selected, Global_cluster_names)
+            outline_generator.get_cluster_info()
+            messages, outline = outline_generator.generate_outline_qwen(Global_survey_title, Global_cluster_num)
+            
+            outline_json = {'messages': messages, 'outline': outline}
+            output_path = TXT_PATH + Global_survey_id + '/outline.json'
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'w', encoding="utf-8") as outfile:
+                json.dump(outline_json, outfile, indent=4, ensure_ascii=False)
+            
+            update_progress(operation_id, 100, "Automatic taxonomy completed successfully!")
+            
+            # 返回 JSON 字符串格式，与原函数保持一致
+            cate_list_json = json.dumps(cate_list)
+            return HttpResponse(cate_list_json)
         
         else:
-            return JsonResponse({'error': 'Invalid request method'}, status=405)
-            
-    except TimeoutError as e:
-        update_progress(operation_id, -1, f"Taxonomy generation timed out: {str(e)}")
-        return JsonResponse({'error': f'Taxonomy generation timed out: {str(e)}'}, status=408)
+            return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    
     except Exception as e:
-        update_progress(operation_id, -1, f"Taxonomy generation failed: {str(e)}")
-        return JsonResponse({'error': f'Taxonomy generation failed: {str(e)}'}, status=500)
+        print(f"Error in automatic_taxonomy: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        update_progress(operation_id, -1, f"Error: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
 def save_updated_cluster_info(request):
