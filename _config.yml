@@ -9,8 +9,6 @@ exclude:
   - scripts/
   - logs/
   - chromadb/
-  - resources/
-  - examples/
   - outputs/
   - .idea/
   - __pycache__/
