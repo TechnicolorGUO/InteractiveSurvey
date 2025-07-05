@@ -80,6 +80,67 @@
       height: 100%;
       border: none;
     }
+
+    /* 新增的导航按钮样式 */
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+
+    .nav-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(145deg, #3498db, #2980b9);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+      min-width: 120px;
+      justify-content: center;
+    }
+
+    .nav-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+      background: linear-gradient(145deg, #2980b9, #3498db);
+    }
+
+    .nav-button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+    }
+
+    .nav-button .icon {
+      font-size: 18px;
+    }
+
+    .demo-button {
+      background: linear-gradient(145deg, #e74c3c, #c0392b);
+      box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+    }
+
+    .demo-button:hover {
+      background: linear-gradient(145deg, #c0392b, #e74c3c);
+      box-shadow: 0 6px 12px rgba(231, 76, 60, 0.4);
+    }
+
+    .github-button {
+      background: linear-gradient(145deg, #34495e, #2c3e50);
+      box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3);
+    }
+
+    .github-button:hover {
+      background: linear-gradient(145deg, #2c3e50, #34495e);
+      box-shadow: 0 6px 12px rgba(52, 73, 94, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -87,13 +148,19 @@
   <h1>InteractiveSurvey: An LLM-based Personalized and Interactive Survey
     Paper Generation System</h1>
 
-  <!-- Inline Links Section -->
-  <div style="display: inline-block; text-align: center; width: 100%">
-    <a href="https://arxiv.org/abs/2504.08762" target="_blank" style="text-decoration: none; color: #007BFF; font-weight: bold; margin: 0 10px;">
+  <!-- Navigation Buttons Section -->
+  <div class="nav-buttons">
+    <a href="https://arxiv.org/abs/2504.08762" target="_blank" class="nav-button">
+      <span class="icon">📄</span>
       Paper
     </a>
-    <a href="https://github.com/TechnicolorGUO/InteractiveSurvey" target="_blank" style="text-decoration: none; color: #007BFF; font-weight: bold; margin: 0 10px;">
+    <a href="https://github.com/TechnicolorGUO/InteractiveSurvey" target="_blank" class="nav-button github-button">
+      <span class="icon">⭐</span>
       GitHub
+    </a>
+    <a href="#" class="nav-button demo-button">
+      <span class="icon">🎬</span>
+      Demo
     </a>
   </div>
 
