@@ -2102,8 +2102,17 @@ function select_sections() {
 		updateProgressBar(0, 'Starting LaTeX PDF generation...');
 		
 		try {
-			// 创建FormData并添加survey_id
+			// 获取survey内容并转换为Markdown（与PDF生成一致）
+			var surveyContentHTML = document.getElementById("survey_content").innerHTML;
+			var turndownService = new TurndownService();
+			var markdownContent = turndownService.turndown(surveyContentHTML);
+			
+			// 创建FormData并添加内容
 			var form = new FormData();
+			form.append('content', markdownContent);
+			
+			// 尝试获取survey_id
+			var topic = document.getElementById("topic_input_box").value || "Default Topic";
 			if (typeof survey_id !== 'undefined') {
 				form.append('survey_id', survey_id);
 			}

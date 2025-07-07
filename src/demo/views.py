@@ -132,7 +132,7 @@ Global_ref_list = []
 Global_category_description = []
 Global_category_label = []
 Global_df_selected = ""
-Global_test_flag = True
+Global_test_flag = False
 Global_collection_names = []
 Global_collection_names_clustered = []
 Global_file_names=[]
@@ -1641,7 +1641,10 @@ def generate_pdf_from_tex_sync(request):
         print(f"Request POST data: {request.POST}")
         print(f"Request FILES: {request.FILES}")
         survey_id = request.POST.get('survey_id', '') or Global_survey_id
+        markdown_content = request.POST.get('content', '')
         print(f"Survey ID: {survey_id}")
+        print(f"Has content: {bool(markdown_content)}")
+        
         if not survey_id:
             return JsonResponse({'error': 'survey_id is missing'}, status=400)
             
@@ -1664,6 +1667,24 @@ def generate_pdf_from_tex_sync(request):
         shutil.copy(origin_template, tex_path)
         shutil.copy(origin_acl_sty, sty_path)
         os.makedirs(pdf_dir, exist_ok=True)
+        
+        update_progress(operation_id, 40, "Processing survey content...")
+        
+        # 如果传入了content且processed.md文件不存在，则创建它
+        if markdown_content and not os.path.exists(md_path):
+            # 先保存原始内容
+            vanilla_md_path = os.path.join(base_dir, f'survey_{survey_id}_vanilla.md')
+            with open(vanilla_md_path, 'w', encoding='utf-8') as f:
+                f.write(markdown_content)
+            print(f"Vanilla markdown saved to: {vanilla_md_path}")
+            
+            # 处理并保存最终的markdown
+            processed_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
+            with open(md_path, 'w', encoding='utf-8') as f:
+                f.write(processed_content)
+            print(f"Processed markdown saved to: {md_path}")
+        elif not os.path.exists(md_path):
+            return JsonResponse({'error': f'Processed markdown file not found: {md_path}. Please generate regular PDF first or provide survey content.'}, status=400)
         
         update_progress(operation_id, 50, "Processing markdown content...")
         
