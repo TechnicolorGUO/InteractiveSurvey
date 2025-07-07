@@ -1997,104 +1997,8 @@ function select_sections() {
 					$("#saveBtn").hide();
 				});     
 
-				function downloadPDF() {
-					var surveyContentHTML = document.getElementById("survey_content").innerHTML;
-					var turndownService = new TurndownService();
-					var markdownContent = turndownService.turndown(surveyContentHTML);
-
-					var form = new FormData();
-					form.append('content', markdownContent);
-					form.append('survey_id', survey_id);
-
-					var xhr = new XMLHttpRequest();
-					xhr.open('POST', '/generate_pdf/', true);
-					xhr.responseType = 'blob';
-
-					xhr.onload = function () {
-						if (xhr.status === 200) {
-							var blob = new Blob([xhr.response], { type: 'application/pdf' });
-							var link = document.createElement('a');
-							link.href = window.URL.createObjectURL(blob);
-							link.download = 'A Survey of ' + topic + '.pdf';
-							document.body.appendChild(link);
-							link.click();
-							document.body.removeChild(link);
-							
-							// 显示PDF预览
-							var pdfUrl = window.URL.createObjectURL(blob);
-							document.getElementById('pdf-preview-frame').src = pdfUrl;
-							document.getElementById('pdf-preview-section').style.display = 'block';
-							
-							// 滚动到预览区域
-							document.getElementById('pdf-preview-section').scrollIntoView({
-								behavior: 'smooth',
-								block: 'start'
-							});
-							
-							alert('PDF downloaded successfully!, Now you can download LaTeX version');
-						} else {
-							alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
-						}
-					};
-
-					xhr.onerror = function () {
-						alert('An error occurred while processing the request.');
-					};
-
-					xhr.send(form);
-				}
-
-				// 绑定下载按钮的点击事件
-				$('#downloadBtn').off('click').on('click', function(){
-					downloadPDF();
-				});
-				
-				function downloadPDF_latex() {
-					var form = new FormData();
-					form.append('survey_id', survey_id);  // 直接使用当前的survey_id
-					
-					var xhr = new XMLHttpRequest();
-					xhr.open('POST', '/generate_pdf_from_tex/', true);
-					xhr.responseType = 'blob';
-
-					xhr.onload = function () {
-						if (xhr.status === 200) {
-							var blob = new Blob([xhr.response], { type: 'application/pdf' });
-							var link = document.createElement('a');
-							link.href = window.URL.createObjectURL(blob);
-							link.download = 'A Survey of ' + topic + '_latex.pdf';
-							document.body.appendChild(link);
-							link.click();
-							document.body.removeChild(link);
-							
-							// 显示PDF预览
-							var pdfUrl = window.URL.createObjectURL(blob);
-							document.getElementById('pdf-preview-frame').src = pdfUrl;
-							document.getElementById('pdf-preview-section').style.display = 'block';
-							
-							// 滚动到预览区域
-							document.getElementById('pdf-preview-section').scrollIntoView({
-								behavior: 'smooth',
-								block: 'start'
-							});
-							
-							alert('PDF downloaded successfully!');
-						} else {
-							alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
-						}
-					};
-
-					xhr.onerror = function () {
-						alert('An error occurred while processing the request.');
-					};
-
-					xhr.send(form);
-				}
-
-				// 绑定下载按钮的点击事件
-				$('#finalDownloadBtn').off('click').on('click', function(){
-					downloadPDF_latex();
-				});
+				// 注意：PDF下载按钮已在文件末尾使用异步进度跟踪方式重新绑定
+				// 这里不再重复绑定以避免冲突
 			},
 			error: function() {
 				loadingOverlay.style.display = "none";
@@ -2138,20 +2042,33 @@ function select_sections() {
 
 	// --- PDF/LaTeX异步下载按钮逻辑 ---
 	$('#downloadBtn').off('click').on('click', async function() {
-		const loadingOverlay = document.getElementById("loading-overlay");
-		loadingOverlay.style.display = "flex";
-		loadingOverlay.innerHTML = `
-			<div style="text-align: center;">
-				<div style="font-size: 24px; margin-bottom: 10px;">Generating PDF, please wait...</div>
-			</div>
-		`;
+		// 显示进度条（与其他功能一致）
+		showUploadProgress();
+		$('#upload-progress h4').text('Generating PDF...');
+		updateProgressBar(0, 'Starting PDF generation...');
+		
 		try {
+			// 获取survey内容并转换为Markdown
+			var surveyContentHTML = document.getElementById("survey_content").innerHTML;
+			var turndownService = new TurndownService();
+			var markdownContent = turndownService.turndown(surveyContentHTML);
+			
+			// 创建FormData并添加内容
+			var form = new FormData();
+			form.append('content', markdownContent);
+			
+			// 尝试获取survey_id
+			var topic = document.getElementById("topic_input_box").value || "Default Topic";
+			if (typeof survey_id !== 'undefined') {
+				form.append('survey_id', survey_id);
+			}
+			
 			const response = await fetch('/generate_pdf/', {
 				method: 'POST',
-				body: new FormData(document.getElementById('sections_')) // 或根据实际表单调整
+				body: form
 			});
 			if (!response.ok) {
-				loadingOverlay.style.display = "none";
+				hideUploadProgress();
 				return;
 			}
 			const result = await response.json();
@@ -2159,59 +2076,84 @@ function select_sections() {
 				// 轮询进度
 				await pollAsyncDownload(result.operation_id, 'pdf');
 			} else {
-				loadingOverlay.style.display = "none";
+				hideUploadProgress();
 			}
 		} catch (e) {
-			loadingOverlay.style.display = "none";
+			hideUploadProgress();
+			console.error('PDF generation error:', e);
 		}
 	});
 
 	$('#finalDownloadBtn').off('click').on('click', async function() {
-		const loadingOverlay = document.getElementById("loading-overlay");
-		loadingOverlay.style.display = "flex";
-		loadingOverlay.innerHTML = `
-			<div style="text-align: center;">
-				<div style="font-size: 24px; margin-bottom: 10px;">Generating LaTeX PDF, please wait...</div>
-			</div>
-		`;
+		// 显示进度条（与其他功能一致）
+		showUploadProgress();
+		$('#upload-progress h4').text('Generating LaTeX PDF...');
+		updateProgressBar(0, 'Starting LaTeX PDF generation...');
+		
 		try {
+			// 创建FormData并添加survey_id
+			var form = new FormData();
+			if (typeof survey_id !== 'undefined') {
+				form.append('survey_id', survey_id);
+			}
+			
 			const response = await fetch('/generate_pdf_from_tex/', {
 				method: 'POST',
-				body: new FormData(document.getElementById('sections_')) // 或根据实际表单调整
+				body: form
 			});
 			if (!response.ok) {
-				loadingOverlay.style.display = "none";
+				hideUploadProgress();
 				return;
 			}
 			const result = await response.json();
 			if (result.operation_id) {
 				await pollAsyncDownload(result.operation_id, 'latex');
 			} else {
-				loadingOverlay.style.display = "none";
+				hideUploadProgress();
 			}
 		} catch (e) {
-			loadingOverlay.style.display = "none";
+			hideUploadProgress();
+			console.error('LaTeX PDF generation error:', e);
 		}
 	});
 
 	async function pollAsyncDownload(operationId, type) {
-		// 只做简单轮询，不显示进度
 		let status = 'running';
 		let downloadUrl = '';
 		while (status === 'running') {
 			await new Promise(r => setTimeout(r, 2000));
-			const res = await fetch(`/get_operation_progress/?operation_id=${operationId}`);
-			const data = await res.json();
-			status = data.status;
-			if (status === 'completed') {
-				// 后端应返回文件下载url或直接触发下载
-				downloadUrl = (type === 'pdf')
-					? `/static/data/results/survey_${data.result.survey_id}.pdf`
-					: `/static/data/results/survey_${data.result.survey_id}_latex.pdf`;
-				window.location.href = downloadUrl;
+			try {
+				const res = await fetch(`/get_operation_progress/?operation_id=${operationId}`);
+				const data = await res.json();
+				status = data.status || 'running';
+				
+				// 更新进度条
+				const progress = data.progress || 0;
+				const message = data.message || 'Processing...';
+				updateProgressBar(progress, message);
+				
+				if (status === 'completed') {
+					// 后端应返回文件下载url或直接触发下载
+					downloadUrl = (type === 'pdf')
+						? `/static/data/results/survey_${data.result.survey_id}.pdf`
+						: `/static/data/results/survey_${data.result.survey_id}_latex.pdf`;
+					
+					// 等待一下让用户看到100%完成
+					updateProgressBar(100, 'Download starting...');
+					await new Promise(r => setTimeout(r, 500));
+					
+					window.location.href = downloadUrl;
+					break;
+				} else if (status === 'failed') {
+					alert('PDF generation failed: ' + (data.error || 'Unknown error'));
+					break;
+				}
+			} catch (error) {
+				console.error('Progress polling error:', error);
+				// 继续尝试
 			}
 		}
-		document.getElementById("loading-overlay").style.display = "none";
+		hideUploadProgress();
 	}
 
 </script>
