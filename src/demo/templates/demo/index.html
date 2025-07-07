@@ -1810,225 +1810,312 @@ function select_sections() {
         });
 		
 	function display_survey() {
-    // 从 views 获取 survey_id
-    $.ajax({
-      url: '/get_survey_id/', // ← 注意结尾的斜杠
-      method: 'POST',
-      dataType: 'json',
-      success: function(data) {
-        var survey_id = data.survey_id; // 假设 views 返回的 JSON 格式是 { "survey_id": "123" }
-		console.log(survey_id);
+		// 显示加载状态
+		const loadingOverlay = document.getElementById("loading-overlay");
+		loadingOverlay.style.display = "flex";
+		loadingOverlay.innerHTML = `
+			<div style="text-align: center;">
+				<div style="font-size: 24px; margin-bottom: 10px;">Generating Survey...</div>
+				<div class="progress" style="width: 300px; margin: 20px auto;">
+					<div id="survey-progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+				</div>
+				<div id="survey-progress-message" style="margin-top: 10px;">Starting survey generation...</div>
+			</div>
+		`;
 
-        // 获取 JSON 文件内容
-        $.ajax({
-          url: '/static/data/txt/' + survey_id + '/generated_result.json',
-          method: 'GET',
-          dataType: 'json',
-          success: function(surveyData) {
-			console.log(surveyData);
-			document.getElementById("survey_content").innerHTML = "";
+		// 启动异步survey生成
+		$.ajax({
+			url: '/get_survey_id/', // ← 注意结尾的斜杠
+			method: 'POST',
+			dataType: 'json',
+			success: function(data) {
+				if (data.operation_id) {
+					// 开始跟踪进度
+					pollSurveyProgress(data.operation_id);
+				} else {
+					loadingOverlay.style.display = "none";
+					alert("Failed to start survey generation.");
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				loadingOverlay.style.display = "none";
+				alert("Failed to start survey generation: " + jqXHR.responseText);
+			}
+		});
+	}
 
-			// 显示 Survey 标题
-			var topic = document.getElementById("topic_input_box").value || "Default Topic";
-			var surveyTitleMarkdown = "# A Survey of " + topic;
-			var surveyTitleHTML = marked.parse(surveyTitleMarkdown);
-			document.getElementById("survey_content").innerHTML += surveyTitleHTML;
+	function pollSurveyProgress(operationId) {
+		const progressBar = document.getElementById("survey-progress-bar");
+		const progressMessage = document.getElementById("survey-progress-message");
+		const loadingOverlay = document.getElementById("loading-overlay");
 
-			// 显示 Survey 内容
-			var contentMarkdown = surveyData.content || "No content available.";
-			var contentHTML = marked.parse(contentMarkdown);
-			document.getElementById("survey_content").innerHTML += contentHTML;
-			var turndownService = new TurndownService();
-			$("#survey").attr("style", "display:inline;");
-						// 绑定编辑功能
-          // 绑定编辑功能
-          $("#editBtn").on("click", function() {
-            var currentHTML = document.getElementById("survey_content").innerHTML;
-            var editorContainer = `<textarea id="richTextEditor">${currentHTML}</textarea>`;
-            $("#survey_content").html(editorContainer);
-
-            // 初始化 TinyMCE
-            tinymce.init({
-              selector: '#richTextEditor', // 绑定到指定的 textarea
-              height: 400, // 编辑器高度
-              menubar: false, // 是否显示菜单栏
-              plugins: 'lists link image table code help', // 插件
-              toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code | help', // 工具栏
-			  image_title: true,
-				/* enable automatic uploads of images represented by blob or data URIs*/
-				automatic_uploads: true,
-				/*
-					URL of our upload handler (for more details check: https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_url)
-					images_upload_url: 'postAcceptor.php',
-					here we add custom filepicker only to Image dialog
-				*/
-				file_picker_types: 'image',
-				/* and here's our custom image picker*/
-				file_picker_callback: (cb, value, meta) => {
-					const input = document.createElement('input');
-					input.setAttribute('type', 'file');
-					input.setAttribute('accept', 'image/*');
-
-					input.addEventListener('change', (e) => {
-					const file = e.target.files[0];
-
-					const reader = new FileReader();
-					reader.addEventListener('load', () => {
-						/*
-						Note: Now we need to register the blob in TinyMCEs image blob
-						registry. In the next release this part hopefully won't be
-						necessary, as we are looking to handle it internally.
-						*/
-						const id = 'blobid' + (new Date()).getTime();
-						const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
-						const base64 = reader.result.split(',')[1];
-						const blobInfo = blobCache.create(id, file, base64);
-						blobCache.add(blobInfo);
-
-						/* call the callback and populate the Title field with the file name */
-						cb(blobInfo.blobUri(), { title: file.name });
-					});
-					reader.readAsDataURL(file);
-					});
-
-					input.click();
-				},			  
-			});
-
-            $("#editBtn").hide();
-            $("#saveBtn").show();
-          });
-
-          // 绑定保存功能
-          $("#saveBtn").on("click", function() {
-            var newHTML = tinymce.get('richTextEditor').getContent(); // 获取富文本编辑器的内容
-            $("#survey_content").html(newHTML);
-            tinymce.remove('#richTextEditor'); // 移除编辑器实例
-            $("#editBtn").show();
-            $("#saveBtn").hide();
-          });     
-
-			function downloadPDF() {
-				var surveyContentHTML = document.getElementById("survey_content").innerHTML;
-				var turndownService = new TurndownService();
-				var markdownContent = turndownService.turndown(surveyContentHTML);
-
-				var form = new FormData();
-				form.append('content', markdownContent);
-				form.append('survey_id', survey_id);
-
-				var xhr = new XMLHttpRequest();
-				xhr.open('POST', '/generate_pdf/', true);
-				xhr.responseType = 'blob';
-
-				xhr.onload = function () {
-					if (xhr.status === 200) {
-						var blob = new Blob([xhr.response], { type: 'application/pdf' });
-						var link = document.createElement('a');
-						link.href = window.URL.createObjectURL(blob);
-						link.download = 'A Survey of ' + topic + '.pdf';
-						document.body.appendChild(link);
-						link.click();
-						document.body.removeChild(link);
-						
-						// 显示PDF预览
-						var pdfUrl = window.URL.createObjectURL(blob);
-						document.getElementById('pdf-preview-frame').src = pdfUrl;
-						document.getElementById('pdf-preview-section').style.display = 'block';
-						
-						// 滚动到预览区域
-						document.getElementById('pdf-preview-section').scrollIntoView({
-							behavior: 'smooth',
-							block: 'start'
-						});
-						
-						alert('PDF downloaded successfully!, Now you can download LaTeX version');
+		function checkProgress() {
+			$.ajax({
+				type: "GET",
+				url: "/get_operation_progress/",
+				data: { operation_id: operationId },
+				success: function(result) {
+					const progress = result.progress || 0;
+					const message = result.message || "Processing...";
+					
+					// 更新进度条
+					progressBar.style.width = Math.max(0, progress) + '%';
+					progressMessage.textContent = message;
+					
+					if (progress >= 100) {
+						// 生成完成，加载survey内容
+						setTimeout(() => {
+							loadSurveyContent(result.result ? result.result.survey_id : null);
+						}, 1000);
+					} else if (progress < 0) {
+						// 生成失败
+						loadingOverlay.style.display = "none";
+						alert("Survey generation failed: " + message);
 					} else {
-						alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
+						// 继续轮询
+						setTimeout(checkProgress, 2000);
 					}
-				};
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					loadingOverlay.style.display = "none";
+					alert("Failed to check progress: " + jqXHR.responseText);
+				}
+			});
+		}
+		
+		checkProgress();
+	}
 
-				xhr.onerror = function () {
-					alert('An error occurred while processing the request.');
-				};
-
-				xhr.send(form);
-			}
-
-			// 绑定下载按钮的点击事件
-			$('#downloadBtn').on('click', function(){
-				downloadPDF();
-});
-			function downloadPDF_latex() {
-				// 从后端获取 survey_id
-				$.ajax({
-					url: '/get_survey_id',
-					method: 'GET',
-					dataType: 'json',
-					success: function(data) {
-						var survey_id = data.survey_id;
-						
-						var form = new FormData();
-						form.append('survey_id', survey_id);  // 添加 survey_id
-						
-						var xhr = new XMLHttpRequest();
-						xhr.open('POST', '/generate_pdf_from_tex/', true);
-						xhr.responseType = 'blob';
-
-						xhr.onload = function () {
-							if (xhr.status === 200) {
-								var blob = new Blob([xhr.response], { type: 'application/pdf' });
-								var link = document.createElement('a');
-								link.href = window.URL.createObjectURL(blob);
-								link.download = 'A Survey of ' + topic + '_latex.pdf';
-								document.body.appendChild(link);
-								link.click();
-								document.body.removeChild(link);
-								
-								// 显示PDF预览
-								var pdfUrl = window.URL.createObjectURL(blob);
-								document.getElementById('pdf-preview-frame').src = pdfUrl;
-								document.getElementById('pdf-preview-section').style.display = 'block';
-								
-								// 滚动到预览区域
-								document.getElementById('pdf-preview-section').scrollIntoView({
-									behavior: 'smooth',
-									block: 'start'
-								});
-								
-								alert('PDF downloaded successfully!');
-							} else {
-								alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
-							}
-						};
-
-						xhr.onerror = function () {
-							alert('An error occurred while processing the request.');
-						};
-
-						xhr.send(form);
-					},
-					error: function() {
-						alert("Failed to get survey ID.");
+	function loadSurveyContent(survey_id) {
+		const loadingOverlay = document.getElementById("loading-overlay");
+		
+		if (!survey_id) {
+			// 如果没有survey_id，尝试从全局变量获取
+			$.ajax({
+				url: '/get_surveys/',
+				method: 'GET',
+				dataType: 'json',
+				success: function(data) {
+					const surveys = data.surveys;
+					if (surveys && surveys.length > 0) {
+						survey_id = surveys[surveys.length - 1]; // 使用最新的survey
+						loadSurveyContentWithId(survey_id);
+					} else {
+						loadingOverlay.style.display = "none";
+						alert("No survey ID found.");
 					}
+				},
+				error: function() {
+					loadingOverlay.style.display = "none";
+					alert("Failed to get survey ID.");
+				}
+			});
+		} else {
+			loadSurveyContentWithId(survey_id);
+		}
+	}
+
+	function loadSurveyContentWithId(survey_id) {
+		const loadingOverlay = document.getElementById("loading-overlay");
+		
+		// 获取 JSON 文件内容
+		$.ajax({
+			url: '/static/data/txt/' + survey_id + '/generated_result.json',
+			method: 'GET',
+			dataType: 'json',
+			success: function(surveyData) {
+				console.log(surveyData);
+				document.getElementById("survey_content").innerHTML = "";
+
+				// 显示 Survey 标题
+				var topic = document.getElementById("topic_input_box").value || "Default Topic";
+				var surveyTitleMarkdown = "# A Survey of " + topic;
+				var surveyTitleHTML = marked.parse(surveyTitleMarkdown);
+				document.getElementById("survey_content").innerHTML += surveyTitleHTML;
+
+				// 显示 Survey 内容
+				var contentMarkdown = surveyData.content || "No content available.";
+				var contentHTML = marked.parse(contentMarkdown);
+				document.getElementById("survey_content").innerHTML += contentHTML;
+				var turndownService = new TurndownService();
+				$("#survey").attr("style", "display:inline;");
+				
+				// 隐藏加载状态
+				loadingOverlay.style.display = "none";
+				
+				// 绑定编辑功能
+				// 绑定编辑功能
+				$("#editBtn").off("click").on("click", function() {
+					var currentHTML = document.getElementById("survey_content").innerHTML;
+					var editorContainer = `<textarea id="richTextEditor">${currentHTML}</textarea>`;
+					$("#survey_content").html(editorContainer);
+
+					// 初始化 TinyMCE
+					tinymce.init({
+						selector: '#richTextEditor', // 绑定到指定的 textarea
+						height: 400, // 编辑器高度
+						menubar: false, // 是否显示菜单栏
+						plugins: 'lists link image table code help', // 插件
+						toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code | help', // 工具栏
+						image_title: true,
+						/* enable automatic uploads of images represented by blob or data URIs*/
+						automatic_uploads: true,
+						/*
+							URL of our upload handler (for more details check: https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_url)
+							images_upload_url: 'postAcceptor.php',
+							here we add custom filepicker only to Image dialog
+						*/
+						file_picker_types: 'image',
+						/* and here's our custom image picker*/
+						file_picker_callback: (cb, value, meta) => {
+							const input = document.createElement('input');
+							input.setAttribute('type', 'file');
+							input.setAttribute('accept', 'image/*');
+
+							input.addEventListener('change', (e) => {
+							const file = e.target.files[0];
+
+							const reader = new FileReader();
+							reader.addEventListener('load', () => {
+								/*
+								Note: Now we need to register the blob in TinyMCEs image blob
+								registry. In the next release this part hopefully won't be
+								necessary, as we are looking to handle it internally.
+								*/
+								const id = 'blobid' + (new Date()).getTime();
+								const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+								const base64 = reader.result.split(',')[1];
+								const blobInfo = blobCache.create(id, file, base64);
+								blobCache.add(blobInfo);
+
+								/* call the callback and populate the Title field with the file name */
+								cb(blobInfo.blobUri(), { title: file.name });
+							});
+							reader.readAsDataURL(file);
+							});
+
+							input.click();
+						},			  
+					});
+
+					$("#editBtn").hide();
+					$("#saveBtn").show();
 				});
-			}
 
-			// 绑定下载按钮的点击事件
-			$('#finalDownloadBtn').on('click', function(){
-				downloadPDF_latex();
-});
-          },
-          error: function() {
-            alert("Failed to load survey content.");
-          }
-        });
-      },
-      error: function() {
-        alert("Failed to get survey ID.");
-      }
-    });
-  }
+				// 绑定保存功能
+				$("#saveBtn").off("click").on("click", function() {
+					var newHTML = tinymce.get('richTextEditor').getContent(); // 获取富文本编辑器的内容
+					$("#survey_content").html(newHTML);
+					tinymce.remove('#richTextEditor'); // 移除编辑器实例
+					$("#editBtn").show();
+					$("#saveBtn").hide();
+				});     
+
+				function downloadPDF() {
+					var surveyContentHTML = document.getElementById("survey_content").innerHTML;
+					var turndownService = new TurndownService();
+					var markdownContent = turndownService.turndown(surveyContentHTML);
+
+					var form = new FormData();
+					form.append('content', markdownContent);
+					form.append('survey_id', survey_id);
+
+					var xhr = new XMLHttpRequest();
+					xhr.open('POST', '/generate_pdf/', true);
+					xhr.responseType = 'blob';
+
+					xhr.onload = function () {
+						if (xhr.status === 200) {
+							var blob = new Blob([xhr.response], { type: 'application/pdf' });
+							var link = document.createElement('a');
+							link.href = window.URL.createObjectURL(blob);
+							link.download = 'A Survey of ' + topic + '.pdf';
+							document.body.appendChild(link);
+							link.click();
+							document.body.removeChild(link);
+							
+							// 显示PDF预览
+							var pdfUrl = window.URL.createObjectURL(blob);
+							document.getElementById('pdf-preview-frame').src = pdfUrl;
+							document.getElementById('pdf-preview-section').style.display = 'block';
+							
+							// 滚动到预览区域
+							document.getElementById('pdf-preview-section').scrollIntoView({
+								behavior: 'smooth',
+								block: 'start'
+							});
+							
+							alert('PDF downloaded successfully!, Now you can download LaTeX version');
+						} else {
+							alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
+						}
+					};
+
+					xhr.onerror = function () {
+						alert('An error occurred while processing the request.');
+					};
+
+					xhr.send(form);
+				}
+
+				// 绑定下载按钮的点击事件
+				$('#downloadBtn').off('click').on('click', function(){
+					downloadPDF();
+				});
+				
+				function downloadPDF_latex() {
+					var form = new FormData();
+					form.append('survey_id', survey_id);  // 直接使用当前的survey_id
+					
+					var xhr = new XMLHttpRequest();
+					xhr.open('POST', '/generate_pdf_from_tex/', true);
+					xhr.responseType = 'blob';
+
+					xhr.onload = function () {
+						if (xhr.status === 200) {
+							var blob = new Blob([xhr.response], { type: 'application/pdf' });
+							var link = document.createElement('a');
+							link.href = window.URL.createObjectURL(blob);
+							link.download = 'A Survey of ' + topic + '_latex.pdf';
+							document.body.appendChild(link);
+							link.click();
+							document.body.removeChild(link);
+							
+							// 显示PDF预览
+							var pdfUrl = window.URL.createObjectURL(blob);
+							document.getElementById('pdf-preview-frame').src = pdfUrl;
+							document.getElementById('pdf-preview-section').style.display = 'block';
+							
+							// 滚动到预览区域
+							document.getElementById('pdf-preview-section').scrollIntoView({
+								behavior: 'smooth',
+								block: 'start'
+							});
+							
+							alert('PDF downloaded successfully!');
+						} else {
+							alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
+						}
+					};
+
+					xhr.onerror = function () {
+						alert('An error occurred while processing the request.');
+					};
+
+					xhr.send(form);
+				}
+
+				// 绑定下载按钮的点击事件
+				$('#finalDownloadBtn').off('click').on('click', function(){
+					downloadPDF_latex();
+				});
+			},
+			error: function() {
+				loadingOverlay.style.display = "none";
+				alert("Failed to load survey content. The survey may still be generating.");
+			}
+		});
+	}
 
 	// 添加进度跟踪功能
 	let currentOperationId = null;
