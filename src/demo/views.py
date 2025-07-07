@@ -46,8 +46,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from functools import wraps
 
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
-load_dotenv(dotenv_path)
+load_dotenv()
 # # 打印所有环境变量（可选，调试时使用）
 # print("所有环境变量:", os.environ)
 
