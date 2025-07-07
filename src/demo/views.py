@@ -1793,34 +1793,53 @@ atexit.register(cleanup_resources)
 
 @csrf_exempt  
 def upload_refs(request):
-    """异步版本的文件上传接口，立即返回operation_id避免Cloudflare 524超时"""
+    """异步版本的文件上传接口，立即返回operation_id避免Cloudflare 524超时。先保存文件到磁盘，再异步处理。"""
     if request.method == 'POST':
-        # 生成操作ID
         operation_id = f"upload_{int(time.time())}"
-        
         print(f"[DEBUG] Starting async upload task: {operation_id}")
-        
-        # 启动异步任务
+
+        # 1. 先将所有上传文件保存到临时目录
+        temp_dir = os.path.join('src', 'static', 'data', 'tmp_upload', operation_id)
+        os.makedirs(temp_dir, exist_ok=True)
+        file_paths = []
+        for file_key, file in request.FILES.items():
+            temp_path = os.path.join(temp_dir, file.name)
+            with open(temp_path, 'wb') as f:
+                for chunk in file.chunks():
+                    f.write(chunk)
+            file_paths.append(temp_path)
+
+        # 2. 收集POST参数
+        post_data = dict(request.POST.items())
+        # 3. 启动异步任务，传递文件路径和参数
+        def upload_refs_sync_wrapper(file_paths, post_data, operation_id):
+            # 构造一个伪request对象，兼容原有upload_refs_sync逻辑
+            class DummyRequest:
+                method = 'POST'
+                FILES = {}
+                POST = post_data
+            dummy_request = DummyRequest()
+            dummy_request.file_paths = file_paths
+            dummy_request.operation_id = operation_id
+            return upload_refs_sync(dummy_request)
+
         success = task_manager.start_task(
-            operation_id, 
-            upload_refs_sync, 
-            request
+            operation_id,
+            upload_refs_sync_wrapper,
+            file_paths,
+            post_data,
+            operation_id
         )
-        
         if not success:
             print(f"[DEBUG] Task {operation_id} already running")
             return JsonResponse({'error': 'Upload task already running'}, status=409)
-        
         print(f"[DEBUG] Async task {operation_id} started successfully")
-        
-        # 立即返回operation_id，不等待处理完成
         return JsonResponse({
             'operation_id': operation_id,
             'status': 'started',
             'message': 'File upload started successfully. Use the operation_id to check progress.',
             'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
         })
-    
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
