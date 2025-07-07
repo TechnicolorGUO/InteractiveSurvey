@@ -1456,7 +1456,8 @@ def get_survey_id_sync(request):
         return JsonResponse({'error': f'Survey generation failed: {str(e)}'}, status=500)
 
 @csrf_exempt
-def generate_pdf(request):
+@timeout_handler(900)  # 15分钟超时
+def generate_pdf_sync(request):
     if request.method == 'POST':
         survey_id = request.POST.get('survey_id', '')
         markdown_content = request.POST.get('content', '')
@@ -1464,60 +1465,48 @@ def generate_pdf(request):
         markdown_filename = f'survey_{survey_id}_vanilla.md'
         markdown_filepath = os.path.join(markdown_dir, markdown_filename)
 
-        # 确保目标目录存在
         if not os.path.exists(markdown_dir):
             os.makedirs(markdown_dir)
             print(f"Directory '{markdown_dir}' created.")
         else:
             print(f"Directory '{markdown_dir}' already exists.")
 
-        # 保存 Markdown 内容到文件
         with open(markdown_filepath, 'w', encoding='utf-8') as markdown_file:
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
 
         markdown_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
-        # 设置 Markdown 文件的保存路径1
         markdown_dir = f'./src/static/data/info/{survey_id}/'
         markdown_filename = f'survey_{survey_id}_processed.md'
         markdown_filepath = os.path.join(markdown_dir, markdown_filename)
 
-        # 确保目标目录存在1
         if not os.path.exists(markdown_dir):
             os.makedirs(markdown_dir)
             print(f"Directory '{markdown_dir}' created.")
         else:
             print(f"Directory '{markdown_dir}' already exists.")
 
-        # 保存 Markdown 内容到文件1
         with open(markdown_filepath, 'w', encoding='utf-8') as markdown_file:
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
 
-
-
-        # 配置 PDF 文件的保存路径
         pdf_filename = f'survey_{survey_id}.pdf'
         pdf_dir = './src/static/data/results'
         pdf_filepath = os.path.join(pdf_dir, pdf_filename)
 
-        # 检查并创建 results 目录
         if not os.path.exists(pdf_dir):
             os.makedirs(pdf_dir)
             print(f"Directory '{pdf_dir}' created.")
         else:
             print(f"Directory '{pdf_dir}' already exists.")
 
-        # 打印文件保存路径信息
         print(f"PDF will be saved to: {pdf_filepath}")
 
-        # 使用 markdown_pdf 库生成 PDF
         pdf = MarkdownPdf()
-        pdf.meta["title"] = "Survey Results"  # 设置 PDF 的元数据
-        pdf.add_section(Section(markdown_content, toc=False))  # 添加 Markdown 内容，不生成目录
-        pdf.save(pdf_filepath)  # 将 PDF 保存到文件
+        pdf.meta["title"] = "Survey Results"
+        pdf.add_section(Section(markdown_content, toc=False))
+        pdf.save(pdf_filepath)
 
-        # 打开文件并将其作为响应返回
         with open(pdf_filepath, 'rb') as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type='application/pdf')
             response['Content-Disposition'] = f'attachment; filename="{pdf_filename}"'
@@ -1526,18 +1515,35 @@ def generate_pdf(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
-def generate_pdf_from_tex(request):
+def generate_pdf(request):
+    """异步版本的PDF生成接口，避免Cloudflare 524超时"""
+    if request.method == 'POST':
+        operation_id = f"pdf_{int(time.time())}"
+        success = task_manager.start_task(
+            operation_id,
+            generate_pdf_sync,
+            request
+        )
+        if not success:
+            return JsonResponse({'error': 'PDF generation task already running'}, status=409)
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'PDF generation started successfully. Use the operation_id to check progress.',
+            'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
+        })
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+@timeout_handler(900)  # 15分钟超时
+def generate_pdf_from_tex_sync(request):
     global Global_survey_id, Global_survey_title
     if request.method == 'POST':
-        # 添加调试信息
         print(f"Request content type: {request.content_type}")
         print(f"Request POST data: {request.POST}")
         print(f"Request FILES: {request.FILES}")
-        
-        # 优先用 request 里的 survey_id
         survey_id = request.POST.get('survey_id', '') or Global_survey_id
         print(f"Survey ID: {survey_id}")
-        
         if not survey_id:
             return JsonResponse({'error': 'survey_id is missing'}, status=400)
         base_dir = f'./src/static/data/info/{survey_id}'
@@ -1547,20 +1553,15 @@ def generate_pdf_from_tex(request):
         new_tex_path = os.path.join(base_dir, 'template_with_figure.tex')
         sty_path = os.path.join(base_dir, 'acl.sty')
         pdf_dir = './src/static/data/results'
-        
         os.makedirs(base_dir, exist_ok=True)
         print(f"Directory '{base_dir}' checked or created.")
-
         origin_template = 'src/demo/latex_template/template.tex'
         origin_acl_sty = 'src/demo/latex_template/acl.sty'
         shutil.copy(origin_template, tex_path)
         shutil.copy(origin_acl_sty, sty_path)
-
         os.makedirs(pdf_dir, exist_ok=True)
-
         preprocess_md(md_path, new_md_path)
         md_to_tex(new_md_path, tex_path, Global_survey_title)
-
         insert_figures(
             png_path=f'src/static/data/info/{survey_id}/outline.png',
             tex_path= tex_path, 
@@ -1569,7 +1570,6 @@ def generate_pdf_from_tex(request):
             survey_title=Global_survey_title,
             new_tex_path=new_tex_path
         )
-
         tex_to_pdf(
             new_tex_path,
             output_dir=os.path.dirname(new_tex_path),
@@ -1578,7 +1578,6 @@ def generate_pdf_from_tex(request):
         pdf_path = os.path.join(os.path.dirname(new_tex_path), 'template_with_figure.pdf' )
         final_pdf_path = os.path.join(pdf_dir, f'survey_{survey_id}_latex.pdf')
         shutil.copy2(pdf_path, final_pdf_path)
-
         try:
             with open(final_pdf_path, 'rb') as pdf_file:
                 response = HttpResponse(pdf_file.read(), content_type='application/pdf')
@@ -1587,7 +1586,6 @@ def generate_pdf_from_tex(request):
                 return response
         except Exception as e:
             return JsonResponse({'error': f'读取 PDF 文件失败: {e}'}, status=500)
-
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def get_refs(topic):

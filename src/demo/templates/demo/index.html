@@ -2036,6 +2036,84 @@ function select_sections() {
 		currentOperationId = null;
 	}
 
+	// --- PDF/LaTeX异步下载按钮逻辑 ---
+	$('#downloadBtn').off('click').on('click', async function() {
+		const loadingOverlay = document.getElementById("loading-overlay");
+		loadingOverlay.style.display = "flex";
+		loadingOverlay.innerHTML = `
+			<div style="text-align: center;">
+				<div style="font-size: 24px; margin-bottom: 10px;">Generating PDF, please wait...</div>
+			</div>
+		`;
+		try {
+			const response = await fetch('/generate_pdf/', {
+				method: 'POST',
+				body: new FormData(document.getElementById('sections_')) // 或根据实际表单调整
+			});
+			if (!response.ok) {
+				loadingOverlay.style.display = "none";
+				return;
+			}
+			const result = await response.json();
+			if (result.operation_id) {
+				// 轮询进度
+				await pollAsyncDownload(result.operation_id, 'pdf');
+			} else {
+				loadingOverlay.style.display = "none";
+			}
+		} catch (e) {
+			loadingOverlay.style.display = "none";
+		}
+	});
+
+	$('#finalDownloadBtn').off('click').on('click', async function() {
+		const loadingOverlay = document.getElementById("loading-overlay");
+		loadingOverlay.style.display = "flex";
+		loadingOverlay.innerHTML = `
+			<div style="text-align: center;">
+				<div style="font-size: 24px; margin-bottom: 10px;">Generating LaTeX PDF, please wait...</div>
+			</div>
+		`;
+		try {
+			const response = await fetch('/generate_pdf_from_tex/', {
+				method: 'POST',
+				body: new FormData(document.getElementById('sections_')) // 或根据实际表单调整
+			});
+			if (!response.ok) {
+				loadingOverlay.style.display = "none";
+				return;
+			}
+			const result = await response.json();
+			if (result.operation_id) {
+				await pollAsyncDownload(result.operation_id, 'latex');
+			} else {
+				loadingOverlay.style.display = "none";
+			}
+		} catch (e) {
+			loadingOverlay.style.display = "none";
+		}
+	});
+
+	async function pollAsyncDownload(operationId, type) {
+		// 只做简单轮询，不显示进度
+		let status = 'running';
+		let downloadUrl = '';
+		while (status === 'running') {
+			await new Promise(r => setTimeout(r, 2000));
+			const res = await fetch(`/get_operation_progress/?operation_id=${operationId}`);
+			const data = await res.json();
+			status = data.status;
+			if (status === 'completed') {
+				// 后端应返回文件下载url或直接触发下载
+				downloadUrl = (type === 'pdf')
+					? `/static/data/results/survey_${data.result.survey_id}.pdf`
+					: `/static/data/results/survey_${data.result.survey_id}_latex.pdf`;
+				window.location.href = downloadUrl;
+			}
+		}
+		document.getElementById("loading-overlay").style.display = "none";
+	}
+
 </script>
 
 	<!-- 测试异步功能区域
