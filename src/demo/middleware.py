@@ -22,19 +22,23 @@ class AsyncTaskManager:
         
         def task_wrapper():
             try:
+                print(f"[DEBUG] Task {task_id} started in background thread")
                 self.running_tasks[task_id] = {'status': 'running', 'start_time': time.time()}
                 result = target_func(*args, **kwargs)
                 self.running_tasks[task_id]['status'] = 'completed'
                 self.running_tasks[task_id]['result'] = result
+                print(f"[DEBUG] Task {task_id} completed successfully")
             except Exception as e:
                 self.running_tasks[task_id]['status'] = 'failed'
                 self.running_tasks[task_id]['error'] = str(e)
                 self.running_tasks[task_id]['traceback'] = traceback.format_exc()
-                print(f"Async task {task_id} failed: {e}")
+                print(f"[DEBUG] Async task {task_id} failed: {e}")
+                print(f"[DEBUG] Traceback: {traceback.format_exc()}")
         
         thread = threading.Thread(target=task_wrapper)
         thread.daemon = True
         thread.start()
+        print(f"[DEBUG] Background thread for task {task_id} started")
         return True
     
     def get_task_status(self, task_id):

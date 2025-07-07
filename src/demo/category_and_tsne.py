@@ -42,13 +42,11 @@ class ClusteringWithTopic:
         初始化 ClusteringWithTopic，接受一个 n_topics_list，其中包含多个聚类数目，
         选取 silhouette_score 最高的结果。
         """
-        embedding_model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
-        self.embeddings = embedding_model.encode(df, show_progress_bar=True)
-        
         self.df = df
         self.n_topics_list = n_topics_list
+        self.embedding_model = None  # 延迟初始化
+        self.embeddings = None
 
-        self.embedding_model = embedding_model
         self.umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine',init ='pca')
         self.vectorizer_model = CountVectorizer(stop_words="english", min_df=1, ngram_range=(1, 2))
         self.ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=False)
@@ -60,10 +58,19 @@ class ClusteringWithTopic:
         self.best_labels = None
         self.best_score = -1
 
+    def _init_embedding_model(self):
+        """延迟初始化embedding模型"""
+        if self.embedding_model is None:
+            print("正在初始化 SentenceTransformer...")
+            self.embedding_model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
+            print("SentenceTransformer 初始化完成")
+            self.embeddings = self.embedding_model.encode(self.df, show_progress_bar=True)
+
     def fit_and_get_labels(self):
         """
         对不同的 n_topics 进行聚类，计算 silhouette_score，选取最佳的 n_topics 进行后续操作。
         """
+        self._init_embedding_model()
         for n_topics in self.n_topics_list:
             hdbscan_model = AgglomerativeClustering(n_clusters=n_topics)
 

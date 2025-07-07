@@ -189,7 +189,21 @@ def ensure_cache_dirs():
 #             return None
 
 # 初始化embedder
-embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embedder = None  # 延迟初始化
+
+def get_embedder():
+    """获取embedder实例，如果未初始化则进行初始化"""
+    global embedder
+    if embedder is None:
+        try:
+            print("正在初始化 embedder...")
+            embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+            print("embedder 初始化完成")
+        except Exception as e:
+            print(f"embedder 初始化失败: {e}")
+            return None
+    return embedder
+
 from demo.category_and_tsne import clustering
 
 # 添加超时装饰器
@@ -245,11 +259,15 @@ def get_operation_progress(request):
     if request.method == 'GET':
         operation_id = request.GET.get('operation_id')
         if operation_id:
+            print(f"[DEBUG] Checking progress for operation_id: {operation_id}")
+            
             # 首先检查异步任务状态
             task_status = task_manager.get_task_status(operation_id)
+            print(f"[DEBUG] Task status: {task_status}")
             
             if task_status['status'] == 'completed':
                 # 任务完成，返回结果
+                print(f"[DEBUG] Task {operation_id} completed, returning result")
                 result = task_status.get('result')
                 if hasattr(result, 'content'):
                     # 如果result是HttpResponse对象，解析其内容
@@ -262,7 +280,8 @@ def get_operation_progress(request):
                             'status': 'completed',
                             'result': content
                         })
-                    except:
+                    except Exception as e:
+                        print(f"[DEBUG] Error parsing HttpResponse content: {e}")
                         return JsonResponse({
                             'progress': 100,
                             'message': 'Upload completed successfully!',
@@ -277,6 +296,7 @@ def get_operation_progress(request):
                     })
             elif task_status['status'] == 'failed':
                 # 任务失败
+                print(f"[DEBUG] Task {operation_id} failed: {task_status.get('error')}")
                 return JsonResponse({
                     'progress': -1,
                     'message': f"Upload failed: {task_status.get('error', 'Unknown error')}",
@@ -285,13 +305,16 @@ def get_operation_progress(request):
                 })
             elif task_status['status'] == 'running':
                 # 任务正在运行，返回当前进度
+                print(f"[DEBUG] Task {operation_id} is running, checking progress")
                 progress_info = get_progress(operation_id)
+                print(f"[DEBUG] Progress info: {progress_info}")
                 return JsonResponse({
                     **progress_info,
                     'status': 'running'
                 })
             else:
                 # 任务未找到，返回默认进度
+                print(f"[DEBUG] Task {operation_id} not found, returning default progress")
                 progress_info = get_progress(operation_id)
                 return JsonResponse({
                     **progress_info,
@@ -417,15 +440,15 @@ def PosRank_get_top5_ngrams(input_pd):
     return abs_top5_unigram_list_list,abs_top5_bigram_list_list,abs_top5_trigram_list_list
 
 def process_file(file_name, survey_id, mode):
-    global embedder
-    if embedder is None:
+    embedder_instance = get_embedder()
+    if embedder_instance is None:
         print("警告: embedder 未初始化，跳过PDF处理")
         # 返回一个默认值或抛出更友好的错误
         collection_name = f"collection_{survey_id}_{int(time.time())}"
         name = file_name.split('/')[-1].replace('.pdf', '')
         return collection_name, name
     
-    result = process_pdf(file_name, survey_id, embedder, mode)
+    result = process_pdf(file_name, survey_id, embedder_instance, mode)
     collection_name = result[0]
     name = result[-1]
     return collection_name, name
@@ -477,11 +500,12 @@ def get_surveys(request):
     return JsonResponse({'surveys': surveys})
 
 @csrf_exempt
-@timeout_handler(300)  # 5分钟超时
+@timeout_handler(900)  # 15分钟超时
 def upload_refs_sync(request):
     """同步版本的文件上传处理函数"""
     start_time = time.time()
     operation_id = f"upload_{int(start_time)}"
+    print(f"[DEBUG] upload_refs_sync started with operation_id: {operation_id}")
     update_progress(operation_id, 0, "Starting file upload...")
     
     RECOMMENDED_PDF_DIR = os.path.join("src", "static", "data", "pdf", "recommend_pdfs")
@@ -811,11 +835,18 @@ def generate_arxiv_query(request):
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
 @csrf_exempt
-def download_pdfs(request):
+@timeout_handler(900)  # 15分钟超时
+def download_pdfs_sync(request):
+    """同步版本的PDF下载函数"""
     def clean_filename(filename):
         filename = filename.strip()  # 去掉首尾空格和换行符
         filename = re.sub(r'[\\/*?:"<>|\n\r]', '', filename)  # 移除非法字符
         return filename
+    
+    start_time = time.time()
+    operation_id = f"download_{int(start_time)}"
+    print(f"[DEBUG] download_pdfs_sync started with operation_id: {operation_id}")
+    update_progress(operation_id, 0, "Starting PDF downloads...")
     
     if request.method == "POST":
         try:
@@ -825,6 +856,7 @@ def download_pdfs(request):
             print(f"Starting download of {len(pdf_links)} PDFs")
 
             if not pdf_links:
+                update_progress(operation_id, -1, "No PDFs to download")
                 return JsonResponse({"message": "No PDFs to download."}, status=400)
 
             base_dir = os.path.join(os.getcwd(), "src", "static", "data", "pdf", "recommend_pdfs")
@@ -833,9 +865,13 @@ def download_pdfs(request):
             downloaded_files = []
             failed_downloads = []
             
+            update_progress(operation_id, 10, f"Preparing to download {len(pdf_links)} PDFs...")
+            
             for i, pdf_url in enumerate(pdf_links):
                 try:
                     print(f"Downloading {i+1}/{len(pdf_links)}: {pdf_url}")
+                    progress = 10 + (i / len(pdf_links)) * 80
+                    update_progress(operation_id, progress, f"Downloading PDF {i+1}/{len(pdf_links)}")
                     
                     # 设置超时时间：连接超时10秒，读取超时60秒
                     response = requests.get(
@@ -886,27 +922,64 @@ def download_pdfs(request):
                     failed_downloads.append({"url": pdf_url, "reason": str(e)})
 
             print(f"Download finished: {len(downloaded_files)} successful, {len(failed_downloads)} failed")
+            update_progress(operation_id, 100, f"Download completed: {len(downloaded_files)} successful, {len(failed_downloads)} failed")
             
             # 构建响应消息
             message = f"Downloaded {len(downloaded_files)} PDFs successfully!"
             if failed_downloads:
                 message += f" {len(failed_downloads)} downloads failed."
             
-            return JsonResponse({
+            result = {
                 "message": message,
                 "files": downloaded_files,
                 "failed": failed_downloads,
                 "success_count": len(downloaded_files),
                 "total_count": len(pdf_links)
-            })
+            }
+            
+            return JsonResponse(result)
 
         except json.JSONDecodeError:
+            update_progress(operation_id, -1, "Invalid JSON data")
             return JsonResponse({"message": "Invalid JSON data."}, status=400)
         except Exception as e:
             print(f"Unexpected error in download_pdfs: {e}")
+            update_progress(operation_id, -1, f"Error: {str(e)}")
             return JsonResponse({"message": "An error occurred.", "error": str(e)}, status=500)
 
     return JsonResponse({"message": "Invalid request method."}, status=405)
+
+@csrf_exempt
+def download_pdfs(request):
+    """异步版本的PDF下载接口，立即返回operation_id避免Cloudflare 524超时"""
+    if request.method == "POST":
+        # 生成操作ID
+        operation_id = f"download_{int(time.time())}"
+        
+        print(f"[DEBUG] Starting async download task: {operation_id}")
+        
+        # 启动异步任务
+        success = task_manager.start_task(
+            operation_id, 
+            download_pdfs_sync, 
+            request
+        )
+        
+        if not success:
+            print(f"[DEBUG] Task {operation_id} already running")
+            return JsonResponse({'error': 'Download task already running'}, status=409)
+        
+        print(f"[DEBUG] Async task {operation_id} started successfully")
+        
+        # 立即返回operation_id，不等待处理完成
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'PDF download started successfully. Use the operation_id to check progress.',
+            'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
+        })
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def annotate_categories(request):
@@ -1347,7 +1420,7 @@ def get_survey_id_sync(request):
                     Global_collection_names_clustered, 
                     None,  # pipeline参数设置为None，函数内部已经改为API调用
                     Global_citation_data,
-                    embedder = embedder
+                    embedder = get_embedder()
                 )
                 
                 update_progress(operation_id, 90, "Survey generation completed!")
@@ -1727,6 +1800,8 @@ def upload_refs(request):
         # 生成操作ID
         operation_id = f"upload_{int(time.time())}"
         
+        print(f"[DEBUG] Starting async upload task: {operation_id}")
+        
         # 启动异步任务
         success = task_manager.start_task(
             operation_id, 
@@ -1735,7 +1810,10 @@ def upload_refs(request):
         )
         
         if not success:
+            print(f"[DEBUG] Task {operation_id} already running")
             return JsonResponse({'error': 'Upload task already running'}, status=409)
+        
+        print(f"[DEBUG] Async task {operation_id} started successfully")
         
         # 立即返回operation_id，不等待处理完成
         return JsonResponse({
@@ -1801,3 +1879,30 @@ def get_survey_id(request):
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+@csrf_exempt
+def test_async_simple(request):
+    """简单的异步测试函数，用于验证异步机制"""
+    if request.method == 'POST':
+        operation_id = f"test_{int(time.time())}"
+        
+        def simple_task(request):
+            """简单的测试任务"""
+            update_progress(operation_id, 10, "Starting test task...")
+            time.sleep(2)
+            update_progress(operation_id, 50, "Task half way...")
+            time.sleep(2)
+            update_progress(operation_id, 100, "Test task completed!")
+            return JsonResponse({'message': 'Test completed successfully', 'test_id': operation_id})
+        
+        success = task_manager.start_task(operation_id, simple_task, request)
+        
+        if not success:
+            return JsonResponse({'error': 'Test task already running'}, status=409)
+        
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'Test task started successfully.'
+        })
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
