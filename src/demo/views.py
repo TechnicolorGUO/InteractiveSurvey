@@ -54,7 +54,7 @@ from .asg_latex import tex_to_pdf, insert_figures, md_to_tex, preprocess_md
 # from .survey_generator_api import ensure_all_papers_cited
 import glob
 
-from langchain_huggingface import HuggingFaceEmbeddings
+from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 import signal
 import threading
@@ -158,28 +158,28 @@ def init_embedder_with_retry():
     ensure_cache_dirs()
     
     try:
-        print("正在初始化 HuggingFace embeddings...")
+        print("正在初始化 SentenceTransformer embeddings...")
         # 尝试初始化embedder
-        embedder = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2",
+        model = SentenceTransformer(
+            'sentence-transformers/all-MiniLM-L6-v2',
             cache_folder='./models/transformers_cache'
         )
-        print("HuggingFace embeddings 初始化成功")
-        return embedder
+        print("SentenceTransformer embeddings 初始化成功")
+        return model
         
     except Exception as e:
-        print(f"初始化 HuggingFace embeddings 失败: {e}")
+        print(f"初始化 SentenceTransformer embeddings 失败: {e}")
         print("尝试使用本地缓存或替代方案...")
         
         try:
             # 尝试使用本地缓存
-            embedder = HuggingFaceEmbeddings(
-                model_name="sentence-transformers/all-MiniLM-L6-v2",
+            model = SentenceTransformer(
+                'sentence-transformers/all-MiniLM-L6-v2',
                 cache_folder='./models/transformers_cache',
-                model_kwargs={'local_files_only': True}
+                local_files_only=True
             )
             print("使用本地缓存成功")
-            return embedder
+            return model
         except Exception as e2:
             print(f"使用本地缓存也失败: {e2}")
             print("警告: 将使用空的 embedder，某些功能可能不可用")
