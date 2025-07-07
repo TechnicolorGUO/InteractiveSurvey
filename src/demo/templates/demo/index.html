@@ -703,13 +703,13 @@ FONTS & ICONS
 				window.open(pdfURL, '_blank');
 			}
 
-			// 保持 sendPDFLinksToServer 不变，假设它要上传 pdfLinks 和 pdfTitles
+			// 保持 sendPDFLinksToServer 不变，去掉 alert，仅保留蒙版
 			async function sendPDFLinksToServer() {
 				if (pdfLinks.length === 0) {
-					alert("No PDFs to download.");
+					// alert("No PDFs to download.");
 					return;
 				}
-				
+
 				// 显示简单的蒙版
 				const loadingOverlay = document.getElementById("loading-overlay");
 				loadingOverlay.style.display = "flex";
@@ -729,35 +729,18 @@ FONTS & ICONS
 					});
 
 					if (!response.ok) {
-						throw new Error(`HTTP error! status: ${response.status}`);
+						// throw new Error(`HTTP error! status: ${response.status}`);
+						loadingOverlay.style.display = "none";
+						return;
 					}
 
-					const result = await response.json();
-
-					// 关闭蒙版
+					// 下载完成，自动关闭蒙版
 					loadingOverlay.style.display = "none";
-
-					// 直接弹出结果
-					let message = result.message;
-					if (result.failed && result.failed.length > 0) {
-						message += `\n\nFailed downloads (${result.failed.length}):\n`;
-						result.failed.forEach(failed => {
-							message += `- ${failed.url}: ${failed.reason}\n`;
-						});
-					}
-					alert(message);
+					// 可选：可在此处添加页面提示或刷新等操作
 
 				} catch (error) {
 					loadingOverlay.style.display = "none";
-					let errorMessage = "Failed to download PDFs.";
-					if (error.name === 'AbortError') {
-						errorMessage = "Download timed out. Please try again with fewer files or check your internet connection.";
-					} else if (error.message.includes('fetch')) {
-						errorMessage = "Network error. Please check your internet connection and try again.";
-					} else {
-						errorMessage = `Error: ${error.message}`;
-					}
-					alert(errorMessage);
+					// 可选：可在此处添加错误提示
 				}
 			}
 
