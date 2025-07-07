@@ -617,16 +617,10 @@ def upload_refs_sync(request):
 
             update_progress(operation_id, 30, "Setting up survey ID...")
             
-            survey_id_choice = request.POST.get('survey_id')
-            if survey_id_choice == "new":
-                custom_survey_id = request.POST.get('custom_survey_id', '').strip()
-                if custom_survey_id:
-                    Global_survey_id = custom_survey_id
-                else:
-                    Global_survey_id = 'test_4' if Global_test_flag else generate_uid()
-            else:
-                Global_survey_id = survey_id_choice
+            # 始终生成新的survey_id，无论前端传递什么参数
+            Global_survey_id = 'test_4' if Global_test_flag else generate_uid()
             uid_str = Global_survey_id
+            print(f"[DEBUG] Generated new survey_id: {Global_survey_id}")
 
             update_progress(operation_id, 40, "Processing uploaded files...")
             

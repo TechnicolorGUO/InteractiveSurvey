@@ -989,6 +989,11 @@ FONTS & ICONS
 	<div class="col-md-12" style="display: none" id="pdf-preview-section">
 		<hr class="firsthr">
 		<h2 align="left"><span class="fas fa-file-pdf"></span> PDF Preview</h2>
+		<div class="text-right mb-2">
+			<a id="pdf-download-link" href="" download class="btn btn-primary btn-sm" style="display: none;">
+				<i class="fas fa-download"></i> Download PDF
+			</a>
+		</div>
 		<div class="pdf-container" id="pdf-preview-container">
 			<iframe id="pdf-preview-frame" src="" style="width: 100%; height: 600px; border: 1px solid #ddd;"></iframe>
 		</div>
@@ -1275,6 +1280,12 @@ FONTS & ICONS
 	}
 
 	function handleUploadSuccess(result) {
+		// 重置PDF预览区域（因为这是新的survey）
+		document.getElementById('pdf-preview-section').style.display = 'none';
+		document.getElementById('pdf-preview-frame').src = '';
+		document.getElementById('pdf-download-link').style.display = 'none';
+		document.getElementById('pdf-download-link').href = '';
+		
 		// 原来的成功处理逻辑
 		// Iterate over the filenames array
 		for (let i = 0, len = result['filenames'].length; i < len; i++) {
@@ -2139,10 +2150,24 @@ function select_sections() {
 						: `/static/data/results/survey_${data.result.survey_id}_latex.pdf`;
 					
 					// 等待一下让用户看到100%完成
-					updateProgressBar(100, 'Download starting...');
+					updateProgressBar(100, 'PDF ready! Displaying in viewer...');
 					await new Promise(r => setTimeout(r, 500));
 					
-					window.location.href = downloadUrl;
+					// 在iframe中显示PDF，而不是下载
+					document.getElementById('pdf-preview-frame').src = downloadUrl;
+					document.getElementById('pdf-preview-section').style.display = 'block';
+					
+					// 设置下载链接
+					const downloadLink = document.getElementById('pdf-download-link');
+					downloadLink.href = downloadUrl;
+					downloadLink.style.display = 'inline-block';
+					downloadLink.download = (type === 'pdf') 
+						? `survey_${data.result.survey_id}.pdf`
+						: `survey_${data.result.survey_id}_latex.pdf`;
+					
+					// 滚动到PDF预览区域
+					document.getElementById('pdf-preview-section').scrollIntoView({ behavior: 'smooth' });
+					
 					break;
 				} else if (status === 'failed') {
 					alert('PDF generation failed: ' + (data.error || 'Unknown error'));
