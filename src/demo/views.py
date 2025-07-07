@@ -1291,7 +1291,8 @@ def get_survey_id(request):
                     Global_survey_title, 
                     Global_collection_names_clustered, 
                     None,  # pipeline参数设置为None，函数内部已经改为API调用
-                    Global_citation_data
+                    Global_citation_data,
+                    embedder = embedder
                 )
                 
                 update_progress(operation_id, 90, "Survey generation completed!")

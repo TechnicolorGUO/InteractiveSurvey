@@ -746,7 +746,7 @@ def generate_survey_paper_new(title, outline, context_list, client):
     return full_survey_content
 
 # wza
-def generate_survey_paper_new(title, outline, context_list, client, citation_data_list):
+def generate_survey_paper_new(title, outline, context_list, client, citation_data_list, embedder):
     parsed_outline = ast.literal_eval(outline)
     selected_subsections = parse_outline_with_subsections(outline)
 
@@ -758,7 +758,7 @@ def generate_survey_paper_new(title, outline, context_list, client, citation_dat
         citation_data_list
     )
     generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
-    generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
+    generated_introduction = introduction_with_citations(generated_introduction, citation_data_list, embedder)
     introduction_pattern = r"(# 2 Introduction\n)(.*?)(\n# 3 )"
     # Use a lambda to build the replacement string so that any backslashes in
     # generated_introduction do not get treated as invalid escape sequences
@@ -798,39 +798,39 @@ def query_embedding_for_title(
     return final_context
 
 # old
-def generate_context_list(outline, collection_list):
-    context_list = []
-    cluster_idx = -1
-    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    subsections = parse_outline_with_subsections(outline)
+# def generate_context_list(outline, collection_list):
+#     context_list = []
+#     cluster_idx = -1
+#     embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+#     subsections = parse_outline_with_subsections(outline)
     
-    for level, title in subsections:
-        if(title.startswith("3")):
-            cluster_idx = 0
-        elif(title.startswith("4")):
-            cluster_idx = 1
-        elif(title.startswith("5")):
-            cluster_idx = 2
+#     for level, title in subsections:
+#         if(title.startswith("3")):
+#             cluster_idx = 0
+#         elif(title.startswith("4")):
+#             cluster_idx = 1
+#         elif(title.startswith("5")):
+#             cluster_idx = 2
         
-        context_temp = ""
-        for i in range(len(collection_list[cluster_idx])):
-            context = query_embedding_for_title(
-                collection_list[cluster_idx][i], 
-                title, 
-                embedder=embedder
-            )
-            context_temp += context
-            context_temp += "\n"
-        context_list.append(context_temp)
-    return context_list
+#         context_temp = ""
+#         for i in range(len(collection_list[cluster_idx])):
+#             context = query_embedding_for_title(
+#                 collection_list[cluster_idx][i], 
+#                 title, 
+#                 embedder=embedder
+#             )
+#             context_temp += context
+#             context_temp += "\n"
+#         context_list.append(context_temp)
+#     return context_list
 
 # 2025
-def generate_context_list(outline, collection_list):
+def generate_context_list(outline, collection_list, embedder):
 
     subsections = parse_outline_with_subsections(outline)
     print("[DEBUG] subsections:", subsections)
 
-    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embedder = embedder
     context_list_final = []
     
     for level, title in subsections:
@@ -857,6 +857,7 @@ def generate_context_list(outline, collection_list):
 def introduction_with_citations(
     intro_text: str,
     citation_data_list: list,
+    embedder: HuggingFaceEmbeddings,
     base_threshold: float = 0.7,
     dynamic_threshold: bool = True,
     diversity_limit: int = 3
@@ -895,7 +896,6 @@ def introduction_with_citations(
         return intro_text
 
     # 3. 对所有句子进行 Embedding
-    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     sentence_embeddings = embedder.embed_documents(all_sentences)
 
     # 4. 对 citation_data_list 里每段文献块进行向量化

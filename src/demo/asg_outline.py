@@ -917,10 +917,10 @@ def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
     return
 
 # wza
-def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citation_data_list):
+def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citation_data_list, embedder):
     outline = str(parseOutline(survey_id))
     client = getQwenClient()
-    context_list = generate_context_list(outline, collection_list)
+    context_list = generate_context_list(outline, collection_list, embedder)
 
     temp = {
         "survey_id": survey_id,
@@ -936,7 +936,7 @@ def generateSurvey_qwen_new(survey_id, title, collection_list, pipeline, citatio
     }
 
     # 调用generate_survey_paper_new时传入citation_data_list
-    generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client, citation_data_list)
+    generated_survey_paper = generate_survey_paper_new(title, outline, context_list, client, citation_data_list, embedder)
 
     generated_introduction = generate_introduction_alternate(title, generated_survey_paper, client)
     # generated_introduction = introduction_with_citations(generated_introduction, citation_data_list)
