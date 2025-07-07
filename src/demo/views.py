@@ -1879,30 +1879,30 @@ def get_survey_id(request):
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-@csrf_exempt
-def test_async_simple(request):
-    """简单的异步测试函数，用于验证异步机制"""
-    if request.method == 'POST':
-        operation_id = f"test_{int(time.time())}"
-        
-        def simple_task(request):
-            """简单的测试任务"""
-            update_progress(operation_id, 10, "Starting test task...")
-            time.sleep(2)
-            update_progress(operation_id, 50, "Task half way...")
-            time.sleep(2)
-            update_progress(operation_id, 100, "Test task completed!")
-            return JsonResponse({'message': 'Test completed successfully', 'test_id': operation_id})
-        
-        success = task_manager.start_task(operation_id, simple_task, request)
-        
-        if not success:
-            return JsonResponse({'error': 'Test task already running'}, status=409)
-        
-        return JsonResponse({
-            'operation_id': operation_id,
-            'status': 'started',
-            'message': 'Test task started successfully.'
-        })
-    
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+# @csrf_exempt
+# def test_async_simple(request):
+#     """简单的异步测试函数，用于验证异步机制"""
+#     if request.method == 'POST':
+#         operation_id = f"test_{int(time.time())}"
+#         
+#         def simple_task(request):
+#             """简单的测试任务"""
+#             update_progress(operation_id, 10, "Starting test task...")
+#             time.sleep(2)
+#             update_progress(operation_id, 50, "Task half way...")
+#             time.sleep(2)
+#             update_progress(operation_id, 100, "Test task completed!")
+#             return JsonResponse({'message': 'Test completed successfully', 'test_id': operation_id})
+#         
+#         success = task_manager.start_task(operation_id, simple_task, request)
+#         
+#         if not success:
+#             return JsonResponse({'error': 'Test task already running'}, status=409)
+#         
+#         return JsonResponse({
+#             'operation_id': operation_id,
+#             'status': 'started',
+#             'message': 'Test task started successfully.'
+#         })
+#     
+#     return JsonResponse({'error': 'Invalid request method'}, status=405)
