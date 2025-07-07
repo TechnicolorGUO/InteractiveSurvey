@@ -710,25 +710,16 @@ FONTS & ICONS
 					return;
 				}
 				
-				// 显示加载界面
+				// 显示简单的蒙版
 				const loadingOverlay = document.getElementById("loading-overlay");
 				loadingOverlay.style.display = "flex";
 				loadingOverlay.innerHTML = `
 					<div style="text-align: center;">
-						<div style="font-size: 24px; margin-bottom: 10px;">Starting PDF Download...</div>
-						<div style="font-size: 16px;">This may take a few minutes. Please don't close the browser.</div>
-						<div style="font-size: 14px; margin-top: 10px;">Initializing download...</div>
-						<div style="margin-top: 10px;">
-							<div style="width: 100%; background-color: #f0f0f0; border-radius: 5px; overflow: hidden;">
-								<div id="download-progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50; transition: width 0.3s;"></div>
-							</div>
-						</div>
-						<div id="download-status" style="font-size: 12px; margin-top: 5px;">Starting...</div>
+						<div style="font-size: 24px; margin-bottom: 10px;">Downloading PDFs, please wait...</div>
 					</div>
 				`;
 
 				try {
-					// 启动异步下载任务
 					const response = await fetch('/download_pdfs/', {
 						method: 'POST',
 						headers: {
@@ -742,18 +733,22 @@ FONTS & ICONS
 					}
 
 					const result = await response.json();
-					
-					if (result.status === 'started' && result.operation_id) {
-						// 开始轮询进度
-						await pollDownloadProgress(result.operation_id);
-					} else {
-						// 直接返回结果（兼容旧版本）
-						handleDownloadResult(result);
+
+					// 关闭蒙版
+					loadingOverlay.style.display = "none";
+
+					// 直接弹出结果
+					let message = result.message;
+					if (result.failed && result.failed.length > 0) {
+						message += `\n\nFailed downloads (${result.failed.length}):\n`;
+						result.failed.forEach(failed => {
+							message += `- ${failed.url}: ${failed.reason}\n`;
+						});
 					}
-					
+					alert(message);
+
 				} catch (error) {
-					console.error("Error sending PDF links to server:", error);
-					
+					loadingOverlay.style.display = "none";
 					let errorMessage = "Failed to download PDFs.";
 					if (error.name === 'AbortError') {
 						errorMessage = "Download timed out. Please try again with fewer files or check your internet connection.";
@@ -762,82 +757,7 @@ FONTS & ICONS
 					} else {
 						errorMessage = `Error: ${error.message}`;
 					}
-					
 					alert(errorMessage);
-				} finally {
-					loadingOverlay.style.display = "none";
-				}
-			}
-
-			// 轮询下载进度
-			async function pollDownloadProgress(operationId) {
-				const maxAttempts = 300; // 最多轮询5分钟
-				let attempts = 0;
-				
-				while (attempts < maxAttempts) {
-					try {
-						const response = await fetch(`/get_operation_progress/?operation_id=${operationId}`);
-						
-						if (!response.ok) {
-							throw new Error(`HTTP error! status: ${response.status}`);
-						}
-						
-						const progressData = await response.json();
-						
-						// 更新进度条和状态
-						updateDownloadProgress(progressData);
-						
-						if (progressData.status === 'completed') {
-							// 下载完成
-							handleDownloadResult(progressData.result);
-							return;
-						} else if (progressData.status === 'failed') {
-							// 下载失败
-							alert(`Download failed: ${progressData.error || 'Unknown error'}`);
-							return;
-						}
-						
-						// 等待2秒后再次轮询
-						await new Promise(resolve => setTimeout(resolve, 2000));
-						attempts++;
-						
-					} catch (error) {
-						console.error("Error polling progress:", error);
-						attempts++;
-						await new Promise(resolve => setTimeout(resolve, 2000));
-					}
-				}
-				
-				// 超时
-				alert("Download progress polling timed out. Please check if the download completed successfully.");
-			}
-
-			// 更新下载进度显示
-			function updateDownloadProgress(progressData) {
-				const progressBar = document.getElementById("download-progress-bar");
-				const statusDiv = document.getElementById("download-status");
-				
-				if (progressBar && statusDiv) {
-					const progress = progressData.progress || 0;
-					const message = progressData.message || "Processing...";
-					
-					progressBar.style.width = `${progress}%`;
-					statusDiv.textContent = message;
-					
-					// 更新标题
-					const loadingOverlay = document.getElementById("loading-overlay");
-					if (loadingOverlay) {
-						const titleDiv = loadingOverlay.querySelector("div > div:first-child");
-						if (titleDiv) {
-							if (progress === 100) {
-								titleDiv.textContent = "Download Completed!";
-							} else if (progress === -1) {
-								titleDiv.textContent = "Download Failed";
-							} else {
-								titleDiv.textContent = `Downloading PDFs... (${progress}%)`;
-							}
-						}
-					}
 				}
 			}
 
