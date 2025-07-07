@@ -1160,6 +1160,10 @@ FONTS & ICONS
 		formData.append("mode", mode);
 		formData.append("survey_id", survey_id);
 		formData.append("custom_survey_id", custom_survey_id);
+
+		// 显示进度条和状态信息
+		showUploadProgress();
+
 		$.ajax({
 		type: "POST",
 		dataType: "json",
@@ -1168,46 +1172,132 @@ FONTS & ICONS
 		contentType: false,
 		data: formData,
 		success: function(result) {
-			// Iterate over the filenames array
-			for (let i = 0, len = result['filenames'].length; i < len; i++) {
-			let filename = result['filenames'][i];
-			let filesize = result['filesizes'][i];
-			let sanitizedFilename = sanitizeFilename(filename);
-			let survey_id = result['survey_id'];
-			let ref_id = result['ref_ids'][i];
-			// let parts = filename.split(' ');
-			// parts.pop();
-			// let cleanedFileName = parts.join(' ');
-			let cleanedFileName = filename;
-
-			// Create HTML structure for PDF icon with clickable link
-			let pdfHtml = `
-			<div class="pdf-item" style="display: flex; align-items: center; font-size: 0.8em;">
-				<div class="pdf-icon" style="flex-shrink: 0;">
-					<i class="fas fa-file-pdf"></i>
-				</div>
-				<div class="pdf-details" style="flex-grow: 1; margin-left: 10px;">
-					<a href="#" onclick="fetchAndDisplayJson('/static/data/txt/${survey_id}/${sanitizedFilename}.json'); return false;">
-						<p class="pdf-name" style="margin: 0; font-size: 1em;">${sanitizedFilename}</p>
-						<p class="pdf-info" style="margin: 0; font-size: 0.9em;">${filesize} MB</p>
-					</a>
-				</div>
-
-				<input type="hidden" name="refs" value="${ref_id}" class="pdf-hidden-input">
-			</div>
-		`;
-			$("#ref_list").append(pdfHtml);
+			if (result.operation_id) {
+				// 异步任务已启动，开始轮询进度
+				pollUploadProgress(result.operation_id);
+			} else {
+				// 兼容旧版本的同步响应
+				handleUploadSuccess(result);
 			}
-			$("#refs").attr("style","display:inline;");
-			$("#select_refs").attr("style","display:none;");
-			$("#input_ref_head").html("<span class=\"fas fa-tags\"></span> You can input topic by yourself:");
-			$("#refs_head").html("<span class=\"fas fa-copy\"></span> Here are the uploaded references:");
-			$("#auto_taxonomy").attr("style","display:inline;");
 		},
 		error: function(jqXHR, textStatus, errorThrown){
-			alert(jqXHR.responseText);
+			hideUploadProgress();
+			alert("Upload failed: " + jqXHR.responseText);
 		}
 		});
+	}
+
+	function showUploadProgress() {
+		// 显示进度条（如果没有，创建一个简单的）
+		if (!$('#upload-progress').length) {
+			$('body').append(`
+				<div id="upload-progress" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+					 background: white; padding: 20px; border: 2px solid #ccc; border-radius: 10px; z-index: 9999; min-width: 300px;">
+					<div style="text-align: center;">
+						<h4>Uploading Files...</h4>
+						<div id="progress-bar" style="width: 100%; background-color: #f0f0f0; border-radius: 5px; margin: 10px 0;">
+							<div id="progress-fill" style="width: 0%; height: 20px; background-color: #4CAF50; border-radius: 5px; transition: width 0.3s;"></div>
+						</div>
+						<div id="progress-text">Starting upload...</div>
+						<div id="progress-percentage">0%</div>
+					</div>
+				</div>
+			`);
+		}
+		$('#upload-progress').show();
+	}
+
+	function hideUploadProgress() {
+		$('#upload-progress').hide();
+	}
+
+	function updateProgressBar(progress, message) {
+		$('#progress-fill').css('width', progress + '%');
+		$('#progress-text').text(message);
+		$('#progress-percentage').text(progress + '%');
+	}
+
+	function pollUploadProgress(operationId) {
+		function checkProgress() {
+			$.ajax({
+				type: "GET",
+				url: "/get_operation_progress/",
+				data: { operation_id: operationId },
+				success: function(result) {
+					const progress = result.progress || 0;
+					const message = result.message || 'Processing...';
+					const status = result.status || 'running';
+
+					updateProgressBar(progress, message);
+
+					if (status === 'completed') {
+						// 任务完成
+						setTimeout(() => {
+							hideUploadProgress();
+							if (result.result) {
+								handleUploadSuccess(result.result);
+							} else {
+								handleUploadSuccess(result);
+							}
+						}, 500);
+					} else if (status === 'failed') {
+						// 任务失败
+						hideUploadProgress();
+						alert('Upload failed: ' + (result.error || 'Unknown error'));
+					} else {
+						// 继续轮询
+						setTimeout(checkProgress, 2000); // 每2秒检查一次
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.error('Progress check failed:', textStatus, errorThrown);
+					// 继续尝试，但增加间隔
+					setTimeout(checkProgress, 5000);
+				}
+			});
+		}
+
+		// 开始轮询
+		checkProgress();
+	}
+
+	function handleUploadSuccess(result) {
+		// 原来的成功处理逻辑
+		// Iterate over the filenames array
+		for (let i = 0, len = result['filenames'].length; i < len; i++) {
+		let filename = result['filenames'][i];
+		let filesize = result['filesizes'][i];
+		let sanitizedFilename = sanitizeFilename(filename);
+		let survey_id = result['survey_id'];
+		let ref_id = result['ref_ids'][i];
+		// let parts = filename.split(' ');
+		// parts.pop();
+		// let cleanedFileName = parts.join(' ');
+		let cleanedFileName = filename;
+
+		// Create HTML structure for PDF icon with clickable link
+		let pdfHtml = `
+		<div class="pdf-item" style="display: flex; align-items: center; font-size: 0.8em;">
+			<div class="pdf-icon" style="flex-shrink: 0;">
+				<i class="fas fa-file-pdf"></i>
+			</div>
+			<div class="pdf-details" style="flex-grow: 1; margin-left: 10px;">
+				<a href="#" onclick="fetchAndDisplayJson('/static/data/txt/${survey_id}/${sanitizedFilename}.json'); return false;">
+					<p class="pdf-name" style="margin: 0; font-size: 1em;">${sanitizedFilename}</p>
+					<p class="pdf-info" style="margin: 0; font-size: 0.9em;">${filesize} MB</p>
+				</a>
+			</div>
+
+			<input type="hidden" name="refs" value="${ref_id}" class="pdf-hidden-input">
+		</div>
+	`;
+		$("#ref_list").append(pdfHtml);
+		}
+		$("#refs").attr("style","display:inline;");
+		$("#select_refs").attr("style","display:none;");
+		$("#input_ref_head").html("<span class=\"fas fa-tags\"></span> You can input topic by yourself:");
+		$("#refs_head").html("<span class=\"fas fa-copy\"></span> Here are the uploaded references:");
+		$("#auto_taxonomy").attr("style","display:inline;");
 	}
 
 	function removePdf(element) {
