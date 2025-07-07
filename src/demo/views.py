@@ -1,20 +1,20 @@
 from __future__ import unicode_literals
 import sys
-
+from langchain_huggingface import HuggingFaceEmbeddings
 # 禁用所有遥测功能
 import os
 os.environ['ANONYMIZED_TELEMETRY'] = 'False'
 os.environ['DISABLE_TELEMETRY'] = '1'
-os.environ['TRANSFORMERS_OFFLINE'] = '1'
-os.environ['HF_HUB_OFFLINE'] = '1'
+# os.environ['TRANSFORMERS_OFFLINE'] = '1'
+# os.environ['HF_HUB_OFFLINE'] = '1'
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 os.environ['WANDB_DISABLED'] = 'true'
 os.environ['COMET_DISABLE_AUTO_LOGGING'] = '1'
 # 添加 Hugging Face 离线模式和缓存设置
-os.environ['HF_DATASETS_OFFLINE'] = '1'  
-os.environ['TRANSFORMERS_CACHE'] = './models/transformers_cache'
-os.environ['HF_HOME'] = './models/huggingface_cache'
-os.environ['HF_HUB_CACHE'] = './models/huggingface_hub_cache'
+# os.environ['HF_DATASETS_OFFLINE'] = '1'  
+# os.environ['TRANSFORMERS_CACHE'] = './models/transformers_cache'
+# os.environ['HF_HOME'] = './models/huggingface_cache'
+# os.environ['HF_HUB_CACHE'] = './models/huggingface_hub_cache'
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -153,41 +153,40 @@ def ensure_cache_dirs():
     for cache_dir in cache_dirs:
         Path(cache_dir).mkdir(parents=True, exist_ok=True)
 
-def init_embedder_with_retry():
-    """初始化embedder，带重试和错误处理"""
-    ensure_cache_dirs()
+# def init_embedder_with_retry():
+#     """初始化embedder，带重试和错误处理"""
+#     ensure_cache_dirs()
     
-    try:
-        print("正在初始化 SentenceTransformer embeddings...")
-        # 尝试初始化embedder
-        model = SentenceTransformer(
-            'sentence-transformers/all-MiniLM-L6-v2',
-            cache_folder='./models/transformers_cache'
-        )
-        print("SentenceTransformer embeddings 初始化成功")
-        return model
+#     try:
+#         print("正在初始化 SentenceTransformer embeddings...")
+#         # 尝试初始化embedder
+#         model = SentenceTransformer(
+#             'sentence-transformers/all-MiniLM-L6-v2',
+#             cache_folder='./models/transformers_cache'
+#         )
+#         print("SentenceTransformer embeddings 初始化成功")
+#         return model
         
-    except Exception as e:
-        print(f"初始化 SentenceTransformer embeddings 失败: {e}")
-        print("尝试使用本地缓存或替代方案...")
+#     except Exception as e:
+#         print(f"初始化 SentenceTransformer embeddings 失败: {e}")
+#         print("尝试使用本地缓存或替代方案...")
         
-        try:
-            # 尝试使用本地缓存
-            model = SentenceTransformer(
-                'sentence-transformers/all-MiniLM-L6-v2',
-                cache_folder='./models/transformers_cache',
-                local_files_only=True
-            )
-            print("使用本地缓存成功")
-            return model
-        except Exception as e2:
-            print(f"使用本地缓存也失败: {e2}")
-            print("警告: 将使用空的 embedder，某些功能可能不可用")
-            return None
+#         try:
+#             # 尝试使用本地缓存
+#             model = SentenceTransformer(
+#                 'sentence-transformers/all-MiniLM-L6-v2',
+#                 cache_folder='./models/transformers_cache',
+#                 local_files_only=True
+#             )
+#             print("使用本地缓存成功")
+#             return model
+#         except Exception as e2:
+#             print(f"使用本地缓存也失败: {e2}")
+#             print("警告: 将使用空的 embedder，某些功能可能不可用")
+#             return None
 
 # 初始化embedder
-embedder = init_embedder_with_retry()
-
+embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 from demo.category_and_tsne import clustering
 
 # 添加超时装饰器
@@ -1665,4 +1664,3 @@ def cleanup_resources():
 import atexit
 atexit.register(cleanup_resources)
 
-# 初始化模型管道的函数
