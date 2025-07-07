@@ -261,40 +261,7 @@ def get_operation_progress(request):
         if operation_id:
             print(f"[DEBUG] Checking progress for operation_id: {operation_id}")
             
-            # 首先检查 progress_tracker 中的进度数据
-            progress_info = progress_tracker.get(operation_id)
-            if progress_info:
-                print(f"[DEBUG] Found progress in tracker: {progress_info}")
-                
-                # 检查是否有明确的状态标记
-                if progress_info.get('status') == 'completed':
-                    return JsonResponse({
-                        'progress': progress_info.get('progress', 100),
-                        'message': progress_info.get('message', 'Completed'),
-                        'status': 'completed',
-                        'result': progress_info.get('result')
-                    })
-                elif progress_info.get('progress', 0) >= 100:
-                    return JsonResponse({
-                        'progress': progress_info['progress'],
-                        'message': progress_info.get('message', 'Completed'),
-                        'status': 'completed',
-                        'result': progress_info.get('result')
-                    })
-                elif progress_info.get('progress', 0) < 0:
-                    return JsonResponse({
-                        'progress': progress_info['progress'],
-                        'message': progress_info.get('message', 'Failed'),
-                        'status': 'failed'
-                    })
-                else:
-                    return JsonResponse({
-                        'progress': progress_info['progress'],
-                        'message': progress_info.get('message', 'Processing...'),
-                        'status': 'running'
-                    })
-            
-            # 如果 progress_tracker 中没有数据，检查异步任务状态
+            # 首先检查异步任务状态
             task_status = task_manager.get_task_status(operation_id)
             print(f"[DEBUG] Task status: {task_status}")
             
@@ -309,7 +276,7 @@ def get_operation_progress(request):
                         content = json.loads(result.content.decode('utf-8'))
                         return JsonResponse({
                             'progress': 100,
-                            'message': 'Completed successfully!',
+                            'message': 'Upload completed successfully!',
                             'status': 'completed',
                             'result': content
                         })
@@ -317,13 +284,13 @@ def get_operation_progress(request):
                         print(f"[DEBUG] Error parsing HttpResponse content: {e}")
                         return JsonResponse({
                             'progress': 100,
-                            'message': 'Completed successfully!',
+                            'message': 'Upload completed successfully!',
                             'status': 'completed'
                         })
                 else:
                     return JsonResponse({
                         'progress': 100,
-                        'message': 'Completed successfully!',
+                        'message': 'Upload completed successfully!',
                         'status': 'completed',
                         'result': result
                     })
@@ -332,7 +299,7 @@ def get_operation_progress(request):
                 print(f"[DEBUG] Task {operation_id} failed: {task_status.get('error')}")
                 return JsonResponse({
                     'progress': -1,
-                    'message': f"Task failed: {task_status.get('error', 'Unknown error')}",
+                    'message': f"Upload failed: {task_status.get('error', 'Unknown error')}",
                     'status': 'failed',
                     'error': task_status.get('error')
                 })
@@ -1505,14 +1472,6 @@ def get_survey_id_sync(request):
             try:
                 update_progress(operation_id, 40, "Generating survey outline...")
                 
-                # 添加更详细的进度跟踪
-                update_progress(operation_id, 50, "Loading embedder and preparing data...")
-                embedder = get_embedder()
-                if embedder is None:
-                    raise Exception("Failed to load embedder")
-                
-                update_progress(operation_id, 60, "Starting survey generation...")
-                
                 # 这里调用实际的survey生成函数，不再需要pipeline参数
                 generateSurvey_qwen_new(
                     Global_survey_id, 
@@ -1520,34 +1479,22 @@ def get_survey_id_sync(request):
                     Global_collection_names_clustered, 
                     None,  # pipeline参数设置为None，函数内部已经改为API调用
                     Global_citation_data,
-                    embedder = embedder
+                    embedder = get_embedder()
                 )
                 
                 update_progress(operation_id, 90, "Survey generation completed!")
                 return True
                 
             except Exception as e:
-                error_msg = f"Survey generation failed: {str(e)}"
-                update_progress(operation_id, -1, error_msg)
+                update_progress(operation_id, -1, f"Survey generation failed: {str(e)}")
                 print(f"Error in generateSurvey_qwen_new: {e}")
-                import traceback
-                traceback.print_exc()
                 return False
         
         # 执行survey生成
         success = generate_survey_with_progress()
         
         if success:
-            # 存储结果供前端获取
-            result_data = {'survey_id': Global_survey_id}
-            # 直接存储到progress_tracker中
-            progress_tracker[operation_id] = {
-                'progress': 100,
-                'message': "Survey ready!",
-                'timestamp': time.time(),
-                'status': 'completed',
-                'result': result_data
-            }
+            update_progress(operation_id, 100, "Survey ready!")
             
             response_data = {
                 "survey_id": Global_survey_id,
