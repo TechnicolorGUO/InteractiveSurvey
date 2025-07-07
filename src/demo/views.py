@@ -269,28 +269,50 @@ def get_operation_progress(request):
                 # 任务完成，返回结果
                 print(f"[DEBUG] Task {operation_id} completed, returning result")
                 result = task_status.get('result')
+                
+                # 检查result是否是HttpResponse对象（旧的PDF生成方式）
                 if hasattr(result, 'content'):
-                    # 如果result是HttpResponse对象，解析其内容
                     try:
                         import json
                         content = json.loads(result.content.decode('utf-8'))
                         return JsonResponse({
                             'progress': 100,
-                            'message': 'Upload completed successfully!',
+                            'message': 'Task completed successfully!',
                             'status': 'completed',
                             'result': content
                         })
                     except Exception as e:
                         print(f"[DEBUG] Error parsing HttpResponse content: {e}")
+                        # 对于PDF等二进制文件，我们不解析内容，只返回完成状态
                         return JsonResponse({
                             'progress': 100,
-                            'message': 'Upload completed successfully!',
+                            'message': 'Task completed successfully!',
+                            'status': 'completed',
+                            'result': {'message': 'Binary file generated successfully'}
+                        })
+                # 检查result是否是Django JsonResponse对象
+                elif hasattr(result, 'content') and hasattr(result, 'status_code'):
+                    try:
+                        import json
+                        content = json.loads(result.content.decode('utf-8'))
+                        return JsonResponse({
+                            'progress': 100,
+                            'message': 'Task completed successfully!',
+                            'status': 'completed',
+                            'result': content
+                        })
+                    except Exception as e:
+                        print(f"[DEBUG] Error parsing JsonResponse content: {e}")
+                        return JsonResponse({
+                            'progress': 100,
+                            'message': 'Task completed successfully!',
                             'status': 'completed'
                         })
                 else:
+                    # 普通的结果对象
                     return JsonResponse({
                         'progress': 100,
-                        'message': 'Upload completed successfully!',
+                        'message': 'Task completed successfully!',
                         'status': 'completed',
                         'result': result
                     })
@@ -299,7 +321,7 @@ def get_operation_progress(request):
                 print(f"[DEBUG] Task {operation_id} failed: {task_status.get('error')}")
                 return JsonResponse({
                     'progress': -1,
-                    'message': f"Upload failed: {task_status.get('error', 'Unknown error')}",
+                    'message': f"Task failed: {task_status.get('error', 'Unknown error')}",
                     'status': 'failed',
                     'error': task_status.get('error')
                 })
@@ -1518,8 +1540,15 @@ def get_survey_id_sync(request):
 @timeout_handler(900)  # 15分钟超时
 def generate_pdf_sync(request):
     if request.method == 'POST':
+        # 获取operation_id用于进度跟踪
+        operation_id = getattr(request, 'operation_id', f"pdf_{int(time.time())}")
+        update_progress(operation_id, 10, "Starting PDF generation...")
+        
         survey_id = request.POST.get('survey_id', '')
         markdown_content = request.POST.get('content', '')
+        
+        update_progress(operation_id, 20, "Processing markdown content...")
+        
         markdown_dir = f'./src/static/data/info/{survey_id}/'
         markdown_filename = f'survey_{survey_id}_vanilla.md'
         markdown_filepath = os.path.join(markdown_dir, markdown_filename)
@@ -1534,6 +1563,8 @@ def generate_pdf_sync(request):
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
 
+        update_progress(operation_id, 40, "Finalizing survey paper...")
+        
         markdown_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
         markdown_dir = f'./src/static/data/info/{survey_id}/'
         markdown_filename = f'survey_{survey_id}_processed.md'
@@ -1549,6 +1580,8 @@ def generate_pdf_sync(request):
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
 
+        update_progress(operation_id, 60, "Generating PDF file...")
+
         pdf_filename = f'survey_{survey_id}.pdf'
         pdf_dir = './src/static/data/results'
         pdf_filepath = os.path.join(pdf_dir, pdf_filename)
@@ -1561,15 +1594,23 @@ def generate_pdf_sync(request):
 
         print(f"PDF will be saved to: {pdf_filepath}")
 
+        update_progress(operation_id, 80, "Converting markdown to PDF...")
+
         pdf = MarkdownPdf()
         pdf.meta["title"] = "Survey Results"
         pdf.add_section(Section(markdown_content, toc=False))
         pdf.save(pdf_filepath)
 
-        with open(pdf_filepath, 'rb') as pdf_file:
-            response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{pdf_filename}"'
-            return response
+        update_progress(operation_id, 100, "PDF generation completed!")
+
+        # 返回JSON格式的结果而不是二进制PDF数据
+        return JsonResponse({
+            'success': True,
+            'message': 'PDF generated successfully',
+            'survey_id': survey_id,
+            'pdf_filename': pdf_filename,
+            'pdf_path': pdf_filepath
+        })
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -1598,6 +1639,10 @@ def generate_pdf(request):
 def generate_pdf_from_tex_sync(request):
     global Global_survey_id, Global_survey_title
     if request.method == 'POST':
+        # 获取operation_id用于进度跟踪
+        operation_id = getattr(request, 'operation_id', f"latex_{int(time.time())}")
+        update_progress(operation_id, 10, "Starting LaTeX PDF generation...")
+        
         print(f"Request content type: {request.content_type}")
         print(f"Request POST data: {request.POST}")
         print(f"Request FILES: {request.FILES}")
@@ -1605,6 +1650,9 @@ def generate_pdf_from_tex_sync(request):
         print(f"Survey ID: {survey_id}")
         if not survey_id:
             return JsonResponse({'error': 'survey_id is missing'}, status=400)
+            
+        update_progress(operation_id, 20, "Setting up directories...")
+        
         base_dir = f'./src/static/data/info/{survey_id}'
         md_path = os.path.join(base_dir, f'survey_{survey_id}_processed.md')
         new_md_path = os.path.join(base_dir, f'survey_{survey_id}_preprocessed.md')
@@ -1614,13 +1662,22 @@ def generate_pdf_from_tex_sync(request):
         pdf_dir = './src/static/data/results'
         os.makedirs(base_dir, exist_ok=True)
         print(f"Directory '{base_dir}' checked or created.")
+        
+        update_progress(operation_id, 30, "Copying template files...")
+        
         origin_template = 'src/demo/latex_template/template.tex'
         origin_acl_sty = 'src/demo/latex_template/acl.sty'
         shutil.copy(origin_template, tex_path)
         shutil.copy(origin_acl_sty, sty_path)
         os.makedirs(pdf_dir, exist_ok=True)
+        
+        update_progress(operation_id, 50, "Processing markdown content...")
+        
         preprocess_md(md_path, new_md_path)
         md_to_tex(new_md_path, tex_path, Global_survey_title)
+        
+        update_progress(operation_id, 70, "Inserting figures and formatting...")
+        
         insert_figures(
             png_path=f'src/static/data/info/{survey_id}/outline.png',
             tex_path= tex_path, 
@@ -1629,6 +1686,9 @@ def generate_pdf_from_tex_sync(request):
             survey_title=Global_survey_title,
             new_tex_path=new_tex_path
         )
+        
+        update_progress(operation_id, 85, "Compiling LaTeX to PDF...")
+        
         tex_to_pdf(
             new_tex_path,
             output_dir=os.path.dirname(new_tex_path),
@@ -1637,14 +1697,18 @@ def generate_pdf_from_tex_sync(request):
         pdf_path = os.path.join(os.path.dirname(new_tex_path), 'template_with_figure.pdf' )
         final_pdf_path = os.path.join(pdf_dir, f'survey_{survey_id}_latex.pdf')
         shutil.copy2(pdf_path, final_pdf_path)
-        try:
-            with open(final_pdf_path, 'rb') as pdf_file:
-                response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-                filename = os.path.basename(final_pdf_path)
-                response['Content-Disposition'] = f'attachment; filename="{filename}"'
-                return response
-        except Exception as e:
-            return JsonResponse({'error': f'读取 PDF 文件失败: {e}'}, status=500)
+        
+        update_progress(operation_id, 100, "LaTeX PDF generation completed!")
+        
+        # 返回JSON格式的结果而不是二进制PDF数据
+        return JsonResponse({
+            'success': True,
+            'message': 'LaTeX PDF generated successfully',
+            'survey_id': survey_id,
+            'pdf_filename': f'survey_{survey_id}_latex.pdf',
+            'pdf_path': final_pdf_path
+        })
+        
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def get_refs(topic):
