@@ -500,7 +500,7 @@ def get_surveys(request):
     return JsonResponse({'surveys': surveys})
 
 @csrf_exempt
-@timeout_handler(900)  # 15分钟超时
+@timeout_handler(1800)  # 15分钟超时
 def upload_refs_sync(request):
     """同步版本的文件上传处理函数"""
     start_time = time.time()
@@ -1002,7 +1002,7 @@ def get_topic(request):
     return HttpResponse(ref_list)
 
 @csrf_exempt
-@timeout_handler(600)  # 10分钟超时
+@timeout_handler(1800)  # 30分钟超时
 def automatic_taxonomy_sync(request):
     """同步版本的自动分类函数"""
     start_time = time.time()
