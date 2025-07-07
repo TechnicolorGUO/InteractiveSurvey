@@ -703,21 +703,15 @@ FONTS & ICONS
 				window.open(pdfURL, '_blank');
 			}
 
-			// 保持 sendPDFLinksToServer 不变，去掉 alert，仅保留蒙版
+			// --- 下载PDF进度条逻辑 ---
 			async function sendPDFLinksToServer() {
 				if (pdfLinks.length === 0) {
 					// alert("No PDFs to download.");
 					return;
 				}
 
-				// 显示简单的蒙版
-				const loadingOverlay = document.getElementById("loading-overlay");
-				loadingOverlay.style.display = "flex";
-				loadingOverlay.innerHTML = `
-					<div style="text-align: center;">
-						<div style="font-size: 24px; margin-bottom: 10px;">Downloading PDFs, please wait...</div>
-					</div>
-				`;
+				// 显示进度条和状态（与上传一致）
+				showUploadProgress();
 
 				try {
 					const response = await fetch('/download_pdfs/', {
@@ -729,19 +723,52 @@ FONTS & ICONS
 					});
 
 					if (!response.ok) {
-						// throw new Error(`HTTP error! status: ${response.status}`);
-						loadingOverlay.style.display = "none";
+						hideUploadProgress();
 						return;
 					}
 
-					// 下载完成，自动关闭蒙版
-					loadingOverlay.style.display = "none";
-					// 可选：可在此处添加页面提示或刷新等操作
-
+					const result = await response.json();
+					if (result.operation_id) {
+						pollDownloadProgress(result.operation_id);
+					} else {
+						hideUploadProgress();
+					}
 				} catch (error) {
-					loadingOverlay.style.display = "none";
-					// 可选：可在此处添加错误提示
+					hideUploadProgress();
 				}
+			}
+
+			function pollDownloadProgress(operationId) {
+				function checkProgress() {
+					$.ajax({
+						type: "GET",
+						url: "/get_operation_progress/",
+						data: { operation_id: operationId },
+						success: function(result) {
+							const progress = result.progress || 0;
+							const message = result.message || 'Processing...';
+							const status = result.status || 'running';
+
+							updateProgressBar(progress, message);
+
+							if (status === 'completed') {
+								setTimeout(() => {
+									hideUploadProgress();
+									// 可选：可在此处添加下载完成后的提示或刷新
+								}, 500);
+							} else if (status === 'failed') {
+								hideUploadProgress();
+								// 可选：可在此处添加失败提示
+							} else {
+								setTimeout(checkProgress, 2000);
+							}
+						},
+						error: function(jqXHR, textStatus, errorThrown) {
+							setTimeout(checkProgress, 5000);
+						}
+					});
+				}
+				checkProgress();
 			}
 
 			// 处理下载结果
