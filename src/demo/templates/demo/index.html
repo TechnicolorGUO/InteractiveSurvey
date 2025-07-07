@@ -1810,6 +1810,11 @@ function select_sections() {
         });
 		
 	function display_survey() {
+		// 防止重复点击
+		if (document.getElementById("loading-overlay").style.display === "flex") {
+			return; // 如果已经在生成中，直接返回
+		}
+		
 		// 显示加载状态
 		const loadingOverlay = document.getElementById("loading-overlay");
 		loadingOverlay.style.display = "flex";

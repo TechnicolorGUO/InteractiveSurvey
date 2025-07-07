@@ -239,28 +239,14 @@ def timeout_handler(seconds):
 # 添加进度跟踪
 progress_tracker = {}
 
-def update_progress(operation_id, progress, message="", result=None):
-    """更新操作进度，支持存储结果数据"""
-    progress_data = {
+def update_progress(operation_id, progress, message=""):
+    """更新操作进度"""
+    progress_tracker[operation_id] = {
         'progress': progress,
         'message': message,
         'timestamp': time.time()
     }
-    
-    # 设置状态
-    if progress >= 100:
-        progress_data['status'] = 'completed'
-    elif progress < 0:
-        progress_data['status'] = 'failed'
-    else:
-        progress_data['status'] = 'running'
-    
-    # 如果提供了结果数据，添加到进度数据中
-    if result is not None:
-        progress_data['result'] = result
-    
-    progress_tracker[operation_id] = progress_data
-    print(f"[{operation_id}] {progress}% - {message} (status: {progress_data['status']})")
+    print(f"[{operation_id}] {progress}% - {message}")
 
 def get_progress(operation_id):
     """获取操作进度"""
@@ -280,12 +266,19 @@ def get_operation_progress(request):
             if progress_info:
                 print(f"[DEBUG] Found progress in tracker: {progress_info}")
                 
-                # 如果进度数据包含结果，直接返回
-                if progress_info.get('result') or progress_info.get('status') == 'completed':
+                # 检查是否有明确的状态标记
+                if progress_info.get('status') == 'completed':
                     return JsonResponse({
                         'progress': progress_info.get('progress', 100),
                         'message': progress_info.get('message', 'Completed'),
-                        'status': progress_info.get('status', 'completed'),
+                        'status': 'completed',
+                        'result': progress_info.get('result')
+                    })
+                elif progress_info.get('progress', 0) >= 100:
+                    return JsonResponse({
+                        'progress': progress_info['progress'],
+                        'message': progress_info.get('message', 'Completed'),
+                        'status': 'completed',
                         'result': progress_info.get('result')
                     })
                 elif progress_info.get('progress', 0) < 0:
@@ -344,19 +337,20 @@ def get_operation_progress(request):
                     'error': task_status.get('error')
                 })
             elif task_status['status'] == 'running':
-                # 任务正在运行，返回默认进度
-                print(f"[DEBUG] Task {operation_id} is running")
+                # 任务正在运行，返回当前进度
+                print(f"[DEBUG] Task {operation_id} is running, checking progress")
+                progress_info = get_progress(operation_id)
+                print(f"[DEBUG] Progress info: {progress_info}")
                 return JsonResponse({
-                    'progress': 10,
-                    'message': 'Task is running...',
+                    **progress_info,
                     'status': 'running'
                 })
             else:
                 # 任务未找到，返回默认进度
-                print(f"[DEBUG] Task {operation_id} not found")
+                print(f"[DEBUG] Task {operation_id} not found, returning default progress")
+                progress_info = get_progress(operation_id)
                 return JsonResponse({
-                    'progress': 0,
-                    'message': 'Starting...',
+                    **progress_info,
                     'status': 'not_found'
                 })
         return JsonResponse({'error': 'operation_id is required'}, status=400)
@@ -1511,6 +1505,14 @@ def get_survey_id_sync(request):
             try:
                 update_progress(operation_id, 40, "Generating survey outline...")
                 
+                # 添加更详细的进度跟踪
+                update_progress(operation_id, 50, "Loading embedder and preparing data...")
+                embedder = get_embedder()
+                if embedder is None:
+                    raise Exception("Failed to load embedder")
+                
+                update_progress(operation_id, 60, "Starting survey generation...")
+                
                 # 这里调用实际的survey生成函数，不再需要pipeline参数
                 generateSurvey_qwen_new(
                     Global_survey_id, 
@@ -1518,23 +1520,34 @@ def get_survey_id_sync(request):
                     Global_collection_names_clustered, 
                     None,  # pipeline参数设置为None，函数内部已经改为API调用
                     Global_citation_data,
-                    embedder = get_embedder()
+                    embedder = embedder
                 )
                 
                 update_progress(operation_id, 90, "Survey generation completed!")
                 return True
                 
             except Exception as e:
-                update_progress(operation_id, -1, f"Survey generation failed: {str(e)}")
+                error_msg = f"Survey generation failed: {str(e)}"
+                update_progress(operation_id, -1, error_msg)
                 print(f"Error in generateSurvey_qwen_new: {e}")
+                import traceback
+                traceback.print_exc()
                 return False
         
         # 执行survey生成
         success = generate_survey_with_progress()
         
         if success:
-            # 更新进度，并将survey_id存储到结果中
-            update_progress(operation_id, 100, "Survey ready!", result={'survey_id': Global_survey_id})
+            # 存储结果供前端获取
+            result_data = {'survey_id': Global_survey_id}
+            # 直接存储到progress_tracker中
+            progress_tracker[operation_id] = {
+                'progress': 100,
+                'message': "Survey ready!",
+                'timestamp': time.time(),
+                'status': 'completed',
+                'result': result_data
+            }
             
             response_data = {
                 "survey_id": Global_survey_id,
