@@ -1877,6 +1877,26 @@ def get_survey_id(request):
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+@csrf_exempt
+def generate_pdf_from_tex(request):
+    """异步版本的LaTeX PDF生成接口，避免Cloudflare 524超时"""
+    if request.method == 'POST':
+        operation_id = f"latex_{int(time.time())}"
+        success = task_manager.start_task(
+            operation_id,
+            generate_pdf_from_tex_sync,
+            request
+        )
+        if not success:
+            return JsonResponse({'error': 'LaTeX PDF generation task already running'}, status=409)
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'LaTeX PDF generation started successfully. Use the operation_id to check progress.',
+            'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
+        })
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 # @csrf_exempt
 # def test_async_simple(request):
 #     """简单的异步测试函数，用于验证异步机制"""
