@@ -246,17 +246,21 @@ def update_progress(operation_id, progress, message="", result=None):
         'message': message,
         'timestamp': time.time()
     }
+    
+    # 设置状态
+    if progress >= 100:
+        progress_data['status'] = 'completed'
+    elif progress < 0:
+        progress_data['status'] = 'failed'
+    else:
+        progress_data['status'] = 'running'
+    
+    # 如果提供了结果数据，添加到进度数据中
     if result is not None:
         progress_data['result'] = result
-        if progress >= 100:
-            progress_data['status'] = 'completed'
-        elif progress < 0:
-            progress_data['status'] = 'failed'
-        else:
-            progress_data['status'] = 'running'
     
     progress_tracker[operation_id] = progress_data
-    print(f"[{operation_id}] {progress}% - {message}")
+    print(f"[{operation_id}] {progress}% - {message} (status: {progress_data['status']})")
 
 def get_progress(operation_id):
     """获取操作进度"""
