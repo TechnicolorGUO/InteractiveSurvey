@@ -447,7 +447,7 @@ def process_outline_with_empty_sections_new_new(outline_list, selected_outline, 
     return content
 
 # wza
-def process_outline_with_empty_sections_citations(outline_list, selected_outline, context_list, client, citation_data_list):
+def process_outline_with_empty_sections_citations(outline_list, selected_outline, context_list, client, citation_data_list, embedder):
     # 将selected_outline和context_list转成dict以根据section_title获取context
     context_dict = {title: ctx for (lvl, title), ctx in zip(selected_outline, context_list)}
 
@@ -457,7 +457,7 @@ def process_outline_with_empty_sections_citations(outline_list, selected_outline
         level, section_title = section_info
         section_context = context_dict[section_title]
         section_content = generate_survey_section_with_citations(
-            section_context, client, section_title, citation_data_list
+            section_context, client, section_title, citation_data_list, embedder
         )
         return section_title, level, section_content
 
@@ -596,7 +596,7 @@ import numpy as np
 from numpy.linalg import norm
 from langchain.embeddings import HuggingFaceEmbeddings
 
-def generate_survey_section_with_citations(context, client, section_title, citation_data_list, 
+def generate_survey_section_with_citations(context, client, section_title, citation_data_list, embedder,
                                            temp=0.5, base_threshold=0.7, dynamic_threshold=True):
     template = """
 Generate a detailed and technical content for a survey paper's section based on the following context.
@@ -627,7 +627,6 @@ Survey Paper Content for "{section_title}":
                 para_index_map.append(p_idx)
 
     # -- 3. 对所有句子进行向量化嵌入（保持逻辑：一次性处理全文） ---
-    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     sentence_embeddings = embedder.embed_documents(all_sentences)
 
     # -- 4. 对 citation_data_list 做向量化嵌入 ---
@@ -755,7 +754,8 @@ def generate_survey_paper_new(title, outline, context_list, client, citation_dat
         selected_subsections,
         context_list,
         client,
-        citation_data_list
+        citation_data_list,
+        embedder
     )
     generated_introduction = generate_introduction_alternate(title, full_survey_content, client)
     generated_introduction = introduction_with_citations(generated_introduction, citation_data_list, embedder)
