@@ -120,7 +120,6 @@ Global_collection_names = []
 Global_collection_names_clustered = []
 Global_file_names=[]
 Global_description_list = []
-Global_pipeline = None
 Global_cluster_names = []
 Global_citation_data = []
 Global_cluster_num = 4
@@ -1193,7 +1192,7 @@ def get_survey_id(request):
     operation_id = f"survey_{int(start_time)}"
     update_progress(operation_id, 0, "Starting survey generation...")
     
-    global Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline, Global_citation_data
+    global Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_citation_data
     
     try:
         update_progress(operation_id, 10, "Initializing survey generation...")
@@ -1219,12 +1218,12 @@ def get_survey_id(request):
             try:
                 update_progress(operation_id, 40, "Generating survey outline...")
                 
-                # 这里调用实际的survey生成函数
+                # 这里调用实际的survey生成函数，不再需要pipeline参数
                 generateSurvey_qwen_new(
                     Global_survey_id, 
                     Global_survey_title, 
                     Global_collection_names_clustered, 
-                    Global_pipeline, 
+                    None,  # pipeline参数设置为None，函数内部已经改为API调用
                     Global_citation_data
                 )
                 
@@ -1597,3 +1596,5 @@ def cleanup_resources():
 # Register cleanup function for Django shutdown
 import atexit
 atexit.register(cleanup_resources)
+
+# 初始化模型管道的函数
