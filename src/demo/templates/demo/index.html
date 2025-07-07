@@ -1455,76 +1455,120 @@ FONTS & ICONS
         refs.push($(this).val());
     });
 
-    // 在表单数据中添加 clusterNum
     // 使用 FormData 构建 POST 数据
     const formData = new FormData();
-    // 这里将所有 refs 合并为一个 JSON 字符串传输，传输时只占用一个字段
     formData.append("refs", JSON.stringify(refs));
     formData.append("taxonomy_standard", taxonomyStandard);
     formData.append("Global_cluster_num", clusterNum);
+
+    // 显示进度条和状态信息（与上传一致）
+    showUploadProgress();
 
     $.ajax({
         type: "POST",
         dataType: "json",
         url: "/automatic_taxonomy",
-		processData: false,  // 禁止 jQuery 序列化数据
-        contentType: false,  // 禁止 jQuery 设置 Content-Type 头
-        data: formData,  // 发送包含 Global_cluster_num 的数据
+        processData: false,
+        contentType: false,
+        data: formData,
         success: function(result) {
-            alert("Success!");
-            document.getElementById("legend").innerHTML += "<h2>" + $("#taxonomy_standard").val() + "</h2>";
-            for (let i = 0, len = result['colors'].length; i < len; i++) {
-                document.getElementById("legend").innerHTML += "<li class=\"list-group-item\"; style=\"color: "+ result['colors'][i]+" \">" + result['category_label'][i]+" </li>"
+            if (result.operation_id) {
+                // 异步任务已启动，开始轮询进度
+                pollTaxonomyProgress(result.operation_id);
+            } else {
+                // 兼容旧版本的同步响应
+                hideUploadProgress();
+                handleTaxonomySuccess(result);
             }
-            
-            var addr = "static/img/tsne_" + result['survey_id'] + ".png";
-            $("#tsne_img").attr("src", addr);
-
-            // 生成分类结果面板
-            document.getElementById("modify_taxonomy").innerHTML += "<h2> You can also modify the categorization result: </h2>";
-            for (let i = 0, len = result['category_label'].length; i < len; i++) {
-                document.getElementById("modify_taxonomy").innerHTML +=
-                    `<div class="panel panel-primary">
-                        <div class="panel-heading" style="background-image: none; background-color:${result['colors'][i]}">
-                            <h3 class="panel-title">${result['category_label'][i]}</h3>
-                        </div>
-                        <div class="panel-body" id="${result['category_label'][i]}"></div>
-                    </div>`;
-
-                for (let j = 0, len = result['ref_indexs'][i].length; j < len; j++) {
-                    document.getElementById(result['category_label'][i]).innerHTML +=
-                        `<div class="input-group" id="ref_${result['ref_indexs'][i][j]}">
-                            <span class="input-group-addon">[${result['ref_indexs'][i][j]}]</span>
-                            <a href="0" target="_blank" class="list-group-item">${result['ref_titles'][i][j]}</a>
-                            <span class="input-group-addon">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Change to <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu" id="ref_${result['ref_indexs'][i][j]}_change">`;
-                    
-                    for (let k = 0, len = result['category_label'].length; k < len; k++) {
-                        if (result['category_label'][i] != result['category_label'][k]) {
-                            document.getElementById(`ref_${result['ref_indexs'][i][j]}_change`).innerHTML +=
-                                `<li><a onclick="change_taxonomy('${result['category_label'][i]}', 'ref_${result['ref_indexs'][i][j]}', '${result['category_label'][k]}')">${result['category_label'][k]}</a></li>`;
-                        }
-                    }
-
-                    document.getElementById(result['category_label'][i]).innerHTML +=
-                        `</ul>
-                                </div>
-                            </span>
-                        </div>`;
-                }
-            }
-            
-            $("#taxonomy").attr("style", "display:inline;");
-            $("#generate_content_button").attr("style", "display:inline; align: center;");
         },
         error: function(jqXHR, textStatus, errorThrown){
-            alert(jqXHR.responseText);
+            hideUploadProgress();
+            alert("Categorization failed: " + jqXHR.responseText);
         }
     });
+}
+
+function pollTaxonomyProgress(operationId) {
+    function checkProgress() {
+        $.ajax({
+            type: "GET",
+            url: "/get_operation_progress/",
+            data: { operation_id: operationId },
+            success: function(result) {
+                const progress = result.progress || 0;
+                const message = result.message || 'Processing...';
+                const status = result.status || 'running';
+
+                updateProgressBar(progress, message);
+
+                if (status === 'completed') {
+                    setTimeout(() => {
+                        hideUploadProgress();
+                        if (result.result) {
+                            handleTaxonomySuccess(result.result);
+                        } else {
+                            handleTaxonomySuccess(result);
+                        }
+                    }, 500);
+                } else if (status === 'failed') {
+                    hideUploadProgress();
+                    alert('Categorization failed: ' + (result.error || 'Unknown error'));
+                } else {
+                    setTimeout(checkProgress, 2000);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Progress check failed:', textStatus, errorThrown);
+                setTimeout(checkProgress, 5000);
+            }
+        });
+    }
+    checkProgress();
+}
+
+function handleTaxonomySuccess(result) {
+    // 原有的分类结果渲染逻辑
+    document.getElementById("legend").innerHTML += "<h2>" + $("#taxonomy_standard").val() + "</h2>";
+    for (let i = 0, len = result['colors'].length; i < len; i++) {
+        document.getElementById("legend").innerHTML += "<li class=\"list-group-item\" style=\"color: " + result['colors'][i] + "\">" + result['category_label'][i] + " </li>";
+    }
+    var addr = "static/img/tsne_" + result['survey_id'] + ".png";
+    $("#tsne_img").attr("src", addr);
+    document.getElementById("modify_taxonomy").innerHTML += "<h2> You can also modify the categorization result: </h2>";
+    for (let i = 0, len = result['category_label'].length; i < len; i++) {
+        document.getElementById("modify_taxonomy").innerHTML +=
+            `<div class="panel panel-primary">
+                <div class="panel-heading" style="background-image: none; background-color:${result['colors'][i]}">
+                    <h3 class="panel-title">${result['category_label'][i]}</h3>
+                </div>
+                <div class="panel-body" id="${result['category_label'][i]}"></div>
+            </div>`;
+        for (let j = 0, len = result['ref_indexs'][i].length; j < len; j++) {
+            document.getElementById(result['category_label'][i]).innerHTML +=
+                `<div class="input-group" id="ref_${result['ref_indexs'][i][j]}">
+                    <span class="input-group-addon">[${result['ref_indexs'][i][j]}]</span>
+                    <a href="0" target="_blank" class="list-group-item">${result['ref_titles'][i][j]}</a>
+                    <span class="input-group-addon">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Change to <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" id="ref_${result['ref_indexs'][i][j]}_change">`;
+            for (let k = 0, len = result['category_label'].length; k < len; k++) {
+                if (result['category_label'][i] != result['category_label'][k]) {
+                    document.getElementById(`ref_${result['ref_indexs'][i][j]}_change`).innerHTML +=
+                        `<li><a onclick="change_taxonomy('${result['category_label'][i]}', 'ref_${result['ref_indexs'][i][j]}', '${result['category_label'][k]}')">${result['category_label'][k]}</a></li>`;
+                }
+            }
+            document.getElementById(result['category_label'][i]).innerHTML +=
+                `</ul>
+                        </div>
+                    </span>
+                </div>`;
+        }
+    }
+    $("#taxonomy").attr("style", "display:inline;");
+    $("#generate_content_button").attr("style", "display:inline; align: center;");
 }
 
 
