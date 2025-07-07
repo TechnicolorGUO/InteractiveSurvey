@@ -1803,7 +1803,7 @@ function select_sections() {
     // 从 views 获取 survey_id
     $.ajax({
       url: '/get_survey_id', // 假设你的后端视图在这个 URL 上返回 survey_id
-      method: 'GET',
+      method: 'POST', // ← 改成 POST
       dataType: 'json',
       success: function(data) {
         var survey_id = data.survey_id; // 假设 views 返回的 JSON 格式是 { "survey_id": "123" }
