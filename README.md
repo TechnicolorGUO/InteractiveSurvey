@@ -26,6 +26,10 @@
 ## 📰 News  
 <table>
   <tr>
+    <td style="white-space: nowrap;"><strong>2025/7/8</strong></td>
+    <td>🚀 Our <strong>InteractiveSurvey demo is now officially online!</strong> Experience the power of AI-driven survey paper generation with our interactive web platform. Try it now! 🌟</td>
+  </tr>
+  <tr>
     <td style="white-space: nowrap;"><strong>2025/4/15</strong></td>
     <td>The paper <strong><a href="https://arxiv.org/abs/2504.08762">InteractiveSurvey: An LLM-based Personalized and Interactive Survey Paper Generation System</a></strong> is now released! 🎉✨</td>
   </tr>
