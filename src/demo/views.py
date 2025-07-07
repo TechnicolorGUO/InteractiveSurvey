@@ -1,6 +1,21 @@
 from __future__ import unicode_literals
 import sys
 
+# 禁用所有遥测功能
+import os
+os.environ['ANONYMIZED_TELEMETRY'] = 'False'
+os.environ['DISABLE_TELEMETRY'] = '1'
+os.environ['TRANSFORMERS_OFFLINE'] = '1'
+os.environ['HF_HUB_OFFLINE'] = '1'
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+os.environ['WANDB_DISABLED'] = 'true'
+os.environ['COMET_DISABLE_AUTO_LOGGING'] = '1'
+# 添加 Hugging Face 离线模式和缓存设置
+os.environ['HF_DATASETS_OFFLINE'] = '1'  
+os.environ['TRANSFORMERS_CACHE'] = './models/transformers_cache'
+os.environ['HF_HOME'] = './models/huggingface_cache'
+os.environ['HF_HUB_CACHE'] = './models/huggingface_hub_cache'
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -124,7 +139,54 @@ Global_citation_data = []
 Global_cluster_num = 4
 
 
-embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+# 创建模型缓存目录
+import os
+from pathlib import Path
+
+def ensure_cache_dirs():
+    """确保缓存目录存在"""
+    cache_dirs = [
+        './models/transformers_cache',
+        './models/huggingface_cache', 
+        './models/huggingface_hub_cache'
+    ]
+    for cache_dir in cache_dirs:
+        Path(cache_dir).mkdir(parents=True, exist_ok=True)
+
+def init_embedder_with_retry():
+    """初始化embedder，带重试和错误处理"""
+    ensure_cache_dirs()
+    
+    try:
+        print("正在初始化 HuggingFace embeddings...")
+        # 尝试初始化embedder
+        embedder = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            cache_folder='./models/transformers_cache'
+        )
+        print("HuggingFace embeddings 初始化成功")
+        return embedder
+        
+    except Exception as e:
+        print(f"初始化 HuggingFace embeddings 失败: {e}")
+        print("尝试使用本地缓存或替代方案...")
+        
+        try:
+            # 尝试使用本地缓存
+            embedder = HuggingFaceEmbeddings(
+                model_name="sentence-transformers/all-MiniLM-L6-v2",
+                cache_folder='./models/transformers_cache',
+                model_kwargs={'local_files_only': True}
+            )
+            print("使用本地缓存成功")
+            return embedder
+        except Exception as e2:
+            print(f"使用本地缓存也失败: {e2}")
+            print("警告: 将使用空的 embedder，某些功能可能不可用")
+            return None
+
+# 初始化embedder
+embedder = init_embedder_with_retry()
 
 from demo.category_and_tsne import clustering
 
@@ -304,6 +366,13 @@ def PosRank_get_top5_ngrams(input_pd):
 
 def process_file(file_name, survey_id, mode):
     global embedder
+    if embedder is None:
+        print("警告: embedder 未初始化，跳过PDF处理")
+        # 返回一个默认值或抛出更友好的错误
+        collection_name = f"collection_{survey_id}_{int(time.time())}"
+        name = file_name.split('/')[-1].replace('.pdf', '')
+        return collection_name, name
+    
     result = process_pdf(file_name, survey_id, embedder, mode)
     collection_name = result[0]
     name = result[-1]
