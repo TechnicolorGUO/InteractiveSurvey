@@ -5,10 +5,9 @@ import os
 import json
 import chromadb
 from .asg_splitter import TextSplitting
-from sentence_transformers import SentenceTransformer
+from langchain_huggingface import HuggingFaceEmbeddings
 import time
 import concurrent.futures
-from pathlib import Path
 
 # 禁用 ChromaDB 遥测以避免错误信息
 os.environ['ANONYMIZED_TELEMETRY'] = 'False'
@@ -185,7 +184,7 @@ def legal_pdf(filename: str) -> str:
         name = 'ip_' + name
     return name
 
-def process_pdf(file_path: str, survey_id: str, embedder: SentenceTransformer, mode: str):
+def process_pdf(file_path: str, survey_id: str, embedder: HuggingFaceEmbeddings, mode: str):
     # Load and split the PDF
     split_start_time = time.time()
     splitters = TextSplitting().mineru_recursive_splitter(file_path, survey_id, mode)
@@ -196,8 +195,9 @@ def process_pdf(file_path: str, survey_id: str, embedder: SentenceTransformer, m
     print(f"Splitting took {time.time() - split_start_time} seconds.")
 
     # Embed the documents
+    # embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     embed_start_time = time.time()
-    doc_results = embedder.encode(documents_list)
+    doc_results = embedder.embed_documents(documents_list)
     if isinstance(doc_results, torch.Tensor):
         embeddings_list = doc_results.tolist()
     else:
@@ -229,14 +229,14 @@ def process_pdf(file_path: str, survey_id: str, embedder: SentenceTransformer, m
     return collection_name, embeddings_list, documents_list, metadata_list,title_new
 
 def query_embeddings(collection_name: str, query_list: list):
-    embedder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     retriever = Retriever()
 
     final_context = ""
 
     seen_chunks = set()
     for query_text in query_list:
-        query_embeddings = embedder.encode([query_text])[0].tolist()
+        query_embeddings = embedder.embed_query(query_text)
         query_result = retriever.query_chroma(collection_name=collection_name, query_embeddings=[query_embeddings], n_results=2)
 
         query_result_chunks = query_result["documents"][0]
@@ -250,14 +250,14 @@ def query_embeddings(collection_name: str, query_list: list):
 
 # new, may be in parallel
 def query_embeddings_new(collection_name: str, query_list: list):
-    embedder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     retriever = Retriever()
 
     final_context = ""
 
     seen_chunks = set()
     def process_query(query_text):
-        query_embeddings = embedder.encode([query_text])[0].tolist()
+        query_embeddings = embedder.embed_query(query_text)
         query_result = retriever.query_chroma(
             collection_name=collection_name,
             query_embeddings=[query_embeddings],
@@ -278,7 +278,7 @@ def query_embeddings_new(collection_name: str, query_list: list):
 
 # wza
 def query_embeddings_new_new(collection_name: str, query_list: list):
-    embedder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     retriever = get_retriever()  # Use singleton instead of creating new instance
 
     final_context = ""  # Stores concatenated context
@@ -288,7 +288,7 @@ def query_embeddings_new_new(collection_name: str, query_list: list):
     def process_query(query_text):
         # Embed the query text and retrieve relevant chunks
         try:
-            query_embeddings = embedder.encode([query_text])[0].tolist()
+            query_embeddings = embedder.embed_query(query_text)
             query_result = retriever.query_chroma(
                 collection_name=collection_name,
                 query_embeddings=[query_embeddings],
@@ -350,7 +350,7 @@ def query_multiple_collections(collection_names: list[str], query_list: list[str
         dict: Combined results from all collections, grouped by collection.
     """
     # Define embedder inside the function
-    embedder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     retriever = Retriever()
 
     def query_single_collection(collection_name: str):
@@ -362,7 +362,7 @@ def query_multiple_collections(collection_names: list[str], query_list: list[str
 
         def process_query(query_text):
             # Embed the query
-            query_embeddings = embedder.encode([query_text])[0].tolist()
+            query_embeddings = embedder.embed_query(query_text)
             # Query the collection
             query_result = retriever.query_chroma(
                 collection_name=collection_name,
@@ -393,9 +393,7 @@ def query_multiple_collections(collection_names: list[str], query_list: list[str
             results[collection_name] = future.result()
 
     # Automatically save the results to a JSON file
-    import json
     file_path = f'./src/static/data/info/{survey_id}/retrieved_context.json'
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=4)
 
