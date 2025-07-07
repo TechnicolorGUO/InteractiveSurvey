@@ -1811,22 +1811,15 @@ function select_sections() {
 		
 	function display_survey() {
 		// 防止重复点击
-		if (document.getElementById("loading-overlay").style.display === "flex") {
+		if ($('#upload-progress').is(':visible')) {
 			return; // 如果已经在生成中，直接返回
 		}
 		
-		// 显示加载状态
-		const loadingOverlay = document.getElementById("loading-overlay");
-		loadingOverlay.style.display = "flex";
-		loadingOverlay.innerHTML = `
-			<div style="text-align: center;">
-				<div style="font-size: 24px; margin-bottom: 10px;">Generating Survey...</div>
-				<div class="progress" style="width: 300px; margin: 20px auto;">
-					<div id="survey-progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
-				</div>
-				<div id="survey-progress-message" style="margin-top: 10px;">Starting survey generation...</div>
-			</div>
-		`;
+		// 显示加载状态（使用与clustering和PDF下载一致的进度条）
+		showUploadProgress();
+		// 更新进度条标题和初始消息
+		$('#upload-progress h4').text('Generating Survey...');
+		updateProgressBar(0, 'Starting survey generation...');
 
 		// 启动异步survey生成
 		$.ajax({
@@ -1838,22 +1831,18 @@ function select_sections() {
 					// 开始跟踪进度
 					pollSurveyProgress(data.operation_id);
 				} else {
-					loadingOverlay.style.display = "none";
+					hideUploadProgress();
 					alert("Failed to start survey generation.");
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				loadingOverlay.style.display = "none";
+				hideUploadProgress();
 				alert("Failed to start survey generation: " + jqXHR.responseText);
 			}
 		});
 	}
 
 	function pollSurveyProgress(operationId) {
-		const progressBar = document.getElementById("survey-progress-bar");
-		const progressMessage = document.getElementById("survey-progress-message");
-		const loadingOverlay = document.getElementById("loading-overlay");
-
 		function checkProgress() {
 			$.ajax({
 				type: "GET",
@@ -1862,19 +1851,20 @@ function select_sections() {
 				success: function(result) {
 					const progress = result.progress || 0;
 					const message = result.message || "Processing...";
+					const status = result.status || 'running';
 					
-					// 更新进度条
-					progressBar.style.width = Math.max(0, progress) + '%';
-					progressMessage.textContent = message;
+					// 使用与其他功能一致的进度条更新函数
+					updateProgressBar(progress, message);
 					
-					if (progress >= 100) {
+					if (status === 'completed' || progress >= 100) {
 						// 生成完成，加载survey内容
 						setTimeout(() => {
+							hideUploadProgress();
 							loadSurveyContent(result.result ? result.result.survey_id : null);
-						}, 1000);
-					} else if (progress < 0) {
+						}, 500);
+					} else if (status === 'failed' || progress < 0) {
 						// 生成失败
-						loadingOverlay.style.display = "none";
+						hideUploadProgress();
 						alert("Survey generation failed: " + message);
 					} else {
 						// 继续轮询
@@ -1882,8 +1872,9 @@ function select_sections() {
 					}
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
-					loadingOverlay.style.display = "none";
-					alert("Failed to check progress: " + jqXHR.responseText);
+					console.error('Survey progress check failed:', textStatus, errorThrown);
+					// 继续尝试，但增加间隔
+					setTimeout(checkProgress, 5000);
 				}
 			});
 		}
@@ -1892,8 +1883,6 @@ function select_sections() {
 	}
 
 	function loadSurveyContent(survey_id) {
-		const loadingOverlay = document.getElementById("loading-overlay");
-		
 		if (!survey_id) {
 			// 如果没有survey_id，尝试从全局变量获取
 			$.ajax({
@@ -1906,12 +1895,10 @@ function select_sections() {
 						survey_id = surveys[surveys.length - 1]; // 使用最新的survey
 						loadSurveyContentWithId(survey_id);
 					} else {
-						loadingOverlay.style.display = "none";
 						alert("No survey ID found.");
 					}
 				},
 				error: function() {
-					loadingOverlay.style.display = "none";
 					alert("Failed to get survey ID.");
 				}
 			});
@@ -1921,8 +1908,6 @@ function select_sections() {
 	}
 
 	function loadSurveyContentWithId(survey_id) {
-		const loadingOverlay = document.getElementById("loading-overlay");
-		
 		// 获取 JSON 文件内容
 		$.ajax({
 			url: '/static/data/txt/' + survey_id + '/generated_result.json',
@@ -1945,10 +1930,6 @@ function select_sections() {
 				var turndownService = new TurndownService();
 				$("#survey").attr("style", "display:inline;");
 				
-				// 隐藏加载状态
-				loadingOverlay.style.display = "none";
-				
-				// 绑定编辑功能
 				// 绑定编辑功能
 				$("#editBtn").off("click").on("click", function() {
 					var currentHTML = document.getElementById("survey_content").innerHTML;
