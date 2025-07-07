@@ -504,14 +504,21 @@ def get_surveys(request):
 def upload_refs_sync(request):
     """同步版本的文件上传处理函数"""
     start_time = time.time()
-    operation_id = f"upload_{int(start_time)}"
+    operation_id = getattr(request, 'operation_id', f"upload_{int(start_time)}")
     print(f"[DEBUG] upload_refs_sync started with operation_id: {operation_id}")
     update_progress(operation_id, 0, "Starting file upload...")
     
     RECOMMENDED_PDF_DIR = os.path.join("src", "static", "data", "pdf", "recommend_pdfs")
     if request.method == 'POST':
         try:
-            if not request.FILES:
+            # 检查是否有上传的文件（新方式使用file_paths，旧方式使用FILES）
+            has_uploaded_files = False
+            if hasattr(request, 'file_paths') and request.file_paths:
+                has_uploaded_files = True
+            elif request.FILES:
+                has_uploaded_files = True
+            
+            if not has_uploaded_files:
                 if not os.path.exists(RECOMMENDED_PDF_DIR):
                     return JsonResponse({'error': 'No file part'}, status=400)
         
@@ -524,7 +531,33 @@ def upload_refs_sync(request):
             filenames = []
             collection_names = []
             filesizes = []
-            file_dict = request.FILES
+            
+            # 创建统一的file_dict，兼容新旧两种方式
+            file_dict = {}
+            
+            # 如果使用新的file_paths方式
+            if hasattr(request, 'file_paths') and request.file_paths:
+                update_progress(operation_id, 15, "Loading files from disk...")
+                for file_path in request.file_paths:
+                    file_name = os.path.basename(file_path)
+                    
+                    # 从磁盘读取文件内容
+                    with open(file_path, 'rb') as f:
+                        file_content = BytesIO(f.read())
+                    
+                    # 创建类似Django上传文件的对象
+                    uploaded_file = InMemoryUploadedFile(
+                        file_content,
+                        field_name="file",
+                        name=file_name,
+                        content_type="application/pdf",
+                        size=os.path.getsize(file_path),
+                        charset=None
+                    )
+                    file_dict[file_name] = uploaded_file
+            else:
+                # 使用传统的request.FILES方式
+                file_dict = request.FILES.copy()
 
             global Global_survey_id
             global Global_test_flag
@@ -534,7 +567,6 @@ def upload_refs_sync(request):
 
             Global_survey_title = request.POST.get('topic', False)
             process_pdf_mode = request.POST.get('mode', False)
-            file_dict = request.FILES.copy()
             
             update_progress(operation_id, 20, "Processing recommended PDFs...")
             
@@ -726,13 +758,40 @@ def upload_refs_sync(request):
                 ref_list = {'ref_ids':[],'is_valid_submission':is_valid_submission,"uid":uid_str,"tsv_filename":output_tsv_filename, 'filenames': filenames, 'filesizes': filesizes, 'survey_id': Global_survey_id, 'operation_id': operation_id}
             ref_list = json.dumps(ref_list)
             print("--- %s seconds used in processing files ---" % (time.time() - start_time))
+            
+            # 清理临时文件（如果使用了file_paths方式）
+            if hasattr(request, 'file_paths') and request.file_paths:
+                try:
+                    temp_dir = os.path.dirname(request.file_paths[0])
+                    if 'tmp_upload' in temp_dir and os.path.exists(temp_dir):
+                        shutil.rmtree(temp_dir)
+                        print(f"[DEBUG] Cleaned up temporary upload directory: {temp_dir}")
+                except Exception as e:
+                    print(f"[DEBUG] Failed to clean up temporary directory: {e}")
+            
             return HttpResponse(ref_list)
             
         except TimeoutError as e:
             update_progress(operation_id, -1, f"Upload timed out: {str(e)}")
+            # 清理临时文件
+            if hasattr(request, 'file_paths') and request.file_paths:
+                try:
+                    temp_dir = os.path.dirname(request.file_paths[0])
+                    if 'tmp_upload' in temp_dir and os.path.exists(temp_dir):
+                        shutil.rmtree(temp_dir)
+                except:
+                    pass
             return JsonResponse({'error': f'Upload operation timed out: {str(e)}'}, status=408)
         except Exception as e:
             update_progress(operation_id, -1, f"Upload failed: {str(e)}")
+            # 清理临时文件
+            if hasattr(request, 'file_paths') and request.file_paths:
+                try:
+                    temp_dir = os.path.dirname(request.file_paths[0])
+                    if 'tmp_upload' in temp_dir and os.path.exists(temp_dir):
+                        shutil.rmtree(temp_dir)
+                except:
+                    pass
             return JsonResponse({'error': f'Upload failed: {str(e)}'}, status=500)
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
