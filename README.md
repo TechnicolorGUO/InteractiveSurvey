@@ -50,6 +50,7 @@
 
 https://github.com/user-attachments/assets/15beefae-3b85-453e-a10d-3c210a80933b
 
+**📺 Demo Video**: You can watch the demo video at [https://www.bilibili.com/video/BV1dju2z8ESw/?spm_id_from=333.1387.homepage.video_card.click](https://www.bilibili.com/video/BV1dju2z8ESw/?spm_id_from=333.1387.homepage.video_card.click)
 
 ---
 
