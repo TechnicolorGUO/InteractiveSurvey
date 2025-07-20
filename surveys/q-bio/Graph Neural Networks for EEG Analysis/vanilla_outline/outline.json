@@ -1,0 +1,190 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Outline of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Basics of EEG Analysis"
+  ],
+  [
+    3,
+    "2.1.1 EEG Signal Characteristics"
+  ],
+  [
+    3,
+    "2.1.2 Traditional EEG Processing Techniques"
+  ],
+  [
+    2,
+    "2.2 Graph Neural Networks Fundamentals"
+  ],
+  [
+    3,
+    "2.2.1 Graph Representation Learning"
+  ],
+  [
+    3,
+    "2.2.2 Architectures in Graph Neural Networks"
+  ],
+  [
+    1,
+    "3 Applications of Graph Neural Networks in EEG Analysis"
+  ],
+  [
+    2,
+    "3.1 Brain Connectivity Modeling"
+  ],
+  [
+    3,
+    "3.1.1 Static vs Dynamic Connectivity"
+  ],
+  [
+    3,
+    "3.1.2 Node and Edge Features in Brain Graphs"
+  ],
+  [
+    2,
+    "3.2 Classification Tasks"
+  ],
+  [
+    3,
+    "3.2.1 Emotion Recognition"
+  ],
+  [
+    3,
+    "3.2.2 Seizure Detection"
+  ],
+  [
+    2,
+    "3.3 Anomaly Detection"
+  ],
+  [
+    3,
+    "3.3.1 Epileptic Spike Identification"
+  ],
+  [
+    3,
+    "3.3.2 Artifact Removal Using GNNs"
+  ],
+  [
+    1,
+    "4 Challenges and Limitations"
+  ],
+  [
+    2,
+    "4.1 Data-Related Challenges"
+  ],
+  [
+    3,
+    "4.1.1 Limited Availability of Labeled EEG Data"
+  ],
+  [
+    3,
+    "4.1.2 Noise and Variability in EEG Signals"
+  ],
+  [
+    2,
+    "4.2 Model-Related Challenges"
+  ],
+  [
+    3,
+    "4.2.1 Scalability of GNNs for Large EEG Datasets"
+  ],
+  [
+    3,
+    "4.2.2 Interpretability of GNN Models"
+  ],
+  [
+    1,
+    "5 Recent Advances and Innovations"
+  ],
+  [
+    2,
+    "5.1 Hybrid Models Combining GNNs with Other Techniques"
+  ],
+  [
+    3,
+    "5.1.1 Integration with Recurrent Neural Networks (RNNs)"
+  ],
+  [
+    3,
+    "5.1.2 Fusion with Convolutional Neural Networks (CNNs)"
+  ],
+  [
+    2,
+    "5.2 Transfer Learning in GNNs for EEG Analysis"
+  ],
+  [
+    3,
+    "5.2.1 Cross-Dataset Generalization"
+  ],
+  [
+    3,
+    "5.2.2 Domain Adaptation Techniques"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Comparative Analysis of GNN Approaches"
+  ],
+  [
+    3,
+    "6.1.1 Performance Metrics and Benchmarks"
+  ],
+  [
+    3,
+    "6.1.2 Strengths and Weaknesses of Different Methods"
+  ],
+  [
+    2,
+    "6.2 Ethical Considerations"
+  ],
+  [
+    3,
+    "6.2.1 Privacy Concerns in EEG Data Usage"
+  ],
+  [
+    3,
+    "6.2.2 Bias in GNN Models for EEG Analysis"
+  ],
+  [
+    1,
+    "7 Conclusion and Future Directions"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Potential Areas for Future Research"
+  ],
+  [
+    3,
+    "7.2.1 Development of Task-Specific GNN Architectures"
+  ],
+  [
+    3,
+    "7.2.2 Exploration of Multi-Modal GNNs for EEG Analysis"
+  ]
+]

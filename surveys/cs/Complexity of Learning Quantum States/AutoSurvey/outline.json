@@ -1,0 +1,186 @@
+[
+  [
+    1,
+    "Complexity of Learning Quantum States"
+  ],
+  [
+    2,
+    "1 Introduction to Quantum State Learning"
+  ],
+  [
+    3,
+    "1.1 Importance of Quantum State Learning"
+  ],
+  [
+    3,
+    "1.2 Challenges in Quantum State Learning"
+  ],
+  [
+    3,
+    "1.3 Quantum Tomography"
+  ],
+  [
+    3,
+    "1.4 PAC Learning in Quantum Contexts"
+  ],
+  [
+    3,
+    "1.5 Sample Complexity in Quantum Learning"
+  ],
+  [
+    3,
+    "1.6 Computational Complexity of Quantum Learning"
+  ],
+  [
+    2,
+    "2 Theoretical Foundations and Computational Limitations"
+  ],
+  [
+    3,
+    "2.1 Complexity Measures in Quantum State Learning"
+  ],
+  [
+    3,
+    "2.2 Hardness Results for Specific Classes of Quantum States"
+  ],
+  [
+    3,
+    "2.3 Lower Bounds on Learnability"
+  ],
+  [
+    3,
+    "2.4 Classical vs. Quantum PAC Learning Frameworks"
+  ],
+  [
+    3,
+    "2.5 Connections to Statistical Query Models"
+  ],
+  [
+    2,
+    "3 Algorithmic Approaches to Quantum State Learning"
+  ],
+  [
+    3,
+    "3.1 Variational Quantum Algorithms"
+  ],
+  [
+    3,
+    "3.2 Tensor Network Methods"
+  ],
+  [
+    3,
+    "3.3 Pauli Decomposition and Derandomization"
+  ],
+  [
+    3,
+    "3.4 Supervised Learning with Quantum Measurements"
+  ],
+  [
+    3,
+    "3.5 Ensemble Methods in Quantum Learning"
+  ],
+  [
+    3,
+    "3.6 Shallow Circuits and Low-Stabilizer States"
+  ],
+  [
+    3,
+    "3.7 Reinforcement Learning in Circuit Design"
+  ],
+  [
+    2,
+    "4 Quantum-Enhanced Techniques for State Learning"
+  ],
+  [
+    3,
+    "4.1 Quantum Memory in State Learning"
+  ],
+  [
+    3,
+    "4.2 Non-Adaptive Learning Graphs"
+  ],
+  [
+    3,
+    "4.3 Statistical Query Models for Quantum Systems"
+  ],
+  [
+    3,
+    "4.4 Variational Optimization Techniques"
+  ],
+  [
+    3,
+    "4.5 Quantum Ensemble Methods"
+  ],
+  [
+    3,
+    "4.6 Hybrid Quantum-Classical Approaches"
+  ],
+  [
+    3,
+    "4.7 Impact on Sample and Computational Complexity"
+  ],
+  [
+    2,
+    "5 Theoretical Limits and Practical Challenges"
+  ],
+  [
+    3,
+    "5.1 No-Go Theorems in Quantum Learning"
+  ],
+  [
+    3,
+    "5.2 Lower Bounds on Sample Complexity"
+  ],
+  [
+    3,
+    "5.3 Computational Hardness Results"
+  ],
+  [
+    3,
+    "5.4 Noise and Decoherence Effects"
+  ],
+  [
+    3,
+    "5.5 Practical Challenges in Real-World Implementations"
+  ],
+  [
+    2,
+    "6 Applications and Practical Implications"
+  ],
+  [
+    3,
+    "6.1 Quantum Many-Body Physics"
+  ],
+  [
+    3,
+    "6.2 Quantum Error Correction"
+  ],
+  [
+    3,
+    "6.3 Hybrid Quantum-Classical Machine Learning Models"
+  ],
+  [
+    3,
+    "6.4 Quantum Communication Protocols"
+  ],
+  [
+    3,
+    "6.5 Image Classification and Generative Modeling"
+  ],
+  [
+    3,
+    "6.6 Reinforcement Learning and Control Tasks"
+  ],
+  [
+    3,
+    "6.7 Sentiment Analysis and Natural Language Processing"
+  ],
+  [
+    3,
+    "6.8 Scalability and Robustness Challenges"
+  ],
+  [
+    2,
+    "References"
+  ]
+]

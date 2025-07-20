@@ -1,0 +1,126 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.2 Scope and Structure"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Overview of Small Molecule Discovery"
+  ],
+  [
+    2,
+    "2.2 Traditional Methods in Small Molecule Discovery"
+  ],
+  [
+    2,
+    "2.3 Emergence of Deep Learning in Drug Discovery"
+  ],
+  [
+    1,
+    "3 Deep Learning Techniques for Small Molecule Discovery"
+  ],
+  [
+    2,
+    "3.1 Data Representation and Preprocessing"
+  ],
+  [
+    3,
+    "3.1.1 Molecular Fingerprints"
+  ],
+  [
+    3,
+    "3.1.2 Graph-Based Representations"
+  ],
+  [
+    3,
+    "3.1.3 Smiles Strings"
+  ],
+  [
+    2,
+    "3.2 Architectures and Models"
+  ],
+  [
+    3,
+    "3.2.1 Convolutional Neural Networks (CNNs)"
+  ],
+  [
+    3,
+    "3.2.2 Recurrent Neural Networks (RNNs)"
+  ],
+  [
+    3,
+    "3.2.3 Graph Neural Networks (GNNs)"
+  ],
+  [
+    2,
+    "3.3 Applications and Use Cases"
+  ],
+  [
+    3,
+    "3.3.1 Virtual Screening"
+  ],
+  [
+    3,
+    "3.3.2 De Novo Drug Design"
+  ],
+  [
+    3,
+    "3.3.3 Property Prediction"
+  ],
+  [
+    1,
+    "4 Challenges and Limitations"
+  ],
+  [
+    2,
+    "4.1 Data Availability and Quality"
+  ],
+  [
+    2,
+    "4.2 Model Interpretability"
+  ],
+  [
+    2,
+    "4.3 Computational Resources"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Current Trends"
+  ],
+  [
+    2,
+    "5.2 Future Directions"
+  ],
+  [
+    2,
+    "5.3 Ethical Considerations"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Findings"
+  ],
+  [
+    2,
+    "6.2 Implications for Research and Practice"
+  ]
+]

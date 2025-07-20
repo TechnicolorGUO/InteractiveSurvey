@@ -1,0 +1,162 @@
+[
+  [
+    1,
+    "Comprehensive Survey on Large Language Model Based Multi-Agent Systems"
+  ],
+  [
+    2,
+    "1 Theoretical Foundations and Architectures of LLM-Based Multi-Agent Systems"
+  ],
+  [
+    3,
+    "1.1 Theoretical Foundations of LLM-Based Multi-Agent Systems"
+  ],
+  [
+    3,
+    "1.2 Architectural Design Principles for LLM-Based Multi-Agent Systems"
+  ],
+  [
+    3,
+    "1.3 Collaborative Interaction Mechanisms"
+  ],
+  [
+    3,
+    "1.4 Planning and Decision-Making Strategies"
+  ],
+  [
+    3,
+    "1.5 Memory Mechanisms and Knowledge Management"
+  ],
+  [
+    2,
+    "2 Applications and Use Cases of LLM-Based Multi-Agent Systems"
+  ],
+  [
+    3,
+    "2.1 Healthcare Applications"
+  ],
+  [
+    3,
+    "2.2 Autonomous Driving Applications"
+  ],
+  [
+    3,
+    "2.3 Industrial Automation and Robotics"
+  ],
+  [
+    3,
+    "2.4 Game Theory and Virtual Environments"
+  ],
+  [
+    3,
+    "2.5 Embodied Decision-Making and Urban Mobility Analysis"
+  ],
+  [
+    3,
+    "2.6 Financial Sentiment Analysis"
+  ],
+  [
+    3,
+    "2.7 Bioinformatics and Scientific Research"
+  ],
+  [
+    3,
+    "2.8 Human-Agent Collaboration and Explainability"
+  ],
+  [
+    2,
+    "3 Challenges in LLM-Based Multi-Agent Systems"
+  ],
+  [
+    3,
+    "3.1 Scalability Challenges"
+  ],
+  [
+    3,
+    "3.2 Coordination Among Agents"
+  ],
+  [
+    3,
+    "3.3 Ethical Concerns and Alignment with Human Values"
+  ],
+  [
+    3,
+    "3.4 Hallucination and Misinformation"
+  ],
+  [
+    3,
+    "3.5 Limitations in Understanding Complex Environments"
+  ],
+  [
+    3,
+    "3.6 Safety and Vulnerabilities"
+  ],
+  [
+    3,
+    "3.7 Evaluation Gaps and Benchmarking Challenges"
+  ],
+  [
+    2,
+    "4 Evaluation Metrics and Benchmarks for LLM-Based Multi-Agent Systems"
+  ],
+  [
+    3,
+    "4.1 Overview of Evaluation Metrics"
+  ],
+  [
+    3,
+    "4.2 Key Benchmarks in LLM-Based Multi-Agent Systems"
+  ],
+  [
+    3,
+    "4.3 Agent-Specific Evaluation Frameworks"
+  ],
+  [
+    3,
+    "4.4 Multi-Agent Collaboration and Peer Review Mechanisms"
+  ],
+  [
+    3,
+    "4.5 Fine-Grained and Dynamic Evaluation Protocols"
+  ],
+  [
+    2,
+    "5 Future Directions and Research Opportunities"
+  ],
+  [
+    3,
+    "5.1 Advancements in Memory Mechanisms"
+  ],
+  [
+    3,
+    "5.2 Enhanced Coordination Techniques"
+  ],
+  [
+    3,
+    "5.3 Improved Alignment with Human Values"
+  ],
+  [
+    3,
+    "5.4 Innovations in Architecture Design"
+  ],
+  [
+    3,
+    "5.5 Expanding Capabilities in Dynamic Environments"
+  ],
+  [
+    3,
+    "5.6 Integrating Multimodal Sensory Inputs"
+  ],
+  [
+    3,
+    "5.7 Human-Agent Collaboration"
+  ],
+  [
+    3,
+    "5.8 Ethical Considerations and Safety Measures"
+  ],
+  [
+    2,
+    "References"
+  ]
+]

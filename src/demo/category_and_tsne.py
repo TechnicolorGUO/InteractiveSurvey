@@ -37,51 +37,16 @@ class DimensionalityReduction:
         return X
 
 class ClusteringWithTopic:
-    def __init__(self, df, n_topics=3):
-        embedding_model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
-        # umap_model = DimensionalityReduction()
-        umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine', init = 'pca')
-        hdbscan_model = AgglomerativeClustering(n_clusters=n_topics)
-        vectorizer_model = CountVectorizer(stop_words="english", min_df=1, ngram_range=(1, 2))
-        ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=False)# True
-        keybert_model = KeyBERTInspired()
-
-        self.df = df
-        self.embeddings = embeddings = embedding_model.encode(df, show_progress_bar=True)
-
-        representation_model = {
-        "KeyBERT": keybert_model,
-        # "OpenAI": openai_model,  # Uncomment if you will use OpenAI
-        # "MMR": mmr_model,
-        # "POS": pos_model
-    }
-        self.topic_model = BERTopic(
-
-        # Pipeline models
-        embedding_model=embedding_model,
-        umap_model=umap_model,
-        hdbscan_model=hdbscan_model,
-        vectorizer_model=vectorizer_model,
-        ctfidf_model=ctfidf_model,
-        representation_model=representation_model,
-
-        # Hyperparameters
-        top_n_words=10,
-        verbose=True
-        )
-
     def __init__(self, df, n_topics_list):
         """
         初始化 ClusteringWithTopic，接受一个 n_topics_list，其中包含多个聚类数目，
         选取 silhouette_score 最高的结果。
         """
-        embedding_model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
-        self.embeddings = embedding_model.encode(df, show_progress_bar=True)
-        
         self.df = df
         self.n_topics_list = n_topics_list
+        self.embedding_model = None  # 延迟初始化
+        self.embeddings = None
 
-        self.embedding_model = embedding_model
         self.umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine',init ='pca')
         self.vectorizer_model = CountVectorizer(stop_words="english", min_df=1, ngram_range=(1, 2))
         self.ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=False)
@@ -91,14 +56,21 @@ class ClusteringWithTopic:
         # 用于存储不同聚类数目的结果
         self.best_n_topics = None
         self.best_labels = None
-        self.best_score = -1 
-    # def fit_and_get_labels(self, X):
-    #     topics, probs = self.topic_model.fit_transform(self.df, self.embeddings)
-    #     return topics 
+        self.best_score = -1
+
+    def _init_embedding_model(self):
+        """延迟初始化embedding模型"""
+        if self.embedding_model is None:
+            print("正在初始化 SentenceTransformer...")
+            self.embedding_model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
+            print("SentenceTransformer 初始化完成")
+            self.embeddings = self.embedding_model.encode(self.df, show_progress_bar=True)
+
     def fit_and_get_labels(self):
         """
         对不同的 n_topics 进行聚类，计算 silhouette_score，选取最佳的 n_topics 进行后续操作。
         """
+        self._init_embedding_model()
         for n_topics in self.n_topics_list:
             hdbscan_model = AgglomerativeClustering(n_clusters=n_topics)
 
@@ -132,46 +104,6 @@ class ClusteringWithTopic:
         
         print(f"Best n_topics={self.best_n_topics}, Best silhouette_score={self.best_score}")
         return self.best_labels, self.best_topic_model, self.best_n_topics
-
-def clustering(df, n_cluster, survey_id):
-    text = df['retrieval_result'].astype(str)
-    clustering = ClusteringWithTopic(text, n_cluster)
-    df['label'] = clustering.fit_and_get_labels(text)
-    
-    print("The clustering result is: ")
-    for col in df.columns:
-        print(f"{col}: {df.iloc[0][col]}")
-    
-    # Save topic model information as JSON
-    topic_json = clustering.topic_model.get_topic_info().to_json()
-    with open(f'./src/static/data/info/{survey_id}/topic.json', 'w', encoding="utf-8") as file:
-        file.write(topic_json)
-    
-    # Create a dictionary from 'ref_title' and 'retrieval_result' columns
-    description_dict = dict(zip(df['ref_title'], df['retrieval_result']))
-    
-    # Save the dictionary to description.json
-    with open(f'./src/static/data/info/{survey_id}/description.json', 'w', encoding="utf-8") as file:
-        json.dump(description_dict, file, ensure_ascii=False, indent=4)
-    # df['top_n_words'] = clustering.topic_model.get_topic_info()['Representation'].tolist()
-    # df['topic_word'] = clustering.topic_model.get_topic_info()['KeyBERT'].tolist()
-
-
-    X = np.array(clustering.embeddings)
-    perplexity = 10
-    if X.shape[0] <= perplexity:
-        perplexity = max(1, X.shape[0] // 2)   
-
-    tsne = TSNE(n_components=2, init='pca', perplexity=perplexity, random_state=42)
-    X_tsne = tsne.fit_transform(X)
-    colors = scatter(X_tsne, df['label'])
-
-    plt.savefig(IMG_PATH + 'tsne_' + survey_id + '.png', dpi=800, transparent=True)
-
-    plt.close()
-    output_tsv_filename = "./src/static/data/tsv/" + survey_id + '.tsv'
-    df.to_csv(output_tsv_filename, sep='\t')
-    return df, colors
 
 def clustering(df, n_topics_list, survey_id):
     text = df['retrieval_result'].astype(str)

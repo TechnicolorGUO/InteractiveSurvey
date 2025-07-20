@@ -332,6 +332,35 @@ textarea {
             justify-content: center;
             z-index: 1000; /* 确保覆盖在最上层 */
         }
+
+  /* PDF预览容器样式 */
+  .pdf-container {
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .pdf-container iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
+  }
+
+  #pdf-preview-section {
+    margin-top: 40px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+
+  #pdf-preview-section h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
 </style>
 
 <!-- ===========================
@@ -555,7 +584,7 @@ FONTS & ICONS
 						  surveySelect.appendChild(option);
 						});
 			  
-						// 添加 “new” 选项
+						// 添加 "new" 选项
 						const newOption = document.createElement("option");
 						newOption.value = "new";
 						newOption.textContent = "Create New Survey ID";
@@ -674,13 +703,15 @@ FONTS & ICONS
 				window.open(pdfURL, '_blank');
 			}
 
-			// 保持 sendPDFLinksToServer 不变，假设它要上传 pdfLinks 和 pdfTitles
+			// --- 下载PDF进度条逻辑 ---
 			async function sendPDFLinksToServer() {
 				if (pdfLinks.length === 0) {
-					alert("No PDFs to download.");
+					// alert("No PDFs to download.");
 					return;
 				}
-				document.getElementById("loading-overlay").style.display = "flex";
+
+				// 显示进度条和状态（与上传一致）
+				showUploadProgress();
 
 				try {
 					const response = await fetch('/download_pdfs/', {
@@ -688,16 +719,70 @@ FONTS & ICONS
 						headers: {
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify({ pdf_links: pdfLinks, pdf_titles: pdfTitles }),
+						body: JSON.stringify({ pdf_links: pdfLinks, pdf_titles: pdfTitles })
 					});
+
+					if (!response.ok) {
+						hideUploadProgress();
+						return;
+					}
+
 					const result = await response.json();
-					alert(result.message);
+					if (result.operation_id) {
+						pollDownloadProgress(result.operation_id);
+					} else {
+						hideUploadProgress();
+					}
 				} catch (error) {
-					console.error("Error sending PDF links to server:", error);
-					alert("Failed to send PDF links to server.");
-				} finally {
-					document.getElementById("loading-overlay").style.display = "none";
+					hideUploadProgress();
 				}
+			}
+
+			function pollDownloadProgress(operationId) {
+				function checkProgress() {
+					$.ajax({
+						type: "GET",
+						url: "/get_operation_progress/",
+						data: { operation_id: operationId },
+						success: function(result) {
+							const progress = result.progress || 0;
+							const message = result.message || 'Processing...';
+							const status = result.status || 'running';
+
+							updateProgressBar(progress, message);
+
+							if (status === 'completed') {
+								setTimeout(() => {
+									hideUploadProgress();
+									// 可选：可在此处添加下载完成后的提示或刷新
+								}, 500);
+							} else if (status === 'failed') {
+								hideUploadProgress();
+								// 可选：可在此处添加失败提示
+							} else {
+								setTimeout(checkProgress, 2000);
+							}
+						},
+						error: function(jqXHR, textStatus, errorThrown) {
+							setTimeout(checkProgress, 5000);
+						}
+					});
+				}
+				checkProgress();
+			}
+
+			// 处理下载结果
+			function handleDownloadResult(result) {
+				// 构建结果消息
+				let message = result.message;
+				if (result.failed && result.failed.length > 0) {
+					message += `\n\nFailed downloads (${result.failed.length}):\n`;
+					result.failed.forEach(failed => {
+						message += `- ${failed.url}: ${failed.reason}\n`;
+					});
+				}
+				
+				alert(message);
 			}
 		</script>
 
@@ -898,6 +983,22 @@ FONTS & ICONS
 
 	<div class="col-md-12" style="display: none" id="references"></div>
 
+	<!-- ===========================
+     PDF Preview Section
+    ============================ -->
+	<div class="col-md-12" style="display: none" id="pdf-preview-section">
+		<hr class="firsthr">
+		<h2 align="left"><span class="fas fa-file-pdf"></span> PDF Preview</h2>
+		<div class="text-right mb-2">
+			<a id="pdf-download-link" href="" download class="btn btn-primary btn-sm" style="display: none;">
+				<i class="fas fa-download"></i> Download PDF
+			</a>
+		</div>
+		<div class="pdf-container" id="pdf-preview-container">
+			<iframe id="pdf-preview-frame" src="" style="width: 100%; height: 600px; border: 1px solid #ddd;"></iframe>
+		</div>
+	</div>
+
 
 </div><!--container end-->
 
@@ -1077,6 +1178,10 @@ FONTS & ICONS
 		formData.append("mode", mode);
 		formData.append("survey_id", survey_id);
 		formData.append("custom_survey_id", custom_survey_id);
+
+		// 显示进度条和状态信息
+		showUploadProgress();
+
 		$.ajax({
 		type: "POST",
 		dataType: "json",
@@ -1085,46 +1190,138 @@ FONTS & ICONS
 		contentType: false,
 		data: formData,
 		success: function(result) {
-			// Iterate over the filenames array
-			for (let i = 0, len = result['filenames'].length; i < len; i++) {
-			let filename = result['filenames'][i];
-			let filesize = result['filesizes'][i];
-			let sanitizedFilename = sanitizeFilename(filename);
-			let survey_id = result['survey_id'];
-			let ref_id = result['ref_ids'][i];
-			// let parts = filename.split(' ');
-			// parts.pop();
-			// let cleanedFileName = parts.join(' ');
-			let cleanedFileName = filename;
-
-			// Create HTML structure for PDF icon with clickable link
-			let pdfHtml = `
-			<div class="pdf-item" style="display: flex; align-items: center; font-size: 0.8em;">
-				<div class="pdf-icon" style="flex-shrink: 0;">
-					<i class="fas fa-file-pdf"></i>
-				</div>
-				<div class="pdf-details" style="flex-grow: 1; margin-left: 10px;">
-					<a href="#" onclick="fetchAndDisplayJson('/static/data/txt/${survey_id}/${sanitizedFilename}.json'); return false;">
-						<p class="pdf-name" style="margin: 0; font-size: 1em;">${sanitizedFilename}</p>
-						<p class="pdf-info" style="margin: 0; font-size: 0.9em;">${filesize} MB</p>
-					</a>
-				</div>
-
-				<input type="hidden" name="refs" value="${ref_id}" class="pdf-hidden-input">
-			</div>
-		`;
-			$("#ref_list").append(pdfHtml);
+			if (result.operation_id) {
+				// 异步任务已启动，开始轮询进度
+				pollUploadProgress(result.operation_id);
+			} else {
+				// 兼容旧版本的同步响应
+				handleUploadSuccess(result);
 			}
-			$("#refs").attr("style","display:inline;");
-			$("#select_refs").attr("style","display:none;");
-			$("#input_ref_head").html("<span class=\"fas fa-tags\"></span> You can input topic by yourself:");
-			$("#refs_head").html("<span class=\"fas fa-copy\"></span> Here are the uploaded references:");
-			$("#auto_taxonomy").attr("style","display:inline;");
 		},
 		error: function(jqXHR, textStatus, errorThrown){
-			alert(jqXHR.responseText);
+			hideUploadProgress();
+			alert("Upload failed: " + jqXHR.responseText);
 		}
 		});
+	}
+
+	function showUploadProgress() {
+		// 显示进度条（如果没有，创建一个简单的）
+		if (!$('#upload-progress').length) {
+			$('body').append(`
+				<div id="upload-progress" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+					 background: white; padding: 20px; border: 2px solid #ccc; border-radius: 10px; z-index: 9999; min-width: 300px;">
+					<div style="text-align: center;">
+						<h4>Uploading Files...</h4>
+						<div id="progress-bar" style="width: 100%; background-color: #f0f0f0; border-radius: 5px; margin: 10px 0;">
+							<div id="progress-fill" style="width: 0%; height: 20px; background-color: #4CAF50; border-radius: 5px; transition: width 0.3s;"></div>
+						</div>
+						<div id="progress-text">Starting upload...</div>
+						<div id="progress-percentage">0%</div>
+					</div>
+				</div>
+			`);
+		}
+		$('#upload-progress').show();
+	}
+
+	function hideUploadProgress() {
+		$('#upload-progress').hide();
+	}
+
+	function updateProgressBar(progress, message) {
+		$('#progress-fill').css('width', progress + '%');
+		$('#progress-text').text(message);
+		$('#progress-percentage').text(progress + '%');
+	}
+
+	function pollUploadProgress(operationId) {
+		function checkProgress() {
+			$.ajax({
+				type: "GET",
+				url: "/get_operation_progress/",
+				data: { operation_id: operationId },
+				success: function(result) {
+					const progress = result.progress || 0;
+					const message = result.message || 'Processing...';
+					const status = result.status || 'running';
+
+					updateProgressBar(progress, message);
+
+					if (status === 'completed') {
+						// 任务完成
+						setTimeout(() => {
+							hideUploadProgress();
+							if (result.result) {
+								handleUploadSuccess(result.result);
+							} else {
+								handleUploadSuccess(result);
+							}
+						}, 500);
+					} else if (status === 'failed') {
+						// 任务失败
+						hideUploadProgress();
+						alert('Upload failed: ' + (result.error || 'Unknown error'));
+					} else {
+						// 继续轮询
+						setTimeout(checkProgress, 2000); // 每2秒检查一次
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.error('Progress check failed:', textStatus, errorThrown);
+					// 继续尝试，但增加间隔
+					setTimeout(checkProgress, 5000);
+				}
+			});
+		}
+
+		// 开始轮询
+		checkProgress();
+	}
+
+	function handleUploadSuccess(result) {
+		// 重置PDF预览区域（因为这是新的survey）
+		document.getElementById('pdf-preview-section').style.display = 'none';
+		document.getElementById('pdf-preview-frame').src = '';
+		document.getElementById('pdf-download-link').style.display = 'none';
+		document.getElementById('pdf-download-link').href = '';
+		
+		// 原来的成功处理逻辑
+		// Iterate over the filenames array
+		for (let i = 0, len = result['filenames'].length; i < len; i++) {
+		let filename = result['filenames'][i];
+		let filesize = result['filesizes'][i];
+		let sanitizedFilename = sanitizeFilename(filename);
+		let survey_id = result['survey_id'];
+		let ref_id = result['ref_ids'][i];
+		// let parts = filename.split(' ');
+		// parts.pop();
+		// let cleanedFileName = parts.join(' ');
+		let cleanedFileName = filename;
+
+		// Create HTML structure for PDF icon with clickable link
+		let pdfHtml = `
+		<div class="pdf-item" style="display: flex; align-items: center; font-size: 0.8em;">
+			<div class="pdf-icon" style="flex-shrink: 0;">
+				<i class="fas fa-file-pdf"></i>
+			</div>
+			<div class="pdf-details" style="flex-grow: 1; margin-left: 10px;">
+				<a href="#" onclick="fetchAndDisplayJson('/static/data/txt/${survey_id}/${sanitizedFilename}.json'); return false;">
+					<p class="pdf-name" style="margin: 0; font-size: 1em;">${sanitizedFilename}</p>
+					<p class="pdf-info" style="margin: 0; font-size: 0.9em;">${filesize} MB</p>
+				</a>
+			</div>
+
+			<input type="hidden" name="refs" value="${ref_id}" class="pdf-hidden-input">
+		</div>
+	`;
+		$("#ref_list").append(pdfHtml);
+		}
+		$("#refs").attr("style","display:inline;");
+		$("#select_refs").attr("style","display:none;");
+		$("#input_ref_head").html("<span class=\"fas fa-tags\"></span> You can input topic by yourself:");
+		$("#refs_head").html("<span class=\"fas fa-copy\"></span> Here are the uploaded references:");
+		$("#auto_taxonomy").attr("style","display:inline;");
 	}
 
 	function removePdf(element) {
@@ -1199,76 +1396,120 @@ FONTS & ICONS
         refs.push($(this).val());
     });
 
-    // 在表单数据中添加 clusterNum
     // 使用 FormData 构建 POST 数据
     const formData = new FormData();
-    // 这里将所有 refs 合并为一个 JSON 字符串传输，传输时只占用一个字段
     formData.append("refs", JSON.stringify(refs));
     formData.append("taxonomy_standard", taxonomyStandard);
     formData.append("Global_cluster_num", clusterNum);
+
+    // 显示进度条和状态信息（与上传一致）
+    showUploadProgress();
 
     $.ajax({
         type: "POST",
         dataType: "json",
         url: "/automatic_taxonomy",
-		processData: false,  // 禁止 jQuery 序列化数据
-        contentType: false,  // 禁止 jQuery 设置 Content-Type 头
-        data: formData,  // 发送包含 Global_cluster_num 的数据
+        processData: false,
+        contentType: false,
+        data: formData,
         success: function(result) {
-            alert("Success!");
-            document.getElementById("legend").innerHTML += "<h2>" + $("#taxonomy_standard").val() + "</h2>";
-            for (let i = 0, len = result['colors'].length; i < len; i++) {
-                document.getElementById("legend").innerHTML += "<li class=\"list-group-item\"; style=\"color: "+ result['colors'][i]+" \">" + result['category_label'][i]+" </li>"
+            if (result.operation_id) {
+                // 异步任务已启动，开始轮询进度
+                pollTaxonomyProgress(result.operation_id);
+            } else {
+                // 兼容旧版本的同步响应
+                hideUploadProgress();
+                handleTaxonomySuccess(result);
             }
-            
-            var addr = "static/img/tsne_" + result['survey_id'] + ".png";
-            $("#tsne_img").attr("src", addr);
-
-            // 生成分类结果面板
-            document.getElementById("modify_taxonomy").innerHTML += "<h2> You can also modify the categorization result: </h2>";
-            for (let i = 0, len = result['category_label'].length; i < len; i++) {
-                document.getElementById("modify_taxonomy").innerHTML +=
-                    `<div class="panel panel-primary">
-                        <div class="panel-heading" style="background-image: none; background-color:${result['colors'][i]}">
-                            <h3 class="panel-title">${result['category_label'][i]}</h3>
-                        </div>
-                        <div class="panel-body" id="${result['category_label'][i]}"></div>
-                    </div>`;
-
-                for (let j = 0, len = result['ref_indexs'][i].length; j < len; j++) {
-                    document.getElementById(result['category_label'][i]).innerHTML +=
-                        `<div class="input-group" id="ref_${result['ref_indexs'][i][j]}">
-                            <span class="input-group-addon">[${result['ref_indexs'][i][j]}]</span>
-                            <a href="0" target="_blank" class="list-group-item">${result['ref_titles'][i][j]}</a>
-                            <span class="input-group-addon">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Change to <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu" id="ref_${result['ref_indexs'][i][j]}_change">`;
-                    
-                    for (let k = 0, len = result['category_label'].length; k < len; k++) {
-                        if (result['category_label'][i] != result['category_label'][k]) {
-                            document.getElementById(`ref_${result['ref_indexs'][i][j]}_change`).innerHTML +=
-                                `<li><a onclick="change_taxonomy('${result['category_label'][i]}', 'ref_${result['ref_indexs'][i][j]}', '${result['category_label'][k]}')">${result['category_label'][k]}</a></li>`;
-                        }
-                    }
-
-                    document.getElementById(result['category_label'][i]).innerHTML +=
-                        `</ul>
-                                </div>
-                            </span>
-                        </div>`;
-                }
-            }
-            
-            $("#taxonomy").attr("style", "display:inline;");
-            $("#generate_content_button").attr("style", "display:inline; align: center;");
         },
         error: function(jqXHR, textStatus, errorThrown){
-            alert(jqXHR.responseText);
+            hideUploadProgress();
+            alert("Categorization failed: " + jqXHR.responseText);
         }
     });
+}
+
+function pollTaxonomyProgress(operationId) {
+    function checkProgress() {
+        $.ajax({
+            type: "GET",
+            url: "/get_operation_progress/",
+            data: { operation_id: operationId },
+            success: function(result) {
+                const progress = result.progress || 0;
+                const message = result.message || 'Processing...';
+                const status = result.status || 'running';
+
+                updateProgressBar(progress, message);
+
+                if (status === 'completed') {
+                    setTimeout(() => {
+                        hideUploadProgress();
+                        if (result.result) {
+                            handleTaxonomySuccess(result.result);
+                        } else {
+                            handleTaxonomySuccess(result);
+                        }
+                    }, 500);
+                } else if (status === 'failed') {
+                    hideUploadProgress();
+                    alert('Categorization failed: ' + (result.error || 'Unknown error'));
+                } else {
+                    setTimeout(checkProgress, 2000);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Progress check failed:', textStatus, errorThrown);
+                setTimeout(checkProgress, 5000);
+            }
+        });
+    }
+    checkProgress();
+}
+
+function handleTaxonomySuccess(result) {
+    // 原有的分类结果渲染逻辑
+    document.getElementById("legend").innerHTML += "<h2>" + $("#taxonomy_standard").val() + "</h2>";
+    for (let i = 0, len = result['colors'].length; i < len; i++) {
+        document.getElementById("legend").innerHTML += "<li class=\"list-group-item\" style=\"color: " + result['colors'][i] + "\">" + result['category_label'][i] + " </li>";
+    }
+    var addr = "static/img/tsne_" + result['survey_id'] + ".png";
+    $("#tsne_img").attr("src", addr);
+    document.getElementById("modify_taxonomy").innerHTML += "<h2> You can also modify the categorization result: </h2>";
+    for (let i = 0, len = result['category_label'].length; i < len; i++) {
+        document.getElementById("modify_taxonomy").innerHTML +=
+            `<div class="panel panel-primary">
+                <div class="panel-heading" style="background-image: none; background-color:${result['colors'][i]}">
+                    <h3 class="panel-title">${result['category_label'][i]}</h3>
+                </div>
+                <div class="panel-body" id="${result['category_label'][i]}"></div>
+            </div>`;
+        for (let j = 0, len = result['ref_indexs'][i].length; j < len; j++) {
+            document.getElementById(result['category_label'][i]).innerHTML +=
+                `<div class="input-group" id="ref_${result['ref_indexs'][i][j]}">
+                    <span class="input-group-addon">[${result['ref_indexs'][i][j]}]</span>
+                    <a href="0" target="_blank" class="list-group-item">${result['ref_titles'][i][j]}</a>
+                    <span class="input-group-addon">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Change to <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" id="ref_${result['ref_indexs'][i][j]}_change">`;
+            for (let k = 0, len = result['category_label'].length; k < len; k++) {
+                if (result['category_label'][i] != result['category_label'][k]) {
+                    document.getElementById(`ref_${result['ref_indexs'][i][j]}_change`).innerHTML +=
+                        `<li><a onclick="change_taxonomy('${result['category_label'][i]}', 'ref_${result['ref_indexs'][i][j]}', '${result['category_label'][k]}')">${result['category_label'][k]}</a></li>`;
+                }
+            }
+            document.getElementById(result['category_label'][i]).innerHTML +=
+                `</ul>
+                        </div>
+                    </span>
+                </div>`;
+        }
+    }
+    $("#taxonomy").attr("style", "display:inline;");
+    $("#generate_content_button").attr("style", "display:inline; align: center;");
 }
 
 
@@ -1580,205 +1821,464 @@ function select_sections() {
         });
 		
 	function display_survey() {
-    // 从 views 获取 survey_id
-    $.ajax({
-      url: '/get_survey_id', // 假设你的后端视图在这个 URL 上返回 survey_id
-      method: 'GET',
-      dataType: 'json',
-      success: function(data) {
-        var survey_id = data.survey_id; // 假设 views 返回的 JSON 格式是 { "survey_id": "123" }
-		console.log(survey_id);
+		// 防止重复点击
+		if ($('#upload-progress').is(':visible')) {
+			return; // 如果已经在生成中，直接返回
+		}
+		
+		// 显示加载状态（使用与clustering和PDF下载一致的进度条）
+		showUploadProgress();
+		// 更新进度条标题和初始消息
+		$('#upload-progress h4').text('Generating Survey...');
+		updateProgressBar(0, 'Starting survey generation...');
 
-        // 获取 JSON 文件内容
-        $.ajax({
-          url: '/static/data/txt/' + survey_id + '/generated_result.json',
-          method: 'GET',
-          dataType: 'json',
-          success: function(surveyData) {
-			console.log(surveyData);
-			document.getElementById("survey_content").innerHTML = "";
+		// 启动异步survey生成
+		$.ajax({
+			url: '/get_survey_id/', // ← 注意结尾的斜杠
+			method: 'POST',
+			dataType: 'json',
+			success: function(data) {
+				if (data.operation_id) {
+					// 开始跟踪进度
+					pollSurveyProgress(data.operation_id);
+				} else {
+					hideUploadProgress();
+					alert("Failed to start survey generation.");
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				hideUploadProgress();
+				alert("Failed to start survey generation: " + jqXHR.responseText);
+			}
+		});
+	}
 
-			// 显示 Survey 标题
-			var topic = document.getElementById("topic_input_box").value || "Default Topic";
-			var surveyTitleMarkdown = "# A Survey of " + topic;
-			var surveyTitleHTML = marked.parse(surveyTitleMarkdown);
-			document.getElementById("survey_content").innerHTML += surveyTitleHTML;
-
-			// 显示 Survey 内容
-			var contentMarkdown = surveyData.content || "No content available.";
-			var contentHTML = marked.parse(contentMarkdown);
-			document.getElementById("survey_content").innerHTML += contentHTML;
-			var turndownService = new TurndownService();
-			$("#survey").attr("style", "display:inline;");
-						// 绑定编辑功能
-          // 绑定编辑功能
-          $("#editBtn").on("click", function() {
-            var currentHTML = document.getElementById("survey_content").innerHTML;
-            var editorContainer = `<textarea id="richTextEditor">${currentHTML}</textarea>`;
-            $("#survey_content").html(editorContainer);
-
-            // 初始化 TinyMCE
-            tinymce.init({
-              selector: '#richTextEditor', // 绑定到指定的 textarea
-              height: 400, // 编辑器高度
-              menubar: false, // 是否显示菜单栏
-              plugins: 'lists link image table code help', // 插件
-              toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code | help', // 工具栏
-			  image_title: true,
-				/* enable automatic uploads of images represented by blob or data URIs*/
-				automatic_uploads: true,
-				/*
-					URL of our upload handler (for more details check: https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_url)
-					images_upload_url: 'postAcceptor.php',
-					here we add custom filepicker only to Image dialog
-				*/
-				file_picker_types: 'image',
-				/* and here's our custom image picker*/
-				file_picker_callback: (cb, value, meta) => {
-					const input = document.createElement('input');
-					input.setAttribute('type', 'file');
-					input.setAttribute('accept', 'image/*');
-
-					input.addEventListener('change', (e) => {
-					const file = e.target.files[0];
-
-					const reader = new FileReader();
-					reader.addEventListener('load', () => {
-						/*
-						Note: Now we need to register the blob in TinyMCEs image blob
-						registry. In the next release this part hopefully won't be
-						necessary, as we are looking to handle it internally.
-						*/
-						const id = 'blobid' + (new Date()).getTime();
-						const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
-						const base64 = reader.result.split(',')[1];
-						const blobInfo = blobCache.create(id, file, base64);
-						blobCache.add(blobInfo);
-
-						/* call the callback and populate the Title field with the file name */
-						cb(blobInfo.blobUri(), { title: file.name });
-					});
-					reader.readAsDataURL(file);
-					});
-
-					input.click();
-				},			  
-			});
-
-            $("#editBtn").hide();
-            $("#saveBtn").show();
-          });
-
-          // 绑定保存功能
-          $("#saveBtn").on("click", function() {
-            var newHTML = tinymce.get('richTextEditor').getContent(); // 获取富文本编辑器的内容
-            $("#survey_content").html(newHTML);
-            tinymce.remove('#richTextEditor'); // 移除编辑器实例
-            $("#editBtn").show();
-            $("#saveBtn").hide();
-          });     
-
-			function downloadPDF() {
-				var surveyContentHTML = document.getElementById("survey_content").innerHTML;
-				var turndownService = new TurndownService();
-				var markdownContent = turndownService.turndown(surveyContentHTML);
-
-				var form = new FormData();
-				form.append('content', markdownContent);
-				form.append('survey_id', survey_id);
-
-				var xhr = new XMLHttpRequest();
-				xhr.open('POST', '/generate_pdf/', true);
-				xhr.responseType = 'blob';
-
-				xhr.onload = function () {
-					if (xhr.status === 200) {
-						var blob = new Blob([xhr.response], { type: 'application/pdf' });
-						var link = document.createElement('a');
-						link.href = window.URL.createObjectURL(blob);
-						link.download = 'A Survey of ' + topic + '.pdf';
-						document.body.appendChild(link);
-						link.click();
-						document.body.removeChild(link);
-						alert('PDF downloaded successfully!, Now you can download LaTeX version');
+	function pollSurveyProgress(operationId) {
+		function checkProgress() {
+			$.ajax({
+				type: "GET",
+				url: "/get_operation_progress/",
+				data: { operation_id: operationId },
+				success: function(result) {
+					const progress = result.progress || 0;
+					const message = result.message || "Processing...";
+					const status = result.status || 'running';
+					
+					// 使用与其他功能一致的进度条更新函数
+					updateProgressBar(progress, message);
+					
+					if (status === 'completed' || progress >= 100) {
+						// 生成完成，加载survey内容
+						setTimeout(() => {
+							hideUploadProgress();
+							loadSurveyContent(result.result ? result.result.survey_id : null);
+						}, 500);
+					} else if (status === 'failed' || progress < 0) {
+						// 生成失败
+						hideUploadProgress();
+						alert("Survey generation failed: " + message);
 					} else {
-						alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
+						// 继续轮询
+						setTimeout(checkProgress, 2000);
 					}
-				};
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.error('Survey progress check failed:', textStatus, errorThrown);
+					// 继续尝试，但增加间隔
+					setTimeout(checkProgress, 5000);
+				}
+			});
+		}
+		
+		checkProgress();
+	}
 
-				xhr.onerror = function () {
-					alert('An error occurred while processing the request.');
-				};
-
-				xhr.send(form);
-			}
-
-			// 绑定下载按钮的点击事件
-			$('#downloadBtn').on('click', function(){
-				downloadPDF();
-});
-			function downloadPDF_latex() {
-				// 从后端获取 survey_id
-				$.ajax({
-					url: '/get_survey_id',
-					method: 'GET',
-					dataType: 'json',
-					success: function(data) {
-						var survey_id = data.survey_id;
-						
-						var form = new FormData();
-						form.append('survey_id', survey_id);  // 添加 survey_id
-						
-						var xhr = new XMLHttpRequest();
-						xhr.open('POST', '/generate_pdf_from_tex/', true);
-						xhr.responseType = 'blob';
-
-						xhr.onload = function () {
-							if (xhr.status === 200) {
-								var blob = new Blob([xhr.response], { type: 'application/pdf' });
-								var link = document.createElement('a');
-								link.href = window.URL.createObjectURL(blob);
-								link.download = 'A Survey of ' + topic + '_latex.pdf';
-								document.body.appendChild(link);
-								link.click();
-								document.body.removeChild(link);
-								alert('PDF downloaded successfully!');
-							} else {
-								alert('Failed to generate PDF. Server responded with status: ' + xhr.status);
-							}
-						};
-
-						xhr.onerror = function () {
-							alert('An error occurred while processing the request.');
-						};
-
-						xhr.send(form);
-					},
-					error: function() {
-						alert("Failed to get survey ID.");
+	function loadSurveyContent(survey_id) {
+		if (!survey_id) {
+			// 如果没有survey_id，尝试从全局变量获取
+			$.ajax({
+				url: '/get_surveys/',
+				method: 'GET',
+				dataType: 'json',
+				success: function(data) {
+					const surveys = data.surveys;
+					if (surveys && surveys.length > 0) {
+						survey_id = surveys[surveys.length - 1]; // 使用最新的survey
+						loadSurveyContentWithId(survey_id);
+					} else {
+						alert("No survey ID found.");
 					}
+				},
+				error: function() {
+					alert("Failed to get survey ID.");
+				}
+			});
+		} else {
+			loadSurveyContentWithId(survey_id);
+		}
+	}
+
+	function loadSurveyContentWithId(survey_id) {
+		// 获取 JSON 文件内容
+		$.ajax({
+			url: '/static/data/txt/' + survey_id + '/generated_result.json',
+			method: 'GET',
+			dataType: 'json',
+			success: function(surveyData) {
+				console.log(surveyData);
+				document.getElementById("survey_content").innerHTML = "";
+
+				// 显示 Survey 标题
+				var topic = document.getElementById("topic_input_box").value || "Default Topic";
+				var surveyTitleMarkdown = "# A Survey of " + topic;
+				var surveyTitleHTML = marked.parse(surveyTitleMarkdown);
+				document.getElementById("survey_content").innerHTML += surveyTitleHTML;
+
+				// 显示 Survey 内容
+				var contentMarkdown = surveyData.content || "No content available.";
+				var contentHTML = marked.parse(contentMarkdown);
+				document.getElementById("survey_content").innerHTML += contentHTML;
+				var turndownService = new TurndownService();
+				$("#survey").attr("style", "display:inline;");
+				
+				// 绑定编辑功能
+				$("#editBtn").off("click").on("click", function() {
+					var currentHTML = document.getElementById("survey_content").innerHTML;
+					var editorContainer = `<textarea id="richTextEditor">${currentHTML}</textarea>`;
+					$("#survey_content").html(editorContainer);
+
+					// 初始化 TinyMCE
+					tinymce.init({
+						selector: '#richTextEditor', // 绑定到指定的 textarea
+						height: 400, // 编辑器高度
+						menubar: false, // 是否显示菜单栏
+						plugins: 'lists link image table code help', // 插件
+						toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code | help', // 工具栏
+						image_title: true,
+						/* enable automatic uploads of images represented by blob or data URIs*/
+						automatic_uploads: true,
+						/*
+							URL of our upload handler (for more details check: https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_url)
+							images_upload_url: 'postAcceptor.php',
+							here we add custom filepicker only to Image dialog
+						*/
+						file_picker_types: 'image',
+						/* and here's our custom image picker*/
+						file_picker_callback: (cb, value, meta) => {
+							const input = document.createElement('input');
+							input.setAttribute('type', 'file');
+							input.setAttribute('accept', 'image/*');
+
+							input.addEventListener('change', (e) => {
+							const file = e.target.files[0];
+
+							const reader = new FileReader();
+							reader.addEventListener('load', () => {
+								/*
+								Note: Now we need to register the blob in TinyMCEs image blob
+								registry. In the next release this part hopefully won't be
+								necessary, as we are looking to handle it internally.
+								*/
+								const id = 'blobid' + (new Date()).getTime();
+								const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+								const base64 = reader.result.split(',')[1];
+								const blobInfo = blobCache.create(id, file, base64);
+								blobCache.add(blobInfo);
+
+								/* call the callback and populate the Title field with the file name */
+								cb(blobInfo.blobUri(), { title: file.name });
+							});
+							reader.readAsDataURL(file);
+							});
+
+							input.click();
+						},			  
+					});
+
+					$("#editBtn").hide();
+					$("#saveBtn").show();
 				});
-			}
 
-			// 绑定下载按钮的点击事件
-			$('#finalDownloadBtn').on('click', function(){
-				downloadPDF_latex();
-});
-          },
-          error: function() {
-            alert("Failed to load survey content.");
-          }
-        });
-      },
-      error: function() {
-        alert("Failed to get survey ID.");
-      }
-    });
-  }
+				// 绑定保存功能
+				$("#saveBtn").off("click").on("click", function() {
+					var newHTML = tinymce.get('richTextEditor').getContent(); // 获取富文本编辑器的内容
+					$("#survey_content").html(newHTML);
+					tinymce.remove('#richTextEditor'); // 移除编辑器实例
+					$("#editBtn").show();
+					$("#saveBtn").hide();
+				});     
+
+				// 注意：PDF下载按钮已在文件末尾使用异步进度跟踪方式重新绑定
+				// 这里不再重复绑定以避免冲突
+			},
+			error: function() {
+				loadingOverlay.style.display = "none";
+				alert("Failed to load survey content. The survey may still be generating.");
+			}
+		});
+	}
+
+	// 添加进度跟踪功能
+	let currentOperationId = null;
+	let progressInterval = null;
+
+	function startProgressTracking(operationId, progressCallback) {
+		currentOperationId = operationId;
+		progressInterval = setInterval(() => {
+			fetch(`/get_operation_progress/?operation_id=${operationId}`)
+				.then(response => response.json())
+				.then(data => {
+					if (data.progress !== undefined) {
+						progressCallback(data.progress, data.message);
+						
+						// 如果完成或失败，停止跟踪
+						if (data.progress >= 100 || data.progress < 0) {
+							stopProgressTracking();
+						}
+					}
+				})
+				.catch(error => {
+					console.error('Progress tracking error:', error);
+				});
+		}, 2000); // 每2秒更新一次
+	}
+
+	function stopProgressTracking() {
+		if (progressInterval) {
+			clearInterval(progressInterval);
+			progressInterval = null;
+		}
+		currentOperationId = null;
+	}
+
+	// --- PDF/LaTeX异步下载按钮逻辑 ---
+	$('#downloadBtn').off('click').on('click', async function() {
+		// 显示进度条（与其他功能一致）
+		showUploadProgress();
+		$('#upload-progress h4').text('Generating PDF...');
+		updateProgressBar(0, 'Starting PDF generation...');
+		
+		try {
+			// 获取survey内容并转换为Markdown
+			var surveyContentHTML = document.getElementById("survey_content").innerHTML;
+			var turndownService = new TurndownService();
+			var markdownContent = turndownService.turndown(surveyContentHTML);
+			
+			// 创建FormData并添加内容
+			var form = new FormData();
+			form.append('content', markdownContent);
+			
+			// 尝试获取survey_id
+			var topic = document.getElementById("topic_input_box").value || "Default Topic";
+			if (typeof survey_id !== 'undefined') {
+				form.append('survey_id', survey_id);
+			}
+			
+			const response = await fetch('/generate_pdf/', {
+				method: 'POST',
+				body: form
+			});
+			if (!response.ok) {
+				hideUploadProgress();
+				return;
+			}
+			const result = await response.json();
+			if (result.operation_id) {
+				// 轮询进度
+				await pollAsyncDownload(result.operation_id, 'pdf');
+			} else {
+				hideUploadProgress();
+			}
+		} catch (e) {
+			hideUploadProgress();
+			console.error('PDF generation error:', e);
+		}
+	});
+
+	$('#finalDownloadBtn').off('click').on('click', async function() {
+		// 显示进度条（与其他功能一致）
+		showUploadProgress();
+		$('#upload-progress h4').text('Generating LaTeX PDF...');
+		updateProgressBar(0, 'Starting LaTeX PDF generation...');
+		
+		try {
+			// 获取survey内容并转换为Markdown（与PDF生成一致）
+			var surveyContentHTML = document.getElementById("survey_content").innerHTML;
+			var turndownService = new TurndownService();
+			var markdownContent = turndownService.turndown(surveyContentHTML);
+			
+			// 创建FormData并添加内容
+			var form = new FormData();
+			form.append('content', markdownContent);
+			
+			// 尝试获取survey_id
+			var topic = document.getElementById("topic_input_box").value || "Default Topic";
+			if (typeof survey_id !== 'undefined') {
+				form.append('survey_id', survey_id);
+			}
+			
+			const response = await fetch('/generate_pdf_from_tex/', {
+				method: 'POST',
+				body: form
+			});
+			if (!response.ok) {
+				hideUploadProgress();
+				return;
+			}
+			const result = await response.json();
+			if (result.operation_id) {
+				await pollAsyncDownload(result.operation_id, 'latex');
+			} else {
+				hideUploadProgress();
+			}
+		} catch (e) {
+			hideUploadProgress();
+			console.error('LaTeX PDF generation error:', e);
+		}
+	});
+
+	async function pollAsyncDownload(operationId, type) {
+		let status = 'running';
+		let downloadUrl = '';
+		while (status === 'running') {
+			await new Promise(r => setTimeout(r, 2000));
+			try {
+				const res = await fetch(`/get_operation_progress/?operation_id=${operationId}`);
+				const data = await res.json();
+				status = data.status || 'running';
+				
+				// 更新进度条
+				const progress = data.progress || 0;
+				const message = data.message || 'Processing...';
+				updateProgressBar(progress, message);
+				
+				if (status === 'completed') {
+					// 后端应返回文件下载url或直接触发下载
+					downloadUrl = (type === 'pdf')
+						? `/static/data/results/survey_${data.result.survey_id}.pdf`
+						: `/static/data/results/survey_${data.result.survey_id}_latex.pdf`;
+					
+					// 等待一下让用户看到100%完成
+					updateProgressBar(100, 'PDF ready! Displaying in viewer...');
+					await new Promise(r => setTimeout(r, 500));
+					
+					// 在iframe中显示PDF，而不是下载
+					document.getElementById('pdf-preview-frame').src = downloadUrl;
+					document.getElementById('pdf-preview-section').style.display = 'block';
+					
+					// 设置下载链接
+					const downloadLink = document.getElementById('pdf-download-link');
+					downloadLink.href = downloadUrl;
+					downloadLink.style.display = 'inline-block';
+					downloadLink.download = (type === 'pdf') 
+						? `survey_${data.result.survey_id}.pdf`
+						: `survey_${data.result.survey_id}_latex.pdf`;
+					
+					// 滚动到PDF预览区域
+					document.getElementById('pdf-preview-section').scrollIntoView({ behavior: 'smooth' });
+					
+					break;
+				} else if (status === 'failed') {
+					alert('PDF generation failed: ' + (data.error || 'Unknown error'));
+					break;
+				}
+			} catch (error) {
+				console.error('Progress polling error:', error);
+				// 继续尝试
+			}
+		}
+		hideUploadProgress();
+	}
 
 </script>
 
+	<!-- 测试异步功能区域
+	<div class="container mt-4">
+		<div class="card">
+			<div class="card-header">
+				<h5>测试异步功能</h5>
+			</div>
+			<div class="card-body">
+				<button type="button" class="btn btn-primary" onclick="testAsyncFunction()">
+					测试异步任务
+				</button>
+				<div id="test-result" class="mt-3"></div>
+			</div>
+		</div>
+	</div>
 
+	<script>
+	function testAsyncFunction() {
+		$('#test-result').html('<div class="alert alert-info">开始测试异步功能...</div>');
+		
+		$.ajax({
+			type: "POST",
+			url: "/test_async_simple/",
+			success: function(result) {
+				if (result.operation_id) {
+					$('#test-result').html('<div class="alert alert-success">异步任务已启动，operation_id: ' + result.operation_id + '</div>');
+					pollTestProgress(result.operation_id);
+				} else {
+					$('#test-result').html('<div class="alert alert-warning">响应格式异常: ' + JSON.stringify(result) + '</div>');
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$('#test-result').html('<div class="alert alert-danger">测试失败: ' + jqXHR.responseText + '</div>');
+			}
+		});
+	}
+
+	function pollTestProgress(operationId) {
+		function checkProgress() {
+			$.ajax({
+				type: "GET",
+				url: "/get_operation_progress/",
+				data: { operation_id: operationId },
+				success: function(result) {
+					const progress = result.progress || 0;
+					const message = result.message || 'Processing...';
+					const status = result.status || 'running';
+
+					$('#test-result').html(`
+						<div class="alert alert-info">
+							<strong>进度: ${progress}%</strong><br>
+							状态: ${status}<br>
+							消息: ${message}
+						</div>
+					`);
+
+					if (status === 'completed') {
+						$('#test-result').html(`
+							<div class="alert alert-success">
+								<strong>测试完成!</strong><br>
+								结果: ${JSON.stringify(result.result)}
+							</div>
+						`);
+					} else if (status === 'failed') {
+						$('#test-result').html(`
+							<div class="alert alert-danger">
+								<strong>测试失败!</strong><br>
+								错误: ${result.error || 'Unknown error'}
+							</div>
+						`);
+					} else {
+						setTimeout(checkProgress, 1000);
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					$('#test-result').html(`
+						<div class="alert alert-warning">
+							进度查询失败: ${textStatus}<br>
+							继续尝试...
+						</div>
+					`);
+					setTimeout(checkProgress, 2000);
+				}
+			});
+		}
+		checkProgress();
+	}
+	</script> -->
 
 {% endblock %}
 {% endblock %}

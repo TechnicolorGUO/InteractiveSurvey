@@ -1,0 +1,210 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Organization of the Paper"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Fundamentals of 3D Rendering"
+  ],
+  [
+    3,
+    "2.1.1 Traditional Rendering Techniques"
+  ],
+  [
+    3,
+    "2.1.2 Challenges in Real-Time Rendering"
+  ],
+  [
+    2,
+    "2.2 Gaussian Functions in Graphics"
+  ],
+  [
+    3,
+    "2.2.1 Mathematical Foundations of Gaussians"
+  ],
+  [
+    3,
+    "2.2.2 Applications in Computer Vision and Graphics"
+  ],
+  [
+    1,
+    "3 Overview of 3D Gaussian Splatting"
+  ],
+  [
+    2,
+    "3.1 Definition and Core Concepts"
+  ],
+  [
+    3,
+    "3.1.1 What are Gaussian Splats?"
+  ],
+  [
+    3,
+    "3.1.2 Key Parameters in Gaussian Splatting"
+  ],
+  [
+    2,
+    "3.2 Advantages and Limitations"
+  ],
+  [
+    3,
+    "3.2.1 Computational Efficiency"
+  ],
+  [
+    3,
+    "3.2.2 Representation Quality"
+  ],
+  [
+    1,
+    "4 Techniques and Methodologies"
+  ],
+  [
+    2,
+    "4.1 Data Acquisition for Gaussian Splats"
+  ],
+  [
+    3,
+    "4.1.1 Point Cloud Generation"
+  ],
+  [
+    3,
+    "4.1.2 Parameter Estimation for Gaussians"
+  ],
+  [
+    2,
+    "4.2 Optimization Methods"
+  ],
+  [
+    3,
+    "4.2.1 Gradient-Based Optimization"
+  ],
+  [
+    3,
+    "4.2.2 Non-Gradient-Based Approaches"
+  ],
+  [
+    2,
+    "4.3 Rendering Pipelines"
+  ],
+  [
+    3,
+    "4.3.1 Forward Rendering with Gaussians"
+  ],
+  [
+    3,
+    "4.3.2 Acceleration Techniques"
+  ],
+  [
+    1,
+    "5 Applications of 3D Gaussian Splatting"
+  ],
+  [
+    2,
+    "5.1 Inverse Rendering"
+  ],
+  [
+    3,
+    "5.1.1 Neural Radiance Fields (NeRF) Integration"
+  ],
+  [
+    3,
+    "5.1.2 Dynamic Scene Reconstruction"
+  ],
+  [
+    2,
+    "5.2 Augmented Reality and Virtual Environments"
+  ],
+  [
+    3,
+    "5.2.1 Real-Time Rendering in AR/VR"
+  ],
+  [
+    3,
+    "5.2.2 Interactive Content Creation"
+  ],
+  [
+    1,
+    "6 Comparative Analysis"
+  ],
+  [
+    2,
+    "6.1 Performance Metrics"
+  ],
+  [
+    3,
+    "6.1.1 Accuracy vs. Efficiency Trade-offs"
+  ],
+  [
+    3,
+    "6.1.2 Visual Quality Assessment"
+  ],
+  [
+    2,
+    "6.2 Benchmarking Against Other Techniques"
+  ],
+  [
+    3,
+    "6.2.1 Comparison with Voxel-Based Methods"
+  ],
+  [
+    3,
+    "6.2.2 Evaluation Against Mesh-Based Representations"
+  ],
+  [
+    1,
+    "7 Discussion"
+  ],
+  [
+    2,
+    "7.1 Current Challenges"
+  ],
+  [
+    3,
+    "7.1.1 Scalability Issues"
+  ],
+  [
+    3,
+    "7.1.2 Memory Constraints"
+  ],
+  [
+    2,
+    "7.2 Future Directions"
+  ],
+  [
+    3,
+    "7.2.1 Multi-Resolution Gaussian Splatting"
+  ],
+  [
+    3,
+    "7.2.2 Hybrid Approaches Combining Gaussians and Other Models"
+  ],
+  [
+    1,
+    "8 Conclusion"
+  ],
+  [
+    2,
+    "8.1 Summary of Findings"
+  ],
+  [
+    2,
+    "8.2 Broader Implications"
+  ]
+]

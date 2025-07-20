@@ -1,1 +1,62 @@
-{}
+{
+  "Phase Field Modeling and Simulation": [
+    {
+      "title": "Phase field modeling and computer implementation: A review",
+      "arxiv_id": "2309.03996"
+    }
+  ],
+  "Barren Plateaus in Quantum Computing": [
+    {
+      "title": "A Review of Barren Plateaus in Variational Quantum Computing",
+      "arxiv_id": "2405.00781"
+    }
+  ],
+  "Machine Learning for Aircraft Performance": [
+    {
+      "title": "Improving aircraft performance using machine learning: a review",
+      "arxiv_id": "2210.11481"
+    }
+  ],
+  "Conductive 2D Material Coatings for Electronics": [
+    {
+      "title": "Electrically Conductive 2D Material Coatings for Flexible & Stretchable Electronics: A Comparative Review of Graphenes & MXenes",
+      "arxiv_id": "2207.06776"
+    }
+  ],
+  "Bandgap Engineering in Phononic Crystals": [
+    {
+      "title": "Tailoring Structure-borne Sound Through Bandgap Engineering in Phononic Crystals and Metamaterials: A Comprehensive Review",
+      "arxiv_id": "2207.05234"
+    }
+  ],
+  "Topological Photonics Across Dimensions": [
+    {
+      "title": "A brief review of topological photonics in one, two, and three dimensions",
+      "arxiv_id": "2209.08669"
+    }
+  ],
+  "Hydrogen Trapping and Embrittlement in Metals": [
+    {
+      "title": "Hydrogen Trapping and Embrittlement in Metals -- A Review",
+      "arxiv_id": "2404.07736"
+    }
+  ],
+  "Modeling Thermodynamic Properties of Deep Eutectic Solvents": [
+    {
+      "title": "Thermodynamic and Transport Properties Modeling of Deep Eutectic Solvents: A review on gE-models, equations of state and molecular dynamics",
+      "arxiv_id": "2303.17159"
+    }
+  ],
+  "Proton-Conducting Zirconates in Hydrogen Devices": [
+    {
+      "title": "A Review of Applications, Prospects, and Challenges of Proton-Conducting Zirconates in Electrochemical Hydrogen Devices",
+      "arxiv_id": "2211.03200"
+    }
+  ],
+  "Earthquake Hazards in Mountain Regions": [
+    {
+      "title": "Earthquake-induced hazards in mountain regions: a review of case histories from Central Asia -- an inaugural lecture to the society",
+      "arxiv_id": "2401.07731"
+    }
+  ]
+}

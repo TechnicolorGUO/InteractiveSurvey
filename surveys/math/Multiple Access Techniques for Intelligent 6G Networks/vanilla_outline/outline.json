@@ -1,0 +1,190 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation for 6G Networks"
+  ],
+  [
+    2,
+    "1.2 Importance of Multiple Access Techniques"
+  ],
+  [
+    2,
+    "1.3 Scope and Objectives of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Evolution of Mobile Communication Systems"
+  ],
+  [
+    2,
+    "2.2 Key Requirements for 6G Networks"
+  ],
+  [
+    2,
+    "2.3 Overview of Multiple Access Techniques"
+  ],
+  [
+    3,
+    "2.3.1 Traditional Multiple Access Methods"
+  ],
+  [
+    3,
+    "2.3.2 Emerging Techniques for 6G"
+  ],
+  [
+    1,
+    "3 Related Work"
+  ],
+  [
+    2,
+    "3.1 Surveys on 5G and Beyond Multiple Access"
+  ],
+  [
+    2,
+    "3.2 Studies Focused on 6G Technologies"
+  ],
+  [
+    2,
+    "3.3 Gaps in Current Literature"
+  ],
+  [
+    1,
+    "4 Multiple Access Techniques for 6G"
+  ],
+  [
+    2,
+    "4.1 Non-Orthogonal Multiple Access (NOMA)"
+  ],
+  [
+    3,
+    "4.1.1 Principles and Mechanisms"
+  ],
+  [
+    3,
+    "4.1.2 Advantages and Challenges"
+  ],
+  [
+    3,
+    "4.1.3 Recent Advances in NOMA for 6G"
+  ],
+  [
+    2,
+    "4.2 Orthogonal Multiple Access (OMA) Enhancements"
+  ],
+  [
+    3,
+    "4.2.1 Modern OMA Variants"
+  ],
+  [
+    3,
+    "4.2.2 Integration with AI and Machine Learning"
+  ],
+  [
+    2,
+    "4.3 Intelligent Reflecting Surface (IRS)-Based Access"
+  ],
+  [
+    3,
+    "4.3.1 IRS Fundamentals"
+  ],
+  [
+    3,
+    "4.3.2 Application in Multiple Access"
+  ],
+  [
+    2,
+    "4.4 Hybrid Multiple Access Schemes"
+  ],
+  [
+    3,
+    "4.4.1 Combining NOMA and OMA"
+  ],
+  [
+    3,
+    "4.4.2 Joint Optimization Approaches"
+  ],
+  [
+    1,
+    "5 Performance Evaluation and Comparison"
+  ],
+  [
+    2,
+    "5.1 Metrics for Assessing Multiple Access Techniques"
+  ],
+  [
+    3,
+    "5.1.1 Spectral Efficiency"
+  ],
+  [
+    3,
+    "5.1.2 Energy Efficiency"
+  ],
+  [
+    3,
+    "5.1.3 Latency and Reliability"
+  ],
+  [
+    2,
+    "5.2 Comparative Analysis of Techniques"
+  ],
+  [
+    3,
+    "5.2.1 Simulation Results"
+  ],
+  [
+    3,
+    "5.2.2 Real-World Implementations"
+  ],
+  [
+    1,
+    "6 Challenges and Open Issues"
+  ],
+  [
+    2,
+    "6.1 Interference Management in Dense Networks"
+  ],
+  [
+    2,
+    "6.2 Security Concerns in Multiple Access"
+  ],
+  [
+    2,
+    "6.3 Scalability and Flexibility Requirements"
+  ],
+  [
+    2,
+    "6.4 Standardization Efforts for 6G"
+  ],
+  [
+    1,
+    "7 Discussion"
+  ],
+  [
+    2,
+    "7.1 Implications for Future Research"
+  ],
+  [
+    2,
+    "7.2 Potential Impact on Industry"
+  ],
+  [
+    1,
+    "8 Conclusion"
+  ],
+  [
+    2,
+    "8.1 Summary of Findings"
+  ],
+  [
+    2,
+    "8.2 Vision for 6G Networks"
+  ]
+]

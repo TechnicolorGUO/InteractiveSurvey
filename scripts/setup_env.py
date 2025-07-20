@@ -31,7 +31,9 @@ commands = [
     # 安装 MinerU 2.0 (替代旧的 magic-pdf)
     [sys.executable, "-m", "pip", "install", "--no-cache-dir", "-U", "mineru[core]"],
     [sys.executable, "-m", "pip", "install", "--no-cache-dir", "Django==2.2.5"],
-    [sys.executable, "-m", "pip", "install", "--no-cache-dir", "graphviz"]
+    [sys.executable, "-m", "pip", "install", "--no-cache-dir", "graphviz"],
+    [sys.executable, "-m", "pip", "install", "--no-cache-dir", "einops"],
+    [sys.executable, "-m", "pip", "install", "--no-cache-dir", "markdown"],
 ]
 
 def run_commands(cmds):

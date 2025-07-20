@@ -1,0 +1,190 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Structure of the Paper"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Spoken Dialogue Systems Overview"
+  ],
+  [
+    3,
+    "2.1.1 Components of Spoken Dialogue Systems"
+  ],
+  [
+    3,
+    "2.1.2 Evolution of Dialogue Models"
+  ],
+  [
+    2,
+    "2.2 Natural Language Processing in Dialogue Systems"
+  ],
+  [
+    3,
+    "2.2.1 Tokenization and Parsing"
+  ],
+  [
+    3,
+    "2.2.2 Semantic Understanding"
+  ],
+  [
+    1,
+    "3 Literature Review"
+  ],
+  [
+    2,
+    "3.1 Rule-Based Dialogue Models"
+  ],
+  [
+    3,
+    "3.1.1 Finite State Machines"
+  ],
+  [
+    3,
+    "3.1.2 Frame-Based Systems"
+  ],
+  [
+    2,
+    "3.2 Statistical Dialogue Models"
+  ],
+  [
+    3,
+    "3.2.1 Hidden Markov Models (HMMs)"
+  ],
+  [
+    3,
+    "3.2.2 Dynamic Bayesian Networks (DBNs)"
+  ],
+  [
+    2,
+    "3.3 Neural Dialogue Models"
+  ],
+  [
+    3,
+    "3.3.1 Sequence-to-Sequence Architectures"
+  ],
+  [
+    3,
+    "3.3.2 Attention Mechanisms in Dialogue"
+  ],
+  [
+    2,
+    "3.4 Hybrid Approaches"
+  ],
+  [
+    3,
+    "3.4.1 Combining Rule-Based and Statistical Methods"
+  ],
+  [
+    3,
+    "3.4.2 Integrating Neural Networks with Traditional Models"
+  ],
+  [
+    1,
+    "4 Evaluation Metrics for Dialogue Models"
+  ],
+  [
+    2,
+    "4.1 Automatic Evaluation Metrics"
+  ],
+  [
+    3,
+    "4.1.1 BLEU and ROUGE Scores"
+  ],
+  [
+    3,
+    "4.1.2 Perplexity"
+  ],
+  [
+    2,
+    "4.2 Human Evaluation Metrics"
+  ],
+  [
+    3,
+    "4.2.1 Fluency and Coherence Ratings"
+  ],
+  [
+    3,
+    "4.2.2 Task Success Rate"
+  ],
+  [
+    1,
+    "5 Challenges and Open Problems"
+  ],
+  [
+    2,
+    "5.1 Handling Ambiguity and Uncertainty"
+  ],
+  [
+    3,
+    "5.1.1 Contextual Disambiguation"
+  ],
+  [
+    3,
+    "5.1.2 Robustness to Noisy Inputs"
+  ],
+  [
+    2,
+    "5.2 Scalability and Efficiency"
+  ],
+  [
+    3,
+    "5.2.1 Real-Time Dialogue Generation"
+  ],
+  [
+    3,
+    "5.2.2 Memory Optimization in Neural Models"
+  ],
+  [
+    2,
+    "5.3 Ethical Considerations"
+  ],
+  [
+    3,
+    "5.3.1 Bias in Dialogue Systems"
+  ],
+  [
+    3,
+    "5.3.2 Privacy Concerns"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Comparative Analysis of Model Paradigms"
+  ],
+  [
+    2,
+    "6.2 Future Directions for Research"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for Practical Applications"
+  ]
+]

@@ -1,0 +1,186 @@
+[
+  [
+    1,
+    "Integrated Sensing and Communication for 5G/6G Networks: A Comprehensive Survey"
+  ],
+  [
+    2,
+    "1 Introduction to ISAC and Its Importance"
+  ],
+  [
+    3,
+    "1.1 Definition and Evolution of ISAC"
+  ],
+  [
+    3,
+    "1.2 Significance of ISAC in 5G/6G Networks"
+  ],
+  [
+    3,
+    "1.3 Foundational Principles of ISAC"
+  ],
+  [
+    3,
+    "1.4 System Architecture Overview"
+  ],
+  [
+    3,
+    "Monostatic Architecture"
+  ],
+  [
+    3,
+    "Multistatic Architecture"
+  ],
+  [
+    3,
+    "Cooperative Design"
+  ],
+  [
+    3,
+    "1.5 Advantages Over Traditional Systems"
+  ],
+  [
+    2,
+    "2 Key Enabling Technologies and Architectures"
+  ],
+  [
+    3,
+    "2.1 Multi-Objective Optimization in ISAC"
+  ],
+  [
+    3,
+    "2.2 Joint Beamforming Design for ISAC"
+  ],
+  [
+    3,
+    "2.3 Cooperative Multi-Monostatic Sensing"
+  ],
+  [
+    3,
+    "2.4 AI-Based Continual Learning for ISAC"
+  ],
+  [
+    3,
+    "2.5 RIS-Empowered Communications in ISAC"
+  ],
+  [
+    3,
+    "2.6 Waveform Design for Integrated Sensing and Communication"
+  ],
+  [
+    2,
+    "3 Performance Metrics and Optimization Strategies"
+  ],
+  [
+    3,
+    "3.1 Mutual Information as a Unified Metric"
+  ],
+  [
+    3,
+    "3.2 Signal-to-Noise Ratio and Sensing Performance Metrics"
+  ],
+  [
+    3,
+    "3.3 Rate-Distortion Tradeoffs in ISAC Systems"
+  ],
+  [
+    3,
+    "3.4 Optimization Techniques for Joint Design"
+  ],
+  [
+    3,
+    "3.5 Robustness to Imperfect Channel State Information"
+  ],
+  [
+    3,
+    "3.6 Multi-Objective Optimization for Pareto Optimal Design"
+  ],
+  [
+    2,
+    "4 Applications of ISAC in Emerging Domains"
+  ],
+  [
+    3,
+    "4.1 Autonomous Driving and Vehicle-to-Everything (V2X) Communication"
+  ],
+  [
+    3,
+    "4.2 Smart Cities and Urban Infrastructure Management"
+  ],
+  [
+    3,
+    "4.3 Internet of Things (IoT) and Industrial Applications"
+  ],
+  [
+    3,
+    "4.4 Augmented Reality and Real-Time Situation Awareness"
+  ],
+  [
+    3,
+    "4.5 Edge Computing and Cloud Integration for Enhanced Services"
+  ],
+  [
+    3,
+    "4.6 Security and Privacy in Connected Ecosystems"
+  ],
+  [
+    2,
+    "5 Challenges and Limitations in ISAC Implementation"
+  ],
+  [
+    3,
+    "5.1 Interference Management in ISAC Systems"
+  ],
+  [
+    3,
+    "5.2 Hardware Limitations in ISAC Implementation"
+  ],
+  [
+    3,
+    "5.3 Energy Efficiency Challenges in ISAC Networks"
+  ],
+  [
+    3,
+    "5.4 Standardization Efforts for ISAC Technologies"
+  ],
+  [
+    3,
+    "5.5 Networked Sensing Limitations and Enhancements"
+  ],
+  [
+    2,
+    "6 Future Directions and Research Opportunities"
+  ],
+  [
+    3,
+    "6.1 Advanced Signal Processing Techniques"
+  ],
+  [
+    3,
+    "6.2 Semantic Communications"
+  ],
+  [
+    3,
+    "6.3 Holographic ISAC"
+  ],
+  [
+    3,
+    "6.4 Multi-Domain Cooperation"
+  ],
+  [
+    3,
+    "6.5 AI Integration"
+  ],
+  [
+    3,
+    "6.6 Multi-Connectivity Solutions"
+  ],
+  [
+    3,
+    "6.7 Sustainable ISAC Frameworks"
+  ],
+  [
+    2,
+    "References"
+  ]
+]

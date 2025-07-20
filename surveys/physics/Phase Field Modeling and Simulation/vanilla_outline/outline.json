@@ -1,0 +1,206 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.2 Scope and Structure"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Fundamentals of Phase Field Modeling"
+  ],
+  [
+    3,
+    "2.1.1 Mathematical Formulation"
+  ],
+  [
+    3,
+    "2.1.2 Key Assumptions and Limitations"
+  ],
+  [
+    2,
+    "2.2 Historical Development of Phase Field Models"
+  ],
+  [
+    3,
+    "2.2.1 Early Contributions"
+  ],
+  [
+    3,
+    "2.2.2 Modern Advances"
+  ],
+  [
+    1,
+    "3 Applications of Phase Field Modeling"
+  ],
+  [
+    2,
+    "3.1 Materials Science"
+  ],
+  [
+    3,
+    "3.1.1 Grain Growth and Coarsening"
+  ],
+  [
+    3,
+    "3.1.2 Crack Propagation and Fracture Mechanics"
+  ],
+  [
+    2,
+    "3.2 Fluid Dynamics"
+  ],
+  [
+    3,
+    "3.2.1 Two-Phase Flow Simulations"
+  ],
+  [
+    3,
+    "3.2.2 Interface Tracking in Complex Geometries"
+  ],
+  [
+    2,
+    "3.3 Biological Systems"
+  ],
+  [
+    3,
+    "3.3.1 Cell Membrane Dynamics"
+  ],
+  [
+    3,
+    "3.3.2 Tumor Growth Modeling"
+  ],
+  [
+    1,
+    "4 Numerical Methods for Phase Field Simulations"
+  ],
+  [
+    2,
+    "4.1 Discretization Techniques"
+  ],
+  [
+    3,
+    "4.1.1 Finite Difference Method"
+  ],
+  [
+    3,
+    "4.1.2 Finite Element Method"
+  ],
+  [
+    2,
+    "4.2 Stability and Accuracy Analysis"
+  ],
+  [
+    3,
+    "4.2.1 Time Integration Schemes"
+  ],
+  [
+    3,
+    "4.2.2 Error Estimation and Mesh Refinement"
+  ],
+  [
+    2,
+    "4.3 High-Performance Computing Considerations"
+  ],
+  [
+    3,
+    "4.3.1 Parallelization Strategies"
+  ],
+  [
+    3,
+    "4.3.2 Scalability Challenges"
+  ],
+  [
+    1,
+    "5 Comparison with Other Modeling Approaches"
+  ],
+  [
+    2,
+    "5.1 Phase Field vs. Sharp Interface Models"
+  ],
+  [
+    3,
+    "5.1.1 Computational Complexity"
+  ],
+  [
+    3,
+    "5.1.2 Applicability to Different Problems"
+  ],
+  [
+    2,
+    "5.2 Phase Field vs. Lattice Boltzmann Methods"
+  ],
+  [
+    3,
+    "5.2.1 Similarities in Interface Representation"
+  ],
+  [
+    3,
+    "5.2.2 Differences in Numerical Implementation"
+  ],
+  [
+    1,
+    "6 Current Challenges and Open Problems"
+  ],
+  [
+    2,
+    "6.1 Multiscale Modeling"
+  ],
+  [
+    3,
+    "6.1.1 Bridging Microscopic and Macroscopic Scales"
+  ],
+  [
+    3,
+    "6.1.2 Computational Feasibility"
+  ],
+  [
+    2,
+    "6.2 Parameter Sensitivity and Calibration"
+  ],
+  [
+    3,
+    "6.2.1 Experimental Validation"
+  ],
+  [
+    3,
+    "6.2.2 Uncertainty Quantification"
+  ],
+  [
+    2,
+    "6.3 Incorporation of Nonlocal Effects"
+  ],
+  [
+    3,
+    "6.3.1 Theoretical Extensions"
+  ],
+  [
+    3,
+    "6.3.2 Practical Implications"
+  ],
+  [
+    1,
+    "7 Discussion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Future Research Directions"
+  ],
+  [
+    1,
+    "8 Conclusion"
+  ]
+]

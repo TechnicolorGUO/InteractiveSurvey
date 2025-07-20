@@ -1,1 +1,62 @@
-{}
+{
+  "Integrated Sensing and Communication for 5G-A and 6G": [
+    {
+      "title": "Integrated Sensing and Communication Signals Toward 5G-A and 6G: A Survey",
+      "arxiv_id": "2301.03857"
+    }
+  ],
+  "Contextual Optimization under Uncertainty": [
+    {
+      "title": "A Survey of Contextual Optimization Methods for Decision Making under Uncertainty",
+      "arxiv_id": "2306.10374"
+    }
+  ],
+  "Off-Policy Evaluation in Reinforcement Learning": [
+    {
+      "title": "A Review of Off-Policy Evaluation in Reinforcement Learning",
+      "arxiv_id": "2212.06355"
+    }
+  ],
+  "Blockchain and AI for 6G Wireless Communications": [
+    {
+      "title": "A Survey of Blockchain and Artificial Intelligence for 6G Wireless Communications",
+      "arxiv_id": "2305.08604"
+    }
+  ],
+  "Beam Management for mmWave and THz Communications in 6G": [
+    {
+      "title": "A Survey of Beam Management for mmWave and THz Communications Towards 6G",
+      "arxiv_id": "2308.02135"
+    }
+  ],
+  "Vectorization Techniques in Topological Data Analysis": [
+    {
+      "title": "A Survey of Vectorization Methods in Topological Data Analysis",
+      "arxiv_id": "2212.09703"
+    }
+  ],
+  "Data-Driven Control of Nonlinear Systems via Semidefinite Programming": [
+    {
+      "title": "Guarantees for data-driven control of nonlinear systems using semidefinite programming: A survey",
+      "arxiv_id": "2306.16042"
+    }
+  ],
+  "Predictive Uncertainty Estimation with Machine Learning": [
+    {
+      "title": "A review of predictive uncertainty estimation with machine learning",
+      "arxiv_id": "2209.08307"
+    }
+  ],
+  "Optimization Methods for Wireless Communications": [
+    {
+      "title": "A Survey of Recent Advances in Optimization Methods for Wireless Communications",
+      "arxiv_id": "2401.12025"
+    }
+  ],
+  "Multiple Access Techniques for Intelligent 6G Networks": [
+    {
+      "title": "Multiple Access Techniques for Intelligent and Multi-Functional 6G: Tutorial, Survey, and Outlook",
+      "arxiv_id": "2401.01433"
+    }
+  ]
+}

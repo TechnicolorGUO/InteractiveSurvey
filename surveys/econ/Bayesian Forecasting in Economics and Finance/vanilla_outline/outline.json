@@ -1,0 +1,158 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.2 Scope and Structure"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Historical Development of Bayesian Methods"
+  ],
+  [
+    2,
+    "2.2 Fundamentals of Bayesian Statistics"
+  ],
+  [
+    3,
+    "2.2.1 Bayes' Theorem"
+  ],
+  [
+    3,
+    "2.2.2 Prior and Posterior Distributions"
+  ],
+  [
+    3,
+    "2.2.3 Likelihood Functions"
+  ],
+  [
+    1,
+    "3 Literature Review"
+  ],
+  [
+    2,
+    "3.1 Early Applications in Economics"
+  ],
+  [
+    3,
+    "3.1.1 Time Series Analysis"
+  ],
+  [
+    3,
+    "3.1.2 Econometric Models"
+  ],
+  [
+    2,
+    "3.2 Modern Developments in Finance"
+  ],
+  [
+    3,
+    "3.2.1 Risk Management"
+  ],
+  [
+    3,
+    "3.2.2 Portfolio Optimization"
+  ],
+  [
+    3,
+    "3.2.3 Asset Pricing Models"
+  ],
+  [
+    1,
+    "4 Methodological Approaches"
+  ],
+  [
+    2,
+    "4.1 Bayesian Estimation Techniques"
+  ],
+  [
+    3,
+    "4.1.1 Markov Chain Monte Carlo (MCMC)"
+  ],
+  [
+    3,
+    "4.1.2 Gibbs Sampling"
+  ],
+  [
+    3,
+    "4.1.3 Variational Inference"
+  ],
+  [
+    2,
+    "4.2 Model Selection and Validation"
+  ],
+  [
+    3,
+    "4.2.1 Bayesian Information Criterion (BIC)"
+  ],
+  [
+    3,
+    "4.2.2 Cross-Validation"
+  ],
+  [
+    3,
+    "4.2.3 Predictive Accuracy Measures"
+  ],
+  [
+    1,
+    "5 Case Studies and Applications"
+  ],
+  [
+    2,
+    "5.1 Macroeconomic Forecasting"
+  ],
+  [
+    3,
+    "5.1.1 GDP Growth Prediction"
+  ],
+  [
+    3,
+    "5.1.2 Inflation Rate Forecasting"
+  ],
+  [
+    2,
+    "5.2 Financial Market Analysis"
+  ],
+  [
+    3,
+    "5.2.1 Stock Market Volatility"
+  ],
+  [
+    3,
+    "5.2.2 Exchange Rate Dynamics"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Strengths and Limitations of Bayesian Forecasting"
+  ],
+  [
+    2,
+    "6.2 Challenges and Future Directions"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for Policy and Practice"
+  ]
+]

@@ -1,0 +1,35 @@
+# Jekyll 配置文件
+title: InteractiveSurvey
+description: An LLM-based Personalized and Interactive Survey Paper Generation System
+
+# 排除这些文件和目录不被 Jekyll 处理
+exclude:
+  - surveys/
+  - src/
+  - scripts/
+  - logs/
+  - chromadb/
+  - outputs/
+  - .idea/
+  - __pycache__/
+  - "*.pyc"
+  - "*.py"
+  - "*.pth"
+  - Dockerfile
+  - fix_file_descriptors.py
+  - model_dm
+  - __init__.py
+  - README.md
+  - LICENSE
+
+# 插件设置
+plugins:
+  - jekyll-github-metadata
+  - jekyll-seo-tag
+
+# 主题设置
+theme: jekyll-theme-primer
+
+# 其他设置
+markdown: kramdown
+highlighter: rouge 

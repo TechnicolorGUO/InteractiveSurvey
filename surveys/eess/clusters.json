@@ -1,1 +1,62 @@
-{}
+{
+  "Hallucination in Multimodal Foundation Models": [
+    {
+      "title": "A Comprehensive Survey of Hallucination in Large Language, Image, Video and Audio Foundation Models",
+      "arxiv_id": "2405.09589"
+    }
+  ],
+  "Spoken Dialogue Models": [
+    {
+      "title": "WavChat: A Survey of Spoken Dialogue Models",
+      "arxiv_id": "2411.13577"
+    }
+  ],
+  "BERT and CTC Transformers for ASR": [
+    {
+      "title": "Automatic Speech Recognition with BERT and CTC Transformers: A Review",
+      "arxiv_id": "2410.09456"
+    }
+  ],
+  "Preference Tuning with Human Feedback": [
+    {
+      "title": "Preference Tuning with Human Feedback on Language, Speech, and Vision Tasks: A Survey",
+      "arxiv_id": "2409.11564"
+    }
+  ],
+  "Foundation Models for Music": [
+    {
+      "title": "Foundation Models for Music: A Survey",
+      "arxiv_id": "2408.14340"
+    }
+  ],
+  "Advances in Speech Language Models": [
+    {
+      "title": "Recent Advances in Speech Language Models: A Survey",
+      "arxiv_id": "2410.03751"
+    }
+  ],
+  "Data Assessment for Instruction Tuning": [
+    {
+      "title": "Unleashing the Power of Data Tsunami: A Comprehensive Survey on Data Assessment and Selection for Instruction Tuning of Language Models",
+      "arxiv_id": "2408.02085"
+    }
+  ],
+  "Next Token Prediction in Multimodal Intelligence": [
+    {
+      "title": "Next Token Prediction Towards Multimodal Intelligence: A Comprehensive Survey",
+      "arxiv_id": "2412.18619"
+    }
+  ],
+  "All-in-One Image Restoration": [
+    {
+      "title": "A Survey on All-in-One Image Restoration: Taxonomy, Evaluation and Future Trends",
+      "arxiv_id": "2410.15067"
+    }
+  ],
+  "UAV Avionics Systems Architecture": [
+    {
+      "title": "Advances in UAV Avionics Systems Architecture, Classification and Integration: A Comprehensive Review and Future Perspectives",
+      "arxiv_id": "2501.00856"
+    }
+  ]
+}

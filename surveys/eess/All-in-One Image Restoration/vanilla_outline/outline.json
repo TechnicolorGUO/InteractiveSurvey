@@ -1,0 +1,206 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Problem Definition"
+  ],
+  [
+    2,
+    "1.2 Importance of All-in-One Image Restoration"
+  ],
+  [
+    2,
+    "1.3 Objectives and Scope"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Fundamentals of Image Restoration"
+  ],
+  [
+    3,
+    "2.1.1 Traditional Methods"
+  ],
+  [
+    3,
+    "2.1.2 Limitations of Traditional Approaches"
+  ],
+  [
+    2,
+    "2.2 Deep Learning in Image Restoration"
+  ],
+  [
+    3,
+    "2.2.1 Convolutional Neural Networks (CNNs)"
+  ],
+  [
+    3,
+    "2.2.2 Generative Adversarial Networks (GANs)"
+  ],
+  [
+    1,
+    "3 Literature Review"
+  ],
+  [
+    2,
+    "3.1 Single-Task Image Restoration"
+  ],
+  [
+    3,
+    "3.1.1 Denoising Techniques"
+  ],
+  [
+    3,
+    "3.1.2 Super-Resolution Methods"
+  ],
+  [
+    3,
+    "3.1.3 Inpainting Algorithms"
+  ],
+  [
+    2,
+    "3.2 Multi-Task Image Restoration"
+  ],
+  [
+    3,
+    "3.2.1 Joint Denoising and Super-Resolution"
+  ],
+  [
+    3,
+    "3.2.2 Combined Inpainting and Denoising"
+  ],
+  [
+    2,
+    "3.3 All-in-One Image Restoration Frameworks"
+  ],
+  [
+    3,
+    "3.3.1 Unified Architectures"
+  ],
+  [
+    3,
+    "3.3.2 Challenges in All-in-One Approaches"
+  ],
+  [
+    1,
+    "4 Methodologies and Techniques"
+  ],
+  [
+    2,
+    "4.1 Architectural Innovations"
+  ],
+  [
+    3,
+    "4.1.1 Encoder-Decoder Structures"
+  ],
+  [
+    3,
+    "4.1.2 Attention Mechanisms"
+  ],
+  [
+    2,
+    "4.2 Loss Functions and Metrics"
+  ],
+  [
+    3,
+    "4.2.1 Perceptual Losses"
+  ],
+  [
+    3,
+    "4.2.2 Adversarial Losses"
+  ],
+  [
+    3,
+    "4.2.3 Hybrid Evaluation Metrics"
+  ],
+  [
+    2,
+    "4.3 Dataset Contributions"
+  ],
+  [
+    3,
+    "4.3.1 Diverse Degradation Types"
+  ],
+  [
+    3,
+    "4.3.2 Large-Scale Benchmark Datasets"
+  ],
+  [
+    1,
+    "5 Applications and Use Cases"
+  ],
+  [
+    2,
+    "5.1 Real-World Scenarios"
+  ],
+  [
+    3,
+    "5.1.1 Medical Imaging"
+  ],
+  [
+    3,
+    "5.1.2 Surveillance Systems"
+  ],
+  [
+    3,
+    "5.1.3 Historical Document Restoration"
+  ],
+  [
+    2,
+    "5.2 Commercial Products"
+  ],
+  [
+    3,
+    "5.2.1 Mobile Applications"
+  ],
+  [
+    3,
+    "5.2.2 Cloud-Based Services"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Current Limitations"
+  ],
+  [
+    3,
+    "6.1.1 Computational Complexity"
+  ],
+  [
+    3,
+    "6.1.2 Generalization Across Tasks"
+  ],
+  [
+    2,
+    "6.2 Future Directions"
+  ],
+  [
+    3,
+    "6.2.1 Exploring New Architectures"
+  ],
+  [
+    3,
+    "6.2.2 Enhancing Efficiency and Scalability"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Findings"
+  ],
+  [
+    2,
+    "7.2 Broader Implications"
+  ]
+]

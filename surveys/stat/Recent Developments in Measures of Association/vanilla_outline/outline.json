@@ -1,0 +1,182 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Background and Motivation"
+  ],
+  [
+    2,
+    "1.2 Scope and Objectives"
+  ],
+  [
+    2,
+    "1.3 Structure of the Survey"
+  ],
+  [
+    1,
+    "2 Historical Overview of Measures of Association"
+  ],
+  [
+    2,
+    "2.1 Classical Measures of Association"
+  ],
+  [
+    3,
+    "2.1.1 Pearson Correlation Coefficient"
+  ],
+  [
+    3,
+    "2.1.2 Spearman's Rank Correlation"
+  ],
+  [
+    3,
+    "2.1.3 Kendall's Tau"
+  ],
+  [
+    2,
+    "2.2 Limitations of Traditional Measures"
+  ],
+  [
+    3,
+    "2.2.1 Assumptions in Linear Relationships"
+  ],
+  [
+    3,
+    "2.2.2 Sensitivity to Outliers"
+  ],
+  [
+    1,
+    "3 Recent Developments in Measures of Association"
+  ],
+  [
+    2,
+    "3.1 Nonparametric and Distribution-Free Methods"
+  ],
+  [
+    3,
+    "3.1.1 Distance Correlation"
+  ],
+  [
+    3,
+    "3.1.2 Maximal Information Coefficient (MIC)"
+  ],
+  [
+    2,
+    "3.2 Machine Learning-Based Approaches"
+  ],
+  [
+    3,
+    "3.2.1 Neural Dependency Estimation"
+  ],
+  [
+    3,
+    "3.2.2 Mutual Information Estimators"
+  ],
+  [
+    2,
+    "3.3 High-Dimensional Measures of Association"
+  ],
+  [
+    3,
+    "3.3.1 Canonical Correlation Analysis (CCA) Extensions"
+  ],
+  [
+    3,
+    "3.3.2 Sparse Association Measures"
+  ],
+  [
+    1,
+    "4 Applications of Modern Association Measures"
+  ],
+  [
+    2,
+    "4.1 Data Science and Machine Learning"
+  ],
+  [
+    3,
+    "4.1.1 Feature Selection and Dimensionality Reduction"
+  ],
+  [
+    3,
+    "4.1.2 Model Interpretability"
+  ],
+  [
+    2,
+    "4.2 Bioinformatics and Genomics"
+  ],
+  [
+    3,
+    "4.2.1 Gene Expression Analysis"
+  ],
+  [
+    3,
+    "4.2.2 Protein Interaction Networks"
+  ],
+  [
+    2,
+    "4.3 Economics and Finance"
+  ],
+  [
+    3,
+    "4.3.1 Market Volatility Analysis"
+  ],
+  [
+    3,
+    "4.3.2 Portfolio Diversification"
+  ],
+  [
+    1,
+    "5 Comparative Analysis and Challenges"
+  ],
+  [
+    2,
+    "5.1 Strengths and Weaknesses of Modern Measures"
+  ],
+  [
+    3,
+    "5.1.1 Computational Complexity"
+  ],
+  [
+    3,
+    "5.1.2 Scalability Issues"
+  ],
+  [
+    2,
+    "5.2 Open Research Questions"
+  ],
+  [
+    3,
+    "5.2.1 Theoretical Foundations"
+  ],
+  [
+    3,
+    "5.2.2 Practical Implementation Gaps"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Implications for Future Research"
+  ],
+  [
+    2,
+    "6.2 Potential Interdisciplinary Applications"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Final Remarks"
+  ]
+]

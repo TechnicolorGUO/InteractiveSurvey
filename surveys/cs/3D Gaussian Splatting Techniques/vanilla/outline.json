@@ -1,0 +1,50 @@
+[
+  [
+    1,
+    "Literature Survey on 3D Gaussian Splatting Techniques"
+  ],
+  [
+    2,
+    "Introduction"
+  ],
+  [
+    2,
+    "Background"
+  ],
+  [
+    3,
+    "Advantages of Gaussian Splatting"
+  ],
+  [
+    2,
+    "Main Sections"
+  ],
+  [
+    3,
+    "1. Fundamentals of Gaussian Splatting"
+  ],
+  [
+    4,
+    "Conversion from Point Clouds"
+  ],
+  [
+    3,
+    "2. Rendering Techniques"
+  ],
+  [
+    3,
+    "3. Applications"
+  ],
+  [
+    3,
+    "4. Challenges and Limitations"
+  ],
+  [
+    3,
+    "5. Recent Advances"
+  ],
+  [
+    2,
+    "Conclusion"
+  ]
+]

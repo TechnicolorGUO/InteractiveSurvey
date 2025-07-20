@@ -1,0 +1,166 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation for Predictive Uncertainty Estimation"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Structure of the Paper"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Fundamentals of Machine Learning"
+  ],
+  [
+    3,
+    "2.1.1 Supervised and Unsupervised Learning"
+  ],
+  [
+    3,
+    "2.1.2 Model Evaluation Metrics"
+  ],
+  [
+    2,
+    "2.2 Probability Theory in Machine Learning"
+  ],
+  [
+    3,
+    "2.2.1 Bayesian Inference"
+  ],
+  [
+    3,
+    "2.2.2 Frequentist Perspective"
+  ],
+  [
+    1,
+    "3 Literature Review"
+  ],
+  [
+    2,
+    "3.1 Sources of Uncertainty in Machine Learning Models"
+  ],
+  [
+    3,
+    "3.1.1 Aleatoric Uncertainty"
+  ],
+  [
+    3,
+    "3.1.2 Epistemic Uncertainty"
+  ],
+  [
+    2,
+    "3.2 Techniques for Uncertainty Quantification"
+  ],
+  [
+    3,
+    "3.2.1 Dropout as a Bayesian Approximation"
+  ],
+  [
+    3,
+    "3.2.2 Ensemble Methods"
+  ],
+  [
+    3,
+    "3.2.3 Monte Carlo Sampling"
+  ],
+  [
+    2,
+    "3.3 Applications of Predictive Uncertainty Estimation"
+  ],
+  [
+    3,
+    "3.3.1 Healthcare and Medical Diagnosis"
+  ],
+  [
+    3,
+    "3.3.2 Autonomous Systems and Robotics"
+  ],
+  [
+    3,
+    "3.3.3 Financial Forecasting"
+  ],
+  [
+    1,
+    "4 Challenges and Limitations"
+  ],
+  [
+    2,
+    "4.1 Computational Complexity"
+  ],
+  [
+    3,
+    "4.1.1 Scalability Issues with Large Datasets"
+  ],
+  [
+    3,
+    "4.1.2 Trade-offs Between Accuracy and Efficiency"
+  ],
+  [
+    2,
+    "4.2 Interpretability of Uncertainty Estimates"
+  ],
+  [
+    3,
+    "4.2.1 Communicating Uncertainty to Non-Experts"
+  ],
+  [
+    3,
+    "4.2.2 Visualizing Uncertainty in High-Dimensional Data"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Current Trends in Predictive Uncertainty Research"
+  ],
+  [
+    3,
+    "5.1.1 Deep Learning Approaches"
+  ],
+  [
+    3,
+    "5.1.2 Hybrid Models Combining Classical Statistics and ML"
+  ],
+  [
+    2,
+    "5.2 Future Directions"
+  ],
+  [
+    3,
+    "5.2.1 Integration with Explainable AI"
+  ],
+  [
+    3,
+    "5.2.2 Advancements in Probabilistic Programming"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "6.2 Implications for Practical Use Cases"
+  ],
+  [
+    2,
+    "6.3 Final Remarks"
+  ]
+]

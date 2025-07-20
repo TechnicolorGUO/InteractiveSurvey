@@ -1,0 +1,202 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Scope and Structure"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Fundamentals of Aircraft Performance"
+  ],
+  [
+    3,
+    "2.1.1 Aerodynamics and Propulsion"
+  ],
+  [
+    3,
+    "2.1.2 Flight Dynamics and Control"
+  ],
+  [
+    3,
+    "2.1.3 Fuel Efficiency and Environmental Impact"
+  ],
+  [
+    2,
+    "2.2 Overview of Machine Learning Techniques"
+  ],
+  [
+    3,
+    "2.2.1 Supervised Learning"
+  ],
+  [
+    3,
+    "2.2.2 Unsupervised Learning"
+  ],
+  [
+    3,
+    "2.2.3 Reinforcement Learning"
+  ],
+  [
+    1,
+    "3 Applications of Machine Learning in Aircraft Performance"
+  ],
+  [
+    2,
+    "3.1 Predictive Maintenance"
+  ],
+  [
+    3,
+    "3.1.1 Fault Detection and Diagnosis"
+  ],
+  [
+    3,
+    "3.1.2 Remaining Useful Life Prediction"
+  ],
+  [
+    3,
+    "3.1.3 Case Studies and Results"
+  ],
+  [
+    2,
+    "3.2 Optimization of Flight Operations"
+  ],
+  [
+    3,
+    "3.2.1 Route Planning and Weather Adaptation"
+  ],
+  [
+    3,
+    "3.2.2 Fuel Consumption Modeling"
+  ],
+  [
+    3,
+    "3.2.3 Real-Time Decision Support Systems"
+  ],
+  [
+    2,
+    "3.3 Enhanced Aerodynamic Design"
+  ],
+  [
+    3,
+    "3.3.1 Shape Optimization Using ML"
+  ],
+  [
+    3,
+    "3.3.2 Simulation Acceleration with Surrogate Models"
+  ],
+  [
+    3,
+    "3.3.3 Integration with Computational Fluid Dynamics (CFD)"
+  ],
+  [
+    2,
+    "3.4 Autonomous Flight Systems"
+  ],
+  [
+    3,
+    "3.4.1 Perception and Sensing"
+  ],
+  [
+    3,
+    "3.4.2 Path Planning and Collision Avoidance"
+  ],
+  [
+    3,
+    "3.4.3 Human-Machine Interaction"
+  ],
+  [
+    1,
+    "4 Challenges and Limitations"
+  ],
+  [
+    2,
+    "4.1 Data Quality and Availability"
+  ],
+  [
+    3,
+    "4.1.1 Sensor Noise and Calibration"
+  ],
+  [
+    3,
+    "4.1.2 Incomplete or Biased Datasets"
+  ],
+  [
+    2,
+    "4.2 Model Interpretability and Safety"
+  ],
+  [
+    3,
+    "4.2.1 Explainability in Critical Systems"
+  ],
+  [
+    3,
+    "4.2.2 Certification and Regulatory Compliance"
+  ],
+  [
+    2,
+    "4.3 Scalability and Computational Resources"
+  ],
+  [
+    3,
+    "4.3.1 High-Dimensional Data Processing"
+  ],
+  [
+    3,
+    "4.3.2 Resource Constraints in Real-Time Applications"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Current Trends in Research"
+  ],
+  [
+    3,
+    "5.1.1 Multi-Objective Optimization"
+  ],
+  [
+    3,
+    "5.1.2 Hybrid ML and Physics-Based Models"
+  ],
+  [
+    2,
+    "5.2 Future Directions"
+  ],
+  [
+    3,
+    "5.2.1 Emerging Technologies and Their Implications"
+  ],
+  [
+    3,
+    "5.2.2 Potential for Cross-Disciplinary Collaboration"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "6.2 Broader Impacts on Aviation Industry"
+  ]
+]

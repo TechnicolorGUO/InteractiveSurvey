@@ -6,15 +6,37 @@ import ast
 import json
 import base64
 
-def getQwenClient(): 
-    openai_api_key = os.environ.get("OPENAI_API_KEY")
-    openai_api_base = os.environ.get("OPENAI_API_BASE")
+# Singleton OpenAI client to prevent multiple instances
+class OpenAIClientSingleton:
+    _instance = None
+    _client = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(OpenAIClientSingleton, cls).__new__(cls)
+        return cls._instance
+    
+    def get_client(self):
+        if self._client is None:
+            openai_api_key = os.environ.get("OPENAI_API_KEY")
+            openai_api_base = os.environ.get("OPENAI_API_BASE")
+            self._client = OpenAI(
+                api_key=openai_api_key,
+                base_url=openai_api_base,
+            )
+        return self._client
+    
+    def close_client(self):
+        if self._client is not None:
+            try:
+                self._client.close()
+            except:
+                pass
+            self._client = None
 
-    client = OpenAI(
-        api_key=openai_api_key,
-        base_url=openai_api_base,
-    )
-    return client
+def getQwenClient(): 
+    singleton = OpenAIClientSingleton()
+    return singleton.get_client()
 
 def generateResponse(client, prompt):
     chat_response = client.chat.completions.create(
@@ -47,12 +69,8 @@ Please generate {num_patterns} commonly used sentence templates in academic pape
 
 Begin your response immediately with the list, and do not include any other text.
 """
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    openai_api_base = os.getenv("OPENAI_API_BASE")
-    client = OpenAI(
-        api_key = openai_api_key,
-        base_url = openai_api_base,
-    )
+    # Use singleton client instead of creating new one
+    client = getQwenClient()
     response = generateResponse(client, template)
     return response
 
@@ -71,12 +89,8 @@ Ensure that your answer remains consistent with the style and format of the prov
 Answer:
 The {keyword} mentioned in this paper discuss [Your oberservation or opinion]...
 """
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    openai_api_base = os.getenv("OPENAI_API_BASE")
-    client = OpenAI(
-        api_key = openai_api_key,
-        base_url = openai_api_base,
-    )
+    # Use singleton client instead of creating new one
+    client = getQwenClient()
     response = generateResponse(client, template)
     return response
 
@@ -88,3 +102,8 @@ def extract_query_list(text):
     if match:
         return match.group(0)
     return None
+
+def cleanup_openai_client():
+    """Call this function to cleanup OpenAI client when shutting down"""
+    singleton = OpenAIClientSingleton()
+    singleton.close_client()

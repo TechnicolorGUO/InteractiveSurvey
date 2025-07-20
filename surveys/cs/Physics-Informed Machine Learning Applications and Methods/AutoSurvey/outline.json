@@ -1,0 +1,250 @@
+[
+  [
+    1,
+    "Comprehensive Survey of Physics-Informed Machine Learning Applications and Methods"
+  ],
+  [
+    2,
+    "1 Introduction to Physics-Informed Machine Learning"
+  ],
+  [
+    3,
+    "1.1 Definition and Background of Physics-Informed Machine Learning"
+  ],
+  [
+    3,
+    "1.2 Importance of Integrating Physics with Machine Learning"
+  ],
+  [
+    3,
+    "1.3 Benefits of PIML Over Traditional Methods"
+  ],
+  [
+    3,
+    "1.4 Scope and Versatility of PIML Across Domains"
+  ],
+  [
+    3,
+    "1.5 Key Challenges Addressed by PIML"
+  ],
+  [
+    2,
+    "2 Methodologies and Architectures in Physics-Informed Machine Learning"
+  ],
+  [
+    3,
+    "2.1 Physics-Informed Neural Networks (PINNs)"
+  ],
+  [
+    3,
+    "2.2 Multi-task Optimization in PIML"
+  ],
+  [
+    3,
+    "2.3 Transfer Learning for PIML"
+  ],
+  [
+    3,
+    "2.4 Graph Neural Networks (GNNs) in Physics-Informed Learning"
+  ],
+  [
+    3,
+    "Role of GNNs in Physics-Informed Learning"
+  ],
+  [
+    3,
+    "Applications in Key Domains"
+  ],
+  [
+    4,
+    "Particle Physics"
+  ],
+  [
+    4,
+    "Material Science"
+  ],
+  [
+    4,
+    "Molecular Modeling"
+  ],
+  [
+    3,
+    "Challenges in GNN-Based Physics-Informed Learning"
+  ],
+  [
+    4,
+    "Scalability"
+  ],
+  [
+    4,
+    "Heterogeneity"
+  ],
+  [
+    3,
+    "Conclusion"
+  ],
+  [
+    3,
+    "2.5 Bayesian Approaches in PIML"
+  ],
+  [
+    3,
+    "2.6 Metalearning for PIML"
+  ],
+  [
+    3,
+    "2.7 Domain Decomposition Techniques"
+  ],
+  [
+    3,
+    "2.8 Adaptive Activation Functions"
+  ],
+  [
+    3,
+    "2.9 Hybrid Models Combining Multiple Methodologies"
+  ],
+  [
+    2,
+    "3 Solving Differential Equations and Inverse Problems"
+  ],
+  [
+    3,
+    "3.1 Overview of PIML for Differential Equations"
+  ],
+  [
+    3,
+    "3.2 PINNs for Solving Differential Equations"
+  ],
+  [
+    3,
+    "Forward Problems"
+  ],
+  [
+    3,
+    "Inverse Problems"
+  ],
+  [
+    3,
+    "Accuracy and Computational Efficiency"
+  ],
+  [
+    3,
+    "3.3 Multi-Fidelity Approaches for Solving Transport Equations"
+  ],
+  [
+    3,
+    "Multi-Fidelity Approaches: Theoretical Foundations"
+  ],
+  [
+    3,
+    "Applications to Linear Transport Equations"
+  ],
+  [
+    3,
+    "Extensions to Nonlinear Systems - Vlasov-Poisson System"
+  ],
+  [
+    3,
+    "Challenges and Opportunities"
+  ],
+  [
+    3,
+    "3.4 DiscretizationNet for Navier-Stokes Equations"
+  ],
+  [
+    3,
+    "3.5 Trust Region Methods for Coupled Systems"
+  ],
+  [
+    3,
+    "3.6 Gaussian Processes for Solving Nonlinear PDEs"
+  ],
+  [
+    3,
+    "3.7 Adaptive Operator Learning for Bayesian Inverse Problems"
+  ],
+  [
+    3,
+    "3.8 Physics-Informed Boundary Integral Networks (PIBI-Nets)"
+  ],
+  [
+    2,
+    "4 Applications Across Domains"
+  ],
+  [
+    3,
+    "4.1 Fluid Dynamics and Aerodynamics"
+  ],
+  [
+    3,
+    "4.2 Structural Mechanics and Civil Engineering"
+  ],
+  [
+    3,
+    "4.3 Epidemiology and Biological Systems"
+  ],
+  [
+    3,
+    "4.4 High-Energy Physics and Particle Simulations"
+  ],
+  [
+    3,
+    "4.5 Traffic Modeling and Transportation Systems"
+  ],
+  [
+    3,
+    "4.6 Material Science and Manufacturing Processes"
+  ],
+  [
+    3,
+    "4.7 Geophysics and Subsurface Energy Systems"
+  ],
+  [
+    3,
+    "4.8 Climate Modeling and Environmental Science"
+  ],
+  [
+    3,
+    "4.9 Medical Imaging and Healthcare Applications"
+  ],
+  [
+    3,
+    "4.10 Cross-Domain Multimodal Data Fusion"
+  ],
+  [
+    2,
+    "5 Challenges and Future Directions"
+  ],
+  [
+    3,
+    "5.1 Data Scarcity and Quality"
+  ],
+  [
+    3,
+    "5.2 Model Interpretability and Transparency"
+  ],
+  [
+    3,
+    "5.3 Scalability and Computational Cost"
+  ],
+  [
+    3,
+    "5.4 Integration with Existing Systems and Workflows"
+  ],
+  [
+    3,
+    "5.5 Privacy-Preserving Considerations"
+  ],
+  [
+    3,
+    "5.6 Future Research Directions"
+  ],
+  [
+    3,
+    "5.7 Emerging Trends and Technologies"
+  ],
+  [
+    2,
+    "References"
+  ]
+]

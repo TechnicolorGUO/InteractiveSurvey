@@ -1,0 +1,146 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Structure of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Quantum Computing Fundamentals"
+  ],
+  [
+    2,
+    "2.2 Variational Quantum Algorithms"
+  ],
+  [
+    2,
+    "2.3 Optimization in Quantum Systems"
+  ],
+  [
+    1,
+    "3 Barren Plateaus Phenomenon"
+  ],
+  [
+    2,
+    "3.1 Definition and Characteristics"
+  ],
+  [
+    2,
+    "3.2 Causes of Barren Plateaus"
+  ],
+  [
+    2,
+    "3.3 Impact on Quantum Algorithms"
+  ],
+  [
+    3,
+    "3.3.1 Effect on Training Efficiency"
+  ],
+  [
+    3,
+    "3.3.2 Consequences for Algorithm Performance"
+  ],
+  [
+    3,
+    "3.3.3 Challenges in Parameter Initialization"
+  ],
+  [
+    1,
+    "4 Mitigation Strategies"
+  ],
+  [
+    2,
+    "4.1 Classical Preprocessing Techniques"
+  ],
+  [
+    2,
+    "4.2 Quantum Circuit Design Adjustments"
+  ],
+  [
+    2,
+    "4.3 Hybrid Quantum-Classical Approaches"
+  ],
+  [
+    3,
+    "4.3.1 Layer-wise Learning"
+  ],
+  [
+    3,
+    "4.3.2 Adaptive Learning Rates"
+  ],
+  [
+    3,
+    "4.3.3 Regularization Methods"
+  ],
+  [
+    1,
+    "5 Case Studies"
+  ],
+  [
+    2,
+    "5.1 Quantum Chemistry Applications"
+  ],
+  [
+    2,
+    "5.2 Machine Learning with Quantum Circuits"
+  ],
+  [
+    2,
+    "5.3 Optimization Problems"
+  ],
+  [
+    3,
+    "5.3.1 MaxCut Problem"
+  ],
+  [
+    3,
+    "5.3.2 Traveling Salesman Problem"
+  ],
+  [
+    3,
+    "5.3.3 Portfolio Optimization"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Current Limitations"
+  ],
+  [
+    2,
+    "6.2 Future Research Directions"
+  ],
+  [
+    2,
+    "6.3 Broader Implications"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Findings"
+  ],
+  [
+    2,
+    "7.2 Final Remarks"
+  ]
+]

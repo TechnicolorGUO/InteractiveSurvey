@@ -1,0 +1,154 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Outline of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Financial Volatility and Its Importance"
+  ],
+  [
+    2,
+    "2.2 Historical Approaches to Volatility Modeling"
+  ],
+  [
+    2,
+    "2.3 Transition to Continuous-Time Models"
+  ],
+  [
+    1,
+    "3 Continuous Volatility Modeling Techniques"
+  ],
+  [
+    2,
+    "3.1 Stochastic Differential Equations (SDEs)"
+  ],
+  [
+    3,
+    "3.1.1 Geometric Brownian Motion"
+  ],
+  [
+    3,
+    "3.1.2 Ornstein-Uhlenbeck Process"
+  ],
+  [
+    2,
+    "3.2 Jump-Diffusion Models"
+  ],
+  [
+    3,
+    "3.2.1 Merton's Jump-Diffusion Model"
+  ],
+  [
+    3,
+    "3.2.2 Kou's Double Exponential Jump-Diffusion Model"
+  ],
+  [
+    2,
+    "3.3 Local and Stochastic Volatility Models"
+  ],
+  [
+    3,
+    "3.3.1 Heston Model"
+  ],
+  [
+    3,
+    "3.3.2 SABR Model"
+  ],
+  [
+    1,
+    "4 Empirical Studies and Applications"
+  ],
+  [
+    2,
+    "4.1 Data-Driven Approaches to Continuous Volatility Modeling"
+  ],
+  [
+    3,
+    "4.1.1 High-Frequency Data Analysis"
+  ],
+  [
+    3,
+    "4.1.2 Realized Volatility Estimation"
+  ],
+  [
+    2,
+    "4.2 Machine Learning in Volatility Forecasting"
+  ],
+  [
+    3,
+    "4.2.1 Neural Networks for Continuous Volatility"
+  ],
+  [
+    3,
+    "4.2.2 Gaussian Processes in Volatility Modeling"
+  ],
+  [
+    1,
+    "5 Challenges and Limitations"
+  ],
+  [
+    2,
+    "5.1 Model Calibration Issues"
+  ],
+  [
+    3,
+    "5.1.1 Parameter Estimation Challenges"
+  ],
+  [
+    3,
+    "5.1.2 Computational Complexity"
+  ],
+  [
+    2,
+    "5.2 Market Inefficiencies and Anomalies"
+  ],
+  [
+    3,
+    "5.2.1 Impact of Non-Normal Distributions"
+  ],
+  [
+    3,
+    "5.2.2 Fat Tails and Volatility Clustering"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Current Trends in Continuous Volatility Research"
+  ],
+  [
+    2,
+    "6.2 Future Directions"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for Practice"
+  ]
+]

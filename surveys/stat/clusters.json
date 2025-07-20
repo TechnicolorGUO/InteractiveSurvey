@@ -1,1 +1,62 @@
-{}
+{
+  "Barren Plateaus in Variational Quantum Computing": [
+    {
+      "title": "A Review of Barren Plateaus in Variational Quantum Computing",
+      "arxiv_id": "2405.00781"
+    }
+  ],
+  "Off-Policy Evaluation in Reinforcement Learning": [
+    {
+      "title": "A Review of Off-Policy Evaluation in Reinforcement Learning",
+      "arxiv_id": "2212.06355"
+    }
+  ],
+  "Distributed Statistical Inference": [
+    {
+      "title": "A review of distributed statistical inference",
+      "arxiv_id": "2304.06245"
+    }
+  ],
+  "Predictive Uncertainty Estimation in Machine Learning": [
+    {
+      "title": "A review of predictive uncertainty estimation with machine learning",
+      "arxiv_id": "2209.08307"
+    }
+  ],
+  "Scalable Automated Alignment of Large Language Models": [
+    {
+      "title": "Towards Scalable Automated Alignment of LLMs: A Survey",
+      "arxiv_id": "2406.01252"
+    }
+  ],
+  "Variance-Gamma Distribution Theory": [
+    {
+      "title": "The Variance-Gamma Distribution: A Review",
+      "arxiv_id": "2303.05615"
+    }
+  ],
+  "Recent Developments in Measures of Association": [
+    {
+      "title": "A survey of some recent developments in measures of association",
+      "arxiv_id": "2211.04702"
+    }
+  ],
+  "Numerical Algorithms for Lasso Problems": [
+    {
+      "title": "A Survey of Numerical Algorithms that can Solve the Lasso Problems",
+      "arxiv_id": "2303.03576"
+    }
+  ],
+  "Outlier and Anomaly Detection Methods": [
+    {
+      "title": "Meta-survey on outlier and anomaly detection",
+      "arxiv_id": "2312.07101"
+    }
+  ],
+  "Statistical Theory of Deep Learning": [
+    {
+      "title": "A Survey on Statistical Theory of Deep Learning: Approximation, Training Dynamics, and Generative Models",
+      "arxiv_id": "2401.07187"
+    }
+  ]
+}

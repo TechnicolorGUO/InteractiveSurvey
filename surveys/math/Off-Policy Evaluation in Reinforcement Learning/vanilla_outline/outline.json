@@ -1,0 +1,170 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Problem Definition"
+  ],
+  [
+    2,
+    "1.2 Importance of Off-Policy Evaluation"
+  ],
+  [
+    2,
+    "1.3 Objectives and Scope"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Reinforcement Learning Fundamentals"
+  ],
+  [
+    3,
+    "2.1.1 Markov Decision Processes"
+  ],
+  [
+    3,
+    "2.1.2 Policies and Value Functions"
+  ],
+  [
+    2,
+    "2.2 On-Policy vs Off-Policy Methods"
+  ],
+  [
+    3,
+    "2.2.1 Characteristics of On-Policy Methods"
+  ],
+  [
+    3,
+    "2.2.2 Challenges in Off-Policy Learning"
+  ],
+  [
+    1,
+    "3 Literature Review"
+  ],
+  [
+    2,
+    "3.1 Importance Sampling Techniques"
+  ],
+  [
+    3,
+    "3.1.1 Basic Importance Sampling"
+  ],
+  [
+    3,
+    "3.1.2 Per-Decision Importance Sampling"
+  ],
+  [
+    3,
+    "3.1.3 Stationary Importance Sampling"
+  ],
+  [
+    2,
+    "3.2 Model-Based Approaches"
+  ],
+  [
+    3,
+    "3.2.1 Transition Models for Evaluation"
+  ],
+  [
+    3,
+    "3.2.2 State Distribution Approximation"
+  ],
+  [
+    2,
+    "3.3 Doubly Robust Estimators"
+  ],
+  [
+    3,
+    "3.3.1 Combining Importance Sampling and Model-Based Methods"
+  ],
+  [
+    3,
+    "3.3.2 Variance Reduction Techniques"
+  ],
+  [
+    2,
+    "3.4 Recent Advances"
+  ],
+  [
+    3,
+    "3.4.1 Neural Network-Based Estimators"
+  ],
+  [
+    3,
+    "3.4.2 Focused Applications in Robotics and Healthcare"
+  ],
+  [
+    1,
+    "4 Comparative Analysis"
+  ],
+  [
+    2,
+    "4.1 Strengths and Limitations of Different Methods"
+  ],
+  [
+    3,
+    "4.1.1 Bias-Variance Trade-offs"
+  ],
+  [
+    3,
+    "4.1.2 Computational Complexity"
+  ],
+  [
+    2,
+    "4.2 Empirical Studies and Benchmarks"
+  ],
+  [
+    3,
+    "4.2.1 Standard Benchmark Environments"
+  ],
+  [
+    3,
+    "4.2.2 Performance Metrics Used"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Open Challenges in Off-Policy Evaluation"
+  ],
+  [
+    3,
+    "5.1.1 Handling High-Dimensional State Spaces"
+  ],
+  [
+    3,
+    "5.1.2 Dealing with Partial Observability"
+  ],
+  [
+    2,
+    "5.2 Future Directions"
+  ],
+  [
+    3,
+    "5.2.1 Integration with Online Learning"
+  ],
+  [
+    3,
+    "5.2.2 Developing More Efficient Algorithms"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "6.2 Implications for Practical Applications"
+  ]
+]

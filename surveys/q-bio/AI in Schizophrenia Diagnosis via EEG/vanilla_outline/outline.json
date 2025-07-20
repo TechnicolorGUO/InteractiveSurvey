@@ -1,0 +1,178 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Background on Schizophrenia"
+  ],
+  [
+    2,
+    "1.2 Importance of Early Diagnosis"
+  ],
+  [
+    2,
+    "1.3 Role of EEG in Neurological Studies"
+  ],
+  [
+    1,
+    "2 Literature Review"
+  ],
+  [
+    2,
+    "2.1 Traditional Methods for Schizophrenia Diagnosis"
+  ],
+  [
+    3,
+    "2.1.1 Clinical Assessment Techniques"
+  ],
+  [
+    3,
+    "2.1.2 Limitations of Conventional Approaches"
+  ],
+  [
+    2,
+    "2.2 Artificial Intelligence in Healthcare"
+  ],
+  [
+    3,
+    "2.2.1 Overview of AI Applications"
+  ],
+  [
+    3,
+    "2.2.2 Advantages and Challenges"
+  ],
+  [
+    2,
+    "2.3 EEG Signal Processing"
+  ],
+  [
+    3,
+    "2.3.1 Preprocessing Techniques"
+  ],
+  [
+    3,
+    "2.3.2 Feature Extraction Methods"
+  ],
+  [
+    1,
+    "3 AI Models for Schizophrenia Diagnosis using EEG"
+  ],
+  [
+    2,
+    "3.1 Machine Learning Approaches"
+  ],
+  [
+    3,
+    "3.1.1 Supervised Learning Algorithms"
+  ],
+  [
+    3,
+    "3.1.2 Unsupervised Learning Techniques"
+  ],
+  [
+    2,
+    "3.2 Deep Learning Architectures"
+  ],
+  [
+    3,
+    "3.2.1 Convolutional Neural Networks (CNNs)"
+  ],
+  [
+    3,
+    "3.2.2 Recurrent Neural Networks (RNNs)"
+  ],
+  [
+    3,
+    "3.2.3 Hybrid Models"
+  ],
+  [
+    2,
+    "3.3 Transfer Learning and Domain Adaptation"
+  ],
+  [
+    3,
+    "3.3.1 Cross-Dataset Generalization"
+  ],
+  [
+    3,
+    "3.3.2 Fine-Tuning Strategies"
+  ],
+  [
+    1,
+    "4 Comparative Analysis"
+  ],
+  [
+    2,
+    "4.1 Performance Metrics"
+  ],
+  [
+    3,
+    "4.1.1 Accuracy, Sensitivity, Specificity"
+  ],
+  [
+    3,
+    "4.1.2 Area Under the Curve (AUC)"
+  ],
+  [
+    2,
+    "4.2 Benchmark Datasets"
+  ],
+  [
+    3,
+    "4.2.1 Publicly Available EEG Datasets"
+  ],
+  [
+    3,
+    "4.2.2 Custom Data Collections"
+  ],
+  [
+    2,
+    "4.3 Limitations and Open Issues"
+  ],
+  [
+    3,
+    "4.3.1 Data Quality and Variability"
+  ],
+  [
+    3,
+    "4.3.2 Ethical Considerations"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Current Trends in AI-Driven Diagnostics"
+  ],
+  [
+    2,
+    "5.2 Future Directions"
+  ],
+  [
+    3,
+    "5.2.1 Multi-Modal Integration with fMRI and MRI"
+  ],
+  [
+    3,
+    "5.2.2 Real-Time Monitoring Systems"
+  ],
+  [
+    3,
+    "5.2.3 Personalized Medicine Approaches"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "6.2 Implications for Clinical Practice"
+  ]
+]

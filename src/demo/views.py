@@ -1,5 +1,20 @@
 from __future__ import unicode_literals
 import sys
+from langchain_huggingface import HuggingFaceEmbeddings
+# 禁用所有遥测功能
+import os
+os.environ['ANONYMIZED_TELEMETRY'] = 'False'
+os.environ['DISABLE_TELEMETRY'] = '1'
+# os.environ['TRANSFORMERS_OFFLINE'] = '1'
+# os.environ['HF_HUB_OFFLINE'] = '1'
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+os.environ['WANDB_DISABLED'] = 'true'
+os.environ['COMET_DISABLE_AUTO_LOGGING'] = '1'
+# 添加 Hugging Face 离线模式和缓存设置
+# os.environ['HF_DATASETS_OFFLINE'] = '1'  
+# os.environ['TRANSFORMERS_CACHE'] = './models/transformers_cache'
+# os.environ['HF_HOME'] = './models/huggingface_cache'
+# os.environ['HF_HUB_CACHE'] = './models/huggingface_hub_cache'
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -27,8 +42,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 
 # from .parse import DocumentLoading
-from .asg_retriever import legal_pdf, process_pdf, query_embeddings_new_new
-from .asg_generator import generate,generate_sentence_patterns
+from .asg_retriever import legal_pdf, process_pdf, query_embeddings_new_new, cleanup_retriever
+from .asg_generator import generate,generate_sentence_patterns, cleanup_openai_client
 from .asg_outline import OutlineGenerator,generateOutlineHTML_qwen, generateSurvey_qwen_new
 from .asg_clustername import generate_cluster_name_new
 from .postprocess import generate_references_section
@@ -39,10 +54,13 @@ from .asg_latex import tex_to_pdf, insert_figures, md_to_tex, preprocess_md
 # from .survey_generator_api import ensure_all_papers_cited
 import glob
 
-from langchain_huggingface import HuggingFaceEmbeddings
+from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
+import signal
+import threading
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+from functools import wraps
 
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv()
 # # 打印所有环境变量（可选，调试时使用）
 # print("所有环境变量:", os.environ)
@@ -54,6 +72,9 @@ load_dotenv()
 # # 打印获取到的值
 # print(f"OPENAI_API_KEY: {openai_api_key}")
 # print(f"OPENAI_API_BASE: {openai_api_base}")
+
+# 导入异步任务支持
+from .middleware import async_task, task_manager
 
 import os
 from pathlib import Path
@@ -111,20 +132,218 @@ Global_ref_list = []
 Global_category_description = []
 Global_category_label = []
 Global_df_selected = ""
-Global_test_flag = True
+Global_test_flag = False
 Global_collection_names = []
 Global_collection_names_clustered = []
 Global_file_names=[]
 Global_description_list = []
-Global_pipeline = None
 Global_cluster_names = []
 Global_citation_data = []
 Global_cluster_num = 4
 
 
-embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+# 创建模型缓存目录
+import os
+from pathlib import Path
+
+def ensure_cache_dirs():
+    """确保缓存目录存在"""
+    cache_dirs = [
+        './models/transformers_cache',
+        './models/huggingface_cache', 
+        './models/huggingface_hub_cache'
+    ]
+    for cache_dir in cache_dirs:
+        Path(cache_dir).mkdir(parents=True, exist_ok=True)
+
+# def init_embedder_with_retry():
+#     """初始化embedder，带重试和错误处理"""
+#     ensure_cache_dirs()
+    
+#     try:
+#         print("正在初始化 SentenceTransformer embeddings...")
+#         # 尝试初始化embedder
+#         model = SentenceTransformer(
+#             'sentence-transformers/all-MiniLM-L6-v2',
+#             cache_folder='./models/transformers_cache'
+#         )
+#         print("SentenceTransformer embeddings 初始化成功")
+#         return model
+        
+#     except Exception as e:
+#         print(f"初始化 SentenceTransformer embeddings 失败: {e}")
+#         print("尝试使用本地缓存或替代方案...")
+        
+#         try:
+#             # 尝试使用本地缓存
+#             model = SentenceTransformer(
+#                 'sentence-transformers/all-MiniLM-L6-v2',
+#                 cache_folder='./models/transformers_cache',
+#                 local_files_only=True
+#             )
+#             print("使用本地缓存成功")
+#             return model
+#         except Exception as e2:
+#             print(f"使用本地缓存也失败: {e2}")
+#             print("警告: 将使用空的 embedder，某些功能可能不可用")
+#             return None
+
+# 初始化embedder
+embedder = None  # 延迟初始化
+
+def get_embedder():
+    """获取embedder实例，如果未初始化则进行初始化"""
+    global embedder
+    if embedder is None:
+        try:
+            print("正在初始化 embedder...")
+            embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+            print("embedder 初始化完成")
+        except Exception as e:
+            print(f"embedder 初始化失败: {e}")
+            return None
+    return embedder
 
 from demo.category_and_tsne import clustering
+
+# 添加超时装饰器
+def timeout_handler(seconds):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            result = [None]
+            exception = [None]
+            
+            def target():
+                try:
+                    result[0] = func(*args, **kwargs)
+                except Exception as e:
+                    exception[0] = e
+            
+            thread = threading.Thread(target=target)
+            thread.daemon = True
+            thread.start()
+            thread.join(seconds)
+            
+            if thread.is_alive():
+                # 线程仍在运行，说明超时了
+                raise TimeoutError(f"Function {func.__name__} timed out after {seconds} seconds")
+            
+            if exception[0]:
+                raise exception[0]
+            
+            return result[0]
+        return wrapper
+    return decorator
+
+# 添加进度跟踪
+progress_tracker = {}
+
+def update_progress(operation_id, progress, message=""):
+    """更新操作进度"""
+    progress_tracker[operation_id] = {
+        'progress': progress,
+        'message': message,
+        'timestamp': time.time()
+    }
+    print(f"[{operation_id}] {progress}% - {message}")
+
+def get_progress(operation_id):
+    """获取操作进度"""
+    return progress_tracker.get(operation_id, {'progress': 0, 'message': 'Starting...', 'timestamp': time.time()})
+
+# 添加进度查询端点
+@csrf_exempt
+def get_operation_progress(request):
+    """获取操作进度的API端点，支持异步任务结果"""
+    if request.method == 'GET':
+        operation_id = request.GET.get('operation_id')
+        if operation_id:
+            print(f"[DEBUG] Checking progress for operation_id: {operation_id}")
+            
+            # 首先检查异步任务状态
+            task_status = task_manager.get_task_status(operation_id)
+            print(f"[DEBUG] Task status: {task_status}")
+            
+            if task_status['status'] == 'completed':
+                # 任务完成，返回结果
+                print(f"[DEBUG] Task {operation_id} completed, returning result")
+                result = task_status.get('result')
+                
+                # 检查result是否是HttpResponse对象（旧的PDF生成方式）
+                if hasattr(result, 'content'):
+                    try:
+                        import json
+                        content = json.loads(result.content.decode('utf-8'))
+                        return JsonResponse({
+                            'progress': 100,
+                            'message': 'Task completed successfully!',
+                            'status': 'completed',
+                            'result': content
+                        })
+                    except Exception as e:
+                        print(f"[DEBUG] Error parsing HttpResponse content: {e}")
+                        # 对于PDF等二进制文件，我们不解析内容，只返回完成状态
+                        return JsonResponse({
+                            'progress': 100,
+                            'message': 'Task completed successfully!',
+                            'status': 'completed',
+                            'result': {'message': 'Binary file generated successfully'}
+                        })
+                # 检查result是否是Django JsonResponse对象
+                elif hasattr(result, 'content') and hasattr(result, 'status_code'):
+                    try:
+                        import json
+                        content = json.loads(result.content.decode('utf-8'))
+                        return JsonResponse({
+                            'progress': 100,
+                            'message': 'Task completed successfully!',
+                            'status': 'completed',
+                            'result': content
+                        })
+                    except Exception as e:
+                        print(f"[DEBUG] Error parsing JsonResponse content: {e}")
+                        return JsonResponse({
+                            'progress': 100,
+                            'message': 'Task completed successfully!',
+                            'status': 'completed'
+                        })
+                else:
+                    # 普通的结果对象
+                    return JsonResponse({
+                        'progress': 100,
+                        'message': 'Task completed successfully!',
+                        'status': 'completed',
+                        'result': result
+                    })
+            elif task_status['status'] == 'failed':
+                # 任务失败
+                print(f"[DEBUG] Task {operation_id} failed: {task_status.get('error')}")
+                return JsonResponse({
+                    'progress': -1,
+                    'message': f"Task failed: {task_status.get('error', 'Unknown error')}",
+                    'status': 'failed',
+                    'error': task_status.get('error')
+                })
+            elif task_status['status'] == 'running':
+                # 任务正在运行，返回当前进度
+                print(f"[DEBUG] Task {operation_id} is running, checking progress")
+                progress_info = get_progress(operation_id)
+                print(f"[DEBUG] Progress info: {progress_info}")
+                return JsonResponse({
+                    **progress_info,
+                    'status': 'running'
+                })
+            else:
+                # 任务未找到，返回默认进度
+                print(f"[DEBUG] Task {operation_id} not found, returning default progress")
+                progress_info = get_progress(operation_id)
+                return JsonResponse({
+                    **progress_info,
+                    'status': 'not_found'
+                })
+        return JsonResponse({'error': 'operation_id is required'}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 class reference_collection(object):
     def __init__(
@@ -243,8 +462,15 @@ def PosRank_get_top5_ngrams(input_pd):
     return abs_top5_unigram_list_list,abs_top5_bigram_list_list,abs_top5_trigram_list_list
 
 def process_file(file_name, survey_id, mode):
-    global embedder
-    result = process_pdf(file_name, survey_id, embedder, mode)
+    embedder_instance = get_embedder()
+    if embedder_instance is None:
+        print("警告: embedder 未初始化，跳过PDF处理")
+        # 返回一个默认值或抛出更友好的错误
+        collection_name = f"collection_{survey_id}_{int(time.time())}"
+        name = file_name.split('/')[-1].replace('.pdf', '')
+        return collection_name, name
+    
+    result = process_pdf(file_name, survey_id, embedder_instance, mode)
     collection_name = result[0]
     name = result[-1]
     return collection_name, name
@@ -296,191 +522,295 @@ def get_surveys(request):
     return JsonResponse({'surveys': surveys})
 
 @csrf_exempt
-def upload_refs(request):
-    
+@timeout_handler(1800)  # 15分钟超时
+def upload_refs_sync(request):
+    """同步版本的文件上传处理函数"""
     start_time = time.time()
+    operation_id = getattr(request, 'operation_id', f"upload_{int(start_time)}")
+    print(f"[DEBUG] upload_refs_sync started with operation_id: {operation_id}")
+    update_progress(operation_id, 0, "Starting file upload...")
+    
     RECOMMENDED_PDF_DIR = os.path.join("src", "static", "data", "pdf", "recommend_pdfs")
     if request.method == 'POST':
-        if not request.FILES:
-            if not os.path.exists(RECOMMENDED_PDF_DIR):
-                return JsonResponse({'error': 'No file part'}, status=400)
-    
+        try:
+            # 检查是否有上传的文件（新方式使用file_paths，旧方式使用FILES）
+            has_uploaded_files = False
+            if hasattr(request, 'file_paths') and request.file_paths:
+                has_uploaded_files = True
+            elif request.FILES:
+                has_uploaded_files = True
+            
+            if not has_uploaded_files:
+                if not os.path.exists(RECOMMENDED_PDF_DIR):
+                    return JsonResponse({'error': 'No file part'}, status=400)
+        
+            update_progress(operation_id, 10, "Initializing upload process...")
+            
+            is_valid_submission = True
+            has_label_id = False
+            has_ref_link = False
 
-        is_valid_submission = True
-        has_label_id = False
-        has_ref_link = False
-
-        filenames = []
-        collection_names = []
-        filesizes = []
-        file_dict = request.FILES
-
-        global Global_survey_id
-        global Global_test_flag
-        global Global_collection_names
-        global Global_survey_title
-        global Global_file_names
-
-        Global_survey_title = request.POST.get('topic', False)
-        process_pdf_mode = request.POST.get('mode', False)
-        file_dict = request.FILES.copy()
-        if os.path.exists(RECOMMENDED_PDF_DIR):
-            for pdf_name in os.listdir(RECOMMENDED_PDF_DIR):
-                if pdf_name.endswith(".pdf"):
-                    pdf_path = os.path.join(RECOMMENDED_PDF_DIR, pdf_name)
-
-                    pdf_content = BytesIO()
-                    with open(pdf_path, 'rb') as f:
-                        shutil.copyfileobj(f, pdf_content)
-                    pdf_content.seek(0)
-
-                    uploaded_pdf = InMemoryUploadedFile(
-                        pdf_content,
+            filenames = []
+            collection_names = []
+            filesizes = []
+            
+            # 创建统一的file_dict，兼容新旧两种方式
+            file_dict = {}
+            
+            # 如果使用新的file_paths方式
+            if hasattr(request, 'file_paths') and request.file_paths:
+                update_progress(operation_id, 15, "Loading files from disk...")
+                for file_path in request.file_paths:
+                    file_name = os.path.basename(file_path)
+                    
+                    # 从磁盘读取文件内容
+                    with open(file_path, 'rb') as f:
+                        file_content = BytesIO(f.read())
+                    
+                    # 创建类似Django上传文件的对象
+                    uploaded_file = InMemoryUploadedFile(
+                        file_content,
                         field_name="file",
-                        name=pdf_name,
+                        name=file_name,
                         content_type="application/pdf",
-                        size=os.path.getsize(pdf_path),
+                        size=os.path.getsize(file_path),
                         charset=None
                     )
-
-                    file_dict[f"recommend_{pdf_name}"] = uploaded_pdf
-
-            shutil.rmtree(RECOMMENDED_PDF_DIR)
-
-        survey_id_choice = request.POST.get('survey_id')
-        if survey_id_choice == "new":
-            custom_survey_id = request.POST.get('custom_survey_id', '').strip()
-            if custom_survey_id:
-                Global_survey_id = custom_survey_id
+                    file_dict[file_name] = uploaded_file
             else:
-                Global_survey_id = 'test_4' if Global_test_flag else generate_uid()
-        else:
-            Global_survey_id = survey_id_choice
-        uid_str = Global_survey_id
+                # 使用传统的request.FILES方式
+                file_dict = request.FILES.copy()
 
-        for file_name in file_dict:
-            file = file_dict[file_name]
-            if not file.name:
-                return JsonResponse({'error': 'No selected file'}, status=400)
-            if file:
-                sanitized_filename = sanitize_filename_py(os.path.splitext(file.name)[0])
-                file_extension = os.path.splitext(file.name)[1].lower()
-                if sanitized_filename in filenames:
+            global Global_survey_id
+            global Global_test_flag
+            global Global_collection_names
+            global Global_survey_title
+            global Global_file_names
+
+            Global_survey_title = request.POST.get('topic', False)
+            process_pdf_mode = request.POST.get('mode', False)
+            
+            update_progress(operation_id, 20, "Processing recommended PDFs...")
+            
+            if os.path.exists(RECOMMENDED_PDF_DIR):
+                for pdf_name in os.listdir(RECOMMENDED_PDF_DIR):
+                    if pdf_name.endswith(".pdf"):
+                        pdf_path = os.path.join(RECOMMENDED_PDF_DIR, pdf_name)
+
+                        pdf_content = BytesIO()
+                        with open(pdf_path, 'rb') as f:
+                            shutil.copyfileobj(f, pdf_content)
+                        pdf_content.seek(0)
+
+                        uploaded_pdf = InMemoryUploadedFile(
+                            pdf_content,
+                            field_name="file",
+                            name=pdf_name,
+                            content_type="application/pdf",
+                            size=os.path.getsize(pdf_path),
+                            charset=None
+                        )
+
+                        file_dict[f"recommend_{pdf_name}"] = uploaded_pdf
+
+                shutil.rmtree(RECOMMENDED_PDF_DIR)
+
+            update_progress(operation_id, 30, "Setting up survey ID...")
+            
+            # 始终生成新的survey_id，无论前端传递什么参数
+            Global_survey_id = 'test_4' if Global_test_flag else generate_uid()
+            uid_str = Global_survey_id
+            print(f"[DEBUG] Generated new survey_id: {Global_survey_id}")
+
+            update_progress(operation_id, 40, "Processing uploaded files...")
+            
+            total_files = len(file_dict)
+            processed_files = 0
+            
+            for file_name in file_dict:
+                file = file_dict[file_name]
+                if not file.name:
                     continue
-                sanitized_filename = f"{sanitized_filename}{file_extension}"
+                if file:
+                    try:
+                        sanitized_filename = sanitize_filename_py(os.path.splitext(file.name)[0])
+                        file_extension = os.path.splitext(file.name)[1].lower()
+                        if sanitized_filename in filenames:
+                            continue
+                        sanitized_filename = f"{sanitized_filename}{file_extension}"
 
-                file_path = os.path.join('src', 'static', 'data', 'pdf', Global_survey_id, sanitized_filename)
-                if default_storage.exists(file_path):
-                    default_storage.delete(file_path)
-                
-                saved_file_name = default_storage.save(file_path, file)
-                file_size = round(float(file.size) / 1024000, 2)
+                        file_path = os.path.join('src', 'static', 'data', 'pdf', Global_survey_id, sanitized_filename)
+                        if default_storage.exists(file_path):
+                            default_storage.delete(file_path)
+                        
+                        saved_file_name = default_storage.save(file_path, file)
+                        file_size = round(float(file.size) / 1024000, 2)
 
-                collection_name, processed_file = process_file(saved_file_name, Global_survey_id, process_pdf_mode)
-                Global_collection_names.append(collection_name)
-                Global_file_names.append(processed_file)
-                filenames.append(processed_file)
-                filesizes.append(file_size)
-                print(filenames)
-                print(filesizes)
+                        collection_name, processed_file = process_file(saved_file_name, Global_survey_id, process_pdf_mode)
+                        Global_collection_names.append(collection_name)
+                        Global_file_names.append(processed_file)
+                        filenames.append(processed_file)
+                        filesizes.append(file_size)
+                        
+                        processed_files += 1
+                        progress = 40 + (processed_files / total_files) * 30
+                        update_progress(operation_id, progress, f"Processed {processed_files}/{total_files} files")
+                        
+                    except Exception as e:
+                        print(f"Error processing file {file_name}: {e}")
+                        continue
 
-        new_file_name = Global_survey_id
-        csvfile_name = new_file_name + '.'+ file_name.split('.')[-1]
+            update_progress(operation_id, 70, "Generating JSON data...")
+            
+            new_file_name = Global_survey_id
+            csvfile_name = new_file_name + '.'+ file_name.split('.')[-1]
 
-        json_data_pd = pd.DataFrame()
-        json_files_path = f'./src/static/data/txt/{Global_survey_id}/*.json'
-        json_files = glob.glob(json_files_path)
+            json_data_pd = pd.DataFrame()
+            json_files_path = f'./src/static/data/txt/{Global_survey_id}/*.json'
+            json_files = glob.glob(json_files_path)
 
-        # Dictionary to hold title and abstract pairs
-        title_abstract_dict = {}
-        filtered_json_files = [
-            json_file for json_file in json_files
-            if os.path.splitext(os.path.basename(json_file))[0] in filenames
-        ]
-        ref_paper_num = len(filtered_json_files)
-        print(f'The length of the json files is {ref_paper_num}')
+            # Dictionary to hold title and abstract pairs
+            title_abstract_dict = {}
+            filtered_json_files = [
+                json_file for json_file in json_files
+                if os.path.splitext(os.path.basename(json_file))[0] in filenames
+            ]
+            ref_paper_num = len(filtered_json_files)
+            print(f'The length of the json files is {ref_paper_num}')
 
-        # Iterate over each JSON file
-        for file_path in filtered_json_files:
-            with open(file_path, 'r', encoding= "utf-8") as file:
-                data = json.load(file)
+            update_progress(operation_id, 80, "Processing JSON files...")
+            
+            # Iterate over each JSON file
+            for i, file_path in enumerate(filtered_json_files):
+                try:
+                    with open(file_path, 'r', encoding= "utf-8") as file:
+                        data = json.load(file)
 
-                # Extract necessary information
-                title = data.get("title", "")
-                abstract = data.get("abstract", "")
-                authors = data.get("authors", "")
-                introduction = data.get("introduction", "")
+                        # Extract necessary information
+                        title = data.get("title", "")
+                        abstract = data.get("abstract", "")
+                        authors = data.get("authors", "")
+                        introduction = data.get("introduction", "")
 
-                new_data = {
-                    "reference paper title": title,
-                    "reference paper citation information (can be collected from Google scholar/DBLP)": authors,
-                    "reference paper abstract (Please copy the text AND paste here)": abstract,
-                    "reference paper introduction (Please copy the text AND paste here)": introduction,
-                    "reference paper doi link (optional)": "",
-                    "reference paper category label (optional)": ""
-                }
-
-                new_data_df = pd.DataFrame([new_data])
-                json_data_pd = pd.concat([json_data_pd, new_data_df], ignore_index=True)
-                title_abstract_dict[title] = abstract
-
-        input_pd = json_data_pd
-        output_path = f'./src/static/data/info/{Global_survey_id}/title_abstract_pairs.json'
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-        with open(output_path, 'w', encoding="utf-8") as outfile:
-            json.dump(title_abstract_dict, outfile, indent=4, ensure_ascii=False)
-
-        print(f'Title-abstract pairs have been saved to {output_path}')
-
-        if ref_paper_num>0:
-
-            print('The filenames are:', filenames)
-            print('The json files are:', filtered_json_files)
-            input_pd['ref_title'] = [filename for filename in filenames]
-            input_pd["ref_context"] = [""]*ref_paper_num
-            input_pd["ref_entry"] = input_pd["reference paper citation information (can be collected from Google scholar/DBLP)"]
-            input_pd["abstract"] = input_pd["reference paper abstract (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid abstract')
-            input_pd["intro"] = input_pd["reference paper introduction (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid introduction')
-
-            input_pd["label"] = input_pd["reference paper category label (optional)"].apply(lambda x: str(x) if len(str(x))>0 else '')
-
-            try:
-                output_tsv_filename = "./src/static/data/tsv/" + new_file_name + '.tsv'
-
-                output_df = input_pd[["ref_title","ref_context","ref_entry","abstract","intro"]]
-
-                if has_label_id == True:
-                    output_df["label"]=input_pd["label"]
-                else:
-                    output_df["label"]=[""]*input_pd.shape[0]
-
-                output_df.to_csv(output_tsv_filename, sep='\t')
-            except:
-                print("Cannot output tsv")
-                is_valid_submission = False
-
-        else:
-            is_valid_submission = False
-
-        if is_valid_submission == True:
-            ref_ids = [i for i in range(output_df['ref_title'].shape[0])]
-            ref_list = {
-                        'ref_ids':ref_ids,
-                        'is_valid_submission':is_valid_submission,
-                        "uid":uid_str,
-                        "tsv_filename":output_tsv_filename,
-                        # 'topic_words': clusters_topic_words,
-                        'filenames': filenames,
-                        'filesizes': filesizes,
-                        'survey_id': Global_survey_id
+                        new_data = {
+                            "reference paper title": title,
+                            "reference paper citation information (can be collected from Google scholar/DBLP)": authors,
+                            "reference paper abstract (Please copy the text AND paste here)": abstract,
+                            "reference paper introduction (Please copy the text AND paste here)": introduction,
+                            "reference paper doi link (optional)": "",
+                            "reference paper category label (optional)": ""
                         }
 
-        else:
-            ref_list = {'ref_ids':[],'is_valid_submission':is_valid_submission,"uid":uid_str,"tsv_filename":output_tsv_filename, 'filenames': filenames, 'filesizes': filesizes, 'survey_id': Global_survey_id}
-        ref_list = json.dumps(ref_list)
-        print("--- %s seconds used in processing files ---" % (time.time() - start_time))
-        return HttpResponse(ref_list)
+                        new_data_df = pd.DataFrame([new_data])
+                        json_data_pd = pd.concat([json_data_pd, new_data_df], ignore_index=True)
+                        title_abstract_dict[title] = abstract
+                        
+                        progress = 80 + (i / len(filtered_json_files)) * 10
+                        update_progress(operation_id, progress, f"Processing JSON {i+1}/{len(filtered_json_files)}")
+                        
+                except Exception as e:
+                    print(f"Error processing JSON file {file_path}: {e}")
+                    continue
+
+            update_progress(operation_id, 90, "Finalizing data...")
+            
+            input_pd = json_data_pd
+            output_path = f'./src/static/data/info/{Global_survey_id}/title_abstract_pairs.json'
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+            with open(output_path, 'w', encoding="utf-8") as outfile:
+                json.dump(title_abstract_dict, outfile, indent=4, ensure_ascii=False)
+
+            print(f'Title-abstract pairs have been saved to {output_path}')
+
+            # 初始化 output_tsv_filename，确保它总是被定义
+            output_tsv_filename = "./src/static/data/tsv/" + new_file_name + '.tsv'
+
+            if ref_paper_num>0:
+
+                print('The filenames are:', filenames)
+                print('The json files are:', filtered_json_files)
+                input_pd['ref_title'] = [filename for filename in filenames]
+                input_pd["ref_context"] = [""]*ref_paper_num
+                input_pd["ref_entry"] = input_pd["reference paper citation information (can be collected from Google scholar/DBLP)"]
+                input_pd["abstract"] = input_pd["reference paper abstract (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid abstract')
+                input_pd["intro"] = input_pd["reference paper introduction (Please copy the text AND paste here)"].apply(lambda x: clean_str(x) if len(str(x))>0 else 'Invalid introduction')
+
+                input_pd["label"] = input_pd["reference paper category label (optional)"].apply(lambda x: str(x) if len(str(x))>0 else '')
+
+                try:
+                    output_df = input_pd[["ref_title","ref_context","ref_entry","abstract","intro"]]
+
+                    if has_label_id == True:
+                        output_df["label"]=input_pd["label"]
+                    else:
+                        output_df["label"]=[""]*input_pd.shape[0]
+
+                    output_df.to_csv(output_tsv_filename, sep='\t')
+                except Exception as e:
+                    print(f"Cannot output tsv: {e}")
+                    is_valid_submission = False
+
+            else:
+                is_valid_submission = False
+
+            update_progress(operation_id, 100, "Upload completed successfully!")
+            
+            if is_valid_submission == True:
+                ref_ids = [i for i in range(output_df['ref_title'].shape[0])]
+                ref_list = {
+                            'ref_ids':ref_ids,
+                            'is_valid_submission':is_valid_submission,
+                            "uid":uid_str,
+                            "tsv_filename":output_tsv_filename,
+                            # 'topic_words': clusters_topic_words,
+                            'filenames': filenames,
+                            'filesizes': filesizes,
+                            'survey_id': Global_survey_id,
+                            'operation_id': operation_id
+                            }
+
+            else:
+                ref_list = {'ref_ids':[],'is_valid_submission':is_valid_submission,"uid":uid_str,"tsv_filename":output_tsv_filename, 'filenames': filenames, 'filesizes': filesizes, 'survey_id': Global_survey_id, 'operation_id': operation_id}
+            ref_list = json.dumps(ref_list)
+            print("--- %s seconds used in processing files ---" % (time.time() - start_time))
+            
+            # 清理临时文件（如果使用了file_paths方式）
+            if hasattr(request, 'file_paths') and request.file_paths:
+                try:
+                    temp_dir = os.path.dirname(request.file_paths[0])
+                    if 'tmp_upload' in temp_dir and os.path.exists(temp_dir):
+                        shutil.rmtree(temp_dir)
+                        print(f"[DEBUG] Cleaned up temporary upload directory: {temp_dir}")
+                except Exception as e:
+                    print(f"[DEBUG] Failed to clean up temporary directory: {e}")
+            
+            return HttpResponse(ref_list)
+            
+        except TimeoutError as e:
+            update_progress(operation_id, -1, f"Upload timed out: {str(e)}")
+            # 清理临时文件
+            if hasattr(request, 'file_paths') and request.file_paths:
+                try:
+                    temp_dir = os.path.dirname(request.file_paths[0])
+                    if 'tmp_upload' in temp_dir and os.path.exists(temp_dir):
+                        shutil.rmtree(temp_dir)
+                except:
+                    pass
+            return JsonResponse({'error': f'Upload operation timed out: {str(e)}'}, status=408)
+        except Exception as e:
+            update_progress(operation_id, -1, f"Upload failed: {str(e)}")
+            # 清理临时文件
+            if hasattr(request, 'file_paths') and request.file_paths:
+                try:
+                    temp_dir = os.path.dirname(request.file_paths[0])
+                    if 'tmp_upload' in temp_dir and os.path.exists(temp_dir):
+                        shutil.rmtree(temp_dir)
+                except:
+                    pass
+            return JsonResponse({'error': f'Upload failed: {str(e)}'}, status=500)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def generate_arxiv_query(request):
@@ -580,56 +910,152 @@ def generate_arxiv_query(request):
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
 @csrf_exempt
-def download_pdfs(request):
+@timeout_handler(900)  # 15分钟超时
+def download_pdfs_sync(request):
+    """同步版本的PDF下载函数"""
     def clean_filename(filename):
-
         filename = filename.strip()  # 去掉首尾空格和换行符
         filename = re.sub(r'[\\/*?:"<>|\n\r]', '', filename)  # 移除非法字符
         return filename
+    
+    start_time = time.time()
+    operation_id = f"download_{int(start_time)}"
+    print(f"[DEBUG] download_pdfs_sync started with operation_id: {operation_id}")
+    update_progress(operation_id, 0, "Starting PDF downloads...")
+    
     if request.method == "POST":
         try:
             data = json.loads(request.body)
             pdf_links = data.get("pdf_links", [])
             pdf_titles = data.get("pdf_titles", [])  # PDF 标题列表
-            print(pdf_links)
+            print(f"Starting download of {len(pdf_links)} PDFs")
 
             if not pdf_links:
+                update_progress(operation_id, -1, "No PDFs to download")
                 return JsonResponse({"message": "No PDFs to download."}, status=400)
 
             base_dir = os.path.join(os.getcwd(), "src", "static", "data", "pdf", "recommend_pdfs")
             os.makedirs(base_dir, exist_ok=True)  # 确保文件夹存在
 
             downloaded_files = []
+            failed_downloads = []
+            
+            update_progress(operation_id, 10, f"Preparing to download {len(pdf_links)} PDFs...")
+            
             for i, pdf_url in enumerate(pdf_links):
                 try:
-                    response = requests.get(pdf_url, stream=True)
+                    print(f"Downloading {i+1}/{len(pdf_links)}: {pdf_url}")
+                    progress = 10 + (i / len(pdf_links)) * 80
+                    update_progress(operation_id, progress, f"Downloading PDF {i+1}/{len(pdf_links)}")
+                    
+                    # 设置超时时间：连接超时10秒，读取超时60秒
+                    response = requests.get(
+                        pdf_url, 
+                        stream=True, 
+                        timeout=(10, 60),
+                        headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+                    )
+                    
                     if response.status_code == 200:
                         # 处理文件名，确保合法
                         sanitized_title = clean_filename(pdf_titles[i]) if i < len(pdf_titles) else f"file_{i}"
                         pdf_filename = os.path.join(base_dir, f"{sanitized_title}.pdf")
 
-                        # 下载 PDF
+                        # 下载 PDF，添加文件大小检查
+                        total_size = 0
+                        max_size = 50 * 1024 * 1024  # 50MB 限制
+                        
                         with open(pdf_filename, "wb") as pdf_file:
-                            for chunk in response.iter_content(chunk_size=1024):
-                                pdf_file.write(chunk)
-
-                        downloaded_files.append(pdf_filename)
-                        print(f"Success: {pdf_filename}")
+                            for chunk in response.iter_content(chunk_size=8192):
+                                if chunk:
+                                    total_size += len(chunk)
+                                    if total_size > max_size:
+                                        print(f"File too large, skipping: {pdf_url}")
+                                        failed_downloads.append({"url": pdf_url, "reason": "File too large (>50MB)"})
+                                        break
+                                    pdf_file.write(chunk)
+                        
+                        if total_size <= max_size:
+                            downloaded_files.append(pdf_filename)
+                            print(f"Success: {pdf_filename} ({total_size/1024/1024:.2f}MB)")
+                        else:
+                            # 删除部分下载的文件
+                            if os.path.exists(pdf_filename):
+                                os.remove(pdf_filename)
                     else:
-                        print(f"Failed to download {pdf_url}")
+                        print(f"Failed to download {pdf_url}, status code: {response.status_code}")
+                        failed_downloads.append({"url": pdf_url, "reason": f"HTTP {response.status_code}"})
 
+                except requests.exceptions.Timeout:
+                    print(f"Timeout downloading {pdf_url}")
+                    failed_downloads.append({"url": pdf_url, "reason": "Timeout"})
+                except requests.exceptions.ConnectionError:
+                    print(f"Connection error downloading {pdf_url}")
+                    failed_downloads.append({"url": pdf_url, "reason": "Connection error"})
                 except Exception as e:
                     print(f"Error downloading {pdf_url}: {e}")
+                    failed_downloads.append({"url": pdf_url, "reason": str(e)})
 
-            print("Download finished")
-            return JsonResponse({"message": f"Downloaded {len(downloaded_files)} PDFs successfully!", "files": downloaded_files})
+            print(f"Download finished: {len(downloaded_files)} successful, {len(failed_downloads)} failed")
+            update_progress(operation_id, 100, f"Download completed: {len(downloaded_files)} successful, {len(failed_downloads)} failed")
+            
+            # 构建响应消息
+            message = f"Downloaded {len(downloaded_files)} PDFs successfully!"
+            if failed_downloads:
+                message += f" {len(failed_downloads)} downloads failed."
+            
+            result = {
+                "message": message,
+                "files": downloaded_files,
+                "failed": failed_downloads,
+                "success_count": len(downloaded_files),
+                "total_count": len(pdf_links)
+            }
+            
+            return JsonResponse(result)
 
         except json.JSONDecodeError:
+            update_progress(operation_id, -1, "Invalid JSON data")
             return JsonResponse({"message": "Invalid JSON data."}, status=400)
         except Exception as e:
+            print(f"Unexpected error in download_pdfs: {e}")
+            update_progress(operation_id, -1, f"Error: {str(e)}")
             return JsonResponse({"message": "An error occurred.", "error": str(e)}, status=500)
 
     return JsonResponse({"message": "Invalid request method."}, status=405)
+
+@csrf_exempt
+def download_pdfs(request):
+    """异步版本的PDF下载接口，立即返回operation_id避免Cloudflare 524超时"""
+    if request.method == "POST":
+        # 生成操作ID
+        operation_id = f"download_{int(time.time())}"
+        
+        print(f"[DEBUG] Starting async download task: {operation_id}")
+        
+        # 启动异步任务
+        success = task_manager.start_task(
+            operation_id, 
+            download_pdfs_sync, 
+            request
+        )
+        
+        if not success:
+            print(f"[DEBUG] Task {operation_id} already running")
+            return JsonResponse({'error': 'Download task already running'}, status=409)
+        
+        print(f"[DEBUG] Async task {operation_id} started successfully")
+        
+        # 立即返回operation_id，不等待处理完成
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'PDF download started successfully. Use the operation_id to check progress.',
+            'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
+        })
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 @csrf_exempt
 def annotate_categories(request):
     html = generateOutlineHTML_qwen(Global_survey_id)
@@ -651,104 +1077,194 @@ def get_topic(request):
     return HttpResponse(ref_list)
 
 @csrf_exempt
-def automatic_taxonomy(request):
-    global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label, Global_collection_names_clustered, Global_cluster_num
-    refs_json = request.POST.get("refs")
-    ref_list = json.loads(refs_json)
-    ref_list = [int(item) for item in ref_list]
-    print(ref_list)
-    query = request.POST.get("taxonomy_standard")
-
-    query_list = generate_sentence_patterns(query)
-
-    for name in Global_collection_names:
-        context, citation_data = query_embeddings_new_new(name, query_list)
-        Global_citation_data.extend(citation_data)
-
-        description = generate(context, query, name)
-        Global_description_list.append(description)
-
-    # Save citation data to file for debugging or reference
-    citation_path = f'./src/static/data/info/{Global_survey_id}/citation_data.json'
-    os.makedirs(os.path.dirname(citation_path), exist_ok=True)
-    with open(citation_path, 'w', encoding="utf-8") as outfile:
-        json.dump(Global_citation_data, outfile, indent=4, ensure_ascii=False)
-
-    file_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
-    with open(file_path, 'r', newline='', encoding='utf-8') as infile:
-        reader = csv.reader(infile, delimiter='\t')
-        rows = list(reader)
-
-    if rows:
-        headers = rows[0]
-        headers.append('retrieval_result')
-
-        updated_rows = [headers]
-        for row, description in zip(rows[1:], Global_description_list):
-            row.append(description)
-            updated_rows.append(row)
-
-        with open(file_path, 'w', newline='', encoding='utf-8') as outfile:
-            writer = csv.writer(outfile, delimiter='\t')
-            writer.writerows(updated_rows)
-
-        print('Updated file has been saved to', file_path)
-    else:
-        print('Input file is empty.')
-
-    Global_ref_list = ref_list
-
-    print('Categorization survey id', Global_survey_id)
-
-    colors, category_label =  Clustering_refs(n_clusters=Global_cluster_num)
-    Global_category_label = category_label
-
-    df_tmp = Global_df_selected.reset_index()
-    df_tmp['index'] = df_tmp.index
-    ref_titles = list(df_tmp.groupby(df_tmp['label'])['ref_title'].apply(list))
-    ref_indexs = list(df_tmp.groupby(df_tmp['label'])['index'].apply(list))
-
-    info = pd.read_json(f'./src/static/data/info/{Global_survey_id}/topic.json')
-    category_label = info['KeyBERT'].to_list()
-    category_label_summarized=[]
-
-    tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
-
-    cluster_num = Global_cluster_num
-    category_label_summarized = generate_cluster_name_new(tsv_path, Global_survey_title, cluster_num)   
-    Global_cluster_names = category_label_summarized
-
-    cate_list = {
-        'colors': colors,
-        'category_label': category_label_summarized,
-        'survey_id': Global_survey_id,
-        'ref_titles': [[i.title() for i in j] for j in ref_titles],
-        'ref_indexs': ref_indexs
-    }
-    print(cate_list)
-    cate_list = json.dumps(cate_list)
-
-    cluster_info = {category_label_summarized[i]:ref_titles[i] for i in range(len(category_label_summarized))}
-    for key, value in cluster_info.items():
-        temp = [legal_pdf(i) for i in value]
-        cluster_info[key] = temp
-        Global_collection_names_clustered.append(temp)
-    cluster_info_path = f'./src/static/data/info/{Global_survey_id}/cluster_info.json'
-    with open(cluster_info_path, 'w', encoding="utf-8") as outfile:
-        json.dump(cluster_info, outfile, indent=4, ensure_ascii=False)
-
+@timeout_handler(1800)  # 30分钟超时
+def automatic_taxonomy_sync(request):
+    """同步版本的自动分类函数"""
+    start_time = time.time()
+    operation_id = f"taxonomy_{int(start_time)}"
+    update_progress(operation_id, 0, "Starting automatic taxonomy...")
     
-    outline_generator = OutlineGenerator(Global_df_selected, Global_cluster_names)
-    outline_generator.get_cluster_info()
-    messages, outline = outline_generator.generate_outline_qwen(Global_survey_title, Global_cluster_num)
-
-    outline_json = {'messages':messages, 'outline': outline}
-    output_path = TXT_PATH + Global_survey_id + '/outline.json'
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding="utf-8") as outfile:
-        json.dump(outline_json, outfile, indent=4, ensure_ascii=False)
-
-    return HttpResponse(cate_list)
+    global Global_description_list, Global_df_selected, Global_cluster_names, Global_ref_list, Global_category_label, Global_collection_names_clustered, Global_cluster_num
+    global Global_survey_id, Global_collection_names, Global_citation_data, Global_file_names, Global_survey_title
+    
+    try:
+        update_progress(operation_id, 10, "Loading reference data...")
+        
+        if request.method == 'POST':
+            # 处理不同的请求格式
+            try:
+                # 尝试解析 JSON 数据
+                if request.content_type == 'application/json':
+                    data = json.loads(request.body)
+                    Global_cluster_num = data.get('Global_cluster_num', 5)
+                    refs_data = data.get('refs', [])
+                    query = data.get('taxonomy_standard', '')
+                else:
+                    # 处理 form-data 格式
+                    Global_cluster_num = int(request.POST.get('Global_cluster_num', 5))
+                    refs_data = request.POST.get('refs', '[]')
+                    query = request.POST.get('taxonomy_standard', '')
+                    
+                    # 解析 refs 数据
+                    if isinstance(refs_data, str):
+                        try:
+                            refs_data = json.loads(refs_data)
+                        except json.JSONDecodeError:
+                            refs_data = []
+                    
+            except (json.JSONDecodeError, ValueError) as e:
+                # 如果解析失败，尝试 form-data
+                try:
+                    Global_cluster_num = int(request.POST.get('Global_cluster_num', 5))
+                    refs_data = request.POST.get('refs', '[]')
+                    query = request.POST.get('taxonomy_standard', '')
+                    
+                    # 解析 refs 数据
+                    if isinstance(refs_data, str):
+                        try:
+                            refs_data = json.loads(refs_data)
+                        except json.JSONDecodeError:
+                            refs_data = []
+                except Exception as parse_error:
+                    print(f"Error parsing request data: {parse_error}")
+                    return JsonResponse({'error': f'Invalid request format: {parse_error}'}, status=400)
+            
+            # 处理 refs 数据
+            if isinstance(refs_data, list):
+                ref_list = [int(item) for item in refs_data if str(item).isdigit()]
+            else:
+                ref_list = []
+            
+            print(f"Parsed ref_list: {ref_list}")
+            print(f"Global_cluster_num: {Global_cluster_num}")
+            print(f"Query: {query}")
+            
+            update_progress(operation_id, 20, "Generating query patterns...")
+            
+            # 生成查询模式
+            query_list = generate_sentence_patterns(query)
+            
+            update_progress(operation_id, 30, "Processing collections...")
+            
+            # 处理每个集合
+            for name in Global_collection_names:
+                context, citation_data = query_embeddings_new_new(name, query_list)
+                Global_citation_data.extend(citation_data)
+                
+                description = generate(context, query, name)
+                Global_description_list.append(description)
+            
+            update_progress(operation_id, 50, "Saving citation data...")
+            
+            # 保存引用数据
+            citation_path = f'./src/static/data/info/{Global_survey_id}/citation_data.json'
+            os.makedirs(os.path.dirname(citation_path), exist_ok=True)
+            with open(citation_path, 'w', encoding="utf-8") as outfile:
+                json.dump(Global_citation_data, outfile, indent=4, ensure_ascii=False)
+            
+            update_progress(operation_id, 60, "Updating TSV file...")
+            
+            # 更新 TSV 文件
+            file_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
+            with open(file_path, 'r', newline='', encoding='utf-8') as infile:
+                reader = csv.reader(infile, delimiter='\t')
+                rows = list(reader)
+            
+            if rows:
+                headers = rows[0]
+                headers.append('retrieval_result')
+                
+                updated_rows = [headers]
+                for row, description in zip(rows[1:], Global_description_list):
+                    row.append(description)
+                    updated_rows.append(row)
+                
+                with open(file_path, 'w', newline='', encoding='utf-8') as outfile:
+                    writer = csv.writer(outfile, delimiter='\t')
+                    writer.writerows(updated_rows)
+                
+                print('Updated file has been saved to', file_path)
+            else:
+                print('Input file is empty.')
+            
+            Global_ref_list = ref_list
+            
+            print('Categorization survey id', Global_survey_id)
+            
+            update_progress(operation_id, 70, "Performing clustering...")
+            
+            # 执行聚类
+            colors, category_label = Clustering_refs(n_clusters=Global_cluster_num)
+            Global_category_label = category_label
+            
+            update_progress(operation_id, 80, "Processing cluster results...")
+            
+            # 处理聚类结果
+            df_tmp = Global_df_selected.reset_index()
+            df_tmp['index'] = df_tmp.index
+            ref_titles = list(df_tmp.groupby(df_tmp['label'])['ref_title'].apply(list))
+            ref_indexs = list(df_tmp.groupby(df_tmp['label'])['index'].apply(list))
+            
+            # 读取主题信息
+            info = pd.read_json(f'./src/static/data/info/{Global_survey_id}/topic.json')
+            category_label = info['KeyBERT'].to_list()
+            category_label_summarized = []
+            
+            tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
+            
+            cluster_num = Global_cluster_num
+            category_label_summarized = generate_cluster_name_new(tsv_path, Global_survey_title, cluster_num)
+            Global_cluster_names = category_label_summarized
+            
+            update_progress(operation_id, 90, "Generating final results...")
+            
+            # 准备返回数据
+            cate_list = {
+                'colors': colors,
+                'category_label': category_label_summarized,
+                'survey_id': Global_survey_id,
+                'ref_titles': [[i.title() for i in j] for j in ref_titles],
+                'ref_indexs': ref_indexs
+            }
+            print(cate_list)
+            
+            # 保存聚类信息
+            cluster_info = {category_label_summarized[i]: ref_titles[i] for i in range(len(category_label_summarized))}
+            for key, value in cluster_info.items():
+                temp = [legal_pdf(i) for i in value]
+                cluster_info[key] = temp
+                Global_collection_names_clustered.append(temp)
+            
+            cluster_info_path = f'./src/static/data/info/{Global_survey_id}/cluster_info.json'
+            with open(cluster_info_path, 'w', encoding="utf-8") as outfile:
+                json.dump(cluster_info, outfile, indent=4, ensure_ascii=False)
+            
+            # 生成大纲
+            outline_generator = OutlineGenerator(Global_df_selected, Global_cluster_names)
+            outline_generator.get_cluster_info()
+            messages, outline = outline_generator.generate_outline_qwen(Global_survey_title, Global_cluster_num)
+            
+            outline_json = {'messages': messages, 'outline': outline}
+            output_path = TXT_PATH + Global_survey_id + '/outline.json'
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'w', encoding="utf-8") as outfile:
+                json.dump(outline_json, outfile, indent=4, ensure_ascii=False)
+            
+            update_progress(operation_id, 100, "Automatic taxonomy completed successfully!")
+            
+            # 返回 JSON 字符串格式，与原函数保持一致
+            cate_list_json = json.dumps(cate_list)
+            return HttpResponse(cate_list_json)
+        
+        else:
+            return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    
+    except Exception as e:
+        print(f"Error in automatic_taxonomy: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        update_progress(operation_id, -1, f"Error: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
 def save_updated_cluster_info(request):
@@ -939,99 +1455,201 @@ def get_survey(request):
     return HttpResponse(survey_dict)
     
 @csrf_exempt
-def get_survey_id(request):
-    global Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline, Global_citation_data
-    generateSurvey_qwen_new(Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_pipeline, Global_citation_data)
-    print("Global_collection_names_clustered: ")
-    for i, element in enumerate(Global_collection_names_clustered):
-        print(f"第 {i} 个元素：{element}")
-    return JsonResponse({"survey_id": Global_survey_id})
+@timeout_handler(1800)  # 30分钟超时
+def get_survey_id_sync(request):
+    """同步版本的获取调研ID函数"""
+    start_time = time.time()
+    operation_id = f"survey_{int(start_time)}"
+    update_progress(operation_id, 0, "Starting survey generation...")
+    
+    global Global_survey_id, Global_survey_title, Global_collection_names_clustered, Global_citation_data
+    
+    try:
+        update_progress(operation_id, 10, "Initializing survey generation...")
+        
+        if not Global_survey_id:
+            update_progress(operation_id, -1, "Survey ID not found")
+            return JsonResponse({"error": "Survey ID not found"}, status=400)
+        
+        if not Global_collection_names_clustered:
+            update_progress(operation_id, -1, "No clustered collections found")
+            return JsonResponse({"error": "No clustered collections found"}, status=400)
+        
+        update_progress(operation_id, 20, "Preparing survey data...")
+        
+        print("Global_collection_names_clustered: ")
+        for i, element in enumerate(Global_collection_names_clustered):
+            print(f"第 {i} 个元素：{element}")
+        
+        update_progress(operation_id, 30, "Generating survey content...")
+        
+        # 在子线程中执行survey生成，以便能够跟踪进度
+        def generate_survey_with_progress():
+            try:
+                update_progress(operation_id, 40, "Generating survey outline...")
+                
+                # 这里调用实际的survey生成函数，不再需要pipeline参数
+                generateSurvey_qwen_new(
+                    Global_survey_id, 
+                    Global_survey_title, 
+                    Global_collection_names_clustered, 
+                    None,  # pipeline参数设置为None，函数内部已经改为API调用
+                    Global_citation_data,
+                    embedder = get_embedder()
+                )
+                
+                update_progress(operation_id, 90, "Survey generation completed!")
+                return True
+                
+            except Exception as e:
+                update_progress(operation_id, -1, f"Survey generation failed: {str(e)}")
+                print(f"Error in generateSurvey_qwen_new: {e}")
+                return False
+        
+        # 执行survey生成
+        success = generate_survey_with_progress()
+        
+        if success:
+            update_progress(operation_id, 100, "Survey ready!")
+            
+            response_data = {
+                "survey_id": Global_survey_id,
+                "message": "Survey generated successfully",
+                "operation_id": operation_id,
+                "processing_time": round(time.time() - start_time, 2)
+            }
+            
+            return JsonResponse(response_data)
+        else:
+            return JsonResponse({"error": "Survey generation failed"}, status=500)
+            
+    except TimeoutError as e:
+        update_progress(operation_id, -1, f"Survey generation timed out: {str(e)}")
+        return JsonResponse({'error': f'Survey generation timed out after 30 minutes: {str(e)}'}, status=408)
+    except Exception as e:
+        update_progress(operation_id, -1, f"Survey generation failed: {str(e)}")
+        return JsonResponse({'error': f'Survey generation failed: {str(e)}'}, status=500)
 
 @csrf_exempt
-def generate_pdf(request):
+@timeout_handler(900)  # 15分钟超时
+def generate_pdf_sync(request):
     if request.method == 'POST':
+        # 获取operation_id用于进度跟踪
+        operation_id = getattr(request, 'operation_id', f"pdf_{int(time.time())}")
+        update_progress(operation_id, 10, "Starting PDF generation...")
+        
         survey_id = request.POST.get('survey_id', '')
         markdown_content = request.POST.get('content', '')
+        
+        update_progress(operation_id, 20, "Processing markdown content...")
+        
         markdown_dir = f'./src/static/data/info/{survey_id}/'
         markdown_filename = f'survey_{survey_id}_vanilla.md'
         markdown_filepath = os.path.join(markdown_dir, markdown_filename)
 
-        # 确保目标目录存在
         if not os.path.exists(markdown_dir):
             os.makedirs(markdown_dir)
             print(f"Directory '{markdown_dir}' created.")
         else:
             print(f"Directory '{markdown_dir}' already exists.")
 
-        # 保存 Markdown 内容到文件
         with open(markdown_filepath, 'w', encoding='utf-8') as markdown_file:
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
 
+        update_progress(operation_id, 40, "Finalizing survey paper...")
+        
         markdown_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
-        # 设置 Markdown 文件的保存路径1
         markdown_dir = f'./src/static/data/info/{survey_id}/'
         markdown_filename = f'survey_{survey_id}_processed.md'
         markdown_filepath = os.path.join(markdown_dir, markdown_filename)
 
-        # 确保目标目录存在1
         if not os.path.exists(markdown_dir):
             os.makedirs(markdown_dir)
             print(f"Directory '{markdown_dir}' created.")
         else:
             print(f"Directory '{markdown_dir}' already exists.")
 
-        # 保存 Markdown 内容到文件1
         with open(markdown_filepath, 'w', encoding='utf-8') as markdown_file:
             markdown_file.write(markdown_content)
         print(f"Markdown content saved to: {markdown_filepath}")
 
+        update_progress(operation_id, 60, "Generating PDF file...")
 
-
-        # 配置 PDF 文件的保存路径
         pdf_filename = f'survey_{survey_id}.pdf'
         pdf_dir = './src/static/data/results'
         pdf_filepath = os.path.join(pdf_dir, pdf_filename)
 
-        # 检查并创建 results 目录
         if not os.path.exists(pdf_dir):
             os.makedirs(pdf_dir)
             print(f"Directory '{pdf_dir}' created.")
         else:
             print(f"Directory '{pdf_dir}' already exists.")
 
-        # 打印文件保存路径信息
         print(f"PDF will be saved to: {pdf_filepath}")
 
-        # 使用 markdown_pdf 库生成 PDF
-        pdf = MarkdownPdf()
-        pdf.meta["title"] = "Survey Results"  # 设置 PDF 的元数据
-        pdf.add_section(Section(markdown_content, toc=False))  # 添加 Markdown 内容，不生成目录
-        pdf.save(pdf_filepath)  # 将 PDF 保存到文件
+        update_progress(operation_id, 80, "Converting markdown to PDF...")
 
-        # 打开文件并将其作为响应返回
-        with open(pdf_filepath, 'rb') as pdf_file:
-            response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{pdf_filename}"'
-            return response
+        pdf = MarkdownPdf()
+        pdf.meta["title"] = "Survey Results"
+        pdf.add_section(Section(markdown_content, toc=False))
+        pdf.save(pdf_filepath)
+
+        update_progress(operation_id, 100, "PDF generation completed!")
+
+        # 返回JSON格式的结果而不是二进制PDF数据
+        return JsonResponse({
+            'success': True,
+            'message': 'PDF generated successfully',
+            'survey_id': survey_id,
+            'pdf_filename': pdf_filename,
+            'pdf_path': pdf_filepath
+        })
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
-def generate_pdf_from_tex(request):
+def generate_pdf(request):
+    """异步版本的PDF生成接口，避免Cloudflare 524超时"""
+    if request.method == 'POST':
+        operation_id = f"pdf_{int(time.time())}"
+        success = task_manager.start_task(
+            operation_id,
+            generate_pdf_sync,
+            request
+        )
+        if not success:
+            return JsonResponse({'error': 'PDF generation task already running'}, status=409)
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'PDF generation started successfully. Use the operation_id to check progress.',
+            'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
+        })
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+@timeout_handler(900)  # 15分钟超时
+def generate_pdf_from_tex_sync(request):
     global Global_survey_id, Global_survey_title
     if request.method == 'POST':
-        # 添加调试信息
+        # 获取operation_id用于进度跟踪
+        operation_id = getattr(request, 'operation_id', f"latex_{int(time.time())}")
+        update_progress(operation_id, 10, "Starting LaTeX PDF generation...")
+        
         print(f"Request content type: {request.content_type}")
         print(f"Request POST data: {request.POST}")
         print(f"Request FILES: {request.FILES}")
-        
-        # 优先用 request 里的 survey_id
         survey_id = request.POST.get('survey_id', '') or Global_survey_id
+        markdown_content = request.POST.get('content', '')
         print(f"Survey ID: {survey_id}")
+        print(f"Has content: {bool(markdown_content)}")
         
         if not survey_id:
             return JsonResponse({'error': 'survey_id is missing'}, status=400)
+            
+        update_progress(operation_id, 20, "Setting up directories...")
+        
         base_dir = f'./src/static/data/info/{survey_id}'
         md_path = os.path.join(base_dir, f'survey_{survey_id}_processed.md')
         new_md_path = os.path.join(base_dir, f'survey_{survey_id}_preprocessed.md')
@@ -1039,20 +1657,42 @@ def generate_pdf_from_tex(request):
         new_tex_path = os.path.join(base_dir, 'template_with_figure.tex')
         sty_path = os.path.join(base_dir, 'acl.sty')
         pdf_dir = './src/static/data/results'
-        
         os.makedirs(base_dir, exist_ok=True)
         print(f"Directory '{base_dir}' checked or created.")
-
+        
+        update_progress(operation_id, 30, "Copying template files...")
+        
         origin_template = 'src/demo/latex_template/template.tex'
         origin_acl_sty = 'src/demo/latex_template/acl.sty'
         shutil.copy(origin_template, tex_path)
         shutil.copy(origin_acl_sty, sty_path)
-
         os.makedirs(pdf_dir, exist_ok=True)
-
+        
+        update_progress(operation_id, 40, "Processing survey content...")
+        
+        # 如果传入了content且processed.md文件不存在，则创建它
+        if markdown_content and not os.path.exists(md_path):
+            # 先保存原始内容
+            vanilla_md_path = os.path.join(base_dir, f'survey_{survey_id}_vanilla.md')
+            with open(vanilla_md_path, 'w', encoding='utf-8') as f:
+                f.write(markdown_content)
+            print(f"Vanilla markdown saved to: {vanilla_md_path}")
+            
+            # 处理并保存最终的markdown
+            processed_content = finalize_survey_paper(markdown_content, Global_collection_names, Global_file_names)
+            with open(md_path, 'w', encoding='utf-8') as f:
+                f.write(processed_content)
+            print(f"Processed markdown saved to: {md_path}")
+        elif not os.path.exists(md_path):
+            return JsonResponse({'error': f'Processed markdown file not found: {md_path}. Please generate regular PDF first or provide survey content.'}, status=400)
+        
+        update_progress(operation_id, 50, "Processing markdown content...")
+        
         preprocess_md(md_path, new_md_path)
         md_to_tex(new_md_path, tex_path, Global_survey_title)
-
+        
+        update_progress(operation_id, 70, "Inserting figures and formatting...")
+        
         insert_figures(
             png_path=f'src/static/data/info/{survey_id}/outline.png',
             tex_path= tex_path, 
@@ -1061,7 +1701,9 @@ def generate_pdf_from_tex(request):
             survey_title=Global_survey_title,
             new_tex_path=new_tex_path
         )
-
+        
+        update_progress(operation_id, 85, "Compiling LaTeX to PDF...")
+        
         tex_to_pdf(
             new_tex_path,
             output_dir=os.path.dirname(new_tex_path),
@@ -1070,16 +1712,18 @@ def generate_pdf_from_tex(request):
         pdf_path = os.path.join(os.path.dirname(new_tex_path), 'template_with_figure.pdf' )
         final_pdf_path = os.path.join(pdf_dir, f'survey_{survey_id}_latex.pdf')
         shutil.copy2(pdf_path, final_pdf_path)
-
-        try:
-            with open(final_pdf_path, 'rb') as pdf_file:
-                response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-                filename = os.path.basename(final_pdf_path)
-                response['Content-Disposition'] = f'attachment; filename="{filename}"'
-                return response
-        except Exception as e:
-            return JsonResponse({'error': f'读取 PDF 文件失败: {e}'}, status=500)
-
+        
+        update_progress(operation_id, 100, "LaTeX PDF generation completed!")
+        
+        # 返回JSON格式的结果而不是二进制PDF数据
+        return JsonResponse({
+            'success': True,
+            'message': 'LaTeX PDF generated successfully',
+            'survey_id': survey_id,
+            'pdf_filename': f'survey_{survey_id}_latex.pdf',
+            'pdf_path': final_pdf_path
+        })
+        
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def get_refs(topic):
@@ -1270,3 +1914,170 @@ def finalize_survey_paper(paper_text,
 
     final_paper = normalized_text.strip() + "\n\n" + references_section
     return final_paper
+
+# Cleanup function for Django shutdown
+def cleanup_resources():
+    """Clean up resources when Django shuts down"""
+    try:
+        cleanup_openai_client()
+        cleanup_retriever()
+        print("Successfully cleaned up resources")
+    except Exception as e:
+        print(f"Error during cleanup: {e}")
+
+# Register cleanup function for Django shutdown
+import atexit
+atexit.register(cleanup_resources)
+
+@csrf_exempt  
+def upload_refs(request):
+    """异步版本的文件上传接口，立即返回operation_id避免Cloudflare 524超时。先保存文件到磁盘，再异步处理。"""
+    if request.method == 'POST':
+        operation_id = f"upload_{int(time.time())}"
+        print(f"[DEBUG] Starting async upload task: {operation_id}")
+
+        # 1. 先将所有上传文件保存到临时目录
+        temp_dir = os.path.join('src', 'static', 'data', 'tmp_upload', operation_id)
+        os.makedirs(temp_dir, exist_ok=True)
+        file_paths = []
+        for file_key, file in request.FILES.items():
+            temp_path = os.path.join(temp_dir, file.name)
+            with open(temp_path, 'wb') as f:
+                for chunk in file.chunks():
+                    f.write(chunk)
+            file_paths.append(temp_path)
+
+        # 2. 收集POST参数
+        post_data = dict(request.POST.items())
+        # 3. 启动异步任务，传递文件路径和参数
+        def upload_refs_sync_wrapper(file_paths, post_data, operation_id):
+            # 构造一个伪request对象，兼容原有upload_refs_sync逻辑
+            class DummyRequest:
+                method = 'POST'
+                FILES = {}
+                POST = post_data
+            dummy_request = DummyRequest()
+            dummy_request.file_paths = file_paths
+            dummy_request.operation_id = operation_id
+            return upload_refs_sync(dummy_request)
+
+        success = task_manager.start_task(
+            operation_id,
+            upload_refs_sync_wrapper,
+            file_paths,
+            post_data,
+            operation_id
+        )
+        if not success:
+            print(f"[DEBUG] Task {operation_id} already running")
+            return JsonResponse({'error': 'Upload task already running'}, status=409)
+        print(f"[DEBUG] Async task {operation_id} started successfully")
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'File upload started successfully. Use the operation_id to check progress.',
+            'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
+        })
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def automatic_taxonomy(request):
+    """异步版本的自动分类接口，避免Cloudflare 524超时"""
+    if request.method == 'POST':
+        # 生成操作ID
+        operation_id = f"taxonomy_{int(time.time())}"
+        
+        # 启动异步任务
+        success = task_manager.start_task(
+            operation_id, 
+            automatic_taxonomy_sync, 
+            request
+        )
+        
+        if not success:
+            return JsonResponse({'error': 'Taxonomy task already running'}, status=409)
+        
+        # 立即返回operation_id
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'Automatic taxonomy started successfully. Use the operation_id to check progress.',
+            'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
+        })
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def get_survey_id(request):
+    """异步版本的获取调研ID接口，避免Cloudflare 524超时"""
+    if request.method == 'POST':
+        # 生成操作ID
+        operation_id = f"survey_{int(time.time())}"
+        
+        # 启动异步任务
+        success = task_manager.start_task(
+            operation_id, 
+            get_survey_id_sync, 
+            request
+        )
+        
+        if not success:
+            return JsonResponse({'error': 'Survey generation task already running'}, status=409)
+        
+        # 立即返回operation_id
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'Survey generation started successfully. Use the operation_id to check progress.',
+            'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
+        })
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def generate_pdf_from_tex(request):
+    """异步版本的LaTeX PDF生成接口，避免Cloudflare 524超时"""
+    if request.method == 'POST':
+        operation_id = f"latex_{int(time.time())}"
+        success = task_manager.start_task(
+            operation_id,
+            generate_pdf_from_tex_sync,
+            request
+        )
+        if not success:
+            return JsonResponse({'error': 'LaTeX PDF generation task already running'}, status=409)
+        return JsonResponse({
+            'operation_id': operation_id,
+            'status': 'started',
+            'message': 'LaTeX PDF generation started successfully. Use the operation_id to check progress.',
+            'progress_url': f'/get_operation_progress/?operation_id={operation_id}'
+        })
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+# @csrf_exempt
+# def test_async_simple(request):
+#     """简单的异步测试函数，用于验证异步机制"""
+#     if request.method == 'POST':
+#         operation_id = f"test_{int(time.time())}"
+#         
+#         def simple_task(request):
+#             """简单的测试任务"""
+#             update_progress(operation_id, 10, "Starting test task...")
+#             time.sleep(2)
+#             update_progress(operation_id, 50, "Task half way...")
+#             time.sleep(2)
+#             update_progress(operation_id, 100, "Test task completed!")
+#             return JsonResponse({'message': 'Test completed successfully', 'test_id': operation_id})
+#         
+#         success = task_manager.start_task(operation_id, simple_task, request)
+#         
+#         if not success:
+#             return JsonResponse({'error': 'Test task already running'}, status=409)
+#         
+#         return JsonResponse({
+#             'operation_id': operation_id,
+#             'status': 'started',
+#             'message': 'Test task started successfully.'
+#         })
+#     
+#     return JsonResponse({'error': 'Invalid request method'}, status=405)

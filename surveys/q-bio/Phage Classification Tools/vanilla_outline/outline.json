@@ -1,0 +1,142 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Background on Phages"
+  ],
+  [
+    2,
+    "1.2 Importance of Phage Classification"
+  ],
+  [
+    2,
+    "1.3 Objectives of the Survey"
+  ],
+  [
+    1,
+    "2 Literature Review Framework"
+  ],
+  [
+    2,
+    "2.1 Scope and Selection Criteria"
+  ],
+  [
+    2,
+    "2.2 Organization of the Survey"
+  ],
+  [
+    1,
+    "3 Biological Context of Phage Classification"
+  ],
+  [
+    2,
+    "3.1 Taxonomy and Phylogeny of Phages"
+  ],
+  [
+    2,
+    "3.2 Challenges in Phage Classification"
+  ],
+  [
+    2,
+    "3.3 Role of Genomic Data in Classification"
+  ],
+  [
+    1,
+    "4 Computational Tools for Phage Classification"
+  ],
+  [
+    2,
+    "4.1 Sequence-Based Classification Tools"
+  ],
+  [
+    3,
+    "4.1.1 Alignment-Based Methods"
+  ],
+  [
+    3,
+    "4.1.2 Machine Learning Approaches"
+  ],
+  [
+    2,
+    "4.2 Feature-Based Classification Tools"
+  ],
+  [
+    3,
+    "4.2.1 K-mer Frequency Analysis"
+  ],
+  [
+    3,
+    "4.2.2 Functional Annotation Techniques"
+  ],
+  [
+    2,
+    "4.3 Hybrid and Ensemble Methods"
+  ],
+  [
+    3,
+    "4.3.1 Integration of Multiple Features"
+  ],
+  [
+    3,
+    "4.3.2 Performance Evaluation of Hybrid Models"
+  ],
+  [
+    1,
+    "5 Comparative Analysis of Tools"
+  ],
+  [
+    2,
+    "5.1 Accuracy and Sensitivity Metrics"
+  ],
+  [
+    2,
+    "5.2 Computational Efficiency"
+  ],
+  [
+    2,
+    "5.3 Usability and Accessibility"
+  ],
+  [
+    1,
+    "6 Emerging Trends and Technologies"
+  ],
+  [
+    2,
+    "6.1 Deep Learning in Phage Classification"
+  ],
+  [
+    2,
+    "6.2 Metagenomic Data Analysis"
+  ],
+  [
+    2,
+    "6.3 Cloud-Based Solutions"
+  ],
+  [
+    1,
+    "7 Discussion"
+  ],
+  [
+    2,
+    "7.1 Strengths and Limitations of Current Tools"
+  ],
+  [
+    2,
+    "7.2 Gaps in Research and Future Directions"
+  ],
+  [
+    1,
+    "8 Conclusion"
+  ],
+  [
+    2,
+    "8.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "8.2 Implications for Biotechnology and Medicine"
+  ]
+]

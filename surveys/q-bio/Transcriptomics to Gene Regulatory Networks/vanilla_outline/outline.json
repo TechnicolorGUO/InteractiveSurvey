@@ -1,0 +1,178 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Overview of Transcriptomics"
+  ],
+  [
+    3,
+    "1.1.1 Definition and Importance"
+  ],
+  [
+    2,
+    "1.2 Gene Regulatory Networks (GRNs)"
+  ],
+  [
+    3,
+    "1.2.1 Role in Biological Systems"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Fundamentals of Transcriptomics"
+  ],
+  [
+    3,
+    "2.1.1 RNA Sequencing Technologies"
+  ],
+  [
+    3,
+    "2.1.2 Data Preprocessing Techniques"
+  ],
+  [
+    2,
+    "2.2 Basics of GRNs"
+  ],
+  [
+    3,
+    "2.2.1 Network Components"
+  ],
+  [
+    3,
+    "2.2.2 Inference Challenges"
+  ],
+  [
+    1,
+    "3 Methods for Inferring GRNs from Transcriptomics Data"
+  ],
+  [
+    2,
+    "3.1 Statistical Approaches"
+  ],
+  [
+    3,
+    "3.1.1 Correlation-Based Methods"
+  ],
+  [
+    3,
+    "3.1.2 Bayesian Networks"
+  ],
+  [
+    2,
+    "3.2 Machine Learning Techniques"
+  ],
+  [
+    3,
+    "3.2.1 Supervised Learning Models"
+  ],
+  [
+    3,
+    "3.2.2 Unsupervised Learning Models"
+  ],
+  [
+    2,
+    "3.3 Hybrid Methods"
+  ],
+  [
+    3,
+    "3.3.1 Integrating Prior Knowledge"
+  ],
+  [
+    3,
+    "3.3.2 Multi-Omics Data Fusion"
+  ],
+  [
+    1,
+    "4 Applications and Case Studies"
+  ],
+  [
+    2,
+    "4.1 Disease Mechanisms"
+  ],
+  [
+    3,
+    "4.1.1 Cancer GRNs"
+  ],
+  [
+    3,
+    "4.1.2 Neurological Disorders"
+  ],
+  [
+    2,
+    "4.2 Developmental Biology"
+  ],
+  [
+    3,
+    "4.2.1 Embryogenesis"
+  ],
+  [
+    3,
+    "4.2.2 Stem Cell Differentiation"
+  ],
+  [
+    1,
+    "5 Limitations and Challenges"
+  ],
+  [
+    2,
+    "5.1 Technical Limitations"
+  ],
+  [
+    3,
+    "5.1.1 Noise in Transcriptomics Data"
+  ],
+  [
+    3,
+    "5.1.2 Scalability Issues"
+  ],
+  [
+    2,
+    "5.2 Biological Challenges"
+  ],
+  [
+    3,
+    "5.2.1 Context-Specific Regulation"
+  ],
+  [
+    3,
+    "5.2.2 Dynamic Nature of GRNs"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Current Trends"
+  ],
+  [
+    3,
+    "6.1.1 Deep Learning in GRN Inference"
+  ],
+  [
+    3,
+    "6.1.2 Single-Cell Transcriptomics"
+  ],
+  [
+    2,
+    "6.2 Future Directions"
+  ],
+  [
+    3,
+    "6.2.1 Temporal Dynamics Modeling"
+  ],
+  [
+    3,
+    "6.2.2 Integration with Epigenomics"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ]
+]

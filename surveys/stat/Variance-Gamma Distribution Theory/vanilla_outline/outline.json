@@ -1,0 +1,174 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Overview of Variance-Gamma Distribution"
+  ],
+  [
+    2,
+    "1.2 Importance and Applications"
+  ],
+  [
+    2,
+    "1.3 Objectives of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Historical Development of the Variance-Gamma Model"
+  ],
+  [
+    2,
+    "2.2 Key Mathematical Foundations"
+  ],
+  [
+    3,
+    "2.2.1 Gamma Distribution Basics"
+  ],
+  [
+    3,
+    "2.2.2 Brownian Motion and Its Role"
+  ],
+  [
+    3,
+    "2.2.3 Subordination Theory"
+  ],
+  [
+    1,
+    "3 Core Concepts in Variance-Gamma Distribution Theory"
+  ],
+  [
+    2,
+    "3.1 Definition and Properties"
+  ],
+  [
+    3,
+    "3.1.1 Probability Density Function"
+  ],
+  [
+    3,
+    "3.1.2 Moments and Cumulants"
+  ],
+  [
+    3,
+    "3.1.3 Characteristic Function"
+  ],
+  [
+    2,
+    "3.2 Parameter Estimation Techniques"
+  ],
+  [
+    3,
+    "3.2.1 Maximum Likelihood Estimation"
+  ],
+  [
+    3,
+    "3.2.2 Method of Moments"
+  ],
+  [
+    3,
+    "3.2.3 Bayesian Approaches"
+  ],
+  [
+    2,
+    "3.3 Extensions and Generalizations"
+  ],
+  [
+    3,
+    "3.3.1 Multivariate Variance-Gamma Distributions"
+  ],
+  [
+    3,
+    "3.3.2 Truncated Variance-Gamma Models"
+  ],
+  [
+    1,
+    "4 Applications of Variance-Gamma Distribution"
+  ],
+  [
+    2,
+    "4.1 Financial Modeling"
+  ],
+  [
+    3,
+    "4.1.1 Asset Pricing and Option Valuation"
+  ],
+  [
+    3,
+    "4.1.2 Risk Management and Portfolio Optimization"
+  ],
+  [
+    2,
+    "4.2 Statistical Inference and Data Analysis"
+  ],
+  [
+    3,
+    "4.2.1 Fitting Real-World Data Sets"
+  ],
+  [
+    3,
+    "4.2.2 Hypothesis Testing Frameworks"
+  ],
+  [
+    2,
+    "4.3 Other Fields"
+  ],
+  [
+    3,
+    "4.3.1 Physics and Engineering"
+  ],
+  [
+    3,
+    "4.3.2 Environmental Sciences"
+  ],
+  [
+    1,
+    "5 Comparative Analysis with Related Distributions"
+  ],
+  [
+    2,
+    "5.1 Normal Distribution"
+  ],
+  [
+    3,
+    "5.1.1 Similarities and Differences"
+  ],
+  [
+    3,
+    "5.1.2 Use Cases for Each"
+  ],
+  [
+    2,
+    "5.2 Student's t-Distribution"
+  ],
+  [
+    3,
+    "5.2.1 Tail Behavior Comparison"
+  ],
+  [
+    3,
+    "5.2.2 Practical Implications"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Limitations of Variance-Gamma Models"
+  ],
+  [
+    2,
+    "6.2 Future Research Directions"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ]
+]

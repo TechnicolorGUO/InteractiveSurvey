@@ -1,0 +1,186 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation and Importance of Hydrogen Trapping and Embrittlement"
+  ],
+  [
+    2,
+    "1.2 Scope and Objectives of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Fundamentals of Hydrogen in Metals"
+  ],
+  [
+    3,
+    "2.1.1 Hydrogen Diffusion Mechanisms"
+  ],
+  [
+    3,
+    "2.1.2 Hydrogen Solubility in Metal Lattices"
+  ],
+  [
+    2,
+    "2.2 Mechanisms of Hydrogen Embrittlement"
+  ],
+  [
+    3,
+    "2.2.1 Internal Stress Theory"
+  ],
+  [
+    3,
+    "2.2.2 Decohesion Model"
+  ],
+  [
+    3,
+    "2.2.3 Hydride Formation"
+  ],
+  [
+    1,
+    "3 Hydrogen Trapping Phenomena"
+  ],
+  [
+    2,
+    "3.1 Types of Trapping Sites in Metals"
+  ],
+  [
+    3,
+    "3.1.1 Vacancies and Dislocations"
+  ],
+  [
+    3,
+    "3.1.2 Grain Boundaries and Interfaces"
+  ],
+  [
+    3,
+    "3.1.3 Precipitates and Inclusions"
+  ],
+  [
+    2,
+    "3.2 Factors Influencing Trapping Efficiency"
+  ],
+  [
+    3,
+    "3.2.1 Temperature and Pressure Effects"
+  ],
+  [
+    3,
+    "3.2.2 Alloy Composition and Microstructure"
+  ],
+  [
+    1,
+    "4 Experimental Techniques for Studying Hydrogen Trapping and Embrittlement"
+  ],
+  [
+    2,
+    "4.1 Hydrogen Content Measurement"
+  ],
+  [
+    3,
+    "4.1.1 Thermal Desorption Spectroscopy (TDS)"
+  ],
+  [
+    3,
+    "4.1.2 Elastic Recoil Detection Analysis (ERDA)"
+  ],
+  [
+    2,
+    "4.2 Mechanical Testing Methods"
+  ],
+  [
+    3,
+    "4.2.1 Slow Strain Rate Testing (SSRT)"
+  ],
+  [
+    3,
+    "4.2.2 Notched Bar Tests"
+  ],
+  [
+    1,
+    "5 Computational Modeling and Simulation"
+  ],
+  [
+    2,
+    "5.1 Atomistic Simulations"
+  ],
+  [
+    3,
+    "5.1.1 Molecular Dynamics (MD)"
+  ],
+  [
+    3,
+    "5.1.2 Density Functional Theory (DFT)"
+  ],
+  [
+    2,
+    "5.2 Continuum Models"
+  ],
+  [
+    3,
+    "5.2.1 Finite Element Analysis (FEA)"
+  ],
+  [
+    3,
+    "5.2.2 Phase Field Modeling"
+  ],
+  [
+    1,
+    "6 Case Studies and Applications"
+  ],
+  [
+    2,
+    "6.1 Hydrogen Embrittlement in Steel Alloys"
+  ],
+  [
+    3,
+    "6.1.1 High-Strength Low-Alloy (HSLA) Steels"
+  ],
+  [
+    3,
+    "6.1.2 Stainless Steels"
+  ],
+  [
+    2,
+    "6.2 Embrittlement in Non-Ferrous Metals"
+  ],
+  [
+    3,
+    "6.2.1 Titanium Alloys"
+  ],
+  [
+    3,
+    "6.2.2 Aluminum Alloys"
+  ],
+  [
+    1,
+    "7 Discussion"
+  ],
+  [
+    2,
+    "7.1 Challenges in Mitigating Hydrogen Embrittlement"
+  ],
+  [
+    2,
+    "7.2 Current Research Gaps and Future Directions"
+  ],
+  [
+    1,
+    "8 Conclusion"
+  ],
+  [
+    2,
+    "8.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "8.2 Implications for Industry and Academia"
+  ]
+]

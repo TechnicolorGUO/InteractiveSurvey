@@ -1,1 +1,62 @@
-{}
+{
+  "Large Language Models in Finance": [
+    {
+      "title": "Large Language Models in Finance: A Survey",
+      "arxiv_id": "2311.10723"
+    }
+  ],
+  "Financial Applications of Large Language Models": [
+    {
+      "title": "A Survey of Large Language Models for Financial Applications: Progress, Prospects and Challenges",
+      "arxiv_id": "2406.11903"
+    }
+  ],
+  "Deep Learning Techniques for Stock Market Prediction": [
+    {
+      "title": "Stock Market Prediction via Deep Learning Techniques: A Survey",
+      "arxiv_id": "2212.12717"
+    }
+  ],
+  "Environmental Impacts of Virgin Aggregates": [
+    {
+      "title": "Understanding the environmental impacts of virgin aggregates: critical literature review and primary comprehensive Life Cycle Assessments",
+      "arxiv_id": "2501.10457"
+    }
+  ],
+  "Yield Farming Protocols in Blockchain": [
+    {
+      "title": "Reap the Harvest on Blockchain: A Survey of Yield Farming Protocols",
+      "arxiv_id": "2210.04194"
+    }
+  ],
+  "Economic Expectations of Generative AI": [
+    {
+      "title": "Surveying Generative AI's Economic Expectations",
+      "arxiv_id": "2305.02823"
+    }
+  ],
+  "ChatGPT Research in Accounting and Finance": [
+    {
+      "title": "A Scoping Review of ChatGPT Research in Accounting and Finance",
+      "arxiv_id": "2412.05731"
+    }
+  ],
+  "Quantum Computing Applications in Finance": [
+    {
+      "title": "From Portfolio Optimization to Quantum Blockchain and Security: A Systematic Review of Quantum Computing in Finance",
+      "arxiv_id": "2307.01155"
+    }
+  ],
+  "Continuous Volatility Modeling": [
+    {
+      "title": "From constant to rough: A survey of continuous volatility modeling",
+      "arxiv_id": "2309.01033"
+    }
+  ],
+  "High-Value Datasets for Data-Driven Development": [
+    {
+      "title": "Towards High-Value Datasets determination for data-driven development: a systematic literature review",
+      "arxiv_id": "2305.10234"
+    }
+  ]
+}

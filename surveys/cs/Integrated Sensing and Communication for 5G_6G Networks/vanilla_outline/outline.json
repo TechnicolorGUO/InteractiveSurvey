@@ -1,0 +1,150 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Structure of the Survey"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Evolution of 5G and 6G Networks"
+  ],
+  [
+    2,
+    "2.2 Fundamentals of Integrated Sensing and Communication (ISAC)"
+  ],
+  [
+    2,
+    "2.3 Key Challenges in ISAC"
+  ],
+  [
+    1,
+    "3 Related Work"
+  ],
+  [
+    2,
+    "3.1 Early Approaches to ISAC"
+  ],
+  [
+    2,
+    "3.2 Recent Developments in ISAC for 5G/6G"
+  ],
+  [
+    2,
+    "3.3 Comparative Analysis of ISAC Techniques"
+  ],
+  [
+    1,
+    "4 Main Content"
+  ],
+  [
+    2,
+    "4.1 Architectures for ISAC Systems"
+  ],
+  [
+    3,
+    "4.1.1 Coexistence of Sensing and Communication"
+  ],
+  [
+    3,
+    "4.1.2 Joint Design Approaches"
+  ],
+  [
+    3,
+    "4.1.3 Hardware Implementations"
+  ],
+  [
+    2,
+    "4.2 Signal Processing Techniques"
+  ],
+  [
+    3,
+    "4.2.1 Sensing Signal Design"
+  ],
+  [
+    3,
+    "4.2.2 Interference Management"
+  ],
+  [
+    3,
+    "4.2.3 Data Fusion Methods"
+  ],
+  [
+    2,
+    "4.3 Applications of ISAC"
+  ],
+  [
+    3,
+    "4.3.1 Automotive Radar and V2X Communications"
+  ],
+  [
+    3,
+    "4.3.2 Smart Cities and IoT"
+  ],
+  [
+    3,
+    "4.3.3 Public Safety and Surveillance"
+  ],
+  [
+    2,
+    "4.4 Performance Metrics and Evaluation"
+  ],
+  [
+    3,
+    "4.4.1 Sensing Accuracy and Resolution"
+  ],
+  [
+    3,
+    "4.4.2 Communication Reliability and Efficiency"
+  ],
+  [
+    3,
+    "4.4.3 Trade-offs and Optimization"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Current Limitations and Open Issues"
+  ],
+  [
+    2,
+    "5.2 Future Research Directions"
+  ],
+  [
+    2,
+    "5.3 Standardization and Policy Implications"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Findings"
+  ],
+  [
+    2,
+    "6.2 Impact on 5G/6G Development"
+  ],
+  [
+    2,
+    "6.3 Final Remarks"
+  ]
+]

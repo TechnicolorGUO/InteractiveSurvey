@@ -26,6 +26,10 @@
 ## 📰 News  
 <table>
   <tr>
+    <td style="white-space: nowrap;"><strong>2025/7/8</strong></td>
+    <td>🚀 Our <strong>InteractiveSurvey demo is now officially online!</strong> Experience the power of AI-driven survey paper generation with our interactive web platform. Try it now! 🌟</td>
+  </tr>
+  <tr>
     <td style="white-space: nowrap;"><strong>2025/4/15</strong></td>
     <td>The paper <strong><a href="https://arxiv.org/abs/2504.08762">InteractiveSurvey: An LLM-based Personalized and Interactive Survey Paper Generation System</a></strong> is now released! 🎉✨</td>
   </tr>
@@ -140,7 +144,7 @@ Replace the placeholders with your actual OpenAI API key, API base URL, and pref
 If you have GPU support, you can build and run the GPU version of the Docker container using the following commands:
 ```bash
 # Build the Docker image
-docker build -t interactivesurvey.
+docker build -t interactivesurvey .
 
 # Run the Docker container (with GPU support)
 docker run --gpus all -p 8001:8001 interactivesurvey
@@ -205,7 +209,7 @@ if __name__ == "__main__":
 ```
 
 ## Contact
-If youhave any enquiries, please email [guobeichen0228@gmail.com](guobeichen0228@gmail.com)
+If you have any enquiries, please email [guobeichen0228@gmail.com](guobeichen0228@gmail.com)
 
 ## License
 

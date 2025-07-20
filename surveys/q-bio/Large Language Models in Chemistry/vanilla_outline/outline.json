@@ -1,0 +1,174 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives"
+  ],
+  [
+    2,
+    "1.3 Scope and Structure"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Large Language Models (LLMs) Overview"
+  ],
+  [
+    3,
+    "2.1.1 Architectures and Training Paradigms"
+  ],
+  [
+    3,
+    "2.1.2 Applications of LLMs in General Domains"
+  ],
+  [
+    2,
+    "2.2 Chemistry Fundamentals for LLMs"
+  ],
+  [
+    3,
+    "2.2.1 Chemical Data Representation"
+  ],
+  [
+    3,
+    "2.2.2 Challenges in Applying AI to Chemistry"
+  ],
+  [
+    1,
+    "3 Literature Review"
+  ],
+  [
+    2,
+    "3.1 Development of Chemistry-Specific LLMs"
+  ],
+  [
+    3,
+    "3.1.1 Pretraining Strategies on Chemical Corpora"
+  ],
+  [
+    3,
+    "3.1.2 Fine-Tuning for Domain-Specific Tasks"
+  ],
+  [
+    2,
+    "3.2 Applications of LLMs in Chemistry"
+  ],
+  [
+    3,
+    "3.2.1 Molecular Property Prediction"
+  ],
+  [
+    3,
+    "3.2.2 Reaction Prediction and Synthesis Planning"
+  ],
+  [
+    3,
+    "3.2.3 Natural Language Interfaces for Chemical Databases"
+  ],
+  [
+    2,
+    "3.3 Evaluation Metrics and Benchmarks"
+  ],
+  [
+    3,
+    "3.3.1 Common Datasets in Cheminformatics"
+  ],
+  [
+    3,
+    "3.3.2 Performance Assessment of LLMs in Chemistry"
+  ],
+  [
+    1,
+    "4 Challenges and Limitations"
+  ],
+  [
+    2,
+    "4.1 Data Scarcity and Quality Issues"
+  ],
+  [
+    3,
+    "4.1.1 Limited Availability of Annotated Chemical Data"
+  ],
+  [
+    3,
+    "4.1.2 Noise in Chemical Textual Data"
+  ],
+  [
+    2,
+    "4.2 Transferability Across Domains"
+  ],
+  [
+    3,
+    "4.2.1 Adapting General LLMs to Chemistry"
+  ],
+  [
+    3,
+    "4.2.2 Domain Gaps Between General and Specialized Models"
+  ],
+  [
+    2,
+    "4.3 Ethical and Safety Concerns"
+  ],
+  [
+    3,
+    "4.3.1 Misuse Potential in Chemical Research"
+  ],
+  [
+    3,
+    "4.3.2 Transparency and Explainability in Model Outputs"
+  ],
+  [
+    1,
+    "5 Discussion"
+  ],
+  [
+    2,
+    "5.1 Current Trends in LLMs for Chemistry"
+  ],
+  [
+    3,
+    "5.1.1 Integration with Experimental Workflows"
+  ],
+  [
+    3,
+    "5.1.2 Multi-Modal Approaches Combining Text and Structures"
+  ],
+  [
+    2,
+    "5.2 Future Directions"
+  ],
+  [
+    3,
+    "5.2.1 Advancing Pretraining Techniques"
+  ],
+  [
+    3,
+    "5.2.2 Expanding to Interdisciplinary Applications"
+  ],
+  [
+    1,
+    "6 Conclusion"
+  ],
+  [
+    2,
+    "6.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "6.2 Implications for the Field"
+  ],
+  [
+    2,
+    "6.3 Final Remarks"
+  ]
+]

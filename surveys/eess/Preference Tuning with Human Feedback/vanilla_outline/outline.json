@@ -1,0 +1,214 @@
+[
+  [
+    1,
+    "1 Introduction"
+  ],
+  [
+    2,
+    "1.1 Motivation"
+  ],
+  [
+    2,
+    "1.2 Objectives of the Survey"
+  ],
+  [
+    2,
+    "1.3 Structure of the Paper"
+  ],
+  [
+    1,
+    "2 Background"
+  ],
+  [
+    2,
+    "2.1 Reinforcement Learning Fundamentals"
+  ],
+  [
+    3,
+    "2.1.1 Markov Decision Processes"
+  ],
+  [
+    3,
+    "2.1.2 Policy Optimization"
+  ],
+  [
+    2,
+    "2.2 Human Feedback in Machine Learning"
+  ],
+  [
+    3,
+    "2.2.1 Types of Human Feedback"
+  ],
+  [
+    3,
+    "2.2.2 Challenges in Incorporating Feedback"
+  ],
+  [
+    1,
+    "3 Preference Tuning with Human Feedback"
+  ],
+  [
+    2,
+    "3.1 Overview of Preference-Based RL"
+  ],
+  [
+    3,
+    "3.1.1 Definition and Importance"
+  ],
+  [
+    3,
+    "3.1.2 Comparison to Traditional Reward Functions"
+  ],
+  [
+    2,
+    "3.2 Methods for Collecting Preferences"
+  ],
+  [
+    3,
+    "3.2.1 Pairwise Comparisons"
+  ],
+  [
+    3,
+    "3.2.2 Ranking Systems"
+  ],
+  [
+    3,
+    "3.2.3 Active Learning Techniques"
+  ],
+  [
+    2,
+    "3.3 Algorithms for Preference Tuning"
+  ],
+  [
+    3,
+    "3.3.1 Inverse Reinforcement Learning (IRL) Approaches"
+  ],
+  [
+    3,
+    "3.3.2 Deep Reinforcement Learning with Preferences"
+  ],
+  [
+    3,
+    "3.3.3 Hybrid Models Combining Preferences and Rewards"
+  ],
+  [
+    1,
+    "4 Applications of Preference Tuning"
+  ],
+  [
+    2,
+    "4.1 Robotics"
+  ],
+  [
+    3,
+    "4.1.1 Autonomous Navigation"
+  ],
+  [
+    3,
+    "4.1.2 Manipulation Tasks"
+  ],
+  [
+    2,
+    "4.2 Natural Language Processing"
+  ],
+  [
+    3,
+    "4.2.1 Text Generation"
+  ],
+  [
+    3,
+    "4.2.2 Dialogue Systems"
+  ],
+  [
+    2,
+    "4.3 Game Playing"
+  ],
+  [
+    3,
+    "4.3.1 Strategy Games"
+  ],
+  [
+    3,
+    "4.3.2 Simulation Environments"
+  ],
+  [
+    1,
+    "5 Challenges and Limitations"
+  ],
+  [
+    2,
+    "5.1 Data Collection Issues"
+  ],
+  [
+    3,
+    "5.1.1 Scalability of Human Feedback"
+  ],
+  [
+    3,
+    "5.1.2 Bias in Preferences"
+  ],
+  [
+    2,
+    "5.2 Algorithmic Constraints"
+  ],
+  [
+    3,
+    "5.2.1 Computational Complexity"
+  ],
+  [
+    3,
+    "5.2.2 Convergence Problems"
+  ],
+  [
+    2,
+    "5.3 Ethical Considerations"
+  ],
+  [
+    3,
+    "5.3.1 Privacy Concerns"
+  ],
+  [
+    3,
+    "5.3.2 Fairness in Feedback Mechanisms"
+  ],
+  [
+    1,
+    "6 Discussion"
+  ],
+  [
+    2,
+    "6.1 Current Trends"
+  ],
+  [
+    3,
+    "6.1.1 Integration with Multi-Modal Feedback"
+  ],
+  [
+    3,
+    "6.1.2 Advances in Transfer Learning"
+  ],
+  [
+    2,
+    "6.2 Future Directions"
+  ],
+  [
+    3,
+    "6.2.1 Automating Feedback Collection"
+  ],
+  [
+    3,
+    "6.2.2 Expanding to Complex Domains"
+  ],
+  [
+    1,
+    "7 Conclusion"
+  ],
+  [
+    2,
+    "7.1 Summary of Key Findings"
+  ],
+  [
+    2,
+    "7.2 Implications for Research and Practice"
+  ]
+]
