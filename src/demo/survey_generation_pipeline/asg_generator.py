@@ -36,7 +36,7 @@ def generateResponse(client, prompt, max_retries=3, retry_delay=2):
         try:
             chat_response = client.chat.completions.create(
                 model=os.environ.get("MODEL"),
-                max_tokens=768,
+                max_tokens=32768,
                 temperature=0.5,
                 stop="<|im_end|>",
                 stream=True,

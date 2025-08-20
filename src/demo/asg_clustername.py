@@ -40,7 +40,7 @@ The description list is:{sentence_list}'''
         
         chat_response = client.chat.completions.create(
             model=os.environ.get("MODEL"),
-            max_tokens=768,
+            max_tokens=32768,
             temperature=0.5,
             stop="<|im_end|>",
             stream=True,
@@ -103,7 +103,7 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
     try:
         chat_response = client.chat.completions.create(
             model=os.environ.get("MODEL"),
-            max_tokens=256,
+            max_tokens=32768,
             temperature=0.5,
             stop="<|im_end|>",
             stream=True,
@@ -184,7 +184,7 @@ def generate_cluster_name_new(tsv_path, survey_title, cluster_num = 3):
     
     chat_response = client.chat.completions.create(
         model=os.environ.get("MODEL"),
-        max_tokens=768,
+        max_tokens=32768,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,

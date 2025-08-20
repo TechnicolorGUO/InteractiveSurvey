@@ -31,7 +31,7 @@ Please generate a comprehensive survey abstract for this topic. Include discussi
     
     abstract_response = client.chat.completions.create(
         model=os.environ.get("MODEL"),
-        max_tokens=2048,
+        max_tokens=32768,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
@@ -93,7 +93,7 @@ def generate_entity_lists_qwen(topic, abstract_text):
     
     entity_response = client.chat.completions.create(
         model=os.environ.get("MODEL"),
-        max_tokens=2048,
+        max_tokens=32768,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
@@ -210,7 +210,7 @@ def generate_query_qwen(topic):
     
     response = client.chat.completions.create(
         model=os.environ.get("MODEL"),
-        max_tokens=512,
+        max_tokens=32768,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
@@ -303,7 +303,7 @@ def generate_generic_query_qwen(original_query, topic):
     
     response = client.chat.completions.create(
         model=os.environ.get("MODEL"),
-        max_tokens=512,
+        max_tokens=32768,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
