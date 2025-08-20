@@ -3,6 +3,14 @@ from openai import OpenAI
 from datetime import datetime, timedelta
 import re
 
+def _strip_think_blocks(text):
+    """Remove <think>...</think> or <thinking>...</thinking> blocks from model outputs."""
+    if not text:
+        return text
+    cleaned = re.sub(r'<\s*think\s*>[\s\S]*?<\s*/\s*think\s*>', '', text, flags=re.IGNORECASE)
+    cleaned = re.sub(r'<\s*thinking\s*>[\s\S]*?<\s*/\s*thinking\s*>', '', cleaned, flags=re.IGNORECASE)
+    return cleaned.strip()
+
 def generate_abstract_qwen(topic):
     
     # Initialize the OpenAI client using environment variables
@@ -42,7 +50,7 @@ Please generate a comprehensive survey abstract for this topic. Include discussi
     for chunk in abstract_response:
         if chunk.choices[0].delta.content:
             abstract_text += chunk.choices[0].delta.content
-    abstract_text = abstract_text.strip()
+    abstract_text = _strip_think_blocks(abstract_text)
     # print("The abstract is:", abstract_text)
 
     return abstract_text
@@ -104,7 +112,7 @@ def generate_entity_lists_qwen(topic, abstract_text):
     for chunk in entity_response:
         if chunk.choices[0].delta.content:
             entity_list += chunk.choices[0].delta.content
-    entity_list = entity_list.strip()
+    entity_list = _strip_think_blocks(entity_list)
     # print("The entity lists are:", entity_list)
 
     return entity_list
@@ -221,6 +229,7 @@ def generate_query_qwen(topic):
     for chunk in response:
         if chunk.choices[0].delta.content:
             output_query += chunk.choices[0].delta.content
+    output_query = _strip_think_blocks(output_query)
     match = re.search(r'\(.*\)', output_query, re.DOTALL)
 
     if match:
@@ -314,7 +323,7 @@ def generate_generic_query_qwen(original_query, topic):
     for chunk in response:
         if chunk.choices[0].delta.content:
             output_query += chunk.choices[0].delta.content
-            
+    output_query = _strip_think_blocks(output_query)
     # Use regex to extract the new simplified query in the exact required format
     match = re.search(r'\(.*\)', output_query, re.DOTALL)
     if match:
