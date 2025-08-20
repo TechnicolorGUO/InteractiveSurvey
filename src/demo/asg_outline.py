@@ -284,8 +284,44 @@ class OutlineGenerator():
         # print('The response is :', text)
         pattern = r'\[(.*)\]'
         match = re.search(pattern, text, re.DOTALL)  # re.DOTALL 允许 . 匹配换行符
-        text = match.group(1)
-        clean_text = re.sub(r'\s+', ' ', text).strip()
+        if match:
+            text = match.group(1)
+            clean_text = re.sub(r'\s+', ' ', text).strip()
+        else:
+            clean_text = text.strip()
+        
+        # 确保包含必要的部分：Abstract, Future Directions, Conclusion
+        # 解析现有的outline
+        outline_items = []
+        if clean_text:
+            # 使用正则表达式提取所有的列表项
+            pattern = r'\[\s*(\d+)\s*,\s*[\'"]([^\'"]*)[\'"]\s*\]'
+            matches = re.findall(pattern, clean_text)
+            for match in matches:
+                level = int(match[0])
+                title = match[1]
+                outline_items.append([level, title])
+        
+        # 检查是否包含必要的部分，如果没有则添加
+        has_abstract = any('abstract' in item[1].lower() for item in outline_items)
+        has_future_directions = any('future' in item[1].lower() for item in outline_items)
+        has_conclusion = any('conclusion' in item[1].lower() for item in outline_items)
+        
+        # 如果没有Abstract，在开头添加
+        if not has_abstract:
+            outline_items.insert(0, [1, '1 Abstract'])
+        
+        # 如果没有Future Directions，在结尾添加
+        if not has_future_directions:
+            outline_items.append([1, f'{len(outline_items)+1} Future Directions'])
+        
+        # 如果没有Conclusion，在结尾添加
+        if not has_conclusion:
+            outline_items.append([1, f'{len(outline_items)+1} Conclusion'])
+        
+        # 重新构建outline字符串
+        clean_text = str(outline_items)
+        
         return messages, clean_text
 
 def parseOutline(survey_id, info_path = './src/static/data/txt'):
@@ -592,16 +628,27 @@ def insert_section(content, section_header, section_content):
     section_header: 标题名称，例如 "Abstract" 或 "Conclusion"
     section_content: 要插入的内容（字符串）
     """
-    # 修改正则表达式，使得数字后的点是可选的
-    pattern = re.compile(
-        r'(^#\s+\d+\.?\s+' + re.escape(section_header) + r'\s*$)',
-        re.MULTILINE | re.IGNORECASE
-    )
-    replacement = r'\1\n\n' + section_content + '\n'
-    new_content, count = pattern.subn(replacement, content)
-    if count == 0:
-        print(f"警告: 未找到标题 '{section_header}'。无法插入内容。")
-    return new_content
+    # 尝试多种标题格式
+    patterns = [
+        # Markdown格式: # 1 Abstract
+        re.compile(r'(^#\s+\d+\.?\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
+        # 纯文本格式: 1 Abstract
+        re.compile(r'(^\d+\.?\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
+        # 纯标题格式: Abstract
+        re.compile(r'(^' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
+        # 带编号的标题: 1. Abstract
+        re.compile(r'(^\d+\.\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE)
+    ]
+    
+    for pattern in patterns:
+        replacement = r'\1\n\n' + section_content + '\n'
+        new_content, count = pattern.subn(replacement, content)
+        if count > 0:
+            return new_content
+    
+    # 如果找不到标题，尝试在内容末尾添加
+    print(f"警告: 未找到标题 '{section_header}'。尝试在内容末尾添加。")
+    return content + f'\n\n# {section_header}\n\n{section_content}\n'
 
 def generateOutlineHTML(survey_id):
     outline_list = parseOutline(survey_id)
@@ -784,16 +831,27 @@ def insert_section(content, section_header, section_content):
     section_header: 标题名称，例如 "Abstract" 或 "Conclusion"
     section_content: 要插入的内容（字符串）
     """
-    # 修改正则表达式，使得数字后的点是可选的
-    pattern = re.compile(
-        r'(^#\s+\d+\.?\s+' + re.escape(section_header) + r'\s*$)',
-        re.MULTILINE | re.IGNORECASE
-    )
-    replacement = r'\1\n\n' + section_content + '\n'
-    new_content, count = pattern.subn(replacement, content)
-    if count == 0:
-        print(f"警告: 未找到标题 '{section_header}'。无法插入内容。")
-    return new_content
+    # 尝试多种标题格式
+    patterns = [
+        # Markdown格式: # 1 Abstract
+        re.compile(r'(^#\s+\d+\.?\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
+        # 纯文本格式: 1 Abstract
+        re.compile(r'(^\d+\.?\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
+        # 纯标题格式: Abstract
+        re.compile(r'(^' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
+        # 带编号的标题: 1. Abstract
+        re.compile(r'(^\d+\.\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE)
+    ]
+    
+    for pattern in patterns:
+        replacement = r'\1\n\n' + section_content + '\n'
+        new_content, count = pattern.subn(replacement, content)
+        if count > 0:
+            return new_content
+    
+    # 如果找不到标题，尝试在内容末尾添加
+    print(f"警告: 未找到标题 '{section_header}'。尝试在内容末尾添加。")
+    return content + f'\n\n# {section_header}\n\n{section_content}\n'
 
 def generateSurvey(survey_id, title, collection_list, pipeline):
     outline = parseOutline(survey_id)
