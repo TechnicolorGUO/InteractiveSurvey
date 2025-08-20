@@ -145,20 +145,6 @@ class OutlineGenerator():
                         if "content" in chunk.choices[0].delta:
                             claim += chunk.choices[0].delta.content
                     
-                    # 去掉think token，只保留</think>后面的内容
-                    def strip_think_blocks(text):
-                        """Remove <think>...</think> or <thinking>...</thinking> blocks from model outputs."""
-                        if not text:
-                            return text
-                        # 移除<think>...</think>块
-                        cleaned = re.sub(r'<\s*think\s*>[\s\S]*?<\s*/\s*think\s*>', '', text, flags=re.IGNORECASE)
-                        # 移除<thinking>...</thinking>块
-                        cleaned = re.sub(r'<\s*thinking\s*>[\s\S]*?<\s*/\s*thinking\s*>', '', cleaned, flags=re.IGNORECASE)
-                        return cleaned.strip()
-                    
-                    # 清理think token
-                    claim = strip_think_blocks(claim)
-                    
                     # Clean and append the claim
                     claims = claims + '\n' + claim.strip()
                     # print("Generated claim:", claim)
@@ -266,66 +252,15 @@ class OutlineGenerator():
         for chunk in chat_response:
             if chunk.choices[0].delta.content:
                 text += chunk.choices[0].delta.content
-        
-        # 去掉think token，只保留</think>后面的内容
-        def strip_think_blocks(text):
-            """Remove <think>...</think> or <thinking>...</thinking> blocks from model outputs."""
-            if not text:
-                return text
-            # 移除<think>...</think>块
-            cleaned = re.sub(r'<\s*think\s*>[\s\S]*?<\s*/\s*think\s*>', '', text, flags=re.IGNORECASE)
-            # 移除<thinking>...</thinking>块
-            cleaned = re.sub(r'<\s*thinking\s*>[\s\S]*?<\s*/\s*thinking\s*>', '', cleaned, flags=re.IGNORECASE)
-            return cleaned.strip()
-        
-        # 清理think token
-        text = strip_think_blocks(text)
-        
         # print('The response is :', text)
         pattern = r'\[(.*)\]'
         match = re.search(pattern, text, re.DOTALL)  # re.DOTALL 允许 . 匹配换行符
-        if match:
-            text = match.group(1)
-            clean_text = re.sub(r'\s+', ' ', text).strip()
-        else:
-            clean_text = text.strip()
-        
-        # 确保包含必要的部分：Abstract, Future Directions, Conclusion
-        # 解析现有的outline
-        outline_items = []
-        if clean_text:
-            # 使用正则表达式提取所有的列表项
-            pattern = r'\[\s*(\d+)\s*,\s*[\'"]([^\'"]*)[\'"]\s*\]'
-            matches = re.findall(pattern, clean_text)
-            for match in matches:
-                level = int(match[0])
-                title = match[1]
-                outline_items.append([level, title])
-        
-        # 检查是否包含必要的部分，如果没有则添加
-        has_abstract = any('abstract' in item[1].lower() for item in outline_items)
-        has_future_directions = any('future' in item[1].lower() for item in outline_items)
-        has_conclusion = any('conclusion' in item[1].lower() for item in outline_items)
-        
-        # 如果没有Abstract，在开头添加
-        if not has_abstract:
-            outline_items.insert(0, [1, '1 Abstract'])
-        
-        # 如果没有Future Directions，在结尾添加
-        if not has_future_directions:
-            outline_items.append([1, f'{len(outline_items)+1} Future Directions'])
-        
-        # 如果没有Conclusion，在结尾添加
-        if not has_conclusion:
-            outline_items.append([1, f'{len(outline_items)+1} Conclusion'])
-        
-        # 重新构建outline字符串
-        clean_text = str(outline_items)
-        
+        text = match.group(1)
+        clean_text = re.sub(r'\s+', ' ', text).strip()
         return messages, clean_text
 
-def parseOutline(survey_id, info_path = './src/static/data/txt'):
-    file_path = f'{info_path}/{survey_id}/outline.json'
+def parseOutline(survey_id):
+    file_path = f'./src/static/data/txt/{survey_id}/outline.json'
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
@@ -338,29 +273,46 @@ def parseOutline(survey_id, info_path = './src/static/data/txt'):
         print("No outline content found in JSON.")
         return []
 
-    # 使用正则表达式提取所有的列表项
-    def parse_outline_string(text):
-        # 匹配形如 [level, 'title'] 的模式
-        pattern = r'\[\s*(\d+)\s*,\s*[\'"]([^\'"]*)[\'"]\s*\]'
-        matches = re.findall(pattern, text)
-        
-        result = []
-        for match in matches:
-            level = int(match[0])
-            title = match[1]
-            result.append([level, title])
-        
-        return result
+    # 提取文本中第一个 '[' 与最后一个 ']' 之间的内容
+    def extract_first_last(text):
+        first_match = re.search(r'\[', text)
+        last_match = re.search(r'\](?!.*\])', text)  # 使用负向前瞻查找最后一个 ']'
+        if first_match and last_match:
+            return '[' + text[first_match.start() + 1:last_match.start()] + ']'
+        return None
+
+    response_extracted = extract_first_last(response)
+    if not response_extracted:
+        print("Failed to extract a valid list string from the outline content.")
+        return []
+
+    # 检查提取结果是否为“列表的列表”格式（应该以 "[[" 开头）
+    fixed_str = response_extracted.strip()
+    if not fixed_str.startswith("[["):
+        # 如果不是，则去掉原有的首尾括号，再重新包装：[[ ... ]]
+        # 注意：这种方式假定内部结构是以逗号分隔的多个列表，而不是单个列表。
+        fixed_str = "[[" + fixed_str[1:-1] + "]]"
+        # 或者根据你的实际情况，也可简单包装外层括号：
+        # fixed_str = "[" + fixed_str + "]"
 
     try:
-        outline_list = parse_outline_string(response)
-        if not outline_list:
-            print("No valid outline items found in the response.")
-            return []
-        return outline_list
+        outline_list = ast.literal_eval(fixed_str)
     except Exception as e:
-        print(f"Error parsing outline string.\nResponse: {response}\nError: {e}")
+        print(f"Error converting extracted outline to a list.\nExtracted text: {fixed_str}\nError: {e}")
         return []
+
+    # 如果结果不是列表，则转换成列表
+    if not isinstance(outline_list, list):
+        outline_list = list(outline_list)
+
+    # 如果解析结果不是列表的列表，而是单个列表（例如 [a, b, c]），则将其包装成一个列表
+    if outline_list and not all(isinstance(item, list) for item in outline_list):
+        outline_list = [outline_list]
+
+    result = []
+    for item in outline_list:
+        result.append(item)
+    return result
 
 
 def generateOutlineHTML_qwen(survey_id):
@@ -628,27 +580,16 @@ def insert_section(content, section_header, section_content):
     section_header: 标题名称，例如 "Abstract" 或 "Conclusion"
     section_content: 要插入的内容（字符串）
     """
-    # 尝试多种标题格式
-    patterns = [
-        # Markdown格式: # 1 Abstract
-        re.compile(r'(^#\s+\d+\.?\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
-        # 纯文本格式: 1 Abstract
-        re.compile(r'(^\d+\.?\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
-        # 纯标题格式: Abstract
-        re.compile(r'(^' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
-        # 带编号的标题: 1. Abstract
-        re.compile(r'(^\d+\.\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE)
-    ]
-    
-    for pattern in patterns:
-        replacement = r'\1\n\n' + section_content + '\n'
-        new_content, count = pattern.subn(replacement, content)
-        if count > 0:
-            return new_content
-    
-    # 如果找不到标题，尝试在内容末尾添加
-    print(f"警告: 未找到标题 '{section_header}'。尝试在内容末尾添加。")
-    return content + f'\n\n# {section_header}\n\n{section_content}\n'
+    # 修改正则表达式，使得数字后的点是可选的
+    pattern = re.compile(
+        r'(^#\s+\d+\.?\s+' + re.escape(section_header) + r'\s*$)',
+        re.MULTILINE | re.IGNORECASE
+    )
+    replacement = r'\1\n\n' + section_content + '\n'
+    new_content, count = pattern.subn(replacement, content)
+    if count == 0:
+        print(f"警告: 未找到标题 '{section_header}'。无法插入内容。")
+    return new_content
 
 def generateOutlineHTML(survey_id):
     outline_list = parseOutline(survey_id)
@@ -831,27 +772,16 @@ def insert_section(content, section_header, section_content):
     section_header: 标题名称，例如 "Abstract" 或 "Conclusion"
     section_content: 要插入的内容（字符串）
     """
-    # 尝试多种标题格式
-    patterns = [
-        # Markdown格式: # 1 Abstract
-        re.compile(r'(^#\s+\d+\.?\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
-        # 纯文本格式: 1 Abstract
-        re.compile(r'(^\d+\.?\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
-        # 纯标题格式: Abstract
-        re.compile(r'(^' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE),
-        # 带编号的标题: 1. Abstract
-        re.compile(r'(^\d+\.\s+' + re.escape(section_header) + r'\s*$)', re.MULTILINE | re.IGNORECASE)
-    ]
-    
-    for pattern in patterns:
-        replacement = r'\1\n\n' + section_content + '\n'
-        new_content, count = pattern.subn(replacement, content)
-        if count > 0:
-            return new_content
-    
-    # 如果找不到标题，尝试在内容末尾添加
-    print(f"警告: 未找到标题 '{section_header}'。尝试在内容末尾添加。")
-    return content + f'\n\n# {section_header}\n\n{section_content}\n'
+    # 修改正则表达式，使得数字后的点是可选的
+    pattern = re.compile(
+        r'(^#\s+\d+\.?\s+' + re.escape(section_header) + r'\s*$)',
+        re.MULTILINE | re.IGNORECASE
+    )
+    replacement = r'\1\n\n' + section_content + '\n'
+    new_content, count = pattern.subn(replacement, content)
+    if count == 0:
+        print(f"警告: 未找到标题 '{section_header}'。无法插入内容。")
+    return new_content
 
 def generateSurvey(survey_id, title, collection_list, pipeline):
     outline = parseOutline(survey_id)
@@ -932,20 +862,6 @@ def generate_future_directions_qwen(client, title, intro):
     for chunk in chat_response:
         if chunk.choices[0].delta.content:
             text += chunk.choices[0].delta.content
-    
-    # 去掉think token，只保留</think>后面的内容
-    def strip_think_blocks(text):
-        """Remove <think>...</think> or <thinking>...</thinking> blocks from model outputs."""
-        if not text:
-            return text
-        # 移除<think>...</think>块
-        cleaned = re.sub(r'<\s*think\s*>[\s\S]*?<\s*/\s*think\s*>', '', text, flags=re.IGNORECASE)
-        # 移除<thinking>...</thinking>块
-        cleaned = re.sub(r'<\s*thinking\s*>[\s\S]*?<\s*/\s*thinking\s*>', '', cleaned, flags=re.IGNORECASE)
-        return cleaned.strip()
-    
-    # 清理think token
-    text = strip_think_blocks(text)
     return text
 
 def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
