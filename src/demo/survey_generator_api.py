@@ -4,6 +4,7 @@ from openai import OpenAI
 import ast
 import re
 import os
+import math
 import concurrent.futures
 import numpy as np
 from numpy.linalg import norm
@@ -23,6 +24,95 @@ def getQwenClient():
     )
     return client
 
+def _get_context_window():
+    try:
+        return int(os.getenv("MODEL_CONTEXT_WINDOW", "40960"))
+    except Exception:
+        return 40960
+
+def _estimate_tokens_from_text(text: str) -> int:
+    # Conservative heuristic: ~1 token per 2.5 chars to accommodate CJK
+    if not text:
+        return 0
+    return max(1, math.ceil(len(text) / 2.5))
+
+def _estimate_tokens_from_messages(messages) -> int:
+    if not messages:
+        return 0
+    total = 0
+    for m in messages:
+        total += _estimate_tokens_from_text(m.get("content", ""))
+        # add small overhead per message for role/formatting
+        total += 6
+    return total
+
+def _adjust_prompt_and_max_tokens_for_window(messages, requested_max_tokens: int) -> tuple:
+    """
+    Given messages and requested max_tokens, return (adj_messages, adj_max_tokens)
+    that fit within the model context window, applying truncation on large
+    user prompts (specifically inside a 'Context:' section) if needed.
+    """
+    context_window = _get_context_window()
+    safety_margin = int(os.getenv("TOKEN_SAFETY_MARGIN", "512"))
+    min_completion = int(os.getenv("MIN_COMPLETION_TOKENS", "256"))
+
+    # Work on a shallow copy to avoid mutating callers' lists
+    adj_messages = []
+    for m in messages:
+        adj_messages.append({"role": m.get("role", "user"), "content": m.get("content", "")})
+
+    prompt_tokens = _estimate_tokens_from_messages(adj_messages)
+    tokens_left = context_window - prompt_tokens - safety_margin
+
+    if tokens_left < min_completion:
+        # Need to truncate the largest user message content, prioritizing the section after "Context:" if present
+        # Find the index of the longest user message
+        user_indices = [i for i, m in enumerate(adj_messages) if m.get("role") == "user"]
+        if user_indices:
+            # Pick the user message with the most content
+            longest_i = max(user_indices, key=lambda i: len(adj_messages[i].get("content", "")))
+            content = adj_messages[longest_i].get("content", "")
+
+            # Determine how many prompt tokens we must free
+            needed = (min_completion + safety_margin) - (context_window - prompt_tokens)
+            needed = max(0, needed)
+
+            # Convert tokens to chars using the inverse of our heuristic (2.5 chars/token)
+            chars_to_remove = math.ceil(needed * 2.5)
+
+            # Try to truncate only the Context: section if present
+            ctx_marker = "Context:"
+            if ctx_marker in content:
+                pre, post = content.split(ctx_marker, 1)
+                # Keep the header, truncate inside post
+                # Prefer keeping the head of the context (instructions + header + beginning), trim the tail
+                if len(post) > chars_to_remove:
+                    post_truncated = post[:-chars_to_remove]
+                else:
+                    post_truncated = ""
+                new_content = pre + ctx_marker + post_truncated
+            else:
+                # Fallback: trim from the end of the whole content
+                if len(content) > chars_to_remove:
+                    new_content = content[:-chars_to_remove]
+                else:
+                    new_content = content[:max(0, len(content) - chars_to_remove)]
+
+            adj_messages[longest_i]["content"] = new_content
+
+            # Recompute tokens after truncation
+            prompt_tokens = _estimate_tokens_from_messages(adj_messages)
+            tokens_left = context_window - prompt_tokens - safety_margin
+
+    # Final max_tokens decision
+    adj_max_tokens = max(min_completion, min(requested_max_tokens, max(0, tokens_left)))
+
+    # As a last resort, if still no room for completion, force a small completion budget
+    if adj_max_tokens < min_completion:
+        adj_max_tokens = min_completion
+
+    return adj_messages, adj_max_tokens
+
 def generateResponse(client, prompt, max_retries=10, backoff_factor=1):
     """
     使用带有指数退避策略的重试机制来处理 OpenAI API 请求的速率限制问题。
@@ -39,13 +129,18 @@ def generateResponse(client, prompt, max_retries=10, backoff_factor=1):
     """
     for attempt in range(max_retries):
         try:
+            base_messages = [{"role": "user", "content": prompt}]
+            adj_messages, adj_max_tokens = _adjust_prompt_and_max_tokens_for_window(
+                base_messages,
+                requested_max_tokens=32768,
+            )
             chat_response = client.chat.completions.create(
                 model=os.environ.get("MODEL"),
-                max_tokens=32768,
+                max_tokens=adj_max_tokens,
                 temperature=0.5,
                 stop="<|im_end|>",
                 stream=True,
-                messages=[{"role": "user", "content": prompt}]
+                messages=adj_messages
             )
             # 处理流式响应
             text = ""
@@ -64,13 +159,18 @@ def generateResponse(client, prompt, max_retries=10, backoff_factor=1):
     raise Exception("Max retries reached: Unable to get response from OpenAI API due to rate limiting.")
 
 def generateResponseIntroduction(client, prompt):
+    base_messages = [{"role": "user", "content": prompt}]
+    adj_messages, adj_max_tokens = _adjust_prompt_and_max_tokens_for_window(
+        base_messages,
+        requested_max_tokens=32768,
+    )
     chat_response = client.chat.completions.create(
         model=os.environ.get("MODEL"),
-        max_tokens=32768,
+        max_tokens=adj_max_tokens,
         temperature=0.7,
         stop="<|im_end|>",
         stream=True,
-        messages=[{"role": "user", "content": prompt}]
+        messages=adj_messages
     )
     # Stream the response to console
     text = ""
