@@ -367,7 +367,7 @@ def md_to_tex_section(section):
     
     chat_response = client.chat.completions.create(
         model=os.environ.get("MODEL"),
-        max_tokens=2048,
+        max_tokens=32768,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
@@ -518,7 +518,7 @@ def md_to_tex_section_without_jpg(section):
 
         chat_response = client.chat.completions.create(
             model=os.environ.get("MODEL"),
-            max_tokens=2048,
+            max_tokens=32768,
             temperature=0.5,
             stop="<|im_end|>",
             stream=True,

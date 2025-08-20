@@ -134,7 +134,7 @@ class OutlineGenerator():
                     # Call Qwen API
                     chat_response = client.chat.completions.create(
                         model=os.environ.get("MODEL"),
-                        max_tokens=512,
+                        max_tokens=32768,
                         temperature=0.5,
                         messages=messages
                     )
@@ -241,7 +241,7 @@ class OutlineGenerator():
         )
         chat_response = client.chat.completions.create(
             model=os.environ.get("MODEL"),
-            max_tokens=2048,
+            max_tokens=32768,
             temperature=0.5,
             stop="<|im_end|>",
             stream=True,
@@ -851,7 +851,7 @@ def generate_future_directions_qwen(client, title, intro):
     )
     chat_response = client.chat.completions.create(
         model=os.environ.get("MODEL"),
-        max_tokens=768,
+        max_tokens=32768,
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
