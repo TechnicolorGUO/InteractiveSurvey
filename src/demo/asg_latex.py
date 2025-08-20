@@ -371,7 +371,10 @@ def md_to_tex_section(section):
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
-        messages=messages
+        messages=messages,
+        extra_body={
+            "chat_template_kwargs": {"enable_thinking": False},
+        },
     )
     
     # Stream the response
@@ -522,7 +525,21 @@ def md_to_tex_section_without_jpg(section):
             temperature=0.5,
             stop="<|im_end|>",
             stream=True,
-            messages=messages
+            messages=messages,
+            extra_body={
+                "chat_template_kwargs": {"enable_thinking": False},
+            },
+        )
+        chat_response = client.chat.completions.create(
+            model=os.environ.get("MODEL"),
+            max_tokens=32768,
+            temperature=0.5,
+            stop="<|im_end|>",
+            stream=True,
+            messages=messages,
+            extra_body={
+                "chat_template_kwargs": {"enable_thinking": False},
+            },
         )
 
         # 流式读取返回

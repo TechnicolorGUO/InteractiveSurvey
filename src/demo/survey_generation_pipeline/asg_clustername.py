@@ -44,7 +44,10 @@ The description list is:{sentence_list}'''
             temperature=0.5,
             stop="<|im_end|>",
             stream=True,
-            messages=messages
+            messages=messages,
+            extra_body={
+                "chat_template_kwargs": {"enable_thinking": False},
+            },
         )
         
         # Stream the response to a single text string
@@ -107,7 +110,10 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
             temperature=0.5,
             stop="<|im_end|>",
             stream=True,
-            messages=messages
+            messages=messages,
+            extra_body={
+                "chat_template_kwargs": {"enable_thinking": False},
+            },
         )
     
         # Stream the response and concatenate into a complete text
@@ -188,7 +194,10 @@ def generate_cluster_name_new(tsv_path, survey_title, cluster_num = 3):
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
-        messages=messages
+        messages=messages,
+        extra_body={
+            "chat_template_kwargs": {"enable_thinking": False},
+        },
     )
     
     # Stream the response to a single text string

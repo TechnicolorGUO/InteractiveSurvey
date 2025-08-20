@@ -136,7 +136,10 @@ class OutlineGenerator():
                         model=os.environ.get("MODEL"),
                         max_tokens=32768,
                         temperature=0.5,
-                        messages=messages
+                        messages=messages,
+                        extra_body={
+                            "chat_template_kwargs": {"enable_thinking": False},
+                        },
                     )
                     
                     # Extract the generated claim from Qwen's response
@@ -245,7 +248,10 @@ class OutlineGenerator():
             temperature=0.5,
             stop="<|im_end|>",
             stream=True,
-            messages= messages
+            messages= messages,
+            extra_body={
+                "chat_template_kwargs": {"enable_thinking": False},
+            },
         )
         # Stream the response to console
         text = ""
@@ -855,7 +861,10 @@ def generate_future_directions_qwen(client, title, intro):
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
-        messages= messages
+        messages= messages,
+        extra_body={
+            "chat_template_kwargs": {"enable_thinking": False},
+        },
     )
     # Stream the response to console
     text = ""

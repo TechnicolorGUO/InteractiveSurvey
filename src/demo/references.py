@@ -20,7 +20,10 @@ def generateResponse(client, prompt):
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
-        messages=[{"role": "user", "content": prompt}]
+        messages=[{"role": "user", "content": prompt}],
+        extra_body={
+            "chat_template_kwargs": {"enable_thinking": False},
+        },
     )
     # Stream the response to console
     text = ""

@@ -40,7 +40,10 @@ def generateResponse(client, prompt, max_retries=3, retry_delay=2):
                 temperature=0.5,
                 stop="<|im_end|>",
                 stream=True,
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
+                extra_body={
+                    "chat_template_kwargs": {"enable_thinking": False},
+                },
             )
             
             # 处理流式响应

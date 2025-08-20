@@ -43,7 +43,10 @@ Please generate a comprehensive survey abstract for this topic. Include discussi
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
-        messages=messages_abstract
+        messages=messages_abstract,
+        extra_body={
+            "chat_template_kwargs": {"enable_thinking": False},
+        },
     )
     
     abstract_text = ""
@@ -105,7 +108,10 @@ def generate_entity_lists_qwen(topic, abstract_text):
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
-        messages=messages_abstract
+        messages=messages_abstract,
+        extra_body={
+            "chat_template_kwargs": {"enable_thinking": False},
+        },
     )
     
     entity_list = ""
@@ -222,7 +228,10 @@ def generate_query_qwen(topic):
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
-        messages=messages
+        messages=messages,
+        extra_body={
+            "chat_template_kwargs": {"enable_thinking": False},
+        },
     )
     
     output_query = ""
@@ -316,7 +325,10 @@ def generate_generic_query_qwen(original_query, topic):
         temperature=0.5,
         stop="<|im_end|>",
         stream=True,
-        messages=messages
+        messages=messages,
+        extra_body={
+            "chat_template_kwargs": {"enable_thinking": False},
+        },
     )
     
     output_query = ""

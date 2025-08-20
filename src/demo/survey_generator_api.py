@@ -140,7 +140,10 @@ def generateResponse(client, prompt, max_retries=10, backoff_factor=1):
                 temperature=0.5,
                 stop="<|im_end|>",
                 stream=True,
-                messages=adj_messages
+                messages=adj_messages,
+                extra_body={
+                    "chat_template_kwargs": {"enable_thinking": False},
+                },
             )
             # 处理流式响应
             text = ""
@@ -170,7 +173,10 @@ def generateResponseIntroduction(client, prompt):
         temperature=0.7,
         stop="<|im_end|>",
         stream=True,
-        messages=adj_messages
+        messages=adj_messages,
+        extra_body={
+            "chat_template_kwargs": {"enable_thinking": False},
+        },
     )
     # Stream the response to console
     text = ""
