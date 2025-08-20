@@ -145,6 +145,20 @@ class OutlineGenerator():
                         if "content" in chunk.choices[0].delta:
                             claim += chunk.choices[0].delta.content
                     
+                    # 去掉think token，只保留</think>后面的内容
+                    def strip_think_blocks(text):
+                        """Remove <think>...</think> or <thinking>...</thinking> blocks from model outputs."""
+                        if not text:
+                            return text
+                        # 移除<think>...</think>块
+                        cleaned = re.sub(r'<\s*think\s*>[\s\S]*?<\s*/\s*think\s*>', '', text, flags=re.IGNORECASE)
+                        # 移除<thinking>...</thinking>块
+                        cleaned = re.sub(r'<\s*thinking\s*>[\s\S]*?<\s*/\s*thinking\s*>', '', cleaned, flags=re.IGNORECASE)
+                        return cleaned.strip()
+                    
+                    # 清理think token
+                    claim = strip_think_blocks(claim)
+                    
                     # Clean and append the claim
                     claims = claims + '\n' + claim.strip()
                     # print("Generated claim:", claim)
@@ -252,6 +266,21 @@ class OutlineGenerator():
         for chunk in chat_response:
             if chunk.choices[0].delta.content:
                 text += chunk.choices[0].delta.content
+        
+        # 去掉think token，只保留</think>后面的内容
+        def strip_think_blocks(text):
+            """Remove <think>...</think> or <thinking>...</thinking> blocks from model outputs."""
+            if not text:
+                return text
+            # 移除<think>...</think>块
+            cleaned = re.sub(r'<\s*think\s*>[\s\S]*?<\s*/\s*think\s*>', '', text, flags=re.IGNORECASE)
+            # 移除<thinking>...</thinking>块
+            cleaned = re.sub(r'<\s*thinking\s*>[\s\S]*?<\s*/\s*thinking\s*>', '', cleaned, flags=re.IGNORECASE)
+            return cleaned.strip()
+        
+        # 清理think token
+        text = strip_think_blocks(text)
+        
         # print('The response is :', text)
         pattern = r'\[(.*)\]'
         match = re.search(pattern, text, re.DOTALL)  # re.DOTALL 允许 . 匹配换行符
@@ -845,6 +874,20 @@ def generate_future_directions_qwen(client, title, intro):
     for chunk in chat_response:
         if chunk.choices[0].delta.content:
             text += chunk.choices[0].delta.content
+    
+    # 去掉think token，只保留</think>后面的内容
+    def strip_think_blocks(text):
+        """Remove <think>...</think> or <thinking>...</thinking> blocks from model outputs."""
+        if not text:
+            return text
+        # 移除<think>...</think>块
+        cleaned = re.sub(r'<\s*think\s*>[\s\S]*?<\s*/\s*think\s*>', '', text, flags=re.IGNORECASE)
+        # 移除<thinking>...</thinking>块
+        cleaned = re.sub(r'<\s*thinking\s*>[\s\S]*?<\s*/\s*thinking\s*>', '', cleaned, flags=re.IGNORECASE)
+        return cleaned.strip()
+    
+    # 清理think token
+    text = strip_think_blocks(text)
     return text
 
 def generateSurvey_qwen(survey_id, title, collection_list, pipeline):
