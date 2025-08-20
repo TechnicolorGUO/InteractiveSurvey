@@ -1538,7 +1538,10 @@ def generate_pdf_sync(request):
         operation_id = getattr(request, 'operation_id', f"pdf_{int(time.time())}")
         update_progress(operation_id, 10, "Starting PDF generation...")
         
-        survey_id = request.POST.get('survey_id', '')
+        survey_id = request.POST.get('survey_id', '') or Global_survey_id
+        if not survey_id:
+            update_progress(operation_id, -1, "Missing survey_id; cannot generate PDF filename")
+            return JsonResponse({'error': 'survey_id is required (and no global survey ID is set).'}, status=400)
         markdown_content = request.POST.get('content', '')
         
         update_progress(operation_id, 20, "Processing markdown content...")
