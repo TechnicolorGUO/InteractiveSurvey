@@ -38,15 +38,24 @@ def getQwenClient():
     singleton = OpenAIClientSingleton()
     return singleton.get_client()
 
-def generateResponse(client, prompt):
-    chat_response = client.chat.completions.create(
-        model=os.environ.get("MODEL"),
-        max_tokens=32768,
-        temperature=0.5,
-        stop="<|im_end|>",
-        stream=True,
-        messages=[{"role": "user", "content": prompt}]
-    )
+def generateResponse(client, prompt, enable_thinking=False):
+    # Prepare the basic parameters
+    completion_params = {
+        "model": os.environ.get("MODEL"),
+        "max_tokens": 32768,
+        "temperature": 0.5,
+        "stop": "<|im_end|>",
+        "stream": True,
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    
+    # Add extra_body if thinking mode is enabled
+    if enable_thinking:
+        completion_params["extra_body"] = {
+            "chat_template_kwargs": {"enable_thinking": True}
+        }
+    
+    chat_response = client.chat.completions.create(**completion_params)
 
     text = ""
     for chunk in chat_response:
@@ -54,7 +63,7 @@ def generateResponse(client, prompt):
             text += chunk.choices[0].delta.content
     return text
 
-def generate_sentence_patterns(keyword, num_patterns=5, temp=0.7):
+def generate_sentence_patterns(keyword, num_patterns=5, temp=0.7, enable_thinking=False):
     template = f"""
 You are a helpful assistant that provides only the output requested, without any additional text.
 
@@ -71,10 +80,10 @@ Begin your response immediately with the list, and do not include any other text
 """
     # Use singleton client instead of creating new one
     client = getQwenClient()
-    response = generateResponse(client, template)
+    response = generateResponse(client, template, enable_thinking)
     return response
 
-def generate(context, keyword, paper_title, temp=0.7):
+def generate(context, keyword, paper_title, temp=0.7, enable_thinking=False):
     template = f"""
 Context:
 {context}
@@ -91,7 +100,7 @@ The {keyword} mentioned in this paper discuss [Your oberservation or opinion]...
 """
     # Use singleton client instead of creating new one
     client = getQwenClient()
-    response = generateResponse(client, template)
+    response = generateResponse(client, template, enable_thinking)
     return response
 
 def extract_query_list(text):

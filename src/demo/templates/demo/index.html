@@ -547,6 +547,17 @@ FONTS & ICONS
 									<span style="margin-left: 10px;">Enable Full PDF Mode</span>
 								</div>
 							</div>
+							
+							<!-- Switch for thinking mode -->
+							<div class="row" style="margin-top: 20px;">
+								<div class="col-md-12 text-center">
+									<label class="switch">
+										<input type="checkbox" id="thinking_mode_check_box" onchange="updateThinkingMode()">
+										<span class="slider round"></span>
+									</label>
+									<span style="margin-left: 10px;">Enable Thinking Mode</span>
+								</div>
+							</div>
 						</form>
 					</div>
 				</div>
@@ -620,9 +631,28 @@ FONTS & ICONS
 				$('#mode_check_box').val(mode);
 			}
 
+			function updateThinkingMode() {
+				// 获取思考模式开关状态并设置值
+				const thinkingMode = document.getElementById('thinking_mode_check_box').checked;
+				console.log(`Thinking mode is now: ${thinkingMode}`);
+
+				// 存储到 sessionStorage 以便在页面刷新后保持状态
+				sessionStorage.setItem('enableThinking', thinkingMode.toString());
+				
+				// 设置全局变量
+				window.enableThinking = thinkingMode;
+			}
+
 			// 初始化默认值为 "intro"
 			document.addEventListener('DOMContentLoaded', function () {
 				$('#mode_check_box').val('intro');
+				
+				// 初始化思考模式状态
+				const savedThinkingMode = sessionStorage.getItem('enableThinking');
+				const enableThinking = savedThinkingMode === 'true';
+				document.getElementById('thinking_mode_check_box').checked = enableThinking;
+				window.enableThinking = enableThinking;
+				console.log(`Initialized thinking mode: ${enableThinking}`);
 			});
 
 			let pdfLinks = [];
@@ -1401,6 +1431,7 @@ FONTS & ICONS
     formData.append("refs", JSON.stringify(refs));
     formData.append("taxonomy_standard", taxonomyStandard);
     formData.append("Global_cluster_num", clusterNum);
+    formData.append("enable_thinking", window.enableThinking || false);
 
     // 显示进度条和状态信息（与上传一致）
     showUploadProgress();
@@ -1700,6 +1731,8 @@ function select_sections() {
 
     if($('#cbx_conclusion').is(":checked")) {section_list['conclusion'] = 1}
 
+    // Add thinking mode parameter
+    section_list['enable_thinking'] = window.enableThinking || false;
 
     $.ajax({
         type: "POST",

@@ -1099,11 +1099,13 @@ def automatic_taxonomy_sync(request):
                     Global_cluster_num = data.get('Global_cluster_num', 5)
                     refs_data = data.get('refs', [])
                     query = data.get('taxonomy_standard', '')
+                    enable_thinking = data.get('enable_thinking', False)
                 else:
                     # 处理 form-data 格式
                     Global_cluster_num = int(request.POST.get('Global_cluster_num', 5))
                     refs_data = request.POST.get('refs', '[]')
                     query = request.POST.get('taxonomy_standard', '')
+                    enable_thinking = request.POST.get('enable_thinking', 'false').lower() == 'true'
                     
                     # 解析 refs 数据
                     if isinstance(refs_data, str):
@@ -1118,6 +1120,7 @@ def automatic_taxonomy_sync(request):
                     Global_cluster_num = int(request.POST.get('Global_cluster_num', 5))
                     refs_data = request.POST.get('refs', '[]')
                     query = request.POST.get('taxonomy_standard', '')
+                    enable_thinking = request.POST.get('enable_thinking', 'false').lower() == 'true'
                     
                     # 解析 refs 数据
                     if isinstance(refs_data, str):
@@ -1142,7 +1145,7 @@ def automatic_taxonomy_sync(request):
             update_progress(operation_id, 20, "Generating query patterns...")
             
             # 生成查询模式
-            query_list = generate_sentence_patterns(query)
+            query_list = generate_sentence_patterns(query, enable_thinking=enable_thinking)
             
             update_progress(operation_id, 30, "Processing collections...")
             
@@ -1151,7 +1154,7 @@ def automatic_taxonomy_sync(request):
                 context, citation_data = query_embeddings_new_new(name, query_list)
                 Global_citation_data.extend(citation_data)
                 
-                description = generate(context, query, name)
+                description = generate(context, query, name, enable_thinking=enable_thinking)
                 Global_description_list.append(description)
             
             update_progress(operation_id, 50, "Saving citation data...")
@@ -1213,7 +1216,7 @@ def automatic_taxonomy_sync(request):
             tsv_path = f'./src/static/data/tsv/{Global_survey_id}.tsv'
             
             cluster_num = Global_cluster_num
-            category_label_summarized = generate_cluster_name_new(tsv_path, Global_survey_title, cluster_num)
+            category_label_summarized = generate_cluster_name_new(tsv_path, Global_survey_title, cluster_num, enable_thinking=enable_thinking)
             Global_cluster_names = category_label_summarized
             
             update_progress(operation_id, 90, "Generating final results...")

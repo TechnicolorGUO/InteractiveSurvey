@@ -4,7 +4,7 @@ import re  # Import the regular expressions module
 from openai import OpenAI
 import ast
 
-def generate_cluster_name_qwen_sep(tsv_path, survey_title):
+def generate_cluster_name_qwen_sep(tsv_path, survey_title, enable_thinking=False):
     data = pd.read_csv(tsv_path, sep='\t')
     
     # Define the system prompt once, outside the loop
@@ -38,14 +38,23 @@ The description list is:{sentence_list}'''
             base_url=openai_api_base,
         )
         
-        chat_response = client.chat.completions.create(
-            model=os.environ.get("MODEL"),
-            max_tokens=32768,
-            temperature=0.5,
-            stop="<|im_end|>",
-            stream=True,
-            messages=messages
-        )
+        # Prepare completion parameters
+        completion_params = {
+            "model": os.environ.get("MODEL"),
+            "max_tokens": 32768,
+            "temperature": 0.5,
+            "stop": "<|im_end|>",
+            "stream": True,
+            "messages": messages
+        }
+        
+        # Add extra_body if thinking mode is enabled
+        if enable_thinking:
+            completion_params["extra_body"] = {
+                "chat_template_kwargs": {"enable_thinking": True}
+            }
+        
+        chat_response = client.chat.completions.create(**completion_params)
         
         # Stream the response to a single text string
         text = ""
@@ -101,14 +110,23 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
     )
     
     try:
-        chat_response = client.chat.completions.create(
-            model=os.environ.get("MODEL"),
-            max_tokens=32768,
-            temperature=0.5,
-            stop="<|im_end|>",
-            stream=True,
-            messages=messages
-        )
+        # Prepare completion parameters
+        completion_params = {
+            "model": os.environ.get("MODEL"),
+            "max_tokens": 32768,
+            "temperature": 0.5,
+            "stop": "<|im_end|>",
+            "stream": True,
+            "messages": messages
+        }
+        
+        # Add extra_body if thinking mode is enabled
+        if enable_thinking:
+            completion_params["extra_body"] = {
+                "chat_template_kwargs": {"enable_thinking": True}
+            }
+        
+        chat_response = client.chat.completions.create(**completion_params)
     
         # Stream the response and concatenate into a complete text
         text = ""
@@ -143,7 +161,7 @@ For example, ["Refined Title 1", "Refined Title 2", "Refined Title 3"]
 
 
 
-def generate_cluster_name_new(tsv_path, survey_title, cluster_num = 3):
+def generate_cluster_name_new(tsv_path, survey_title, cluster_num = 3, enable_thinking=False):
     data = pd.read_csv(tsv_path, sep='\t')
     desp=[]
 
@@ -182,14 +200,23 @@ def generate_cluster_name_new(tsv_path, survey_title, cluster_num = 3):
         base_url=openai_api_base,
     )
     
-    chat_response = client.chat.completions.create(
-        model=os.environ.get("MODEL"),
-        max_tokens=32768,
-        temperature=0.5,
-        stop="<|im_end|>",
-        stream=True,
-        messages=messages
-    )
+    # Prepare completion parameters
+    completion_params = {
+        "model": os.environ.get("MODEL"),
+        "max_tokens": 32768,
+        "temperature": 0.5,
+        "stop": "<|im_end|>",
+        "stream": True,
+        "messages": messages
+    }
+    
+    # Add extra_body if thinking mode is enabled
+    if enable_thinking:
+        completion_params["extra_body"] = {
+            "chat_template_kwargs": {"enable_thinking": True}
+        }
+    
+    chat_response = client.chat.completions.create(**completion_params)
     
     # Stream the response to a single text string
     text = ""
